@@ -103,7 +103,6 @@ spec:
             {{- include "tower.jwt.envVarSeed" . | nindent 12 }}
             {{- include "tower.crypto.envVarSeed" . | nindent 12 }}
             {{- include "tower.license.envVar" . | nindent 12 }}
-            {{- include "tower.metering.token" . | nindent 12 }}
             - name: MICRONAUT_ENVIRONMENTS
               value: {{ include "platform.backend.micronautEnvs" . }}
             - name: NXF_HOME

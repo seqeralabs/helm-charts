@@ -97,22 +97,6 @@ tests:
       - failedTemplate:
           errorPattern: ".*Either a string version of the Crypto seed or a secret name containing the key 'TOWER_CRYPTO_SECRETKEY' are needed, not both.*"
 
-  - it: should fail when both tower.metering.token and tower.metering.existingSecret are defined
-    set:
-      global:
-        redis:
-          host: "whatever"
-        platformDatabase:
-          host: "whatever"
-      tower:
-        licenseString: "whatever"
-        metering:
-          token: "whatever"
-          existingSecret: "whatever"
-    asserts:
-      - failedTemplate:
-          errorPattern: ".*Either a string version of the Metering seed or a secret name containing the key 'METERING_TOKEN' are needed, not both.*"
-
   - it: should fail when both tower.smtp.host and tower.awsSesEnable are defined
     set:
       global:

@@ -61,11 +61,6 @@ Add wave to the list of microenvs if waveServerUrl is defined. */}}
 {{- if not (empty .Values.tower.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
 {{- end -}}
-{{/*
-Add metering if metronome platform id is defined. */}}
-{{- if .Values.tower.metering.platformId -}}
-  {{- $list = append $list "metering" -}}
-{{- end -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
@@ -315,20 +310,4 @@ Common initContainer to wait for Redis to be ready.
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}
 {{ end }}
-{{- end -}}
-
-{{/*
-Metering token environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the token
-was passed as string it's added in the main Tower backend Secret.
-*/}}
-{{- define "tower.metering.token" -}}
-{{- if and .Values.tower.metering.platformId .Values.tower.metering.existingSecret }}
-- name: METERING_METRONOME_TOKEN
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.metering.existingSecret | quote }}
-      key: METERING_TOKEN
-{{- end -}}
 {{- end -}}

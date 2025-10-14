@@ -208,17 +208,6 @@ tower:
   # Additional annotations for the Service objects. Evaluated as a template.
   serviceAnnotations: {}
 
-  # TODO: actually needed?
-  # Credit management feature.
-  metering:
-    # Platform instance identifier in the metering service:
-    platformId: ""
-    # The token to authenticate to the metering service.
-    token: ""
-    # The name of a secret containing the token to authenticate to the metering service.
-    # Must contain key 'METERING_TOKEN'.
-    existingSecret: ""
-
 # Redis configuration values: for more details refer to .global.redis. These values take precedence
 # over values in .global.redis.
 redis:

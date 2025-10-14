@@ -8,7 +8,6 @@ tests: unittests
 # Run all unit tests
 unittests:
 	@echo "Running all unit tests..."
-	cd tests/
 	@helm unittest .
 
 # Check if helm-unittest plugin is installed

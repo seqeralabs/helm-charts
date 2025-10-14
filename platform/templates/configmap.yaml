@@ -13,9 +13,6 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
-  {{- with .Values.tower.metering.platformId }}
-  METERING_METRONOME_PLATFORM_ID: {{ . | quote }}
-  {{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
