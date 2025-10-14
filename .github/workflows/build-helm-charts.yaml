@@ -66,7 +66,7 @@ jobs:
         shell: bash
         run: |
           for chart in $charts_to_package; do
-            chart_version=$(yq '.version' ${chart}/Chart.yaml)
+            chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             echo "Pushing chart ${chart}, version ${chart_version}.."
             helm push ${chart}-${chart_version}.tgz "oci://${{vars.TOWER_HELM_CR_REPO_DOMAIN}}/${{vars.TOWER_HELM_CR_REPO_PROJECT}}/"
             echo "Pushed chart ${chart}"
