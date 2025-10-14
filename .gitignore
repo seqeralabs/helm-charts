@@ -1,0 +1,15 @@
+*/charts/*.tgz
+*/*.tgz
+*.tgz
+.vscode
+.debug/
+
+# Ignore all values files used to test deployments
+values_*.y*ml
+values-*.y*ml
+*_values.y*ml
+*-values.y*ml
+
+.claude
+
+.helm_ls_cache/

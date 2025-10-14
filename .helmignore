@@ -1,0 +1,39 @@
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+.DS_Store
+# Common VCS dirs
+.helmignore
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+# Helm Unittest debug folder
+.debug/
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+
+# Actual implementation value files.
+values_*.y*ml
+values-*.y*ml
+
+# Any possible helm package temporarily stored in the main directory.
+#tower-*.tgz
+#*/*-*.tgz
+
+charts/.gitkeep
+
+.helm_ls_cache/
+.claude

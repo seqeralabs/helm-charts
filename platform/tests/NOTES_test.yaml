@@ -1,0 +1,147 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform requirements
+templates:
+  - ../templates/NOTES.txt
+tests:
+  - it: should fail when global.platformDatabase.host is not defined
+    set:
+      global:
+        platformDatabase:
+          host: ""
+    asserts:
+      - failedTemplate:
+          # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
+          errorPattern: ".*Define the MySQL database hostname at 'global.platformDatabase.host'\\..*"
+
+  - it: should fail when redis.host and global.redis.host are not defined
+    set:
+      global:
+        platformDatabase:
+          host: "whatever"
+        redis:
+          host: ""
+      redis:
+        host: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Define the Redis hostname in 'redis' or 'global.redis' \\('redis' takes precedence over 'global.redis'\\).*"
+
+  - it: should fail when no license is defined
+    set:
+      global:
+        platformDatabase:
+          host: "whatever"
+        redis:
+          host: "whatever"
+      tower:
+        licenseString: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either a string version of the License or a secret name containing the key 'TOWER_LICENSE' are needed, but not both at the same time..*"
+
+  - it: should pass when redis.host and global.platformDatabase.host are defined
+    set:
+      global:
+        platformDatabase:
+          host: "whatever"
+      redis:
+        host: "whatever"
+      tower:
+        licenseString: "whatever"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when both redis.host and global.redis.host are defined (we'll check in another test that the redis.host takes precedence over global.redis.host)
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      redis:
+        host: "whatever"
+      tower:
+        licenseString: "whatever"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should fail when both tower.jwtSeedString and tower.jwtSeedSecretName are defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        jwtSeedString: "whatever"
+        jwtSeedSecretName: "whatever"
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either a string version of the JWT seed or a secret name containing the key 'TOWER_JWT_SECRET' are needed, not both.*"
+
+  - it: should fail when both tower.cryptoSeedString and tower.cryptoSeedSecretName are defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        cryptoSeedString: "whatever"
+        cryptoSeedSecretName: "whatever"
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either a string version of the Crypto seed or a secret name containing the key 'TOWER_CRYPTO_SECRETKEY' are needed, not both.*"
+
+  - it: should fail when both tower.metering.token and tower.metering.existingSecret are defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        metering:
+          token: "whatever"
+          existingSecret: "whatever"
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either a string version of the Metering seed or a secret name containing the key 'METERING_TOKEN' are needed, not both.*"
+
+  - it: should fail when both tower.smtp.host and tower.awsSesEnable are defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        smtp:
+          host: "whatever"
+        awsSesEnable: true
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both.*"
+
+  - it: should fail when tower.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        awsSesEnable: true
+      backend:
+        micronautEnvironments:
+          - e2e
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*The AWS SES provider is not compatible with the test environment, disable/drop either of them.*"

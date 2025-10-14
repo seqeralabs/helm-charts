@@ -1,0 +1,132 @@
+---
+name: "Lint Pull Request Titles"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  semantic-validation:
+    name: Validate PR title format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017  # ratchet:amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Configure which types are allowed (per Conventional Commits spec)
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+
+          # Configure which scopes are allowed (lowercase)
+          scopes: |
+            scripts
+            ci
+            docs
+            tests
+            deps
+            helm
+            charts
+            workflows
+
+          # Require the scope to be provided
+          requireScope: false
+
+          # Configure validation for ticket references
+          # This regex makes the ticket reference optional and supports breaking changes
+          # Format: type(scope)!: subject [TICKET]
+          headerPattern: '^(\w+)(?:\(([^)]*)\))?(!?): (.+?)(?:\s+([A-Z]+-\d+|NOTASK))?'
+          headerPatternCorrespondence: type,scope,breaking,subject,ticket
+
+          # Ignore merge commits from dependabot and similar
+          ignoreLabels: |
+            bot
+            ignore-semantic-pull-request
+
+          # Configure validation for the PR body (optional)
+          validateSingleCommit: false
+
+  jira-ticket-check:
+    name: Check JIRA ticket in PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for JIRA ticket in PR title
+        continue-on-error: true
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # ratchet:actions/github-script@v7
+        with:
+          script: |
+            const prTitle = context.payload.pull_request.title;
+            const prNumber = context.payload.pull_request.number;
+
+            // JIRA ticket pattern - matches formats like ABC-123, PROJ-456, etc.
+            const jiraPattern = /[A-Z]{2,}-\d+/;
+            const jiraMatch = prTitle.match(jiraPattern);
+
+            // Bot comment identifier
+            const botSignature = '<!-- JIRA-PR-CHECK-BOT -->';
+
+            // Get existing comments
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+
+            // Find existing bot comment
+            const existingComment = comments.find(comment =>
+              comment.body.includes(botSignature)
+            );
+
+            let commentBody;
+
+            if (jiraMatch) {
+              // JIRA ticket found
+              const ticketId = jiraMatch[0];
+              const jiraUrl = `https://seqera.atlassian.net/browse/${ticketId}`;
+
+              commentBody = `${botSignature}
+            JIRA ISSUE: <a href="${jiraUrl}" target="_blank">${ticketId}</a>`;
+            } else {
+              // No JIRA ticket found
+              commentBody = `${botSignature}
+            JIRA ticket not found. If relevant please add to title.
+
+            <a href="https://seqera.atlassian.net/secure/CreateIssue.jspa" target="_blank">Create a new JIRA ticket</a>`;
+            }
+
+            if (existingComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: commentBody
+              });
+            }

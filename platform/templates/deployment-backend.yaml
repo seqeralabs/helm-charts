@@ -1,0 +1,173 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app: backend
+  {{- with .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+
+spec:
+  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
+      app: backend
+
+  {{- with .Values.backend.extraOptionsSpec -}}
+  {{- include "common.tplvalues.render" (dict "value" (omit . "selector") "context" $) | nindent 2 -}}
+  {{- end }}
+
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+        app: backend
+      annotations:
+        {{- with .Values.backend.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+
+    spec:
+      serviceAccountName: {{ include "platform.serviceAccountName" . }}
+      {{- if .Values.backend.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.backend.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- with .Values.backend.extraOptionsTemplateSpec }}
+      {{- include "common.tplvalues.render" (dict "value" (omit . "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets") "context" $) | nindent 6 }}
+      {{- end }}
+
+      initContainers:
+        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 -}}
+        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 -}}
+        - name: wait-for-cron
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainersUtils.waitForCronImage "global" .Values.global) }}
+          imagePullPolicy: {{  .Values.initContainersUtils.waitForCronImage.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
+              until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
+                echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                sleep $SLEEP_PERIOD_SECONDS
+              done
+              echo "$(date): cron ready"
+          env:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: CRON_HOST
+              value: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
+            - name: CRON_PORT
+              value: {{ .Values.cron.service.http.port | int | quote }}
+          {{ include "tower.containerSecurityContextMinimal" . | nindent 10 }}
+          {{ include "tower.resourcesMinimal" . | nindent 10 }}
+        {{- with .Values.backend.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+
+      containers:
+        - name: backend
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.backend.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          {{- with .Values.backend.command }}
+          command: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.backend.args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
+
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+            - secretRef:
+                name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+            {{- with .Values.backend.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+            {{- end }}
+            {{- with .Values.backend.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+            {{- end }}
+
+          env:
+            {{- include "platform.database.envVarPassword" . | nindent 12 }}
+            {{- if or .Values.redis.auth.enabled .Values.global.redis.auth.enabled }}
+            - name: TOWER_REDIS_PASSWORD
+              value: {{ include "common.secrets.passwords.manage" (dict "secret" (include "platform.redis.secretName" .) "key" "redis-password" "providedValues" (list "redis.auth.password" "global.redis.auth.password") "context" $) }}
+            {{- end }}
+            {{- include "tower.jwt.envVarSeed" . | nindent 12 }}
+            {{- include "tower.crypto.envVarSeed" . | nindent 12 }}
+            {{- include "tower.license.envVar" . | nindent 12 }}
+            {{- include "tower.metering.token" . | nindent 12 }}
+            - name: MICRONAUT_ENVIRONMENTS
+              value: {{ include "platform.backend.micronautEnvs" . }}
+            - name: NXF_HOME
+              value: "/var/cache/tower/"
+            - name: NXF_PLUGINS_DIR
+              value: "/var/cache/tower/plugins/"
+            {{- with .Values.backend.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+
+          {{- with .Values.backend.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+          volumeMounts:
+            {{- with .Values.backend.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+            - name: config-volume
+              mountPath: /tower.yml
+              subPath: tower.yml
+            - name: log-volume
+              mountPath: {{ .Values.tower.logDir }}
+            - name: plugin-volume
+              mountPath: /var/cache/tower/
+            # The following mountpoints are workarounds due to bugs in Nextflow not obeying the NXF_PLUGINS_DIR/NXF_HOME vars.
+            - name: plugin-volume
+              mountPath: /.nextflow/
+            - name: plugin-volume
+              mountPath: /?/.nextflow/
+
+          {{- if .Values.backend.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.backend.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+
+          {{- range $probeName, $probe := (dict "startupProbe" .Values.backend.startupProbe "readinessProbe" .Values.backend.readinessProbe "livenessProbe" .Values.backend.livenessProbe) }}
+          {{- if $probe.enabled }}
+          {{ $probeName }}:
+            httpGet:
+              path: "/health"
+              port: 8080  # TODO: Hardcoded for now.
+            initialDelaySeconds: {{ $probe.initialDelaySeconds }}
+            periodSeconds: {{ $probe.periodSeconds }}
+            timeoutSeconds: {{ $probe.timeoutSeconds }}
+            successThreshold: {{ $probe.successThreshold }}
+            failureThreshold: {{ $probe.failureThreshold }}
+          {{- end }}
+          {{- end }}
+
+      volumes:
+        {{- with .Values.backend.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
+        - name: log-volume
+          emptyDir:
+            sizeLimit: {{ .Values.tower.logDirSize | quote }}
+        - name: plugin-volume
+          emptyDir:
+            sizeLimit: "1Gi"
+
+      imagePullSecrets:
+      {{- range .Values.backend.image.pullSecrets }}
+        - name: {{ . | quote }}
+      {{- end }}

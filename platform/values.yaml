@@ -1,0 +1,819 @@
+# Values in the .global section are shared between parent and child subcharts.
+# https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
+global:
+  # Optional domain where Seqera Platform (formerly known as Tower) will listen on.
+  platformExternalDomain: example.com
+
+  # Here you can customize the Tower endpoints using any Helm template function, and changes will
+  # automatically be propagated to the URL variables under .Values.tower.* and to the ingresses.
+  #
+  # Domain where Tower reports are exposed at (evaluated as template). If unset, data will be served
+  # through the main domain .Values.global.platformExternalDomain
+  contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  # Endpoint where to expose the API service (evaluated as template).
+  # This domain is mostly aesthetic, since Tower already listens to the API on
+  # ${.Values.global.platformUrl}/api/ and uses that internally.
+  apiDomain: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+
+  platformUrl: '{{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) }}'
+  # URL where Tower reports are exposed at (evaluated as template). If unset, data will be served
+  # through the main domain .Values.global.platformExternalDomain
+  contentUrl: '{{ printf "https://%s" (tpl .Values.global.contentDomain $) }}'
+
+  # Seqera Platform hostname and port: can be the internal kubernetes hostname or an external
+  # ingress hostname.
+  platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  platformServicePort: 8080
+
+  # Database configuration values for Seqera Platform. Defined in .global so they can be
+  # shared with subcharts.
+  platformDatabase:
+    host: ""
+    port: 3306
+    database: ""
+    username: ""
+    password: ""
+
+    # Name of an existing secret containing credentials for the external MySQL db.
+    # Must contain key 'mysql-password'.
+    existingSecret: ""
+
+    # # Enable encryption in transit when connecting to the external database.
+    # tls: true
+
+  # Multiple Seqera products require a Redis cache. Seqera recommends using a managed redis
+  # installation provided by an external provider, but a Redis installation from another Helm chart
+  # can also be used.
+  # Either specify the redis host in the .global.redis section to share it between multiple charts
+  # and other charts, or specify it below in the .redis section: if mixing locations, remember to
+  # define the database that redis will need for each product to use in .redis.prefix.
+  # Values in the .redis section take precedence over values in the .global.redis section.
+  redis:
+    host: ""
+    port: 6379
+    password: ""
+    auth:
+      enabled: false
+      password: ""
+      # Key must be 'redis-password'
+      existingSecret: ""
+    tls:
+      enabled: false
+
+  # Optionally define credentials to login and fetch images from a private registry.
+  # - registry: ""
+  #   username: ""
+  #   password: ""
+  #   email: someone@example.com  # Optional.
+  imageCredentials: []
+
+
+
+#######
+#######
+#######
+#######
+#######
+#######
+#######
+#######
+#######
+####### needs to be renamed to platform
+#######
+#######
+#######
+#######
+#######
+#######
+tower:
+  # Content to insert into the tower.yml file (you can use |- YAML multilines)
+  # TODO: check the following stance:
+  # Only tower.* properties can be applied through the YAML file.
+  YAMLConfigFileContent: ""
+
+  # URL of the Wave service you want to use (evaluated as template).
+  # If you want to use the wave service provided by Seqera, set this to 'wave.seqera.io'.
+  waveServerUrl: "https://wave.seqera.io"
+  # URL of a Matomo server where to redirect analytics information (evaluated as template), e.g.:
+  # '{{ printf "https://analytics.%s" (tpl .Values.global.platformExternalDomain $) }}'
+  analyticsUrl: ""
+  # Internal ID in the Matomo database matching this Tower installation.
+  analyticsSiteId: 0
+
+  # Allow insecure HTTP connection to Tower (no TLS). Set to "true"/"false", with quotes to avoid
+  # YAML interpreting it as a boolean.
+  enableHTTPUnsafeMode: "false"
+
+  # Sender email address for user support.
+  contactEmail: "tower-support@example.com"
+
+  # The JWT and crypto variables need random seeds at least 35 characters long: you can specify them as strings or
+  # provide them in a secret; if not defined, Helm will generate them for you.
+  # If a secret name is passed, it must contain keys 'TOWER_JWT_SECRET' and/or 'TOWER_CRYPTO_SECRETKEY', respectively.
+  # Don't pass both a String and a Secret at the same time.
+  jwtSeedString: ""  # Optional.
+  jwtSeedSecretName: ""  # Optional.
+  cryptoSeedString: ""  # Optional.
+  cryptoSeedSecretName: ""  # Optional.
+
+  # Enable all platforms that you intend your Tower installation to use.
+  enablePlatforms: "altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform"
+  enableOpenapi: "true"
+  flywayLocations: "classpath:db-schema/mysql"
+
+  # License string provided by your Seqera Labs account manager.
+  # Can alternatively be provided as a Secret, in the 'TOWER_LICENSE' key.
+  licenseString: ""
+  licenseSecretName: ""
+
+  # Comma-separated list of emails of users with superpowers on your Tower installation, define them carefully.
+  rootUsers: ""
+
+  ratelimitRefresh: "1s"
+  ratelimitPeriod: "20"
+
+  # Pattern that Tower will use for its logs.
+  logPattern: "%d{MMM-dd HH:mm:ss.SSS} [%t] %X{ip:--} %-5level %logger{36} - %msg%n}"
+  # Path to directory where emptyDir will be mounted to store file-version of logs, which are
+  # also printed to stdout. Doesn't need to exist beforehand in container image.
+  logDir: "/var/log/tower/"
+  # Size of temporary emptyDir that stores logs. https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
+  logDirSize: "1Gi"
+
+  evalTeamId: ""
+  evalWorkspaceId: ""
+  evalMaxTime: "1h"
+
+  # HubSpot private app API access token.
+  hubspotApiKey: ""
+  # HubSpot API call delay, e.g. '200ms'.
+  hubspotApiCallDelay: ""
+  # Hubspot sync interval, e.g. '3h'.
+  hubspotInterval: ""
+  # HubSpot sync initial delay: after every $interval amount of time has passed, the cron will wait $delay additional time, e.g. '1m'.
+  hubspotDelay: ""
+  # Used by micrometer to tag metrics for a specific environment, e.g. 'dev', 'stage' or 'prod'.
+  monitoringEnv: ""
+
+  # Comma-separated list of workspaces IDs for which to enable the Data Explorer feature.
+  # When the dataExplorerAllowedWorkspaces variable is unset, it will enable the feature
+  # for all workspaces, if set to empty string it will disable it for all workspaces.
+  # dataExplorerAllowedWorkspaces: ""
+
+  # Add here more java options or tune the default ones.
+  # A memory increase here needs to match the pod resources allocated to the backend.
+  javaOpts: "-Xms1000M -Xmx2000M -XX:MaxDirectMemorySize=1500M -Dslim.shaded.io.netty.tryReflectionSetAccessible=true -Dio.netty.tryReflectionSetAccessible=true"
+
+  # GitHub client and secret credentials to let your users authenticate through GitHub SSO.
+  githubClient: ""
+  githubSecret: ""
+  # Google client and secret credentials to let your users authenticate through Google SSO.
+  googleClient: ""
+  googleSecret: ""
+  # OpenID client and secret credentials to let your users authenticate through a OpenID provider.
+  oidcClient: ""
+  oidcSecret: ""
+  oidcIssuer: ""
+
+  # CDC Sams client and secret credentials to let your users authenticate through the Sams provider.
+  cdcClient: ""
+  cdcSecret: ""
+
+  awsSesEnable: false
+  # SMTP server credentials to let your users authenticate through email, and to send email notifications.
+  smtp:
+    host: ""
+    port: ""
+    user: ""
+    password: ""
+
+  # TODO: Move this into .global.platformDatabase section?
+  db:
+    driver: "org.mariadb.jdbc.Driver"
+    dialect: "io.seqera.util.MySQL55DialectCollateBin"
+    minPoolSize: "0"
+    maxPoolSize: "5"
+    maxLifetime: "60000"
+
+  # Additional labels for the ConfigMap objects. Evaluated as a template.
+  configMapLabels: {}
+  # Additional labels for the Secret objects. Evaluated as a template.
+  secretLabels: {}
+  # Additional labels for the Service objects. Evaluated as a template.
+  serviceLabels: {}
+  # Additional annotations for the ConfigMap objects. Evaluated as a template.
+  configMapAnnotations: {}
+  # Additional annotations for the Secret objects. Evaluated as a template.
+  secretAnnotations: {}
+  # Additional annotations for the Service objects. Evaluated as a template.
+  serviceAnnotations: {}
+
+  # TODO: actually needed?
+  # Credit management feature.
+  metering:
+    # Platform instance identifier in the metering service:
+    platformId: ""
+    # The token to authenticate to the metering service.
+    token: ""
+    # The name of a secret containing the token to authenticate to the metering service.
+    # Must contain key 'METERING_TOKEN'.
+    existingSecret: ""
+
+# Redis configuration values: for more details refer to .global.redis. These values take precedence
+# over values in .global.redis.
+redis:
+  host: ""
+  port: 6379
+  password: ""
+  auth:
+    enabled: false
+    password: ""
+    # Key must be 'redis-password'
+    existingSecret: ""
+  tls:
+    enabled: false
+  prefix: ""
+
+# Array of extra objects to deploy with the release.
+#
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+extraDeploy: []
+
+# Annotations to add to all deployed objects.
+commonAnnotations: {}
+# Labels to add to all deployed objects.
+commonLabels: {}
+
+# Options specific to the Tower backend deployment.
+backend:
+  image:
+    registry: cr.seqera.io
+    repository: private/nf-tower-enterprise/backend
+    # Specify a tag to override the version defined in .Chart.appVersion.
+    tag: ""
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+
+    # Specify a imagePullPolicy
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # Optionally specify an array of imagePullSecrets.
+    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    #
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+    pullSecrets: []
+
+  # List of Micronaut Environments to enable.
+  # TODO: add details about each of them.
+  micronautEnvironments: [prod, redis, ha]
+
+  service:
+    # Kubernetes Service type.
+    # Note: ingresses using AWS ALB require the service to be NodePort.
+    type: ClusterIP
+    # On what ports and protocol to expose the Tower backend Service.
+    http:
+      # name: http  # Optional.
+      # The port is defined as the global variable .global.platformServicePort, so it can be used by subcharts too.
+      targetPort: 8080  # TODO: Hardcoded for now.
+      # Only used when service.type is Nodeport or LoadBalancer.
+      # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+      nodePort: ""  # Optional.
+    # Other services that should live in the Service object.
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    extraServices:
+      - name: jmx
+        port: 1099
+        targetPort: 1099
+        # Only used when service.type is Nodeport or LoadBalancer.
+        # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+        # nodePort: ""  # Optional.
+    # Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
+    extraOptions: {}
+
+  # Add additional init containers to the pod. Evaluated as a template.
+  initContainers: []
+
+  # Override default container command (useful when using custom images)
+  command: []
+  # Override default container args (useful when using custom images)
+  args: []
+
+  # Additional labels for the backend pod. Evaluated as a template.
+  podLabels: {}
+  # Annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
+  podAnnotations: {}
+
+  # Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsSpec:
+  #   replicas: 2
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
+  extraOptionsSpec: {}
+  # Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+  extraOptionsTemplateSpec: {}
+
+  # Extra environment variable. For example:
+  # extraEnvVars:
+  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  #     value: "set-a-value-here"
+  extraEnvVars: []
+  # ConfigMap containing extra env vars
+  extraEnvVarsCM: ""
+  # Secret containing extra env vars
+  extraEnvVarsSecret: ""
+  # Array of extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`
+  extraVolumes: []
+  # Array of extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`.
+  extraVolumeMounts: []
+
+  # Configure Pods Security Context
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # podSecurityContext.enabled Enable Tower backend pods' Security Context
+  # podSecurityContext.fsGroup Tower backend pods' group ID
+  podSecurityContext:
+    enabled: true
+    fsGroup: 101
+
+  # Configure Container Security Context
+  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  # containerSecurityContext.enabled Enable Tower backend containers' Security Context
+  # containerSecurityContext.runAsUser Tower backend containers' Security Context
+  # containerSecurityContext.runAsNonRoot Set Controller container's Security Context runAsNonRoot
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 101
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:' above.
+  #   requests:
+  #     cpu: "1"
+  #     memory: "1000Mi"
+  #   limits:
+  #     memory: "3000Mi"
+
+  # Configure extra options for startup probe
+  # enabled Enable startupProbe
+  # initialDelaySeconds Initial delay seconds for startupProbe
+  # periodSeconds Period seconds for startupProbe
+  # timeoutSeconds Timeout seconds for startupProbe
+  # failureThreshold Failure threshold for startupProbe
+  # successThreshold Success threshold for startupProbe
+  startupProbe:
+    enabled: false
+
+  # Configure extra options for readiness probe
+  # enabled Enable readinessProbe
+  # initialDelaySeconds Initial delay seconds for readinessProbe
+  # periodSeconds Period seconds for readinessProbe
+  # timeoutSeconds Timeout seconds for readinessProbe
+  # failureThreshold Failure threshold for readinessProbe
+  # successThreshold Success threshold for readinessProbe
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 5
+    successThreshold: 1
+
+  # Configure extra options for liveness probe
+  # enabled Enable livenessProbe
+  # initialDelaySeconds Initial delay seconds for livenessProbe
+  # periodSeconds Period seconds for livenessProbe
+  # timeoutSeconds Timeout seconds for livenessProbe
+  # failureThreshold Failure threshold for livenessProbe
+  # successThreshold Success threshold for livenessProbe
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 10
+    successThreshold: 1
+
+# Options specific to the Tower frontend deployment.
+frontend:
+  image:
+    registry: cr.seqera.io
+    repository: private/nf-tower-enterprise/frontend
+    # Specify a tag to override the version defined in .Chart.appVersion.
+    tag: ""
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+
+    # Specify a imagePullPolicy
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # Optionally specify an array of imagePullSecrets.
+    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    #
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+    pullSecrets: []
+
+  service:
+    # Kubernetes Service type
+    # Note: ingresses using AWS ALB require the service to be NodePort.
+    type: ClusterIP
+    # On what ports and protocol to expose the Tower frontend Service.
+    http:
+      # name: http  # Optional.
+      port: 80
+      targetPort: 8083
+      # Only used when service.type is Nodeport or LoadBalancer.
+      # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+      # nodePort: ""  # Optional.
+    # Other services that should live in the Service object.
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    # Example:
+    #
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    extraServices: []
+    # Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
+    extraOptions: {}
+
+  # Override default container command (useful when using custom images)
+  command: []
+  # Override default container args (useful when using custom images)
+  args: []
+
+  # Additional labels for the frontend pod. Evaluated as a template.
+  podLabels: {}
+  # Annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
+  podAnnotations: {}
+
+  # Extra environment variable. For example:
+  # extraEnvVars:
+  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  #     value: "set-a-value-here"
+  extraEnvVars: []
+  # ConfigMap containing extra env vars
+  extraEnvVarsCM: ""
+  # Secret containing extra env vars
+  extraEnvVarsSecret: ""
+  # Array of extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`
+  extraVolumes: []
+  # Array of extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`.
+  extraVolumeMounts: []
+
+  podSecurityContext:
+    enabled: true
+    fsGroup: 101
+
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 101
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  # Add additional init containers to the pod. Evaluated as a template.
+  initContainers: []
+
+  # Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsSpec:
+  #   replicas: 2
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
+  extraOptionsSpec: {}
+  # Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+  extraOptionsTemplateSpec: {}
+
+  resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:' above.
+  #   requests:
+  #     cpu: "1"
+  #     memory: "1000Mi"
+  #   limits:
+  #     memory: "3000Mi"
+
+  startupProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+  readinessProbe:
+    enabled: false
+
+# Options specific to the Tower cron deployment.
+#
+# The cron app is needed to perform certain async operations on the database and on the environment
+# (CE environment creation, etc). For this reason there can only be one at a time, and it's a
+# separate deployment and not a sidecar deployment of the backend deployment.
+#
+cron:
+  image:
+    registry: cr.seqera.io
+    repository: private/nf-tower-enterprise/backend
+    # Specify a tag to override the version defined in .Chart.appVersion.
+    tag: ""
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+
+    # Specify a imagePullPolicy
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # Optionally specify an array of imagePullSecrets.
+    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    #
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+    pullSecrets: []
+
+  # List of Micronaut Environments to enable.
+  # TODO: add details about each of them.
+  micronautEnvironments: [prod, redis, cron]
+
+  service:
+    # Kubernetes Service type.
+    # Note: ingresses using AWS ALB require the service to be NodePort.
+    type: ClusterIP
+    # On what ports and protocol to expose the Cron Service.
+    http:
+      # name: http  # Optional.
+      port: 8080
+      targetPort: 8082
+      # Only used when service.type is Nodeport or LoadBalancer.
+      # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+      # nodePort: ""  # Optional.
+    # Other services that should live in the Service object.
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    # Example:
+    #
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    extraServices: []
+    # Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
+    extraOptions: {}
+
+  # Override default container command (useful when using custom images)
+  command: []
+  # Override default container args (useful when using custom images)
+  args: []
+
+  # Additional labels for the cron pod. Evaluated as a template.
+  podLabels: {}
+  # Annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
+  podAnnotations: {}
+  # Add additional init containers to the pod. Evaluated as a template.
+  initContainers: []
+
+  # Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsSpec:
+  #   replicas: 2
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
+  extraOptionsSpec: {}
+  # Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc).
+  # Evaluated as a template.
+  #
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+  extraOptionsTemplateSpec: {}
+
+  # Extra environment variable. For example:
+  # extraEnvVars:
+  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  #     value: "set-a-value-here"
+  extraEnvVars: []
+  # ConfigMap containing extra env vars
+  extraEnvVarsCM: ""
+  # Secret containing extra env vars
+  extraEnvVarsSecret: ""
+  # Array of extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`
+  extraVolumes: []
+  # Array of extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`.
+  extraVolumeMounts: []
+
+  podSecurityContext:
+    enabled: true
+    fsGroup: 101
+
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 101
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:' above.
+  #   requests:
+  #     cpu: "1"
+  #     memory: "1000Mi"
+  #   limits:
+  #     memory: "3000Mi"
+
+  startupProbe:
+    enabled: false
+
+  # Configure extra options for readiness probe
+  # enabled Enable readinessProbe
+  # initialDelaySeconds Initial delay seconds for readinessProbe
+  # periodSeconds Period seconds for readinessProbe
+  # timeoutSeconds Timeout seconds for readinessProbe
+  # failureThreshold Failure threshold for readinessProbe
+  # successThreshold Success threshold for readinessProbe
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    # TODO: check what happens when there are missing values.
+    # periodSeconds: 5
+    timeoutSeconds: 3
+    # failureThreshold: 5
+    # successThreshold: 1
+
+  # Configure extra options for liveness probe
+  # enabled Enable livenessProbe
+  # initialDelaySeconds Initial delay seconds for livenessProbe
+  # periodSeconds Period seconds for livenessProbe
+  # timeoutSeconds Timeout seconds for livenessProbe
+  # failureThreshold Failure threshold for livenessProbe
+  # successThreshold Success threshold for livenessProbe
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    # periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 10
+    # successThreshold: 1
+
+  dbMigrationInitContainer:
+    image:
+      # Specify the migration init container
+      registry: cr.seqera.io
+      repository: private/nf-tower-enterprise/migrate-db
+      # Specify a tag to override the version defined in .Chart.appVersion.
+      tag: ""
+      # Digest must be in the format 'sha256:1234abcdef'.
+      digest: ""
+
+      # Specify a imagePullPolicy
+      # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+      pullPolicy: IfNotPresent
+
+      # Optionally specify an array of imagePullSecrets.
+      # Secrets must be manually created in the same namespace. See the extraDeploy array above.
+      # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      #
+      # pullSecrets:
+      #   - myRegistryKeySecretName
+      pullSecrets: []
+
+    # Extra environment variable. For example:
+    # extraEnvVars:
+    #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+    #     value: "set-a-value-here"
+    extraEnvVars: []
+    # ConfigMap containing extra env vars
+    extraEnvVarsCM: ""
+    # Secret containing extra env vars
+    extraEnvVarsSecret: ""
+    # Array of extra volume mounts to add to the initContainer (evaluated as template). Normally used with `extraVolumes`.
+    extraVolumeMounts: []
+
+    resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:' above.
+    #   requests:
+    #     cpu: "1"
+    #     memory: "1000Mi"
+    #   limits:
+    #     memory: "3000Mi"
+
+# Define container images for various init containers.
+initContainersUtils:
+  # Image for the init container that waits for the MySQL database to be ready.
+  waitForMySQLImage:
+    registry: ""
+    repository: mysql
+    tag: "9"
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+    pullPolicy: IfNotPresent
+  # Image for the init container that waits for Redis to be ready.
+  waitForRedisImage:
+    registry: ""
+    repository: redis
+    tag: "7"
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+    pullPolicy: IfNotPresent
+  # Image for the Backend init container that waits for Tower Cron to be ready.
+  waitForCronImage:
+    registry: ""
+    repository: curlimages/curl
+    tag: "latest"
+    # Digest must be in the format 'sha256:1234abcdef'.
+    digest: ""
+    pullPolicy: IfNotPresent
+
+serviceAccount:
+  # Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated.
+  name: ""
+  # Annotations for the Tower ServiceAccount to generate.
+  annotations: {}
+  # Names of Secrets containing credentials to pull images from registries.
+  imagePullSecretNames: []
+  # Automount service account token when the server service account is generated.
+  automountServiceAccountToken: true
+
+ingress:
+  enabled: false
+  # Whether to expose the .Values.apiDomain as an ingress.
+  # This is mostly aesthetic, since Tower already listens to the API on
+  # ${.Values.global.platformUrl}/api/ and uses that internally.
+  exposeApiDomain: false
+  # Create an entry for www.${platformExternalDomain} too.
+  enableHostOnWWWSubdomain: true
+
+  # Configure the default service for the ingress (evaluated as template).
+  # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems.
+  defaultBackend: {}
+  # defaultBackend:
+  #   service:
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #     port:
+  #       number: '{{ .Values.frontend.service.http.port }}'
+
+  # List of hosts you want to include: use same structure as above.
+  extraHosts: []
+  # Ingress annotations specific to your load balancer.
+  annotations: {}
+  # Additional labels for the ingress object. Evaluated as a template.
+  extraLabels: {}
+  # Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class')
+  ingressClassName: ""
+  # TLS configuration. Evaluated as a template.
+  tls: []
+  # Path type for the Ingress.
+  pathType: "ImplementationSpecific"

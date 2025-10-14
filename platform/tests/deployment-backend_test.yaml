@@ -1,0 +1,232 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test deployment
+templates:
+  - deployment-backend.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should produce a Deployment resource with minimal values
+    template: deployment-backend.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: release-name-platform-backend
+
+  - it: should produce a minimal working spec
+    template: deployment-backend.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - equal:
+          path: spec.template.spec
+          value:
+            containers:
+              - env:
+                  - name: TOWER_DB_PASSWORD
+                    value: ""
+                  - name: MICRONAUT_ENVIRONMENTS
+                    value: prod,redis,ha,wave
+                  - name: NXF_HOME
+                    value: /var/cache/tower/
+                  - name: NXF_PLUGINS_DIR
+                    value: /var/cache/tower/plugins/
+                envFrom:
+                  - configMapRef:
+                      name: release-name-platform-backend
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
+                imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 10
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                name: backend
+                readinessProbe:
+                  failureThreshold: 5
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tower.yml
+                    name: config-volume
+                    subPath: tower.yml
+                  - mountPath: /var/log/tower/
+                    name: log-volume
+                  - mountPath: /var/cache/tower/
+                    name: plugin-volume
+                  - mountPath: /.nextflow/
+                    name: plugin-volume
+                  - mountPath: /?/.nextflow/
+                    name: plugin-volume
+            imagePullSecrets: null
+            initContainers:
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                    until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): db server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: DB_HOST
+                    value: ""
+                  - name: DB_PORT
+                    value: "3306"
+                  - name: DB_NAME
+                    value: null
+                  - name: DB_USERNAME
+                    value: ""
+                  - name: TOWER_DB_PASSWORD
+                    value: ""
+                image: mysql:9
+                imagePullPolicy: IfNotPresent
+                name: wait-for-db
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
+                    until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): cron ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: CRON_HOST
+                    value: release-name-platform-cron
+                  - name: CRON_PORT
+                    value: "8080"
+                image: curlimages/curl:latest
+                imagePullPolicy: IfNotPresent
+                name: wait-for-cron
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+            securityContext:
+              fsGroup: 101
+            serviceAccountName: release-name-platform-sa
+            volumes:
+              - configMap:
+                  name: release-name-platform-tower-yml
+                name: config-volume
+              - emptyDir:
+                  sizeLimit: 1Gi
+                name: log-volume
+              - emptyDir:
+                  sizeLimit: 1Gi
+                name: plugin-volume
+
+  - it: should render the backend deployment with the specified tag version
+    template: deployment-backend.yaml
+    set:
+      backend:
+        image:
+          tag: "9.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend:9.0.0"
+
+  - it: should render the backend deployment with the specified digest, overriding the tag
+    template: deployment-backend.yaml
+    set:
+      backend:
+        image:
+          tag: "this will be ignored"
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend@sha256:1234abcdef"
+
+  - it: should render the backend deployment with the correct checksums, labels and annotations
+    template: deployment-backend.yaml
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      commonLabels:
+        key123: this-should-be-overridden
+        key456: this-should-not-be-overridden
+      backend:
+        podLabels:
+          key123: this-overrides-the-commonLabels
+      tower:
+        jwtSeedString: these need to be defined
+        cryptoSeedString: otherwise 'helm template' creates random ones each time
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            checksum/configmap: 0d5cb21fe97b7cb99efd062201fb6d2f772b98f96b7931ed8e93ed0d5f1e10d2
+            checksum/secret: cc5885d9c196194f6fa2bedffd7247ddb42d33bfb8136470878a8f07351c2b7a
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden

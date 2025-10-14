@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test ingress
+templates:
+  - ingress.yaml
+tests:
+  - it: should not render ingress when disabled
+    set:
+      ingress:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render ingress when enabled
+    set:
+      ingress:
+        enabled: true
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: release-name-platform
+
+  - it: should set correct hostname
+    set:
+      ingress:
+        enabled: true
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: platform.example.com
+
+  - it: should apply ingress class
+    set:
+      ingress:
+        enabled: true
+        ingressClassName: "nginx"
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should apply ingress annotations
+    set:
+      ingress:
+        enabled: true
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: "/"
+          nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: metadata.annotations["nginx.ingress.kubernetes.io/rewrite-target"]
+          value: "/"
+      - equal:
+          path: metadata.annotations["nginx.ingress.kubernetes.io/ssl-redirect"]
+          value: "true"
+
+  # - it: should configure TLS when enabled
+  #   set:
+  #     ingress:
+  #       enabled: true
+  #       tls:
+  #         enabled: true
+  #         secretName: "platform-tls"
+  #     global:
+  #       platformExternalDomain: "platform.example.com"
+  #   asserts:
+  #     - equal:
+  #         path: spec.tls[0].secretName
+  #         value: platform-tls
+  #     - contains:
+  #         path: spec.tls[0].hosts
+  #         content: platform.example.com
+
+  # - it: should configure multiple paths
+  #   set:
+  #     ingress:
+  #       enabled: true
+  #       paths:
+  #         - path: "/"
+  #           pathType: "Prefix"
+  #           service:
+  #             name: "backend"
+  #             port: 8080
+  #         - path: "/api"
+  #           pathType: "Prefix"
+  #           service:
+  #             name: "api"
+  #             port: 8081
+  #     global:
+  #       platformExternalDomain: "platform.example.com"
+  #   asserts:
+  #     - equal:
+  #         path: spec.rules[0].http.paths[0].path
+  #         value: "/*"
+  #     - equal:
+  #         path: spec.rules[0].http.paths[0].pathType
+  #         value: "Prefix"

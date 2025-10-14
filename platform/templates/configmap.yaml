@@ -1,0 +1,51 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    {{- with .Values.tower.configMapLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+data:
+  {{- with .Values.tower.metering.platformId }}
+  METERING_METRONOME_PLATFORM_ID: {{ . | quote }}
+  {{- end }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    {{- with .Values.tower.configMapLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+data:
+  TOWER_CRON_SERVER_PORT: {{ .Values.cron.service.http.targetPort | int | quote }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    {{- with .Values.tower.configMapLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+data:
+  tower.yml: |-
+    {{- include "common.tplvalues.render" ( dict "value" .Values.tower.YAMLConfigFileContent "context" $ ) | nindent 4 }}

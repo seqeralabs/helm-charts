@@ -1,0 +1,73 @@
+name: Helm chart packager
+on:
+  push:
+    paths:  # The order of path filtering matters.
+      - '*/**'    # Trigger on changes in subdirs only, not in files in the main repo.
+      - '!.*/**'  # Exclude files in subdirs starting with dots (e.g., .github).
+
+jobs:
+  check-if-version-is-available-and-update-helm-chart:
+    name: 'Update Helm chart'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62  # v47.0.0
+        with:
+          json: true
+          write_output_files: true
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4  # v4.3.1
+        with:
+          version: v3.19.0
+
+      - name: Extract list of changed Helm charts
+        id: extract-charts
+        run: python3 .github/scripts/extract_charts.py
+
+      - name: Run chart test linter
+        if: env.charts_to_package != ''
+        run: python3 .github/scripts/helm_unittests_files_exist.py
+
+      - name: Login to Helm registry
+        if: env.charts_to_package != ''
+        shell: bash
+        run: |
+          # Use single quotes for credentials since robot accounts contain dollar signs that don't have to be expanded.
+          helm registry login '${{vars.TOWER_HELM_CR_REPO_DOMAIN}}/${{vars.TOWER_HELM_CR_REPO_PROJECT}}' --username '${{vars.TOWER_HELM_CR_USERNAME}}' --password '${{secrets.TOWER_HELM_CR_PASSWORD}}'
+
+      - name: Check for existence of helm charts on registry
+        if: env.charts_to_package != ''
+        env:
+          TOWER_HELM_CR_REPO_DOMAIN: ${{vars.TOWER_HELM_CR_REPO_DOMAIN}}
+          TOWER_HELM_CR_REPO_PROJECT: ${{vars.TOWER_HELM_CR_REPO_PROJECT}}
+          TOWER_HELM_CR_USERNAME: ${{vars.TOWER_HELM_CR_USERNAME}}
+          TOWER_HELM_CR_PASSWORD: ${{secrets.TOWER_HELM_CR_PASSWORD}}
+        run: python3 .github/scripts/check_chart_versions.py
+
+      - name: 'Build Helm charts'
+        if: env.charts_to_package != ''
+        run: |
+          for chart in $charts_to_package; do
+            echo "Packaging chart ${chart}.."
+            # Fetch the dependencies for the helm chart, stored in the charts/ subdir, if needed.
+            helm dependency update ${chart}/
+            helm package ${chart}/
+            echo "Packaged chart ${chart}"
+          done
+
+      - name: 'Push Helm charts only if we are on master'
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        shell: bash
+        run: |
+          for chart in $charts_to_package; do
+            chart_version=$(yq '.version' ${chart}/Chart.yaml)
+            echo "Pushing chart ${chart}, version ${chart_version}.."
+            helm push ${chart}-${chart_version}.tgz "oci://${{vars.TOWER_HELM_CR_REPO_DOMAIN}}/${{vars.TOWER_HELM_CR_REPO_PROJECT}}/"
+            echo "Pushed chart ${chart}"
+          done

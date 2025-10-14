@@ -1,0 +1,98 @@
+---
+{{ if .Values.ingress.enabled }}
+apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    {{- with .Values.ingress.extraLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
+  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
+  {{- end }}
+
+spec:
+  {{- with .Values.ingress.defaultBackend }}
+  defaultBackend: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName | quote }}
+  {{- end }}
+
+  {{- with .Values.ingress.tls }}
+  tls: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  {{- end }}
+
+  rules:
+    {{/* Hostname where to expose the main service. */}}
+    - host: {{ tpl .Values.global.platformExternalDomain $ | quote }}
+      http:
+        paths:
+          - path: "/*"
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
+                port:
+                  number: {{ .Values.frontend.service.http.port }}
+
+    {{- if .Values.ingress.exposeApiDomain }}
+    {{/* Hostname where to expose the backend API service. */}}
+    - host: {{ tpl .Values.apiDomain $ | quote }}
+      http:
+        paths:
+          - path: "/*"
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ printf "%s-backend" (include "common.names.fullname" .) | quote }}
+                port:
+                  number: {{ .Values.global.platformServicePort | int }}
+    {{- end }}
+
+    {{- if (include "tower.contentUrl" .) }}
+    {{/* Hostname where Tower reports are exposed to the user. */}}
+    - host: {{ tpl .Values.contentDomain $ | quote }}
+      http:
+        paths:
+          - path: "/*"
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
+                port:
+                  number: {{ .Values.frontend.service.http.port }}
+    {{- end }}
+
+    {{- if .Values.ingress.enableHostOnWWWSubdomain }}
+    - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+      http:
+        paths:
+          - path: "/*"
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+                port:
+                  number: {{ .Values.frontend.service.http.port }}
+    {{- end }}
+
+    {{- range .Values.ingress.extraHosts }}
+    - host: {{ tpl .host $ | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType | default $.Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ tpl .serviceName $ | quote }}
+                port:
+                  number: {{ tpl .portNumber $ }}
+          {{- end }}
+    {{- end }}
+{{- end }}
