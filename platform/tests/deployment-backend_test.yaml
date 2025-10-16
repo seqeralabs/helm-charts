@@ -231,6 +231,10 @@ tests:
       - equal:
           path: spec.template.metadata.annotations
           value:
+            # If these values change, it means that values in the CM/Secret yaml files changed, and
+            # you may want to double check that the related test files were updated/integrated with
+            # new unittests as well, then update the values below. Check with 'helm unittest -d .'
+            # that the secret file produced for this test matches your expectations too.
             checksum/configmap: c6dba915fbe1416c5657bf43040bbe435257180ea3afdc75be88f299a7ee4103
             checksum/secret: d1e3491cf7c2e571b703346c7d61cce04ace2cba89fb631cbac684aaaa89ad3d
       - equal:
