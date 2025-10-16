@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: test deployment
+suite: test Platform deployment
 templates:
   - deployment-backend.yaml
   - secret.yaml
@@ -78,8 +78,6 @@ tests:
                   - mountPath: /tower.yml
                     name: config-volume
                     subPath: tower.yml
-                  - mountPath: /var/log/tower/
-                    name: log-volume
                   - mountPath: /var/cache/tower/
                     name: plugin-volume
                   - mountPath: /.nextflow/
@@ -169,9 +167,6 @@ tests:
                 name: config-volume
               - emptyDir:
                   sizeLimit: 1Gi
-                name: log-volume
-              - emptyDir:
-                  sizeLimit: 1Gi
                 name: plugin-volume
 
   - it: should render the backend deployment with the specified tag version
@@ -203,6 +198,22 @@ tests:
     chart:
       version: "9.9.9+test"
       appVersion: "9.9.9"
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: unittest
+            namespace: NAMESPACE
+          data:
+            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
     set:
       commonLabels:
         key123: this-should-be-overridden
@@ -213,12 +224,15 @@ tests:
       tower:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
+        # Take the license from a secret instead of a string, just for fun
+        licenseSecretName: "unittest"
+        licenseSecretKey: "license-token-key"
     asserts:
       - equal:
           path: spec.template.metadata.annotations
           value:
-            checksum/configmap: 0d5cb21fe97b7cb99efd062201fb6d2f772b98f96b7931ed8e93ed0d5f1e10d2
-            checksum/secret: cc5885d9c196194f6fa2bedffd7247ddb42d33bfb8136470878a8f07351c2b7a
+            checksum/configmap: c6dba915fbe1416c5657bf43040bbe435257180ea3afdc75be88f299a7ee4103
+            checksum/secret: d1e3491cf7c2e571b703346c7d61cce04ace2cba89fb631cbac684aaaa89ad3d
       - equal:
           path: spec.template.metadata.labels
           value:

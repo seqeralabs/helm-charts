@@ -55,8 +55,8 @@ global:
     auth:
       enabled: false
       password: ""
-      # Key must be 'redis-password'
-      existingSecret: ""
+      existingSecretName: ""
+      existingSecretKey: "redis-password"
     tls:
       enabled: false
 
@@ -91,101 +91,40 @@ tower:
   # Only tower.* properties can be applied through the YAML file.
   YAMLConfigFileContent: ""
 
-  # URL of the Wave service you want to use (evaluated as template).
-  # If you want to use the wave service provided by Seqera, set this to 'wave.seqera.io'.
-  waveServerUrl: "https://wave.seqera.io"
-  # URL of a Matomo server where to redirect analytics information (evaluated as template), e.g.:
-  # '{{ printf "https://analytics.%s" (tpl .Values.global.platformExternalDomain $) }}'
-  analyticsUrl: ""
-  # Internal ID in the Matomo database matching this Tower installation.
-  analyticsSiteId: 0
-
-  # Allow insecure HTTP connection to Tower (no TLS). Set to "true"/"false", with quotes to avoid
-  # YAML interpreting it as a boolean.
-  enableHTTPUnsafeMode: "false"
-
   # Sender email address for user support.
   contactEmail: "tower-support@example.com"
 
-  # The JWT and crypto variables need random seeds at least 35 characters long: you can specify them as strings or
-  # provide them in a secret; if not defined, Helm will generate them for you.
-  # If a secret name is passed, it must contain keys 'TOWER_JWT_SECRET' and/or 'TOWER_CRYPTO_SECRETKEY', respectively.
-  # Don't pass both a String and a Secret at the same time.
+  # The JWT and crypto variables need random seeds at least 35 characters long: you can specify them
+  # as strings or provide them in a secret; if not defined, Helm will generate a random string for
+  # you.
+  # Either define the values as a String or a Secret, not both at the same time.
   jwtSeedString: ""  # Optional.
   jwtSeedSecretName: ""  # Optional.
+  jwtSeedSecretKey: "jwt-token"
   cryptoSeedString: ""  # Optional.
   cryptoSeedSecretName: ""  # Optional.
+  cryptoSeedSecretKey: "crypto-token"
 
   # Enable all platforms that you intend your Tower installation to use.
   enablePlatforms: "altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform"
-  enableOpenapi: "true"
   flywayLocations: "classpath:db-schema/mysql"
 
-  # License string provided by your Seqera Labs account manager.
-  # Can alternatively be provided as a Secret, in the 'TOWER_LICENSE' key.
+  # License string provided by your Seqera Labs account manager. Can alternatively be provided as a
+  # Secret.
   licenseString: ""
   licenseSecretName: ""
-
-  # Comma-separated list of emails of users with superpowers on your Tower installation, define them carefully.
-  rootUsers: ""
-
-  ratelimitRefresh: "1s"
-  ratelimitPeriod: "20"
-
-  # Pattern that Tower will use for its logs.
-  logPattern: "%d{MMM-dd HH:mm:ss.SSS} [%t] %X{ip:--} %-5level %logger{36} - %msg%n}"
-  # Path to directory where emptyDir will be mounted to store file-version of logs, which are
-  # also printed to stdout. Doesn't need to exist beforehand in container image.
-  logDir: "/var/log/tower/"
-  # Size of temporary emptyDir that stores logs. https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
-  logDirSize: "1Gi"
-
-  evalTeamId: ""
-  evalWorkspaceId: ""
-  evalMaxTime: "1h"
-
-  # HubSpot private app API access token.
-  hubspotApiKey: ""
-  # HubSpot API call delay, e.g. '200ms'.
-  hubspotApiCallDelay: ""
-  # Hubspot sync interval, e.g. '3h'.
-  hubspotInterval: ""
-  # HubSpot sync initial delay: after every $interval amount of time has passed, the cron will wait $delay additional time, e.g. '1m'.
-  hubspotDelay: ""
-  # Used by micrometer to tag metrics for a specific environment, e.g. 'dev', 'stage' or 'prod'.
-  monitoringEnv: ""
-
-  # Comma-separated list of workspaces IDs for which to enable the Data Explorer feature.
-  # When the dataExplorerAllowedWorkspaces variable is unset, it will enable the feature
-  # for all workspaces, if set to empty string it will disable it for all workspaces.
-  # dataExplorerAllowedWorkspaces: ""
-
-  # Add here more java options or tune the default ones.
-  # A memory increase here needs to match the pod resources allocated to the backend.
-  javaOpts: "-Xms1000M -Xmx2000M -XX:MaxDirectMemorySize=1500M -Dslim.shaded.io.netty.tryReflectionSetAccessible=true -Dio.netty.tryReflectionSetAccessible=true"
-
-  # GitHub client and secret credentials to let your users authenticate through GitHub SSO.
-  githubClient: ""
-  githubSecret: ""
-  # Google client and secret credentials to let your users authenticate through Google SSO.
-  googleClient: ""
-  googleSecret: ""
-  # OpenID client and secret credentials to let your users authenticate through a OpenID provider.
-  oidcClient: ""
-  oidcSecret: ""
-  oidcIssuer: ""
-
-  # CDC Sams client and secret credentials to let your users authenticate through the Sams provider.
-  cdcClient: ""
-  cdcSecret: ""
+  licenseSecretKey: "platform-license"
 
   awsSesEnable: false
-  # SMTP server credentials to let your users authenticate through email, and to send email notifications.
+  # SMTP server credentials to let your users authenticate through email, and to send email
+  # notifications. An existing secret may be specified.
   smtp:
     host: ""
     port: ""
     user: ""
     password: ""
+    existingSecretName: ""
+    existingSecretKey: "smtp-password"
 
   # TODO: Move this into .global.platformDatabase section?
   db:
@@ -194,6 +133,10 @@ tower:
     minPoolSize: "0"
     maxPoolSize: "5"
     maxLifetime: "60000"
+
+  # URL of the Wave service you want Platform to use (evaluated as template).
+  # If you want to use the Wave service provided by Seqera, leave this to 'https://wave.seqera.io'.
+  waveServerUrl: "https://wave.seqera.io"
 
   # Additional labels for the ConfigMap objects. Evaluated as a template.
   configMapLabels: {}
@@ -217,8 +160,9 @@ redis:
   auth:
     enabled: false
     password: ""
-    # Key must be 'redis-password'
-    existingSecret: ""
+    # TODO: check whether creating the secret with extraDeploy and passing it here can cause race conditions
+    existingSecretName: ""
+    existingSecretKey: "redis-password"
   tls:
     enabled: false
   prefix: ""

@@ -13,6 +13,37 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
+  TOWER_SERVER_URL: {{ tpl .Values.global.platformUrl . | quote }}
+  TOWER_CONTACT_EMAIL: {{ .Values.tower.contactEmail | quote }}
+  TOWER_CONTENT_URL: {{ include "tower.contentUrl" . | quote }}
+  TOWER_LANDING_URL: {{ tpl .Values.global.platformUrl . | quote }}
+
+  TOWER_DB_URL: {{ printf "jdbc:mysql://%s:%d/%s?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true"
+                          .Values.global.platformDatabase.host
+                          (.Values.global.platformDatabase.port | int)
+                          .Values.global.platformDatabase.database
+                              | quote }}
+  TOWER_DB_USER: {{ tpl .Values.global.platformDatabase.username . | quote }}
+  TOWER_DB_DRIVER: {{ .Values.tower.db.driver | quote }}
+  TOWER_DB_DIALECT: {{ .Values.tower.db.dialect | quote }}
+  TOWER_DB_MAX_LIFETIME: {{ .Values.tower.db.maxLifetime | toString | quote }}
+  TOWER_DB_MAX_POOL_SIZE: {{ .Values.tower.db.maxPoolSize | toString | quote }}
+  TOWER_DB_MIN_POOL_SIZE: {{ .Values.tower.db.minPoolSize | toString | quote }}
+  FLYWAY_LOCATIONS: {{ .Values.tower.flywayLocations | quote }}
+
+  TOWER_REDIS_URL: {{ include "platform.redis.uri" . | quote }}
+
+  TOWER_ENABLE_PLATFORMS: {{ .Values.tower.enablePlatforms | quote }}
+
+  {{- if .Values.tower.smtp.host }}
+  TOWER_SMTP_HOST: {{ .Values.tower.smtp.host | quote }}
+  TOWER_SMTP_PORT: {{ .Values.tower.smtp.port | quote }}
+  TOWER_SMTP_USER: {{ .Values.tower.smtp.user | quote }}
+  {{- else if .Values.tower.awsSesEnable }}
+  TOWER_ENABLE_AWS_SES: "true"
+  {{- end }}
+
+  WAVE_SERVER_URL: {{ tpl .Values.tower.waveServerUrl $ | quote }}
 ---
 kind: ConfigMap
 apiVersion: v1

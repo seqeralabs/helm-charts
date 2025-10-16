@@ -74,17 +74,6 @@ always make sure redis is added to the list of microenvs */}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
-{{- define "tower.emailSetup" -}}
-{{- if .Values.tower.smtp.host -}}
-  TOWER_SMTP_HOST: {{ .Values.tower.smtp.host | b64enc | quote }}
-  TOWER_SMTP_PORT: {{ .Values.tower.smtp.port | b64enc | quote }}
-  TOWER_SMTP_USER: {{ .Values.tower.smtp.user | b64enc | quote }}
-  TOWER_SMTP_PASSWORD: {{ .Values.tower.smtp.password | b64enc | quote }}
-{{- else if .Values.tower.awsSesEnable -}}
-  TOWER_ENABLE_AWS_SES: {{ b64enc "true" | quote }}
-{{- end -}}
-{{- end -}}
-
 {{/*
 Return the name of the secret containing the MySQL credentials. */}}
 {{- define "platform.database.secretName" -}}
@@ -141,12 +130,73 @@ Return the Redis URI. */}}
 
 {{/*
 Return the name of the secret containing the Redis password.
+'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretName" -}}
-{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecret -}}
-  {{- tpl .Values.redis.auth.existingSecret $ -}}
-{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecret -}}
-  {{- tpl .Values.global.redis.auth.existingSecret $ -}}
+{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName -}}
+  {{- tpl .Values.redis.auth.existingSecretName $ -}}
+{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName -}}
+  {{- tpl .Values.global.redis.auth.existingSecretName $ -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the key of the secret containing the Redis password.
+'redis.auth' takes precedence over 'global.redis.auth'.
+*/}}
+{{- define "platform.redis.secretKey" -}}
+{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName -}}
+  {{- tpl .Values.redis.auth.existingSecretKey $ -}}
+{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName -}}
+  {{- tpl .Values.global.redis.auth.existingSecretKey $ -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the JWT token.
+*/}}
+{{- define "platform.jwt.secretName" -}}
+{{- if .Values.tower.jwtSeedSecretName -}}
+  {{- tpl .Values.tower.jwtSeedSecretName $ -}}
+{{- else -}}
+  {{- /* When no external secret is passed, default to the secret name that will store the token.
+       On the first execution, the lookup function will not find the secret and will generate a
+       random token; on successive executions, the lookup function will find the secret and will
+       extract and re-save the token back in its original key. */ -}}
+  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the crypto token.
+*/}}
+{{- define "platform.crypto.secretName" -}}
+{{- if .Values.tower.cryptoSeedSecretName -}}
+  {{- tpl .Values.tower.cryptoSeedSecretName $ -}}
+{{- else -}}
+  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the Platform license token.
+*/}}
+{{- define "platform.license.secretName" -}}
+{{- if .Values.tower.licenseSecretName -}}
+  {{- tpl .Values.tower.licenseSecretName $ -}}
+{{- else -}}
+  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the SMTP password.
+*/}}
+{{- define "platform.smtp.secretName" -}}
+{{- if .Values.tower.smtp.existingSecretName -}}
+  {{- tpl .Values.tower.smtp.existingSecretName $ -}}
+{{- else -}}
+  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 

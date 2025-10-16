@@ -1,22 +1,9 @@
-{{/* Check if a chart name is contained inside a release, and return the release if so, or return
-     the concatenation <releaseName>.<chartName>, to mimic what common.names.fullname does.
-     Useful when working on child charts, which change their fullname depending on the parent chart.
-     E.g. if you install the release 'tower-with-mysql8', the mysql fullname will return just the
-     release name, because 'mysql' is already stored inside the release.
+{{/*
+Construct the image PullSecret if credentials are defined in values file.
 
-     Example usage:
-     {{ include "fullnameForChart" (dict "chartName" "mysql" "releaseName" .Release.Name) }}
+TODO: maybe create a boolean _is_pullSecret_defined so it's easier to check for existence?
+TODO: does it make sense to not scope this template, since templates are shared between the chart and its subcharts? would it make things harder to maintain if the subcharts redefine this template?
 */}}
-{{- define "fullnameForChart" -}}
-{{- if contains .chartName .releaseName -}}
-  {{- .releaseName | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-  {{- printf "%s-%s" .releaseName .chartName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-
-{{/* Construct the image PullSecret if credentials are defined in values file. */}}
-{{/* TODO: maybe create a boolean _is_pullSecret_defined so it's easier to check for existence? */}}
 {{- define "imagePullSecret" -}}
 {{- if .Values.global.imageCredentials -}}
   {{ $regs := list }}
