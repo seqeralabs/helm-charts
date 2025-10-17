@@ -82,6 +82,9 @@ tests:
       - equal:
           path: data
           value:
+            # Here required values such as redis or db url are empty and the unittest doesn't fail
+            # because we didn't include the NOTES.txt file in the templates to be tested, so no
+            # validation is done.
             FLYWAY_LOCATIONS: classpath:db-schema/mysql
             TOWER_CONTACT_EMAIL: tower-support@example.com
             TOWER_CONTENT_URL: ""
