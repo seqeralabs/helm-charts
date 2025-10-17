@@ -35,8 +35,6 @@ tests:
               - env:
                   - name: TOWER_DB_PASSWORD
                     value: ""
-                  - name: MICRONAUT_ENVIRONMENTS
-                    value: prod,redis,ha,wave
                   - name: NXF_HOME
                     value: /var/cache/tower/
                   - name: NXF_PLUGINS_DIR
@@ -235,7 +233,7 @@ tests:
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: c6dba915fbe1416c5657bf43040bbe435257180ea3afdc75be88f299a7ee4103
+            checksum/configmap: 98f19ec74a2a6638e9db608d187e946754edfea0b5f856da9c60c11be0d93890
             checksum/secret: d1e3491cf7c2e571b703346c7d61cce04ace2cba89fb631cbac684aaaa89ad3d
       - equal:
           path: spec.template.metadata.labels

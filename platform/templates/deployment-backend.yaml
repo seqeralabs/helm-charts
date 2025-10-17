@@ -96,8 +96,6 @@ spec:
 
           env:
             {{- include "platform.database.envVarPassword" . | nindent 12 }}
-            - name: MICRONAUT_ENVIRONMENTS
-              value: {{ include "platform.backend.micronautEnvs" . }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR

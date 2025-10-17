@@ -57,6 +57,8 @@ spec:
             {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
           envFrom:
+            - configMapRef:
+                name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
@@ -96,6 +98,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
@@ -109,9 +113,6 @@ spec:
             {{- end }}
 
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
-            - name: MICRONAUT_ENVIRONMENTS
-              value: {{ include "platform.cron.micronautEnvs" . }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
