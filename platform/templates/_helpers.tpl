@@ -77,9 +77,26 @@ always make sure redis is added to the list of microenvs */}}
 {{- end -}}
 
 {{/*
-Return the name of the secret containing the MySQL credentials. */}}
+Return the name of the secret containing the Platform database password.
+*/}}
 {{- define "platform.database.secretName" -}}
-{{ tpl .Values.global.platformDatabase.existingSecret $ }}
+{{- if .Values.global.platformDatabase.existingSecretName -}}
+  {{- tpl .Values.global.platformDatabase.existingSecretName $ -}}
+{{- else -}}
+  {{- /* When no external secret is passed, default to the secret name that will store the token.
+       On the first execution, the lookup function will not find the secret and will generate a
+       random token; on successive executions, the lookup function will find the secret and will
+       extract and re-save the token back in its original key. */ -}}
+  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "platform.database.secretKey" -}}
+{{- if and .Values.global.platformDatabase.existingSecretName .Values.global.platformDatabase.existingSecretKey -}}
+{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) -}}
+{{- else -}}
+{{- printf "TOWER_DB_PASSWORD" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -236,53 +253,6 @@ Return the name of the secret containing the SMTP password.
 {{- end -}}
 {{- end -}}
 
-{{/*
-Tower database password environment variable entry.
-*/}}
-{{- define "platform.database.envVarPassword" -}}
-- name: TOWER_DB_PASSWORD
-  {{ if (include "platform.database.secretName" .) }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "platform.database.secretName" . | quote }}
-      key: mysql-password
-  {{ else }}
-  value: {{ .Values.global.platformDatabase.password | quote }}
-  {{ end }}
-{{- end -}}
-
-{{/*
-Tower JWT seed environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string or let to Helm to create it, it's added in the main Tower backend Secret.
-*/}}
-{{- define "tower.jwt.envVarSeed" -}}
-{{- if .Values.tower.jwtSeedSecretName }}
-- name: TOWER_JWT_SECRET
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.jwtSeedSecretName | quote }}
-      key: TOWER_JWT_SECRET
-{{- end -}}
-{{- end -}}
-
-{{/*
-Tower crypto seed environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string or let to Helm to create it, it's added in the main Tower backend Secret.
-*/}}
-{{- define "tower.crypto.envVarSeed" -}}
-{{- if .Values.tower.cryptoSeedSecretName }}
-- name: TOWER_CRYPTO_SECRETKEY
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.cryptoSeedSecretName | quote }}
-      key: TOWER_CRYPTO_SECRETKEY
-{{- end -}}
-{{- end -}}
-
 {{- define "tower.containerSecurityContextMinimal" -}}
 securityContext:
   runAsUser: 101
@@ -350,7 +320,9 @@ Common initContainer to wait for MySQL database to be ready.
       value: {{ .context.Values.global.platformDatabase.name | quote }}
     - name: DB_USERNAME
       value: {{ .context.Values.global.platformDatabase.username | quote }}
-    {{ include "platform.database.envVarPassword" .context | nindent 4 }}
+  envFrom:
+    - secretRef:
+        name: {{ printf "%s-backend" (include "common.names.fullname" .context) }}
 
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}

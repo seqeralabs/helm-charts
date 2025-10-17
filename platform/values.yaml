@@ -35,8 +35,8 @@ global:
     password: ""
 
     # Name of an existing secret containing credentials for the external MySQL db.
-    # Must contain key 'mysql-password'.
-    existingSecret: ""
+    existingSecretName: ""
+    existingSecretKey: ""  # Optional, defaults to "TOWER_DB_PASSWORD"
 
     # # Enable encryption in transit when connecting to the external database.
     # tls: true

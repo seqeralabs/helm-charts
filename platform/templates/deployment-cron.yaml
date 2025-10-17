@@ -52,7 +52,6 @@ spec:
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}
           command: ['sh', '-c', '/migrate-db.sh']
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
@@ -61,6 +60,8 @@ spec:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
             - configMapRef:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
+            - secretRef:
+                name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}

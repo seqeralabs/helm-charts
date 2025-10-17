@@ -83,6 +83,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.backend.extraEnvVarsCM }}
@@ -95,7 +97,6 @@ spec:
             {{- end }}
 
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
