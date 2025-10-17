@@ -51,12 +51,14 @@ global:
   redis:
     host: ""
     port: 6379
-    password: ""
+    # TODO: Shall we streamline this by removing the auth subsection and keeping only
+    # password/secret here?
+    # TODO: how should we define which redis database each product should use?
     auth:
       enabled: false
       password: ""
       existingSecretName: ""
-      existingSecretKey: "redis-password"
+      existingSecretKey: ""  # Optional, defaults to "TOWER_REDIS_PASSWORD"
     tls:
       enabled: false
 
@@ -100,10 +102,10 @@ tower:
   # Either define the values as a String or a Secret, not both at the same time.
   jwtSeedString: ""  # Optional.
   jwtSeedSecretName: ""  # Optional.
-  jwtSeedSecretKey: "jwt-token"
+  jwtSeedSecretKey: ""  # Optional, defaults to "TOWER_JWT_SECRET".
   cryptoSeedString: ""  # Optional.
   cryptoSeedSecretName: ""  # Optional.
-  cryptoSeedSecretKey: "crypto-token"
+  cryptoSeedSecretKey: ""  # Optional, defaults to "TOWER_CRYPTO_SECRETKEY".
 
   # Enable all platforms that you intend your Tower installation to use.
   enablePlatforms: "altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform"
@@ -113,7 +115,7 @@ tower:
   # Secret.
   licenseString: ""
   licenseSecretName: ""
-  licenseSecretKey: "platform-license"
+  licenseSecretKey: ""  # Optional, defaults to "TOWER_LICENSE".
 
   awsSesEnable: false
   # SMTP server credentials to let your users authenticate through email, and to send email
@@ -124,7 +126,7 @@ tower:
     user: ""
     password: ""
     existingSecretName: ""
-    existingSecretKey: "smtp-password"
+    existingSecretKey: ""  # Optional, defaults to "TOWER_SMTP_PASSWORD".
 
   # TODO: Move this into .global.platformDatabase section?
   db:
@@ -156,13 +158,12 @@ tower:
 redis:
   host: ""
   port: 6379
-  password: ""
   auth:
     enabled: false
     password: ""
     # TODO: check whether creating the secret with extraDeploy and passing it here can cause race conditions
     existingSecretName: ""
-    existingSecretKey: "redis-password"
+    existingSecretKey: ""  # Optional, defaults to "TOWER_REDIS_PASSWORD"
   tls:
     enabled: false
   prefix: ""

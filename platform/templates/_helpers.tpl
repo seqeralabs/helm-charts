@@ -1,3 +1,5 @@
+{{/* vim: set filetype=mustache: */}}
+
 # The various URLs need to be set only if the related Domain wasn't unset.
 # A user may not want to expose the content domain/url at all, and may disable it by setting an
 # empty Domain variable, so we return nothing if the Domain variable was emptied.
@@ -145,10 +147,12 @@ Return the key of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretKey" -}}
-{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName -}}
-  {{- tpl .Values.redis.auth.existingSecretKey $ -}}
-{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName -}}
-  {{- tpl .Values.global.redis.auth.existingSecretKey $ -}}
+{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName .Values.redis.auth.existingSecretKey -}}
+  {{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) -}}
+{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName .Values.global.redis.auth.existingSecretKey -}}
+  {{- printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $) -}}
+{{- else -}}
+  {{- printf "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 {{- end -}}
 
@@ -167,6 +171,14 @@ Return the name of the secret containing the JWT token.
 {{- end -}}
 {{- end -}}
 
+{{- define "platform.jwt.secretKey" -}}
+{{- if and .Values.tower.jwtSeedSecretName .Values.tower.jwtSeedSecretKey -}}
+{{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) -}}
+{{- else -}}
+{{- printf "TOWER_JWT_SECRET" -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
@@ -175,6 +187,14 @@ Return the name of the secret containing the crypto token.
   {{- tpl .Values.tower.cryptoSeedSecretName $ -}}
 {{- else -}}
   {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "platform.crypto.secretKey" -}}
+{{- if and .Values.tower.cryptoSeedSecretName .Values.tower.cryptoSeedSecretKey -}}
+{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) -}}
+{{- else -}}
+{{- printf "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
 {{- end -}}
 
@@ -189,6 +209,14 @@ Return the name of the secret containing the Platform license token.
 {{- end -}}
 {{- end -}}
 
+{{- define "platform.license.secretKey" -}}
+{{- if and .Values.tower.licenseSecretName .Values.tower.licenseSecretKey -}}
+{{- printf "%s" (tpl .Values.tower.licenseSecretKey $) -}}
+{{- else -}}
+{{- printf "TOWER_LICENSE" -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
@@ -197,6 +225,14 @@ Return the name of the secret containing the SMTP password.
   {{- tpl .Values.tower.smtp.existingSecretName $ -}}
 {{- else -}}
   {{- printf "%s-backend" (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "platform.smtp.secretKey" -}}
+{{- if and .Values.tower.smtp.existingSecretName .Values.tower.smtp.existingSecretKey -}}
+{{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) -}}
+{{- else -}}
+{{- printf "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 {{- end -}}
 

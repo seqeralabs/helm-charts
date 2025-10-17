@@ -59,8 +59,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
-            - secretRef:
-                name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
