@@ -37,7 +37,7 @@ tests:
         licenseString: ""
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the License or a secret name containing the key 'TOWER_LICENSE' are needed, but not both at the same time..*"
+          errorPattern: ".*Either a string version of the License or a secret name are needed, not both..*"
 
   - it: should pass when redis.host and global.platformDatabase.host are defined
     set:
@@ -80,7 +80,7 @@ tests:
         jwtSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the JWT seed or a secret name containing the key 'TOWER_JWT_SECRET' are needed, not both.*"
+          errorPattern: ".*Either a string version of the JWT seed or a secret name are needed, not both..*"
 
   - it: should fail when both tower.cryptoSeedString and tower.cryptoSeedSecretName are defined
     set:
@@ -95,7 +95,7 @@ tests:
         cryptoSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the Crypto seed or a secret name containing the key 'TOWER_CRYPTO_SECRETKEY' are needed, not both.*"
+          errorPattern: ".*Either a string version of the Crypto seed or a secret name are needed, not both..*"
 
   - it: should fail when both tower.smtp.host and tower.awsSesEnable are defined
     set:
