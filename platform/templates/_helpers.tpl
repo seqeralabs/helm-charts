@@ -78,37 +78,24 @@ always make sure redis is added to the list of microenvs */}}
 Return the name of the secret containing the Platform database password.
 */}}
 {{- define "platform.database.secretName" -}}
-{{- if .Values.global.platformDatabase.existingSecretName -}}
-  {{- tpl .Values.global.platformDatabase.existingSecretName $ -}}
-{{- else -}}
-  {{- /* When no external secret is passed, default to the secret name that will store the token.
-       On the first execution, the lookup function will not find the secret and will generate a
-       random token; on successive executions, the lookup function will find the secret and will
-       extract and re-save the token back in its original key. */ -}}
-  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
-{{- end -}}
+{{- /* When no external secret is passed, default to the secret name that will store the token.
+      On the first execution, the lookup function will not find the secret and will generate a
+      random token; on successive executions, the lookup function will find the secret and will
+      extract and re-save the token back in its original key. */ -}}
+{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
-{{- if and .Values.global.platformDatabase.existingSecretName .Values.global.platformDatabase.existingSecretKey -}}
-{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) -}}
-{{- else -}}
-{{- printf "TOWER_DB_PASSWORD" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
 {{- end -}}
 
 {{/*
 Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
-
-TODO: use a helm variable := to store the tpl result to avoid multiple evaluations
 */}}
 {{- define "platform.redis.host" -}}
-{{- if (tpl .Values.redis.host $) }}
-  {{- tpl .Values.redis.host $ }}
-{{- else if (tpl .Values.global.redis.host $) }}
-  {{- tpl .Values.global.redis.host $ }}
-{{- end -}}
+{{- /* Redis is a requirement, so no need to check whether it was defined or not. */}}
+{{- printf "%s" (tpl .Values.redis.host $) | default (printf "%s" (tpl .Values.global.redis.host $)) -}}
 {{- end -}}
 
 {{/*
@@ -116,11 +103,7 @@ Return the port of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.port" -}}
-{{- if (tpl (.Values.redis.port | toString ) $) }}
-  {{- tpl (.Values.redis.port | toString) $ }}
-{{- else if (tpl (.Values.global.redis.port | toString) $) }}
-  {{- tpl (.Values.global.redis.port | toString) $ }}
-{{- end -}}
+{{- printf "%s" (tpl (.Values.redis.port | toString) $) | default (printf "%s" (tpl (.Values.global.redis.port | toString) $)) -}}
 {{- end -}}
 
 {{/*
@@ -150,11 +133,7 @@ Return the name of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretName" -}}
-{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName -}}
-  {{- tpl .Values.redis.auth.existingSecretName $ -}}
-{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName -}}
-  {{- tpl .Values.global.redis.auth.existingSecretName $ -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) }}
 {{- end -}}
 
 {{/*
@@ -162,93 +141,51 @@ Return the key of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretKey" -}}
-{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecretName .Values.redis.auth.existingSecretKey -}}
-  {{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) -}}
-{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecretName .Values.global.redis.auth.existingSecretKey -}}
-  {{- printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $) -}}
-{{- else -}}
-  {{- printf "TOWER_REDIS_PASSWORD" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the JWT token.
 */}}
 {{- define "platform.jwt.secretName" -}}
-{{- if .Values.tower.jwtSeedSecretName -}}
-  {{- tpl .Values.tower.jwtSeedSecretName $ -}}
-{{- else -}}
-  {{- /* When no external secret is passed, default to the secret name that will store the token.
-       On the first execution, the lookup function will not find the secret and will generate a
-       random token; on successive executions, the lookup function will find the secret and will
-       extract and re-save the token back in its original key. */ -}}
-  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.jwt.secretKey" -}}
-{{- if and .Values.tower.jwtSeedSecretName .Values.tower.jwtSeedSecretKey -}}
-{{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) -}}
-{{- else -}}
-{{- printf "TOWER_JWT_SECRET" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
 {{- define "platform.crypto.secretName" -}}
-{{- if .Values.tower.cryptoSeedSecretName -}}
-  {{- tpl .Values.tower.cryptoSeedSecretName $ -}}
-{{- else -}}
-  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.crypto.secretKey" -}}
-{{- if and .Values.tower.cryptoSeedSecretName .Values.tower.cryptoSeedSecretKey -}}
-{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) -}}
-{{- else -}}
-{{- printf "TOWER_CRYPTO_SECRETKEY" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
 {{- define "platform.license.secretName" -}}
-{{- if .Values.tower.licenseSecretName -}}
-  {{- tpl .Values.tower.licenseSecretName $ -}}
-{{- else -}}
-  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.license.secretKey" -}}
-{{- if and .Values.tower.licenseSecretName .Values.tower.licenseSecretKey -}}
-{{- printf "%s" (tpl .Values.tower.licenseSecretKey $) -}}
-{{- else -}}
-{{- printf "TOWER_LICENSE" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
 {{- define "platform.smtp.secretName" -}}
-{{- if .Values.tower.smtp.existingSecretName -}}
-  {{- tpl .Values.tower.smtp.existingSecretName $ -}}
-{{- else -}}
-  {{- printf "%s-backend" (include "common.names.fullname" .) -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.smtp.secretKey" -}}
-{{- if and .Values.tower.smtp.existingSecretName .Values.tower.smtp.existingSecretKey -}}
-{{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) -}}
-{{- else -}}
-{{- printf "TOWER_SMTP_PASSWORD" -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
 {{- define "tower.containerSecurityContextMinimal" -}}
