@@ -20,6 +20,47 @@ tests:
           value:
             MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave
 
+  - it: should render cron cm with default values
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            MICRONAUT_ENVIRONMENTS: prod,redis,cron
+            TOWER_CRON_SERVER_PORT: "8082"
+
+  - it: should setup requested micronaut envs for backend when required, in addition to the mandatory ones
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      backend:
+        micronautEnvironments: [prod, whatever1, whatever2]
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: prod,whatever1,whatever2,redis,ha,wave
+
+  - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      cron:
+        micronautEnvironments: [prod, whatever1, whatever2]
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: prod,whatever1,whatever2,redis,cron
+
   - it: should include SMTP configuration when configured
     documentSelector:
       path: metadata.name
@@ -72,7 +113,7 @@ tests:
           path: data.TOWER_ENABLE_AWS_SES
           value: "true"
 
-  - it: should render backend cm with default values
+  - it: should render shared cm with default values
     documentSelector:
       path: metadata.name
       value: release-name-platform-shared-backend-cron

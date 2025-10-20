@@ -53,11 +53,11 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 */}}
 {{- define "platform.backend.micronautEnvs" -}}
 {{- $list := .Values.backend.micronautEnvironments -}}
-{{/*
-always make sure redis is added to the list of microenvs */}}
+{{/* Always make sure the required micronaut environments are added to the list for backend */}}
+{{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
-{{/*
-Add wave to the list of microenvs if waveServerUrl is defined. */}}
+{{- $list = append $list "ha" -}}
+{{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
 {{- if not (empty .Values.tower.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
 {{- end -}}
@@ -68,9 +68,10 @@ Add wave to the list of microenvs if waveServerUrl is defined. */}}
 Build the cron micronaut envs list: add envs if features are requested in other values. */}}
 {{- define "platform.cron.micronautEnvs" -}}
 {{- $list := .Values.cron.micronautEnvironments -}}
-{{/*
-always make sure redis is added to the list of microenvs */}}
+{{/* Always make sure the required micronaut environments are added to the list for cron */}}
+{{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
+{{- $list = append $list "cron" -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
