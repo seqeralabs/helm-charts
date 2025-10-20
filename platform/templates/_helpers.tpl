@@ -1,5 +1,3 @@
-{{/* vim: set filetype=mustache: */}}
-
 # The various URLs need to be set only if the related Domain wasn't unset.
 # A user may not want to expose the content domain/url at all, and may disable it by setting an
 # empty Domain variable, so we return nothing if the Domain variable was emptied.

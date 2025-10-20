@@ -1,5 +1,3 @@
-{{/* vim: set filetype=mustache: */}}
-
 {{/*
 Construct the image PullSecret if credentials are defined in values file.
 
