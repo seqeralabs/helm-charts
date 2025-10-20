@@ -208,24 +208,6 @@ resources:
 {{- end -}}
 
 {{/*
-Tower License environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string it's added in the main Tower backend Secret.
-A License can't be generated with a random value, it has to be provided by a Seqera Labs
-account manager.
-*/}}
-{{- define "tower.license.envVar" -}}
-{{- if .Values.tower.licenseSecretName }}
-- name: TOWER_LICENSE
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.licenseSecretName | quote }}
-      key: TOWER_LICENSE
-{{- end -}}
-{{- end -}}
-
-{{/*
 Common initContainer to wait for MySQL database to be ready.
 
 {{ include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) }}
