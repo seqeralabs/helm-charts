@@ -42,7 +42,7 @@ spec:
 
     {{- if .Values.ingress.exposeApiDomain }}
     {{/* Hostname where to expose the backend API service. */}}
-    - host: {{ tpl .Values.apiDomain $ | quote }}
+    - host: {{ tpl .Values.global.apiDomain $ | quote }}
       http:
         paths:
           - path: "/*"
@@ -54,9 +54,9 @@ spec:
                   number: {{ .Values.global.platformServicePort | int }}
     {{- end }}
 
-    {{- if (include "tower.contentUrl" .) }}
+    {{- if (tpl .Values.global.contentDomain $) }}
     {{/* Hostname where Tower reports are exposed to the user. */}}
-    - host: {{ tpl .Values.contentDomain $ | quote }}
+    - host: {{ tpl .Values.global.contentDomain $ | quote }}
       http:
         paths:
           - path: "/*"

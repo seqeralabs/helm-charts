@@ -128,7 +128,7 @@ tests:
             # validation is done.
             FLYWAY_LOCATIONS: classpath:db-schema/mysql
             TOWER_CONTACT_EMAIL: tower-support@example.com
-            TOWER_CONTENT_URL: ""
+            TOWER_CONTENT_URL: "https://user-data.example.com"
             TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin
             TOWER_DB_DRIVER: org.mariadb.jdbc.Driver
             TOWER_DB_MAX_LIFETIME: "60000"

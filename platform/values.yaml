@@ -1,42 +1,40 @@
-# Values in the .global section are shared between parent and child subcharts.
-# https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
+# Values in the .global section can be accessed by both parent and child subcharts as
+# .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
-  # Optional domain where Seqera Platform (formerly known as Tower) will listen on.
+  # -- Optional domain where Seqera Platform (formerly known as Tower) will listen on.
   platformExternalDomain: example.com
 
-  # Here you can customize the Tower endpoints using any Helm template function, and changes will
-  # automatically be propagated to the URL variables under .Values.tower.* and to the ingresses.
-  #
-  # Domain where Tower reports are exposed at (evaluated as template). If unset, data will be served
-  # through the main domain .Values.global.platformExternalDomain
+  # -- Domain where user-created Platform reports are exposed at (evaluated as template), to avoid
+  # Cross-Site Scripting attacks. If unset, data will be served through the main domain
+  # .global.platformExternalDomain.
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
-  # Endpoint where to expose the API service (evaluated as template).
-  # This domain is mostly aesthetic, since Tower already listens to the API on
-  # ${.Values.global.platformUrl}/api/ and uses that internally.
+  # -- Domain where to expose the API service (evaluated as template).
+  # This domain is mostly aesthetic, since Platform already listens to the API on
+  # ${.global.platformExternalDomain}/api/ and uses that internally.
   apiDomain: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
 
-  platformUrl: '{{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) }}'
-  # URL where Tower reports are exposed at (evaluated as template). If unset, data will be served
-  # through the main domain .Values.global.platformExternalDomain
-  contentUrl: '{{ printf "https://%s" (tpl .Values.global.contentDomain $) }}'
-
-  # Seqera Platform hostname and port: can be the internal kubernetes hostname or an external
-  # ingress hostname.
+  # -- Seqera Platform Service name: can be the internal kubernetes hostname or an external ingress
+  # hostname.
   platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  # -- Seqera Platform Service port.
   platformServicePort: 8080
 
-  # Database configuration values for Seqera Platform. Defined in .global so they can be
-  # shared with subcharts.
   platformDatabase:
+    # -- Platform MySQL database hostname.
     host: ""
+    # -- Platform MySQL database port.
     port: 3306
+    # -- Platform MySQL database name.
     database: ""
+    # -- Platform MySQL database username.
     username: ""
+    # -- Platform MySQL database password.
     password: ""
 
-    # Name of an existing secret containing credentials for the external MySQL db.
+    # -- Name of an existing secret containing credentials for the Platform MySQL db.
     existingSecretName: ""
-    existingSecretKey: ""  # Optional, defaults to "TOWER_DB_PASSWORD"
+    # -- Key in the existing secret containing the password for the Platform MySQL db.
+    existingSecretKey: "TOWER_DB_PASSWORD"
 
     # # Enable encryption in transit when connecting to the external database.
     # tls: true
@@ -724,7 +722,7 @@ ingress:
   enabled: false
   # Whether to expose the .Values.apiDomain as an ingress.
   # This is mostly aesthetic, since Tower already listens to the API on
-  # ${.Values.global.platformUrl}/api/ and uses that internally.
+  # ${.Values.global.platformExternalDomain}/api/ and uses that internally.
   exposeApiDomain: false
   # Create an entry for www.${platformExternalDomain} too.
   enableHostOnWWWSubdomain: true
