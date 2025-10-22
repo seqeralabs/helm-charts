@@ -33,7 +33,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -46,7 +46,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) | quote }}
@@ -60,7 +60,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -73,7 +73,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
@@ -87,7 +87,7 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType | default $.Values.ingress.pathType }}
+            pathType: {{ .pathType | default $.Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ tpl .serviceName $ | quote }}
