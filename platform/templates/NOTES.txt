@@ -1,5 +1,29 @@
 {{/* We can't put checks in _helpers.tpl, it doesn't make installation fail. */}}
 
+{{- $addr := tpl (toString .Values.global.platformServiceAddress) . -}}
+{{- if not $addr -}}
+{{- $message := "Define the platform service address at 'global.platformServiceAddress'. It can be a template, but it cannot render to an empty value." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- else -}}
+{{- $validationErrors := include "platform.validate.dnsLabel" (dict "value" $addr) -}}
+{{- if $validationErrors -}}
+{{- $message := printf "Invalid global.platformServiceAddress='%s' %s" $addr $validationErrors -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+{{- end -}}
+
+{{- $port := tpl (toString .Values.global.platformServicePort) . -}}
+{{- if not $port -}}
+{{- $message := "Define the platform service port at 'global.platformServicePort'. It can be a template, but it cannot render to an empty value." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- else -}}
+{{- $validationErrors := include "platform.validate.isInteger" (dict "value" $port) -}}
+{{- if $validationErrors -}}
+{{- $message := printf "Invalid global.platformServicePort='%s' %s" (toString $port) $validationErrors -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+{{- end -}}
+
 {{- if not .Values.global.platformDatabase.host -}}
 {{- $message := "Define the MySQL database hostname at 'global.platformDatabase.host'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}

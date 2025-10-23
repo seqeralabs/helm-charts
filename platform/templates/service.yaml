@@ -5,6 +5,8 @@ metadata:
   # The frontend pod is a nginx server that points to the backend Service.
   # The NGINX_UPSTREAM_HOST and NGINX_UPSTREAM_PORT env variables on the frontend deployment will
   # point to this service name and the http port associated with it.
+  # We're validating in NOTES.txt that global.platformServiceAddress is a valid DNS label and that
+  # global.platformServicePort is a valid port.
   name: {{ tpl .Values.global.platformServiceAddress . | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
   {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
