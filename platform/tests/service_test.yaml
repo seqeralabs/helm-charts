@@ -601,6 +601,72 @@ tests:
           value: customValue
         documentIndex: 0
 
+  - it: should render backend service with extra ports when defined
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      backend:
+        service:
+          extraServices:
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+    asserts:
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 8080
+              targetPort: 8080
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+
+  - it: should render cron service with extra ports when defined
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      cron:
+        service:
+          extraServices:
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+    asserts:
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 8080
+              targetPort: 8082
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+
+  - it: should render frontend service with extra ports when defined
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-frontend
+    set:
+      frontend:
+        service:
+          extraServices:
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+    asserts:
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 80
+              targetPort: 8083
+            - name: "extra-port-for-custom-service"
+              port: 8888
+              targetPort: 8888
+
   - it: should not apply custom backend.podLabels to backend service selector, only if they override standard labels
     set:
       backend:
