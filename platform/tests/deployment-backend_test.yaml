@@ -239,7 +239,7 @@ tests:
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: 98f19ec74a2a6638e9db608d187e946754edfea0b5f856da9c60c11be0d93890
+            checksum/configmap: ef60a29551340b75b1b73cf6e2d8d6bec1624520b960197ad0b87b81e5a3986a
             checksum/secret: ea4ee986271d981fe7b4b3a8753687a6a3c2b4ef25c42280e557daeaa8c25b0c
       - equal:
           path: spec.template.metadata.labels

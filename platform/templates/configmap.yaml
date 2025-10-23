@@ -46,8 +46,8 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
-  TOWER_SERVER_URL: {{ tpl .Values.global.platformUrl . | quote }}
-  TOWER_CONTENT_URL: {{ include "tower.contentUrl" . | quote }}
+  TOWER_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) | quote }}
+  TOWER_CONTENT_URL: {{ printf "https://%s" (tpl .Values.global.contentDomain $) | quote }}
   TOWER_CONTACT_EMAIL: {{ .Values.tower.contactEmail | quote }}
 
   TOWER_ENABLE_PLATFORMS: {{ .Values.tower.enablePlatforms | quote }}

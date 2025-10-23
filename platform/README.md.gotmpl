@@ -1,0 +1,54 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+## Requirements
+
+- Kubernetes 1.19+
+- Helm 3+
+- MySQL database
+- Redis v7-compatible cache
+
+## Platform architecture
+
+The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview)
+consists of the following components:
+
+- Backend
+  * The backend app is the main application server, exposing the REST API and handling most of the
+    business logic.
+- Cron pod
+  * The cron app is needed to perform certain async operations on the database and on the
+    environment (CE environment creation, etc). For this reason there can only be one at a time, and
+    it's a separate deployment and not a sidecar deployment of the backend deployment.
+- Frontend pod
+  * The frontend app is a separate deployment serving the web UI.
+- MySQL database
+  * The MySQL database is required to store all the Platform data.
+- Redis cache
+  * The Redis cache is required for caching and for managing async jobs.
+
+### Redis Cache details
+
+Multiple Seqera products require a Redis cache. Seqera recommends using a managed Redis installation
+provided by an external provider, but a local Redis installation is supported.
+Either specify the Redis host in the `.global.redis` section to share it between multiple charts and
+other charts, or specify it below in the `.redis` section: if mixing locations, remember to define
+the database that Redis will need for each product to use in `.redis.prefix`.
+Values in the `.redis` section take precedence over values in the `.global.redis` section.
+
+## Installing the Chart
+
+To install the chart with the release name `my-release`:
+
+```console
+$ helm repo add example http://charts.example.com
+$ helm install my-release example/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

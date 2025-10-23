@@ -1,5 +1,5 @@
 # Makefile for Tower Helm Chart Testing
-.PHONY: test tests unittests check-unittest-plugin install-unittest-plugin
+.PHONY: test tests unittests debug check-unittest-plugin install-unittest-plugin
 
 # Default target
 test: unittests
@@ -9,6 +9,10 @@ tests: unittests
 unittests:
 	@echo "Running all unit tests..."
 	@helm unittest .
+
+debug:
+	@echo "Running unit tests in debug mode..."
+	@helm unittest -d .
 
 # Check if helm-unittest plugin is installed
 check-unittest-plugin:

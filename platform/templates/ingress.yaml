@@ -33,7 +33,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -42,11 +42,11 @@ spec:
 
     {{- if .Values.ingress.exposeApiDomain }}
     {{/* Hostname where to expose the backend API service. */}}
-    - host: {{ tpl .Values.apiDomain $ | quote }}
+    - host: {{ tpl .Values.global.apiDomain $ | quote }}
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) | quote }}
@@ -54,13 +54,13 @@ spec:
                   number: {{ .Values.global.platformServicePort | int }}
     {{- end }}
 
-    {{- if (include "tower.contentUrl" .) }}
+    {{- if (tpl .Values.global.contentDomain $) }}
     {{/* Hostname where Tower reports are exposed to the user. */}}
-    - host: {{ tpl .Values.contentDomain $ | quote }}
+    - host: {{ tpl .Values.global.contentDomain $ | quote }}
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -73,7 +73,7 @@ spec:
       http:
         paths:
           - path: "/*"
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
                 name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
@@ -87,7 +87,7 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType | default $.Values.ingress.pathType }}
+            pathType: {{ .pathType | default $.Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ tpl .serviceName $ | quote }}
