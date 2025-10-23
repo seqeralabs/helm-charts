@@ -28,8 +28,7 @@ spec:
     {{- /* The http service is required and the installation must fail if it's missing since it's
          referenced by the frontend, so don't use 'with' here. */}}
     - name: {{ .Values.backend.service.http.name | default "http" }}
-      # TODO: we should templatize the port here too, so it could be reused with different charts
-      port: {{ .Values.global.platformServicePort | int }}
+      port: {{ tpl (toString .Values.global.platformServicePort) . | int }}
       targetPort: 8080  # TODO: backend doesn't allow changing this, hardcoded for now.
       {{- if and .Values.backend.service.http.nodePort
                  (or (eq .Values.backend.service.type "NodePort") (eq .Values.backend.service.type "LoadBalancer")) }}
