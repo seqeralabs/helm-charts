@@ -1,0 +1,247 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform deployment
+templates:
+  - deployment-cron.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should produce a Deployment resource with minimal values
+    template: deployment-cron.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: release-name-platform-cron
+
+  - it: should produce a minimal working spec
+    template: deployment-cron.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - equal:
+          path: spec.template.spec
+          value:
+            containers:
+              - env:
+                  - name: NXF_HOME
+                    value: /var/cache/tower/
+                  - name: NXF_PLUGINS_DIR
+                    value: /var/cache/tower/plugins/
+                envFrom:
+                  - configMapRef:
+                      name: release-name-platform-cron
+                  - configMapRef:
+                      name: release-name-platform-shared-backend-cron
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
+                imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 10
+                  httpGet:
+                    path: /health
+                    port: 8082
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                name: cron
+                readinessProbe:
+                  failureThreshold: 5
+                  httpGet:
+                    path: /health
+                    port: 8082
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tower.yml
+                    name: config-volume
+                    subPath: tower.yml
+                  - mountPath: /var/cache/tower/
+                    name: plugin-volume
+                  - mountPath: /.nextflow/
+                    name: plugin-volume
+                  - mountPath: /?/.nextflow/
+                    name: plugin-volume
+            imagePullSecrets: null
+            initContainers:
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                    until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): db server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: DB_HOST
+                    value: ""
+                  - name: DB_PORT
+                    value: "3306"
+                  - name: DB_NAME
+                    value: null
+                  - name: DB_USERNAME
+                    value: ""
+                envFrom:
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: mysql:9
+                imagePullPolicy: IfNotPresent
+                name: wait-for-db
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - /migrate-db.sh
+                env: null
+                envFrom:
+                  - configMapRef:
+                      name: release-name-platform-cron
+                  - configMapRef:
+                      name: release-name-platform-shared-backend-cron
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: cr.seqera.io/private/nf-tower-enterprise/migrate-db:v9.9.9
+                imagePullPolicy: IfNotPresent
+                name: migrate-db
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tower.yml
+                    name: config-volume
+                    subPath: tower.yml
+            securityContext:
+              fsGroup: 101
+            serviceAccountName: release-name-platform-sa
+            volumes:
+              - configMap:
+                  name: release-name-platform-tower-yml
+                name: config-volume
+              - emptyDir:
+                  sizeLimit: 1Gi
+                name: plugin-volume
+
+  - it: should render the cron deployment with the specified tag version
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          tag: "9.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend:9.0.0"
+
+  - it: should render the cron deployment with the specified digest, overriding the tag
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          tag: "this will be ignored"
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend@sha256:1234abcdef"
+
+  - it: should render the cron deployment with the correct checksums, labels and annotations
+    template: deployment-cron.yaml
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: unittest
+            namespace: NAMESPACE
+          data:
+            db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
+    set:
+      global:
+        platformDatabase:
+          existingSecretName: "unittest"
+          existingSecretKey: "db-password-key"
+      commonLabels:
+        key123: this-should-be-overridden
+        key456: this-should-not-be-overridden
+      cron:
+        podLabels:
+          key123: this-overrides-the-commonLabels
+      tower:
+        jwtSeedString: these need to be defined
+        cryptoSeedString: otherwise 'helm template' creates random ones each time
+        # Take the license from a secret instead of a string, just for fun
+        licenseSecretName: "unittest"
+        licenseSecretKey: "license-token-key"
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            # If these values change, it means that values in the CM/Secret yaml files changed, and
+            # you may want to double check that the related test files were updated/integrated with
+            # new unittests as well, then update the values below. Check with 'helm unittest -d .'
+            # that the secret file produced for this test matches your expectations too.
+            checksum/configmap: ef60a29551340b75b1b73cf6e2d8d6bec1624520b960197ad0b87b81e5a3986a
+            checksum/secret: ea4ee986271d981fe7b4b3a8753687a6a3c2b4ef25c42280e557daeaa8c25b0c
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
