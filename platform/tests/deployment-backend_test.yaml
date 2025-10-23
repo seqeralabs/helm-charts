@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: test deployment
+suite: test Platform deployment
 templates:
   - deployment-backend.yaml
   - secret.yaml
@@ -33,10 +33,6 @@ tests:
           value:
             containers:
               - env:
-                  - name: TOWER_DB_PASSWORD
-                    value: ""
-                  - name: MICRONAUT_ENVIRONMENTS
-                    value: prod,redis,ha,wave
                   - name: NXF_HOME
                     value: /var/cache/tower/
                   - name: NXF_PLUGINS_DIR
@@ -44,6 +40,8 @@ tests:
                 envFrom:
                   - configMapRef:
                       name: release-name-platform-backend
+                  - configMapRef:
+                      name: release-name-platform-shared-backend-cron
                   - secretRef:
                       name: release-name-platform-backend
                 image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
@@ -78,8 +76,6 @@ tests:
                   - mountPath: /tower.yml
                     name: config-volume
                     subPath: tower.yml
-                  - mountPath: /var/log/tower/
-                    name: log-volume
                   - mountPath: /var/cache/tower/
                     name: plugin-volume
                   - mountPath: /.nextflow/
@@ -109,8 +105,9 @@ tests:
                     value: null
                   - name: DB_USERNAME
                     value: ""
-                  - name: TOWER_DB_PASSWORD
-                    value: ""
+                envFrom:
+                  - secretRef:
+                      name: release-name-platform-backend
                 image: mysql:9
                 imagePullPolicy: IfNotPresent
                 name: wait-for-db
@@ -169,9 +166,6 @@ tests:
                 name: config-volume
               - emptyDir:
                   sizeLimit: 1Gi
-                name: log-volume
-              - emptyDir:
-                  sizeLimit: 1Gi
                 name: plugin-volume
 
   - it: should render the backend deployment with the specified tag version
@@ -203,7 +197,28 @@ tests:
     chart:
       version: "9.9.9+test"
       appVersion: "9.9.9"
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: unittest
+            namespace: NAMESPACE
+          data:
+            db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
     set:
+      global:
+        platformDatabase:
+          existingSecretName: "unittest"
+          existingSecretKey: "db-password-key"
       commonLabels:
         key123: this-should-be-overridden
         key456: this-should-not-be-overridden
@@ -213,12 +228,19 @@ tests:
       tower:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
+        # Take the license from a secret instead of a string, just for fun
+        licenseSecretName: "unittest"
+        licenseSecretKey: "license-token-key"
     asserts:
       - equal:
           path: spec.template.metadata.annotations
           value:
-            checksum/configmap: 0d5cb21fe97b7cb99efd062201fb6d2f772b98f96b7931ed8e93ed0d5f1e10d2
-            checksum/secret: cc5885d9c196194f6fa2bedffd7247ddb42d33bfb8136470878a8f07351c2b7a
+            # If these values change, it means that values in the CM/Secret yaml files changed, and
+            # you may want to double check that the related test files were updated/integrated with
+            # new unittests as well, then update the values below. Check with 'helm unittest -d .'
+            # that the secret file produced for this test matches your expectations too.
+            checksum/configmap: 98f19ec74a2a6638e9db608d187e946754edfea0b5f856da9c60c11be0d93890
+            checksum/secret: ea4ee986271d981fe7b4b3a8753687a6a3c2b4ef25c42280e557daeaa8c25b0c
       - equal:
           path: spec.template.metadata.labels
           value:

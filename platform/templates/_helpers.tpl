@@ -53,11 +53,11 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 */}}
 {{- define "platform.backend.micronautEnvs" -}}
 {{- $list := .Values.backend.micronautEnvironments -}}
-{{/*
-always make sure redis is added to the list of microenvs */}}
+{{/* Always make sure the required micronaut environments are added to the list for backend */}}
+{{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
-{{/*
-Add wave to the list of microenvs if waveServerUrl is defined. */}}
+{{- $list = append $list "ha" -}}
+{{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
 {{- if not (empty .Values.tower.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
 {{- end -}}
@@ -68,41 +68,35 @@ Add wave to the list of microenvs if waveServerUrl is defined. */}}
 Build the cron micronaut envs list: add envs if features are requested in other values. */}}
 {{- define "platform.cron.micronautEnvs" -}}
 {{- $list := .Values.cron.micronautEnvironments -}}
-{{/*
-always make sure redis is added to the list of microenvs */}}
+{{/* Always make sure the required micronaut environments are added to the list for cron */}}
+{{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
+{{- $list = append $list "cron" -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
-{{- define "tower.emailSetup" -}}
-{{- if .Values.tower.smtp.host -}}
-  TOWER_SMTP_HOST: {{ .Values.tower.smtp.host | b64enc | quote }}
-  TOWER_SMTP_PORT: {{ .Values.tower.smtp.port | b64enc | quote }}
-  TOWER_SMTP_USER: {{ .Values.tower.smtp.user | b64enc | quote }}
-  TOWER_SMTP_PASSWORD: {{ .Values.tower.smtp.password | b64enc | quote }}
-{{- else if .Values.tower.awsSesEnable -}}
-  TOWER_ENABLE_AWS_SES: {{ b64enc "true" | quote }}
-{{- end -}}
+{{/*
+Return the name of the secret containing the Platform database password.
+*/}}
+{{- define "platform.database.secretName" -}}
+{{- /* When no external secret is passed, default to the secret name that will store the token.
+      On the first execution, the lookup function will not find the secret and will generate a
+      random token; on successive executions, the lookup function will find the secret and will
+      extract and re-save the token back in its original key. */ -}}
+{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
-{{/*
-Return the name of the secret containing the MySQL credentials. */}}
-{{- define "platform.database.secretName" -}}
-{{ tpl .Values.global.platformDatabase.existingSecret $ }}
+{{- define "platform.database.secretKey" -}}
+{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
 {{- end -}}
 
 {{/*
 Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
-
-TODO: use a helm variable := to store the tpl result to avoid multiple evaluations
 */}}
 {{- define "platform.redis.host" -}}
-{{- if (tpl .Values.redis.host $) }}
-  {{- tpl .Values.redis.host $ }}
-{{- else if (tpl .Values.global.redis.host $) }}
-  {{- tpl .Values.global.redis.host $ }}
-{{- end -}}
+{{- /* Redis is a requirement, so no need to check whether it was defined or not. */}}
+{{- printf "%s" (tpl .Values.redis.host $) | default (printf "%s" (tpl .Values.global.redis.host $)) -}}
 {{- end -}}
 
 {{/*
@@ -110,11 +104,7 @@ Return the port of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.port" -}}
-{{- if (tpl (.Values.redis.port | toString ) $) }}
-  {{- tpl (.Values.redis.port | toString) $ }}
-{{- else if (tpl (.Values.global.redis.port | toString) $) }}
-  {{- tpl (.Values.global.redis.port | toString) $ }}
-{{- end -}}
+{{- printf "%s" (tpl (.Values.redis.port | toString) $) | default (printf "%s" (tpl (.Values.global.redis.port | toString) $)) -}}
 {{- end -}}
 
 {{/*
@@ -141,60 +131,62 @@ Return the Redis URI. */}}
 
 {{/*
 Return the name of the secret containing the Redis password.
+'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretName" -}}
-{{- if and .Values.redis.auth.enabled .Values.redis.auth.existingSecret -}}
-  {{- tpl .Values.redis.auth.existingSecret $ -}}
-{{- else if and .Values.global.redis.auth.enabled .Values.global.redis.auth.existingSecret -}}
-  {{- tpl .Values.global.redis.auth.existingSecret $ -}}
-{{- end -}}
+{{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) }}
 {{- end -}}
 
 {{/*
-Tower database password environment variable entry.
+Return the key of the secret containing the Redis password.
+'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
-{{- define "platform.database.envVarPassword" -}}
-- name: TOWER_DB_PASSWORD
-  {{ if (include "platform.database.secretName" .) }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "platform.database.secretName" . | quote }}
-      key: mysql-password
-  {{ else }}
-  value: {{ .Values.global.platformDatabase.password | quote }}
-  {{ end }}
+{{- define "platform.redis.secretKey" -}}
+{{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 
 {{/*
-Tower JWT seed environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string or let to Helm to create it, it's added in the main Tower backend Secret.
+Return the name of the secret containing the JWT token.
 */}}
-{{- define "tower.jwt.envVarSeed" -}}
-{{- if .Values.tower.jwtSeedSecretName }}
-- name: TOWER_JWT_SECRET
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.jwtSeedSecretName | quote }}
-      key: TOWER_JWT_SECRET
+{{- define "platform.jwt.secretName" -}}
+{{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
+
+{{- define "platform.jwt.secretKey" -}}
+{{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
 
 {{/*
-Tower crypto seed environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string or let to Helm to create it, it's added in the main Tower backend Secret.
+Return the name of the secret containing the crypto token.
 */}}
-{{- define "tower.crypto.envVarSeed" -}}
-{{- if .Values.tower.cryptoSeedSecretName }}
-- name: TOWER_CRYPTO_SECRETKEY
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.cryptoSeedSecretName | quote }}
-      key: TOWER_CRYPTO_SECRETKEY
+{{- define "platform.crypto.secretName" -}}
+{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
+
+{{- define "platform.crypto.secretKey" -}}
+{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the Platform license token.
+*/}}
+{{- define "platform.license.secretName" -}}
+{{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
+
+{{- define "platform.license.secretKey" -}}
+{{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the SMTP password.
+*/}}
+{{- define "platform.smtp.secretName" -}}
+{{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
+
+{{- define "platform.smtp.secretKey" -}}
+{{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
 {{- define "tower.containerSecurityContextMinimal" -}}
@@ -214,24 +206,6 @@ resources:
     memory: "50Mi"
   limits:
     memory: "100Mi"
-{{- end -}}
-
-{{/*
-Tower License environment variable entry.
-
-This will only add the env var if the user passed an external Secret, otherwise if the seed
-was passed as string it's added in the main Tower backend Secret.
-A License can't be generated with a random value, it has to be provided by a Seqera Labs
-account manager.
-*/}}
-{{- define "tower.license.envVar" -}}
-{{- if .Values.tower.licenseSecretName }}
-- name: TOWER_LICENSE
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.tower.licenseSecretName | quote }}
-      key: TOWER_LICENSE
-{{- end -}}
 {{- end -}}
 
 {{/*
@@ -264,7 +238,9 @@ Common initContainer to wait for MySQL database to be ready.
       value: {{ .context.Values.global.platformDatabase.name | quote }}
     - name: DB_USERNAME
       value: {{ .context.Values.global.platformDatabase.username | quote }}
-    {{ include "platform.database.envVarPassword" .context | nindent 4 }}
+  envFrom:
+    - secretRef:
+        name: {{ printf "%s-backend" (include "common.names.fullname" .context) }}
 
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}

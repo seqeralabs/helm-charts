@@ -83,6 +83,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.backend.extraEnvVarsCM }}
@@ -95,16 +97,6 @@ spec:
             {{- end }}
 
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
-            {{- if or .Values.redis.auth.enabled .Values.global.redis.auth.enabled }}
-            - name: TOWER_REDIS_PASSWORD
-              value: {{ include "common.secrets.passwords.manage" (dict "secret" (include "platform.redis.secretName" .) "key" "redis-password" "providedValues" (list "redis.auth.password" "global.redis.auth.password") "context" $) }}
-            {{- end }}
-            {{- include "tower.jwt.envVarSeed" . | nindent 12 }}
-            {{- include "tower.crypto.envVarSeed" . | nindent 12 }}
-            {{- include "tower.license.envVar" . | nindent 12 }}
-            - name: MICRONAUT_ENVIRONMENTS
-              value: {{ include "platform.backend.micronautEnvs" . }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
@@ -124,8 +116,6 @@ spec:
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
-            - name: log-volume
-              mountPath: {{ .Values.tower.logDir }}
             - name: plugin-volume
               mountPath: /var/cache/tower/
             # The following mountpoints are workarounds due to bugs in Nextflow not obeying the NXF_PLUGINS_DIR/NXF_HOME vars.
@@ -159,9 +149,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
-        - name: log-volume
-          emptyDir:
-            sizeLimit: {{ .Values.tower.logDirSize | quote }}
         - name: plugin-volume
           emptyDir:
             sizeLimit: "1Gi"

@@ -1,0 +1,142 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform configmaps
+templates:
+  - configmap.yaml
+tests:
+  - it: should render 4 different CM documents by default
+    asserts:
+      - hasDocuments:
+          count: 4
+
+  - it: should render backend cm with default values
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave
+
+  - it: should render cron cm with default values
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            MICRONAUT_ENVIRONMENTS: prod,redis,cron
+            TOWER_CRON_SERVER_PORT: "8082"
+
+  - it: should setup requested micronaut envs for backend when required, in addition to the mandatory ones
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      backend:
+        micronautEnvironments: [prod, whatever1, whatever2]
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: prod,whatever1,whatever2,redis,ha,wave
+
+  - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      cron:
+        micronautEnvironments: [prod, whatever1, whatever2]
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: prod,whatever1,whatever2,redis,cron
+
+  - it: should include SMTP configuration when configured
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      tower:
+        smtp:
+          host: "smtp.example.com"
+          port: "587"
+          user: "user@example.com"
+          password: "smtp-password"
+    asserts:
+      - equal:
+          path: data.TOWER_SMTP_HOST
+          value: smtp.example.com
+      - equal:
+          path: data.TOWER_SMTP_PORT
+          value: "587"
+      - equal:
+          path: data.TOWER_SMTP_USER
+          value: user@example.com
+      - notExists:
+          path: data.TOWER_SMTP_PASSWORD
+
+  - it: should apply common labels
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      commonLabels:
+        environment: "dev"
+        team: "platform"
+    asserts:
+      - equal:
+          path: metadata.labels.environment
+          value: dev
+      - equal:
+          path: metadata.labels.team
+          value: platform
+
+  - it: should include AWS SES configuration when enabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      tower:
+        awsSesEnable: true
+    asserts:
+      - equal:
+          path: data.TOWER_ENABLE_AWS_SES
+          value: "true"
+
+  - it: should render shared cm with default values
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            # Here required values such as redis or db url are empty and the unittest doesn't fail
+            # because we didn't include the NOTES.txt file in the templates to be tested, so no
+            # validation is done.
+            FLYWAY_LOCATIONS: classpath:db-schema/mysql
+            TOWER_CONTACT_EMAIL: tower-support@example.com
+            TOWER_CONTENT_URL: ""
+            TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin
+            TOWER_DB_DRIVER: org.mariadb.jdbc.Driver
+            TOWER_DB_MAX_LIFETIME: "60000"
+            TOWER_DB_MAX_POOL_SIZE: "5"
+            TOWER_DB_MIN_POOL_SIZE: "0"
+            TOWER_DB_URL: jdbc:mysql://:3306/?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true
+            TOWER_DB_USER: ""
+            TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform
+            TOWER_REDIS_URL: redis://:6379
+            TOWER_SERVER_URL: https://example.com
+            WAVE_SERVER_URL: https://wave.seqera.io

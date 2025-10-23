@@ -52,11 +52,14 @@ spec:
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}
           command: ['sh', '-c', '/migrate-db.sh']
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
           envFrom:
+            - configMapRef:
+                name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
@@ -96,6 +99,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
@@ -109,16 +114,6 @@ spec:
             {{- end }}
 
           env:
-            {{- include "platform.database.envVarPassword" . | nindent 12 }}
-            {{- if or .Values.redis.auth.enabled .Values.global.redis.auth.enabled }}
-            - name: TOWER_REDIS_PASSWORD  # TODO: the template should be able to extract the variable name from the function call
-              value: {{ include "common.secrets.passwords.manage" (dict "secret" (include "platform.redis.secretName" .) "key" "redis-password" "providedValues" (list "redis.auth.password" "global.redis.auth.password") "context" $) }}
-            {{- end }}
-            {{- include "tower.jwt.envVarSeed" . | nindent 12 }}
-            {{- include "tower.crypto.envVarSeed" . | nindent 12 }}
-            {{- include "tower.license.envVar" . | nindent 12 }}
-            - name: MICRONAUT_ENVIRONMENTS
-              value: {{ include "platform.cron.micronautEnvs" . }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
@@ -138,8 +133,6 @@ spec:
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
-            - name: log-volume
-              mountPath: {{ .Values.tower.logDir | quote }}
             - name: plugin-volume
               mountPath: /var/cache/tower/
             # The following mountpoints are workarounds due to bugs in Nextflow not obeying the NXF_PLUGINS_DIR/NXF_HOME vars.
@@ -173,9 +166,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
-        - name: log-volume
-          emptyDir:
-            sizeLimit: {{ .Values.tower.logDirSize | quote }}
         - name: plugin-volume
           emptyDir:
             sizeLimit: "1Gi"
