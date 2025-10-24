@@ -383,3 +383,63 @@ tests:
       - equal:
           path: spec.template.spec.dnsPolicy
           value: ClusterFirstWithHostNet
+
+  - it: should render default podsecurityContext
+    template: deployment-cron.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should disable podSecurityContext when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: false
+        extraOptionsTemplateSpec:
+          securityContext:
+            fsGroup: 2000
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should omit the 'enabled' field from podSecurityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.enabled
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should render whatever podsecurityContext is set
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: true
+          fsGroup: 2000
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            asdf: 123
