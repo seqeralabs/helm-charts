@@ -49,8 +49,8 @@ spec:
       {{- end }}
 
       initContainers:
-        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) | nindent 8 -}}
-        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) | nindent 8 -}}
+        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) | nindent 8 }}
+        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) | nindent 8 }}
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}

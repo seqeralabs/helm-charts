@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: test Platform deployment
+suite: test Platform cron
 templates:
   - deployment-cron.yaml
   - secret.yaml
@@ -121,6 +121,37 @@ tests:
                 image: mysql:9
                 imagePullPolicy: IfNotPresent
                 name: wait-for-db
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                    until redis-cli -u "$REDIS_URI" get hello; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): redis server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: REDIS_URI
+                    value: redis://asdf:6379
+                image: redis:7
+                imagePullPolicy: IfNotPresent
+                name: wait-for-redis
                 resources:
                   limits:
                     memory: 100Mi
@@ -444,19 +475,6 @@ tests:
             fsGroup: 2000
             asdf: 123
 
-  - it: should render default container securityContext
-    template: deployment-cron.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext
-          value:
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 101
-
   - it: should render custom container securityContext
     template: deployment-cron.yaml
     set:
@@ -483,18 +501,13 @@ tests:
             runAsUser: 2000
             asdf: 123
 
-  - it: should render default initContainer securityContext
+  - it: should render initContainers that wait for required services to be ready and to migrate the DB
     template: deployment-cron.yaml
     asserts:
-      - equal:
-          path: spec.template.spec.initContainers[0].securityContext
-          value:
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 101
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 3
+
 
   - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
     template: deployment-cron.yaml
@@ -505,7 +518,7 @@ tests:
             enabled: false
     asserts:
       - notExists:
-          path: spec.template.spec.initContainers[1].securityContext
+          path: spec.template.spec.initContainers[2].securityContext
 
   - it: should render custom initContainer securityContext
     template: deployment-cron.yaml
@@ -523,7 +536,7 @@ tests:
             asdf: 123
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[1].securityContext
+          path: spec.template.spec.initContainers[2].securityContext
           value:
             capabilities:
               add:

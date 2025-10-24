@@ -243,7 +243,6 @@ Common initContainer to wait for Redis to be ready.
 {{ include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) }}
 */}}
 {{- define "tower.initContainerWaitForRedis" -}}
-{{- if .context.Values.redis.enabled -}}
 - name: wait-for-redis
   image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForRedisImage "global" .context.Values.global) }}
   imagePullPolicy: {{ .context.Values.initContainersUtils.waitForRedisImage.pullPolicy }}
@@ -276,7 +275,6 @@ Common initContainer to wait for Redis to be ready.
 
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}
-{{ end }}
 {{- end -}}
 
 {{/*

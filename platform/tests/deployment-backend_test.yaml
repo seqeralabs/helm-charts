@@ -128,6 +128,37 @@ tests:
                   - sh
                   - -c
                   - |
+                    echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                    until redis-cli -u "$REDIS_URI" get hello; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): redis server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: REDIS_URI
+                    value: redis://asdf:6379
+                image: redis:7
+                imagePullPolicy: IfNotPresent
+                name: wait-for-redis
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - |
                     echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
                     until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
                       echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"

@@ -45,8 +45,8 @@ spec:
       {{- end }}
 
       initContainers:
-        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 -}}
-        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 -}}
+        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
+        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
         - name: wait-for-cron
           image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainersUtils.waitForCronImage "global" .Values.global) }}
           imagePullPolicy: {{  .Values.initContainersUtils.waitForCronImage.pullPolicy }}
