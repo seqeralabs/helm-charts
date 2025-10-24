@@ -910,3 +910,44 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[2].args
           value: ["--migrate-arg1", "value1"]
+
+  - it: should render custom resources for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+  - it: should render custom resources for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
