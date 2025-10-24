@@ -680,6 +680,24 @@ tests:
             image: alpine:latest
             command: ["sh", "-c", "echo Hello from another extra init container"]
 
+  - it: should include extra Volumes in the cron migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          extraVolumeMounts:
+            - name: extra-volume
+              mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].volumeMounts
+          value:
+            - name: extra-volume
+              mountPath: /extra/path
+            - mountPath: /tower.yml
+              name: config-volume
+              subPath: tower.yml
+
   - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
     template: deployment-cron.yaml
     set:
@@ -718,3 +736,46 @@ tests:
             runAsNonRoot: false
             runAsUser: 2000
             asdf: 123
+
+  - it: should include extra volumeMounts in the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraVolumeMounts:
+          - name: extra-volume
+            mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts
+          value:
+            - name: extra-volume
+              mountPath: /extra/path
+            - mountPath: /tower.yml
+              name: config-volume
+              subPath: tower.yml
+            - mountPath: /var/cache/tower/
+              name: plugin-volume
+            - mountPath: /.nextflow/
+              name: plugin-volume
+            - mountPath: /?/.nextflow/
+              name: plugin-volume
+
+  - it: should include extra Volumes in the cron pod spec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraVolumes:
+          - name: extra-volume
+            emptyDir: {}
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes
+          value:
+            - emptyDir: {}
+              name: extra-volume
+            - configMap:
+                name: release-name-platform-tower-yml
+              name: config-volume
+            - emptyDir:
+                sizeLimit: 1Gi
+              name: plugin-volume

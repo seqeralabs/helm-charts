@@ -84,7 +84,7 @@ spec:
           {{- end }}
           volumeMounts:
             {{- with .Values.cron.dbMigrationInitContainer.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" .Values.cron.dbMigrationInitContainer.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
             - name: config-volume
               mountPath: /tower.yml
