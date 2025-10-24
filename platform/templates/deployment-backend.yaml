@@ -16,8 +16,11 @@ spec:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
       app: backend
 
-  {{- with .Values.backend.extraOptionsSpec -}}
-  {{- include "common.tplvalues.render" (dict "value" (omit . "selector") "context" $) | nindent 2 -}}
+  # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
+  # omitted (selector).
+  {{- $extraOptionsSpec := omit .Values.backend.extraOptionsSpec "selector" }}
+  {{- if $extraOptionsSpec }}
+  {{- include "common.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
   {{- end }}
 
   template:
@@ -36,8 +39,9 @@ spec:
       {{- if .Values.backend.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.backend.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- with .Values.backend.extraOptionsTemplateSpec }}
-      {{- include "common.tplvalues.render" (dict "value" (omit . "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets") "context" $) | nindent 6 }}
+      {{- $extraOptionsTemplateSpec := omit .Values.backend.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
+      {{- if $extraOptionsTemplateSpec }}
+      {{- include "common.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
       {{- end }}
 
       initContainers:

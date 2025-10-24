@@ -300,7 +300,7 @@ tests:
           path: spec.strategy.type
           value: Recreate
 
-  - it: should obey a mix of ignored replicas/strategy and valid options
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
     template: deployment-cron.yaml
     set:
       cron:
@@ -338,7 +338,7 @@ tests:
                       - key: app
                         operator: In
                         values:
-                          - cron
+                          - whatever
                   topologyKey: "kubernetes.io/hostname"
     asserts:
       - equal:
@@ -355,7 +355,7 @@ tests:
                       - key: app
                         operator: In
                         values:
-                          - cron
+                          - whatever
                   topologyKey: "kubernetes.io/hostname"
 
   - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
