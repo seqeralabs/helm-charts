@@ -633,6 +633,53 @@ tests:
             - secretRef:
                 name: extra-env-vars-secret
 
+  - it: should render extra initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        initContainers:
+          - name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 4
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+
+  - it: should render multiple extra initContainers
+    template: deployment-cron.yaml
+    set:
+      cron:
+        initContainers:
+          - name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+          - name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 5
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+      - equal:
+          path: spec.template.spec.initContainers[4]
+          value:
+            name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+
   - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
     template: deployment-cron.yaml
     set:
