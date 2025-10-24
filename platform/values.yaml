@@ -918,7 +918,7 @@ serviceAccount:
   # -- Names of Secrets containing credentials to pull images from registries.
   imagePullSecretNames: []
   # -- Whether to automount service account token when the server service account is generated.
-  automountServiceAccountToken: true
+  automountServiceAccountToken: false
 
 ingress:
   # -- Enable ingress for Platform.
