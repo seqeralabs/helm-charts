@@ -507,7 +507,131 @@ tests:
       - lengthEqual:
           path: spec.template.spec.initContainers
           count: 3
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-redis
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: migrate-db
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: cr.seqera.io/private/nf-tower-enterprise/migrate-db:v9.9.9
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: ""
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: null
+            - name: DB_USERNAME
+              value: ""
+      - equal:
+          path: spec.template.spec.initContainers[0].envFrom
+          value:
+            - secretRef:
+                name: release-name-platform-backend
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: REDIS_URI
+              value: redis://:6379
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value: null
 
+  - it: should render initContainer with appropriate env vars
+    template: deployment-cron.yaml
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: my-db-secret
+            namespace: NAMESPACE
+          data:
+            my-db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+    set:
+      global:
+        platformDatabase:
+          host: "my-db-host"
+          port: 3307
+          name: "my-db-name"
+          username: "my-db-username"
+          existingSecretName: "my-db-secret"
+          existingSecretKey: "my-db-password-key"
+        redis:
+          host: "my-redis-host"
+          port: 6380
+          auth:
+            enabled: true
+            password: "my-redis-password123"
+      cron:
+        dbMigrationInitContainer:
+          extraEnvVars:
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+          extraEnvVarsCM: extra-env-vars-cm
+          extraEnvVarsSecret: extra-env-vars-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: my-db-host
+            - name: DB_PORT
+              value: "3307"
+            - name: DB_NAME
+              value: my-db-name
+            - name: DB_USERNAME
+              value: my-db-username
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: REDIS_URI
+              value: redis://my-redis-host:6379
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-platform-backend
+                  key: TOWER_REDIS_PASSWORD
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value:
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.initContainers[2].envFrom
+          value:
+            - configMapRef:
+                name: release-name-platform-cron
+            - configMapRef:
+                name: release-name-platform-shared-backend-cron
+            - secretRef:
+                name: release-name-platform-backend
+            - configMapRef:
+                name: extra-env-vars-cm
+            - secretRef:
+                name: extra-env-vars-secret
 
   - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
     template: deployment-cron.yaml

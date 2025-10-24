@@ -125,7 +125,7 @@ Return the name of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretName" -}}
-{{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) }}
+{{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{/*
@@ -261,18 +261,13 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" .context | quote }}
-    {{- if .context.Values.redis.auth.enabled }}
+    {{- if or .context.Values.redis.auth.enabled .context.Values.global.redis.auth.enabled }}
     - name: REDISCLI_AUTH
-      {{ if .context.Values.redis.auth.password }}
-      value: {{ .context.Values.redis.auth.password | quote }}
-      {{- else -}}
       valueFrom:
         secretKeyRef:
-          name: {{ include "tower.redis.secretName" .context | quote }}
-          key: redis-password
-      {{- end }}
+          name: {{ include "platform.redis.secretName" .context }}
+          key: {{ include "platform.redis.secretKey" .context }}
     {{- end }}
-
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}
 {{- end -}}
