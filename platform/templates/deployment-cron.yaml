@@ -160,18 +160,14 @@ spec:
           securityContext: {{- omit .Values.cron.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
 
-          {{- range $probeName, $probe := (dict "startupProbe" .Values.cron.startupProbe "readinessProbe" .Values.cron.readinessProbe "livenessProbe" .Values.cron.livenessProbe) }}
-          {{- if $probe.enabled }}
-          {{ $probeName }}:
-            httpGet:
-              path: "/health"
-              port: {{ $.Values.cron.service.http.targetPort }}
-            initialDelaySeconds: {{ $probe.initialDelaySeconds }}
-            periodSeconds: {{ $probe.periodSeconds }}
-            timeoutSeconds: {{ $probe.timeoutSeconds }}
-            successThreshold: {{ $probe.successThreshold }}
-            failureThreshold: {{ $probe.failureThreshold }}
+          {{- if .Values.cron.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.livenessProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
+          {{- if .Values.cron.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.cron.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.startupProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
 
       volumes:
