@@ -74,7 +74,11 @@ spec:
             - secretRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
-          {{ include "tower.containerSecurityContextMinimal" . | nindent 10 }}
+
+          {{- if .Values.cron.dbMigrationInitContainer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.cron.dbMigrationInitContainer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+
           {{- with .Values.cron.dbMigrationInitContainer.resources }}
           resources: {{- toYaml . | nindent 12 }}
           {{- end }}

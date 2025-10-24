@@ -836,17 +836,7 @@ cron:
     # `extraVolumes`.
     extraVolumeMounts: []
 
-    # Configure Pods Security Context.
-    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-    # Empty map to disable Pod Security Context configuration.
-    podSecurityContext:
-      # -- Enable backend pods Security Context.
-      enabled: true
-      # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
-      # in the pod can share group-owned access.
-      fsGroup: 101
-
-    # Configure Container Security Context.
+    # Configure Init Container Security Context.
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext:
       # -- Enable backend containers Security Context

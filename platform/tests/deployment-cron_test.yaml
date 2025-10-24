@@ -443,3 +443,94 @@ tests:
           value:
             fsGroup: 2000
             asdf: 123
+
+  - it: should render default container securityContext
+    template: deployment-cron.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101
+
+  - it: should render custom container securityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        containerSecurityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+          runAsUser: 2000
+          runAsNonRoot: false
+          readOnlyRootFilesystem: false
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
+
+  - it: should render default initContainer securityContext
+    template: deployment-cron.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext
+          value:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101
+
+  - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          containerSecurityContext:
+            enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[1].securityContext
+
+  - it: should render custom initContainer securityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          enabled: true
+          containerSecurityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+            runAsUser: 2000
+            runAsNonRoot: false
+            readOnlyRootFilesystem: false
+            asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[1].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
