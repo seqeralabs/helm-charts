@@ -3,6 +3,22 @@ suite: test Platform requirements
 templates:
   - ../templates/NOTES.txt
 tests:
+  - it: should fail when global.platformServiceAddress is not a valid DNS entry
+    set:
+      global:
+        platformServiceAddress: "invalid_address_with_underscores"
+    asserts:
+      - failedTemplate:
+          errorPattern: "'global.platformServiceAddress' must be a valid DNS subdomain \\(a-z, 0-9, and '-'\\)\\."
+
+  - it: should fail when global.platformServicePort is not a valid port
+    set:
+      global:
+        platformServicePort: "invalid"
+    asserts:
+      - failedTemplate:
+          errorPattern: "must be an integer between 1 and 65535"
+
   - it: should fail when global.platformDatabase.host is not defined
     set:
       global:
@@ -11,7 +27,7 @@ tests:
     asserts:
       - failedTemplate:
           # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
-          errorPattern: ".*Define the MySQL database hostname at 'global.platformDatabase.host'\\..*"
+          errorPattern: "Define the MySQL database hostname at 'global.platformDatabase.host'\\."
 
   - it: should fail when redis.host and global.redis.host are not defined
     set:
@@ -24,7 +40,7 @@ tests:
         host: ""
     asserts:
       - failedTemplate:
-          errorPattern: ".*Define the Redis hostname in 'redis' or 'global.redis' \\('redis' takes precedence over 'global.redis'\\).*"
+          errorPattern: "Define the Redis hostname in 'redis' or 'global.redis' \\('redis' takes precedence over 'global.redis'\\)"
 
   - it: should fail when no license is defined
     set:
@@ -37,7 +53,7 @@ tests:
         licenseString: ""
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the License or a secret name are needed, not both..*"
+          errorPattern: "Either a string version of the License or a secret name are needed, not both."
 
   - it: should pass when redis.host and global.platformDatabase.host are defined
     set:
@@ -80,7 +96,7 @@ tests:
         jwtSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the JWT seed or a secret name are needed, not both..*"
+          errorPattern: "Either a string version of the JWT seed or a secret name are needed, not both."
 
   - it: should fail when both tower.cryptoSeedString and tower.cryptoSeedSecretName are defined
     set:
@@ -95,7 +111,7 @@ tests:
         cryptoSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either a string version of the Crypto seed or a secret name are needed, not both..*"
+          errorPattern: "Either a string version of the Crypto seed or a secret name are needed, not both."
 
   - it: should fail when both tower.smtp.host and tower.awsSesEnable are defined
     set:
@@ -111,7 +127,7 @@ tests:
         awsSesEnable: true
     asserts:
       - failedTemplate:
-          errorPattern: ".*Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both.*"
+          errorPattern: "Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both"
 
   - it: should fail when tower.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
     set:
@@ -128,4 +144,4 @@ tests:
           - e2e
     asserts:
       - failedTemplate:
-          errorPattern: ".*The AWS SES provider is not compatible with the test environment, disable/drop either of them.*"
+          errorPattern: "The AWS SES provider is not compatible with the test environment, disable/drop either of them"

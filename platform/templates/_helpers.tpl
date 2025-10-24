@@ -278,3 +278,47 @@ Common initContainer to wait for Redis to be ready.
   {{ include "tower.resourcesMinimal" . | nindent 2 }}
 {{ end }}
 {{- end -}}
+
+{{/*
+Validate a string value against DNS label naming conventions.
+
+A DNS label must:
+- contain at most 63 characters
+- contain only lowercase alphanumeric characters or '-'
+- start with an alphabetic character
+- end with an alphanumeric character
+
+Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
+
+{{ include "platform.validate.dnsLabel" (dict "value" "value_to_validate") -}}
+*/}}
+{{- define "platform.validate.dnsLabel" -}}
+{{- $errors := list -}}
+{{- if gt (len .value) 63 -}}
+{{- $errors = append $errors (printf "must not be longer than 63 characters") -}}
+{{- end -}}
+{{- if not (regexMatch "^[a-z]([-a-z0-9]*[a-z0-9])?$" .value) -}}
+{{- $errors = append $errors (printf "'global.platformServiceAddress' must be a valid DNS subdomain (a-z, 0-9, and '-').") -}}
+{{- end -}}
+{{- if $errors -}}
+{{- join "; " $errors -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate that a value is a string representation of an integer.
+
+{{ include "platform.validate.isInteger" (dict "value" "value_to_validate") -}}
+*/}}
+{{- define "platform.validate.isInteger" -}}
+{{- $errors := list -}}
+{{- if not (regexMatch "^[0-9]+$" (.value | toString)) -}}
+{{- $errors = append $errors (printf "must be an integer between 1 and 65535") -}}
+{{- end -}}
+{{- if .value | int |lt 65535 -}}
+{{- $errors = append $errors (printf "must not be greater than 65535") -}}
+{{- end -}}
+{{- if $errors -}}
+{{- join "; " $errors -}}
+{{- end -}}
+{{- end -}}
