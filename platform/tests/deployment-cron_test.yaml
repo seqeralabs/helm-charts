@@ -28,6 +28,16 @@ tests:
       redis:
         host: "asdf"
     asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: metadata.name
+          value: release-name-platform-cron
       - equal:
           path: spec.template.spec
           value:
@@ -215,9 +225,13 @@ tests:
       commonLabels:
         key123: this-should-be-overridden
         key456: this-should-not-be-overridden
+      commonAnnotations:
+        common-annotation-key: common-annotation-value
       cron:
         podLabels:
           key123: this-overrides-the-commonLabels
+        podAnnotations:
+          pod-annotation-key: pod-annotation-value
       tower:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
@@ -226,14 +240,19 @@ tests:
         licenseSecretKey: "license-token-key"
     asserts:
       - equal:
+          path: metadata.annotations
+          value:
+            common-annotation-key: common-annotation-value
+      - equal:
           path: spec.template.metadata.annotations
           value:
+            pod-annotation-key: pod-annotation-value
             # If these values change, it means that values in the CM/Secret yaml files changed, and
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: ef60a29551340b75b1b73cf6e2d8d6bec1624520b960197ad0b87b81e5a3986a
-            checksum/secret: ea4ee986271d981fe7b4b3a8753687a6a3c2b4ef25c42280e557daeaa8c25b0c
+            checksum/configmap: 482109670699dd04526432cd6f433fb296fc233d55f446d98f4c93564ec69d0b
+            checksum/secret: 9daad093a89e1b9bc147a0f91215874f976126be124a7360ead666ebb60ec28d
       - equal:
           path: spec.template.metadata.labels
           value:
@@ -245,3 +264,122 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
+      # Check that the selector includes the correct labels too, but no custom podlabels should be
+      # defined on the selector, see bitnami/common for an explanation here:
+      # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: shouldn't obey custom replicas requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          replicas: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: shouldn't obey custom strategy requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: should obey a mix of ignored replicas/strategy and valid options
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          replicas: 3
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+          revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - cron
+                  topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - cron
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+          dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet

@@ -20,8 +20,11 @@ spec:
   replicas: 1
   strategy:
     type: Recreate
-  {{- with .Values.cron.extraOptionsSpec -}}
-  {{- include "common.tplvalues.render" (dict "value" (omit . "replicas" "strategy" "selector") "context" $) | nindent 2 -}}
+  # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
+  # omitted (replicas, strategy, selector).
+  {{- $extraOptionsSpec := omit .Values.cron.extraOptionsSpec "replicas" "strategy" "selector" }}
+  {{- if $extraOptionsSpec }}
+  {{- include "common.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
   {{- end }}
 
   template:
@@ -40,8 +43,9 @@ spec:
       {{- if .Values.cron.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.cron.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
-      {{- with .Values.cron.extraOptionsTemplateSpec }}
-      {{- include "common.tplvalues.render" (dict "value" (omit . "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets") "context" $) | nindent 6 }}
+      {{- $extraOptionsTemplateSpec := omit .Values.cron.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
+      {{- if $extraOptionsTemplateSpec }}
+      {{- include "common.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
       {{- end }}
 
       initContainers:

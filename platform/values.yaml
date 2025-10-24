@@ -674,15 +674,11 @@ cron:
   # -- Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
   podAnnotations: {}
 
-  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-  # Evaluated as a template.
+  # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
+  # Note that cron deployment needs to have a single replica with Recreate strategy.
   #
   # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
-  #       maxSurge: y
+  #   revisionHistoryLimit: 4
   extraOptionsSpec: {}
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template.
