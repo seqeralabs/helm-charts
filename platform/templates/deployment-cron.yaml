@@ -181,10 +181,4 @@ spec:
           emptyDir:
             sizeLimit: "1Gi"
 
-      imagePullSecrets:
-      {{- range .Values.cron.image.pullSecrets }}
-        - name: {{ . | quote }}
-      {{- end }}
-      {{- range .Values.cron.dbMigrationInitContainer.image.pullSecrets }}
-        - name: {{ . | quote }}
-      {{- end }}
+      {{ include "common.images.renderPullSecrets" ( dict "images" (list .Values.cron.image .Values.cron.dbMigrationInitContainer.image) "context" $) | nindent 6 }}

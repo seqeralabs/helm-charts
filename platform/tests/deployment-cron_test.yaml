@@ -92,7 +92,6 @@ tests:
                     name: plugin-volume
                   - mountPath: /?/.nextflow/
                     name: plugin-volume
-            imagePullSecrets: null
             initContainers:
               - command:
                   - sh
@@ -1016,3 +1015,48 @@ tests:
             periodSeconds: 25
             successThreshold: 1
             timeoutSeconds: 3
+
+  - it: should add image pull secrets to the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          pullSecrets:
+            - my-custom-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+
+  - it: should add image pull secrets to the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            pullSecrets:
+              - my-migrate-db-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-migrate-db-pull-secret
+
+  - it: should add both cron and migrate-db image pull secrets
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          pullSecrets:
+            - my-custom-pull-secret
+        dbMigrationInitContainer:
+          image:
+            pullSecrets:
+              - my-migrate-db-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+            - name: my-migrate-db-pull-secret
