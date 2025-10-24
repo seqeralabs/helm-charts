@@ -779,3 +779,72 @@ tests:
             - emptyDir:
                 sizeLimit: 1Gi
               name: plugin-volume
+
+  - it: should use custom image for the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-cron-image
+          tag: "2.0.0"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-cron-image:2.0.0"
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest for the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-cron-image
+          tag: "this-will-be-ignored"
+          digest: "sha256:whatever"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-cron-image@sha256:whatever"
+
+  - it: should use custom image for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            registry: my-custom-registry.io
+            repository: my-custom-repo/my-migrate-db-image
+            tag: "3.0.0"
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: "my-custom-registry.io/my-custom-repo/my-migrate-db-image:3.0.0"
+      - equal:
+          path: spec.template.spec.initContainers[2].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            registry: my-custom-registry.io
+            repository: my-custom-repo/my-migrate-db-image
+            tag: "this-will-be-ignored"
+            digest: "sha256:migratedbwhatever"
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: "my-custom-registry.io/my-custom-repo/my-migrate-db-image@sha256:migratedbwhatever"
+      - equal:
+          path: spec.template.spec.initContainers[2].imagePullPolicy
+          value: Always
