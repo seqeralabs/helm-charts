@@ -54,7 +54,14 @@ spec:
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}
-          command: ['sh', '-c', '/migrate-db.sh']
+          {{- with .Values.cron.dbMigrationInitContainer.command }}
+          command: {{- toYaml . | nindent 12 }}
+          {{- else }}
+          command: ["sh", "-c", "/migrate-db.sh"]
+          {{- end }}
+          {{- with .Values.cron.dbMigrationInitContainer.args }}
+          args: {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}

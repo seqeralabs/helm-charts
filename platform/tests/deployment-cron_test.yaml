@@ -848,3 +848,32 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[2].imagePullPolicy
           value: Always
+
+  - it: should use custom command and args for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        command: ["/bin/custom-cron-start"]
+        args: ["--custom-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: ["/bin/custom-cron-start"]
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value: ["--custom-arg1", "value1"]
+
+  - it: should use custom command and args for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          command: ["/bin/custom-migrate-db"]
+          args: ["--migrate-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].command
+          value: ["/bin/custom-migrate-db"]
+      - equal:
+          path: spec.template.spec.initContainers[2].args
+          value: ["--migrate-arg1", "value1"]

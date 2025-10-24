@@ -129,6 +129,22 @@ tests:
       - failedTemplate:
           errorPattern: "Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both"
 
+  - it: should fail if migrate-db args are set but command is not
+    set:
+      global:
+        platformDatabase:
+          host: "whatever"
+        redis:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+      cron:
+        dbMigrationInitContainer:
+          args: ["--some-arg"]
+    asserts:
+      - failedTemplate:
+          errorPattern: "If 'cron.dbMigrationInitContainer.args' are provided, 'cron.dbMigrationInitContainer.command' must also be provided."
+
   - it: should fail when tower.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
     set:
       global:
