@@ -501,6 +501,39 @@ tests:
             runAsUser: 2000
             asdf: 123
 
+  - it: should render container with extraEnvVars, extraEnvVarsCM and extraEnvVarsSecret
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraEnvVars:
+          - name: CUSTOM_ENV_VAR
+            value: custom-value
+        extraEnvVarsCM: extra-env-vars-cm
+        extraEnvVarsSecret: extra-env-vars-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: NXF_HOME
+              value: /var/cache/tower/
+            - name: NXF_PLUGINS_DIR
+              value: /var/cache/tower/plugins/
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.containers[0].envFrom
+          value:
+            - configMapRef:
+                name: release-name-platform-cron
+            - configMapRef:
+                name: release-name-platform-shared-backend-cron
+            - secretRef:
+                name: release-name-platform-backend
+            - configMapRef:
+                name: extra-env-vars-cm
+            - secretRef:
+                name: extra-env-vars-secret
+
   - it: should render initContainers that wait for required services to be ready and to migrate the DB
     template: deployment-cron.yaml
     asserts:
