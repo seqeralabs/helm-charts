@@ -1,0 +1,122 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform extra objects
+templates:
+  - extra-list.yaml
+tests:
+  - it: should not render any extra objects when list is empty
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render single extra object when added to list
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: extra-configmap
+          data:
+            key1: value1
+            key2: value2
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: extra-configmap
+      - equal:
+          path: data
+          value:
+            key1: value1
+            key2: value2
+
+  - it: should render multiple extra objects when added to list
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: extra-configmap
+          data:
+            key1: value1
+            key2: value2
+        - apiVersion: v1
+          kind: Secret
+          metadata:
+            name: extra-secret
+          stringData:
+            password: mysecretpassword
+    asserts:
+      - isKind:
+          of: ConfigMap
+        documentSelector:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: metadata.name
+          value: extra-configmap
+        documentSelector:
+          path: kind
+          value: ConfigMap
+      - equal:
+          path: data
+          value:
+            key1: value1
+            key2: value2
+        documentSelector:
+          path: kind
+          value: ConfigMap
+
+      - isKind:
+          of: Secret
+        documentSelector:
+          path: kind
+          value: Secret
+      - equal:
+          path: metadata.name
+          value: extra-secret
+        documentSelector:
+          path: kind
+          value: Secret
+      - equal:
+          path: stringData
+          value:
+            password: mysecretpassword
+        documentSelector:
+          path: kind
+          value: Secret
+
+  - it: should handle complex extra objects
+    set:
+      extraDeploy:
+        - apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: extra-deployment
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: extra-app
+            template:
+              metadata:
+                labels:
+                  app: extra-app
+              spec:
+                containers:
+                  - name: extra-container
+                    image: nginx:1.2.3
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: extra-deployment
+      - equal:
+          path: spec.replicas
+          value: 2
+      - equal:
+          path: spec.template.spec.containers[0]
+          value:
+            name: extra-container
+            image: nginx:1.2.3
