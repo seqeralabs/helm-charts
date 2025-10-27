@@ -921,6 +921,14 @@ ingress:
   # -- Enable ingress for Platform.
   enabled: false
 
+  # -- Path for the main ingress rule.
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller.
+  path: "/"
+
+  # -- Path for the content domain ingress rule.
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller.
+  contentPath: "/"
+
   # -- Default path type for the Ingress.
   defaultPathType: "ImplementationSpecific"
 

@@ -31,7 +31,7 @@ spec:
     - host: {{ tpl .Values.global.platformExternalDomain $ | quote }}
       http:
         paths:
-          - path: "/*"
+          - path: {{ .Values.ingress.path | quote }}
             pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
@@ -44,7 +44,7 @@ spec:
     - host: {{ tpl .Values.global.contentDomain $ | quote }}
       http:
         paths:
-          - path: "/*"
+          - path: {{ .Values.ingress.contentPath | quote }}
             pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:

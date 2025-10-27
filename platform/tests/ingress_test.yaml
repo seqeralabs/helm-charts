@@ -80,7 +80,7 @@ tests:
                     name: "release-name-platform-frontend"
                     port:
                       number: 80
-                path: "/*"
+                path: "/"
                 pathType: "ImplementationSpecific"
 
   - it: should expose user-data. (content) on custom subdomain when enabled
@@ -102,7 +102,7 @@ tests:
                     name: "release-name-platform-frontend"
                     port:
                       number: 80
-                path: "/*"
+                path: "/"
                 pathType: "ImplementationSpecific"
 
   - it: should not expose user-data. (content) subdomain when not set
@@ -124,7 +124,7 @@ tests:
                         name: release-name-platform-frontend
                         port:
                           number: 80
-                    path: /*
+                    path: /
                     pathType: ImplementationSpecific
 
   - it: should not expose www subdomain when disabled
@@ -146,7 +146,7 @@ tests:
                         name: release-name-platform-frontend
                         port:
                           number: 80
-                    path: /*
+                    path: /
                     pathType: ImplementationSpecific
             - host: user-data.platform.example.com
               http:
@@ -156,7 +156,7 @@ tests:
                         name: release-name-platform-frontend
                         port:
                           number: 80
-                    path: /*
+                    path: /
                     pathType: ImplementationSpecific
 
   # TODO: set up TLS support
@@ -201,3 +201,30 @@ tests:
   #     - equal:
   #         path: spec.rules[0].http.paths[0].pathType
   #         value: "Prefix"
+
+  - it: should use default path when not set
+    set:
+      ingress:
+        enabled: true
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: "/"
+
+  - it: should use custom paths when set
+    set:
+      ingress:
+        enabled: true
+        path: "/*"
+        contentPath: "/platform/*"
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: "/*"
+      - equal:
+          path: spec.rules[1].http.paths[0].path
+          value: "/platform/*"

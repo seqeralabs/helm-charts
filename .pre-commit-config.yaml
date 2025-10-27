@@ -2,7 +2,7 @@ repos:
   - repo: https://github.com/norwoodj/helm-docs
     rev: v1.14.2
     hooks:
-      - id: helm-docs-built
+      - id: helm-docs
         args:
           - --sort-values-order=file
 

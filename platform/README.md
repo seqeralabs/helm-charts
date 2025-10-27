@@ -316,6 +316,8 @@ $ helm install my-release example/platform
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries. |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Whether to automount service account token when the server service account is generated. |
 | ingress.enabled | bool | `false` | Enable ingress for Platform. |
+| ingress.path | string | `"/"` | Path for the main ingress rule. Note: this needs to be set to '/*' to be used with AWS ALB ingress controller. |
+| ingress.contentPath | string | `"/"` | Path for the content domain ingress rule. Note: this needs to be set to '/*' to be used with AWS ALB ingress controller. |
 | ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress. |
 | ingress.defaultBackend | object | `{}` | Optionally configure the default service for the ingress (evaluated as template). Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems.  defaultBackend:   service:     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'     port:       number: '{{ .Values.frontend.service.http.port }}' |
 | ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template.  extraHosts:   - host: myhost.example.com     paths:       - path: /mypath         pathType: Prefix  # Optional, defaults to defaultPathType value         serviceName: my-service         portNumber: 8123 |
