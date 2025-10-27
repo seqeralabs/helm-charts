@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: test Platform cron
+suite: test Platform cron deployment
 templates:
   - deployment-cron.yaml
   - secret.yaml
@@ -9,6 +9,9 @@ chart:
   appVersion: "v9.9.9"
 tests:
   - it: should produce a Deployment resource with minimal values
+    # We need to set the template name because we needed to include the secret and configmap files
+    # to compute their checksums that are added to the deployment annotations to perform automatic
+    # rollouts, but we aren't interested in testing those files here.
     template: deployment-cron.yaml
     set:
       redis:
@@ -21,23 +24,9 @@ tests:
       - equal:
           path: metadata.name
           value: release-name-platform-cron
-
-  - it: should produce a minimal working spec
-    template: deployment-cron.yaml
-    set:
-      redis:
-        host: "asdf"
-    asserts:
-      - hasDocuments:
-          count: 1
-      - isKind:
-          of: Deployment
       - equal:
           path: spec.replicas
           value: 1
-      - equal:
-          path: metadata.name
-          value: release-name-platform-cron
       - equal:
           path: spec.template.spec
           value:
@@ -297,6 +286,22 @@ tests:
       # Check that the selector includes the correct labels too, but no custom podlabels should be
       # defined on the selector, see bitnami/common for an explanation here:
       # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: shouldn't obey custom selector requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          selector:
+            matchLabels:
+              app: something-else
+    asserts:
       - equal:
           path: spec.selector.matchLabels
           value:

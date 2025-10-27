@@ -370,6 +370,11 @@ backend:
   startupProbe:
     # -- Enable startup probe.
     enabled: false
+    httpGet:
+      # -- HTTP GET path for startup probe.
+      path: "/health"
+      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      port: 8080
     # -- Longer initial wait to accommodate slow-starting apps.
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting.
@@ -385,6 +390,11 @@ backend:
   readinessProbe:
     # -- Enable readiness probe.
     enabled: true
+    httpGet:
+      # -- HTTP GET path for readiness probe.
+      path: "/health"
+      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      port: 8080
     # -- Delay before first check (normal start timing).
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation.
@@ -400,6 +410,11 @@ backend:
   livenessProbe:
     # -- Enable liveness probe.
     enabled: true
+    httpGet:
+      # -- HTTP GET path for liveness probe.
+      path: "/health"
+      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      port: 8080
     # -- Delay before first check (normal start timing).
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation.

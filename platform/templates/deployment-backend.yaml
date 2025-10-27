@@ -49,7 +49,7 @@ spec:
         {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
         - name: wait-for-cron
           image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainersUtils.waitForCronImage "global" .Values.global) }}
-          imagePullPolicy: {{  .Values.initContainersUtils.waitForCronImage.pullPolicy }}
+          imagePullPolicy: {{ .Values.initContainersUtils.waitForCronImage.pullPolicy }}
           command:
             - 'sh'
             - '-c'
@@ -90,6 +90,7 @@ spec:
             - configMapRef:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
+                {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.backend.extraEnvVarsCM }}
             - configMapRef:
@@ -132,18 +133,14 @@ spec:
           securityContext: {{- omit .Values.backend.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
 
-          {{- range $probeName, $probe := (dict "startupProbe" .Values.backend.startupProbe "readinessProbe" .Values.backend.readinessProbe "livenessProbe" .Values.backend.livenessProbe) }}
-          {{- if $probe.enabled }}
-          {{ $probeName }}:
-            httpGet:
-              path: "/health"
-              port: 8080  # TODO: Hardcoded for now.
-            initialDelaySeconds: {{ $probe.initialDelaySeconds }}
-            periodSeconds: {{ $probe.periodSeconds }}
-            timeoutSeconds: {{ $probe.timeoutSeconds }}
-            successThreshold: {{ $probe.successThreshold }}
-            failureThreshold: {{ $probe.failureThreshold }}
+          {{- if .Values.backend.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.backend.livenessProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
+          {{- if .Values.backend.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.backend.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.backend.startupProbe.enabled }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.backend.startupProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
 
       volumes:
@@ -157,7 +154,4 @@ spec:
           emptyDir:
             sizeLimit: "1Gi"
 
-      imagePullSecrets:
-      {{- range .Values.backend.image.pullSecrets }}
-        - name: {{ . | quote }}
-      {{- end }}
+      {{ include "common.images.renderPullSecrets" ( dict "images" (list .Values.backend.image) "context" $) | nindent 6 }}
