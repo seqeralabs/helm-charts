@@ -4,7 +4,7 @@ Construct the image PullSecret if credentials are defined in values file.
 TODO: maybe create a boolean _is_pullSecret_defined so it's easier to check for existence?
 TODO: does it make sense to not scope this template, since templates are shared between the chart and its subcharts? would it make things harder to maintain if the subcharts redefine this template?
 */}}
-{{- define "imagePullSecret" -}}
+{{- define "seqera.images.pullSecretCredentials" -}}
 {{- if .Values.global.imageCredentials -}}
   {{ $regs := list }}
   {{- range .Values.global.imageCredentials -}}
