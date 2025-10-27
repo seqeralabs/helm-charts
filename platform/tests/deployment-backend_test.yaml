@@ -862,6 +862,124 @@ tests:
             successThreshold: 1
             timeoutSeconds: 3
 
+  - it: should use custom probe settings for the backend container with ports as templates
+    template: deployment-backend.yaml
+    set:
+      backend:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.backend.service.port }}"
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.backend.service.port }}"
+          initialDelaySeconds: 15
+          periodSeconds: 25
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.backend.service.port }}"
+          initialDelaySeconds: 20
+          periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should use custom probe settings for the backend container with some ports as templates, some string, some integer
+    template: deployment-backend.yaml
+    set:
+      backend:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.backend.service.port }}"
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "8088"
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: 8087
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8087
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+
   - it: should add image pull secrets to the backend deployment
     template: deployment-backend.yaml
     set:

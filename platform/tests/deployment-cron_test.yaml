@@ -49,7 +49,7 @@ tests:
                   failureThreshold: 10
                   httpGet:
                     path: /health
-                    port: "8082"
+                    port: 8082
                   initialDelaySeconds: 5
                   periodSeconds: 10
                   successThreshold: 1
@@ -59,7 +59,7 @@ tests:
                   failureThreshold: 5
                   httpGet:
                     path: /health
-                    port: "8082"
+                    port: 8082
                   initialDelaySeconds: 5
                   periodSeconds: 5
                   successThreshold: 1
@@ -993,7 +993,7 @@ tests:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 20
             periodSeconds: 30
             successThreshold: 1
@@ -1004,7 +1004,7 @@ tests:
             failureThreshold: 10
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 10
             periodSeconds: 20
             successThreshold: 1
@@ -1015,7 +1015,7 @@ tests:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 15
             periodSeconds: 25
             successThreshold: 1
@@ -1065,3 +1065,121 @@ tests:
           value:
             - name: my-custom-pull-secret
             - name: my-migrate-db-pull-secret
+
+  - it: should use custom probe settings for the cron container with ports as templates
+    template: deployment-cron.yaml
+    set:
+      cron:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 15
+          periodSeconds: 25
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 20
+          periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should use custom probe settings for the cron container with some ports as templates, some string, some integer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "8088"
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: 8087
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8087
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3

@@ -161,13 +161,13 @@ spec:
           {{- end }}
 
           {{- if .Values.cron.livenessProbe.enabled }}
-          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.livenessProbe "enabled") "context" $) | nindent 12 }}
+          livenessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.livenessProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
           {{- if .Values.cron.readinessProbe.enabled }}
-          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.readinessProbe "enabled") "context" $) | nindent 12 }}
+          readinessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.readinessProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
           {{- if .Values.cron.startupProbe.enabled }}
-          startupProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.cron.startupProbe "enabled") "context" $) | nindent 12 }}
+          startupProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.startupProbe "enabled") "context" $) | nindent 12 }}
           {{- end }}
 
       volumes:
