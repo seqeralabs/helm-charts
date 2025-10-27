@@ -6,15 +6,11 @@ global:
 
   # -- Domain where user-created Platform reports are exposed at (evaluated as template), to avoid
   # Cross-Site Scripting attacks. If unset, data will be served through the main domain
-  # .global.platformExternalDomain.
+  # .global.platformExternalDomain. Evaluated as a template.
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
-  # -- Domain where to expose the API service (evaluated as template).
-  # This domain is mostly aesthetic, since Platform already listens to the API on
-  # ${.global.platformExternalDomain}/api/ and uses that internally.
-  apiDomain: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal kubernetes hostname or an external ingress
-  # hostname.
+  # hostname. Evaluated as a template.
   platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
   # -- Seqera Platform Service port.
   platformServicePort: 8080
@@ -924,12 +920,9 @@ serviceAccount:
 ingress:
   # -- Enable ingress for Platform.
   enabled: false
-  # -- Whether to expose the .Values.apiDomain as an ingress.
-  # This is mostly aesthetic, since Tower already listens to the API on
-  # ${.Values.global.platformExternalDomain}/api/ and uses that internally.
-  exposeApiDomain: false
-  # -- Whether to create an entry for www.${platformExternalDomain} too.
-  enableHostOnWWWSubdomain: true
+
+  # -- Default path type for the Ingress.
+  defaultPathType: "ImplementationSpecific"
 
   # -- Optionally configure the default service for the ingress (evaluated as template).
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
@@ -960,5 +953,3 @@ ingress:
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template.
   tls: []
-  # -- Default path type for the Ingress.
-  defaultPathType: "ImplementationSpecific"

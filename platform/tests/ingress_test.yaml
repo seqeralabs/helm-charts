@@ -62,51 +62,6 @@ tests:
           path: metadata.annotations["nginx.ingress.kubernetes.io/ssl-redirect"]
           value: "true"
 
-  - it: should expose API domain on default api. subdomain when enabled
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-      ingress:
-        enabled: true
-        exposeApiDomain: true
-    asserts:
-      - equal:
-          path: spec.rules[1]
-          value:
-            host: "api.platform.example.com"
-            http:
-              paths:
-              - backend:
-                  service:
-                    name: "release-name-platform-backend"
-                    port:
-                      number: 8080
-                path: "/*"
-                pathType: "ImplementationSpecific"
-
-  - it: should expose API domain on custom api. subdomain when enabled
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-        apiDomain: "myapi.differentdomain.example.net"
-      ingress:
-        enabled: true
-        exposeApiDomain: true
-    asserts:
-      - equal:
-          path: spec.rules[1]
-          value:
-            host: "myapi.differentdomain.example.net"
-            http:
-              paths:
-              - backend:
-                  service:
-                    name: "release-name-platform-backend"
-                    port:
-                      number: 8080
-                path: "/*"
-                pathType: "ImplementationSpecific"
-
   - it: should expose user-data. (content) subdomain when enabled
     set:
       global:
@@ -162,16 +117,6 @@ tests:
           path: spec.rules
           value:
             - host: platform.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /*
-                    pathType: ImplementationSpecific
-            - host: www.platform.example.com
               http:
                 paths:
                   - backend:

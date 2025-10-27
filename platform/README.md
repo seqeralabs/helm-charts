@@ -59,9 +59,8 @@ $ helm install my-release example/platform
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Optional domain where Seqera Platform (formerly known as Tower) will listen on. |
-| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed at (evaluated as template), to avoid Cross-Site Scripting attacks. If unset, data will be served through the main domain .global.platformExternalDomain. |
-| global.apiDomain | string | `"{{ printf \"api.%s\" .Values.global.platformExternalDomain }}"` | Domain where to expose the API service (evaluated as template). This domain is mostly aesthetic, since Platform already listens to the API on ${.global.platformExternalDomain}/api/ and uses that internally. |
-| global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal kubernetes hostname or an external ingress hostname. |
+| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed at (evaluated as template), to avoid Cross-Site Scripting attacks. If unset, data will be served through the main domain .global.platformExternalDomain. Evaluated as a template. |
+| global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal kubernetes hostname or an external ingress hostname. Evaluated as a template. |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port. |
 | global.platformDatabase.host | string | `""` | Platform MySQL database hostname. |
 | global.platformDatabase.port | int | `3306` | Platform MySQL database port. |
@@ -241,7 +240,7 @@ $ helm install my-release example/platform
 | cron.args | list | `[]` | Override default container args (useful when using custom images). |
 | cron.podLabels | object | `{}` | Additional labels for the cron pod. Evaluated as a template. |
 | cron.podAnnotations | object | `{}` | Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template. |
-| cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
+| cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note that cron deployment needs to have a single replica with Recreate strategy.  extraOptionsSpec:   revisionHistoryLimit: 4 |
 | cron.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
 | cron.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
@@ -257,18 +256,24 @@ $ helm install my-release example/platform
 | cron.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
 | cron.resources | object | `{}` | Set container requests and limits for different resources like CPU or memory. .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. .limits are the maximum resources a container is allowed to use. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ We usually recommend not to specify default resources and to leave this as a conscious choice for the user.  requests:   requests:     cpu: "1"     memory: "1000Mi"   limits:     memory: "3000Mi" |
 | cron.startupProbe.enabled | bool | `false` | Enable startup probe. |
+| cron.startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe. |
+| cron.startupProbe.httpGet.port | string | `"{{ .Values.cron.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template. |
 | cron.startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps. |
 | cron.startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting. |
 | cron.startupProbe.timeoutSeconds | int | `3` | Can be longer to allow slow initialization responses. |
 | cron.startupProbe.failureThreshold | int | `5` | Consecutive failures during startup before killing the container (instead of immediate restarts). |
 | cron.startupProbe.successThreshold | int | `1` | Number of consecutive successes required to consider startup complete and enable liveness/readiness. |
 | cron.readinessProbe.enabled | bool | `true` | Enable readiness probe. |
+| cron.readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe. |
+| cron.readinessProbe.httpGet.port | string | `"{{ .Values.cron.service.http.targetPort }}"` | HTTP GET port for readiness probe. Evaluated as a template. |
 | cron.readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | cron.readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation. |
 | cron.readinessProbe.timeoutSeconds | int | `3` | Short timeout to detect unresponsive containers for readiness. |
 | cron.readinessProbe.failureThreshold | int | `5` | Consecutive failures before marking the container Unready (no restart). |
 | cron.readinessProbe.successThreshold | int | `1` | Number of consecutive successes required to mark the container Ready after failures. |
 | cron.livenessProbe.enabled | bool | `true` | Enable liveness probe. |
+| cron.livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe. |
+| cron.livenessProbe.httpGet.port | string | `"{{ .Values.cron.service.http.targetPort }}"` | HTTP GET port for liveness probe. Evaluated as a template. |
 | cron.livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | cron.livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation. |
 | cron.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |
@@ -285,8 +290,6 @@ $ helm install my-release example/platform
 | cron.dbMigrationInitContainer.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
 | cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |
 | cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`. |
-| cron.dbMigrationInitContainer.podSecurityContext.enabled | bool | `true` | Enable backend pods Security Context. |
-| cron.dbMigrationInitContainer.podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access. |
 | cron.dbMigrationInitContainer.containerSecurityContext.enabled | bool | `true` | Enable backend containers Security Context |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsUser | int | `101` | Specifies the numeric UID the container processes should run as (overrides container image default). |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0). |
@@ -311,17 +314,12 @@ $ helm install my-release example/platform
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated. |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the Tower ServiceAccount to generate. |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries. |
-| serviceAccount.automountServiceAccountToken | bool | `true` | Whether to automount service account token when the server service account is generated. |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Whether to automount service account token when the server service account is generated. |
 | ingress.enabled | bool | `false` | Enable ingress for Platform. |
-| ingress.exposeApiDomain | bool | `false` | Whether to expose the .Values.apiDomain as an ingress. This is mostly aesthetic, since Tower already listens to the API on ${.Values.global.platformExternalDomain}/api/ and uses that internally. |
-| ingress.enableHostOnWWWSubdomain | bool | `true` | Whether to create an entry for www.${platformExternalDomain} too. |
+| ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress. |
 | ingress.defaultBackend | object | `{}` | Optionally configure the default service for the ingress (evaluated as template). Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems.  defaultBackend:   service:     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'     port:       number: '{{ .Values.frontend.service.http.port }}' |
 | ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template.  extraHosts:   - host: myhost.example.com     paths:       - path: /mypath         pathType: Prefix  # Optional, defaults to defaultPathType value         serviceName: my-service         portNumber: 8123 |
 | ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template. |
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template. |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class'). |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template. |
-| ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress. |
-
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

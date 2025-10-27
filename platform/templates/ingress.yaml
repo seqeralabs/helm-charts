@@ -1,4 +1,3 @@
----
 {{ if .Values.ingress.enabled }}
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
@@ -40,20 +39,6 @@ spec:
                 port:
                   number: {{ .Values.frontend.service.http.port }}
 
-    {{- if .Values.ingress.exposeApiDomain }}
-    {{/* Hostname where to expose the backend API service. */}}
-    - host: {{ tpl .Values.global.apiDomain $ | quote }}
-      http:
-        paths:
-          - path: "/*"
-            pathType: {{ .Values.ingress.defaultPathType }}
-            backend:
-              service:
-                name: {{ printf "%s-backend" (include "common.names.fullname" .) | quote }}
-                port:
-                  number: {{ .Values.global.platformServicePort | int }}
-    {{- end }}
-
     {{- if (tpl .Values.global.contentDomain $) }}
     {{/* Hostname where Tower reports are exposed to the user. */}}
     - host: {{ tpl .Values.global.contentDomain $ | quote }}
@@ -64,19 +49,6 @@ spec:
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
-                port:
-                  number: {{ .Values.frontend.service.http.port }}
-    {{- end }}
-
-    {{- if .Values.ingress.enableHostOnWWWSubdomain }}
-    - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
-      http:
-        paths:
-          - path: "/*"
-            pathType: {{ .Values.ingress.defaultPathType }}
-            backend:
-              service:
-                name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
                 port:
                   number: {{ .Values.frontend.service.http.port }}
     {{- end }}
