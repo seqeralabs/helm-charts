@@ -946,12 +946,18 @@ ingress:
   # -- Additional hosts you want to include. Evaluated as a template.
   #
   # extraHosts:
-  #   - host: myhost.example.com
+  #   - host: {{ printf "api.%s" .Values.global.platformExternalDomain }}
   #     paths:
-  #       - path: /mypath
+  #       - path: /*  # For ALB ingress controller
   #         pathType: Prefix  # Optional, defaults to defaultPathType value
-  #         serviceName: my-service
-  #         portNumber: 8123
+  #         serviceName: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+  #         portNumber: {{ .Values.global.platformServicePort | int }}
+  #   - host: {{ printf "www.%s" .Values.global.platformExternalDomain }}
+  #     paths:
+  #       - path: /*  # For ALB ingress controller
+  #         pathType: Prefix  # Optional, defaults to defaultPathType value
+  #         serviceName: {{ printf "%s-frontend" (include "common.names.fullname" .) }}
+  #         portNumber: {{ .Values.frontend.service.http.port }}
   extraHosts: []
   # -- Ingress annotations specific to your load balancer. Evaluated as a template.
   annotations: {}

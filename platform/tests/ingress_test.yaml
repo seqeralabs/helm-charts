@@ -228,3 +228,65 @@ tests:
       - equal:
           path: spec.rules[1].http.paths[0].path
           value: "/platform/*"
+
+  - it: should configure extra hosts
+    set:
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+            paths:
+              - path: /*  # For ALB ingress controller
+                pathType: Prefix  # Optional, defaults to defaultPathType value
+                serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+                portNumber: '{{ .Values.global.platformServicePort | int }}'
+          - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+            paths:
+              - path: /*  # For ALB ingress controller
+                pathType: Prefix  # Optional, defaults to defaultPathType value
+                serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+                portNumber: '{{ .Values.frontend.service.http.port }}'
+    asserts:
+      - equal:
+          path: spec.rules
+          value:
+            - host: example.com
+              http:
+                paths:
+                  - backend:
+                      service:
+                        name: release-name-platform-frontend
+                        port:
+                          number: 80
+                    path: /
+                    pathType: ImplementationSpecific
+            - host: user-data.example.com
+              http:
+                paths:
+                  - backend:
+                      service:
+                        name: release-name-platform-frontend
+                        port:
+                          number: 80
+                    path: /
+                    pathType: ImplementationSpecific
+            - host: api.example.com
+              http:
+                paths:
+                  - backend:
+                      service:
+                        name: release-name-platform-backend
+                        port:
+                          number: 8080
+                    path: /*
+                    pathType: Prefix
+            - host: www.example.com
+              http:
+                paths:
+                  - backend:
+                      service:
+                        name: release-name-platform-frontend
+                        port:
+                          number: 80
+                    path: /*
+                    pathType: Prefix
