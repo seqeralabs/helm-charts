@@ -153,18 +153,24 @@ $ helm install my-release example/platform
 | backend.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
 | backend.resources | object | `{}` | Set container requests and limits for different resources like CPU or memory. .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. .limits are the maximum resources a container is allowed to use. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ We usually recommend not to specify default resources and to leave this as a conscious choice for the user.  requests:   requests:     cpu: "1"     memory: "1000Mi"   limits:     memory: "3000Mi" |
 | backend.startupProbe.enabled | bool | `false` | Enable startup probe. |
+| backend.startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe. |
+| backend.startupProbe.httpGet.port | int | `8080` | HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | backend.startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps. |
 | backend.startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting. |
 | backend.startupProbe.timeoutSeconds | int | `3` | Can be longer to allow slow initialization responses. |
 | backend.startupProbe.failureThreshold | int | `5` | Consecutive failures during startup before killing the container (instead of immediate restarts). |
 | backend.startupProbe.successThreshold | int | `1` | Number of consecutive successes required to consider startup complete and enable liveness/readiness. |
 | backend.readinessProbe.enabled | bool | `true` | Enable readiness probe. |
+| backend.readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe. |
+| backend.readinessProbe.httpGet.port | int | `8080` | HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | backend.readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | backend.readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation. |
 | backend.readinessProbe.timeoutSeconds | int | `3` | Short timeout to detect unresponsive containers for readiness. |
 | backend.readinessProbe.failureThreshold | int | `5` | Consecutive failures before marking the container Unready (no restart). |
 | backend.readinessProbe.successThreshold | int | `1` | Number of consecutive successes required to mark the container Ready after failures. |
 | backend.livenessProbe.enabled | bool | `true` | Enable liveness probe. |
+| backend.livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe. |
+| backend.livenessProbe.httpGet.port | int | `8080` | HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | backend.livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | backend.livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation. |
 | backend.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |
@@ -204,18 +210,24 @@ $ helm install my-release example/platform
 | frontend.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
 | frontend.resources | object | `{}` | Set container requests and limits for different resources like CPU or memory. .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. .limits are the maximum resources a container is allowed to use. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ We usually recommend not to specify default resources and to leave this as a conscious choice for the user.  requests:   requests:     cpu: "1"     memory: "1000Mi"   limits:     memory: "3000Mi" |
 | frontend.startupProbe.enabled | bool | `false` | Enable startup probe. |
+| frontend.startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe. |
+| frontend.startupProbe.httpGet.port | int | `8080` | HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | frontend.startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps. |
 | frontend.startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting. |
 | frontend.startupProbe.timeoutSeconds | int | `3` | Can be longer to allow slow initialization responses. |
 | frontend.startupProbe.failureThreshold | int | `5` | Consecutive failures during startup before killing the container (instead of immediate restarts). |
 | frontend.startupProbe.successThreshold | int | `1` | Number of consecutive successes required to consider startup complete and enable liveness/readiness. |
-| frontend.readinessProbe.enabled | bool | `false` | Enable readiness probe. |
+| frontend.readinessProbe.enabled | bool | `true` | Enable readiness probe. |
+| frontend.readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe. |
+| frontend.readinessProbe.httpGet.port | int | `8080` | HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | frontend.readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | frontend.readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation. |
 | frontend.readinessProbe.timeoutSeconds | int | `3` | Short timeout to detect unresponsive containers for readiness. |
 | frontend.readinessProbe.failureThreshold | int | `5` | Consecutive failures before marking the container Unready (no restart). |
 | frontend.readinessProbe.successThreshold | int | `1` | Number of consecutive successes required to mark the container Ready after failures. |
-| frontend.livenessProbe.enabled | bool | `false` | Enable liveness probe. |
+| frontend.livenessProbe.enabled | bool | `true` | Enable liveness probe. |
+| frontend.livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe. |
+| frontend.livenessProbe.httpGet.port | int | `8080` | HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now. |
 | frontend.livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing). |
 | frontend.livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation. |
 | frontend.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |

@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
-suite: test Platform cron
+suite: test Platform cron deployment
 templates:
   - deployment-cron.yaml
   - secret.yaml
@@ -9,6 +9,9 @@ chart:
   appVersion: "v9.9.9"
 tests:
   - it: should produce a Deployment resource with minimal values
+    # We need to set the template name because we needed to include the secret and configmap files
+    # to compute their checksums that are added to the deployment annotations to perform automatic
+    # rollouts, but we aren't interested in testing those files here.
     template: deployment-cron.yaml
     set:
       redis:
@@ -21,23 +24,9 @@ tests:
       - equal:
           path: metadata.name
           value: release-name-platform-cron
-
-  - it: should produce a minimal working spec
-    template: deployment-cron.yaml
-    set:
-      redis:
-        host: "asdf"
-    asserts:
-      - hasDocuments:
-          count: 1
-      - isKind:
-          of: Deployment
       - equal:
           path: spec.replicas
           value: 1
-      - equal:
-          path: metadata.name
-          value: release-name-platform-cron
       - equal:
           path: spec.template.spec
           value:
@@ -60,7 +49,7 @@ tests:
                   failureThreshold: 10
                   httpGet:
                     path: /health
-                    port: "8082"
+                    port: 8082
                   initialDelaySeconds: 5
                   periodSeconds: 10
                   successThreshold: 1
@@ -70,7 +59,7 @@ tests:
                   failureThreshold: 5
                   httpGet:
                     path: /health
-                    port: "8082"
+                    port: 8082
                   initialDelaySeconds: 5
                   periodSeconds: 5
                   successThreshold: 1
@@ -304,6 +293,22 @@ tests:
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 
+  - it: shouldn't obey custom selector requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          selector:
+            matchLabels:
+              app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
   - it: shouldn't obey custom replicas requests
     template: deployment-cron.yaml
     set:
@@ -352,6 +357,19 @@ tests:
       - equal:
           path: spec.revisionHistoryLimit
           value: 3
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec (simple test)
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
 
   - it: should render extraOptionsTemplateSpec under spec.template.spec
     template: deployment-cron.yaml
@@ -988,7 +1006,7 @@ tests:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 20
             periodSeconds: 30
             successThreshold: 1
@@ -999,7 +1017,7 @@ tests:
             failureThreshold: 10
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 10
             periodSeconds: 20
             successThreshold: 1
@@ -1010,7 +1028,7 @@ tests:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: "8082"
+              port: 8082
             initialDelaySeconds: 15
             periodSeconds: 25
             successThreshold: 1
@@ -1060,3 +1078,136 @@ tests:
           value:
             - name: my-custom-pull-secret
             - name: my-migrate-db-pull-secret
+
+  - it: should use custom probe settings for the cron container with ports as templates
+    template: deployment-cron.yaml
+    set:
+      cron:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 15
+          periodSeconds: 25
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+          initialDelaySeconds: 20
+          periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should use custom probe settings for the cron container with some ports as templates, some string, some integer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        service:
+          port:  "8089"
+        livenessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "{{ .Values.cron.service.port }}"
+        readinessProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: "8088"
+        startupProbe:
+          enabled: true
+          httpGet:
+            path: /health
+            port: 8087
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8087
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8089
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should render a templated integer value as integer
+    template: deployment-cron.yaml
+    set:
+      backend:
+        extraOptionsSpec:
+          replicas: 2
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disksizeGb: '{{ .Values.backend.extraOptionsSpec.replicas }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.disksizeGb
+          value: 2
