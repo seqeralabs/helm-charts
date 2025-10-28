@@ -994,3 +994,17 @@ tests:
           value:
             - name: my-custom-pull-secret
             - name: my-custom-pull-secret2
+
+  - it: should render a templated integer value as integer
+    template: deployment-backend.yaml
+    set:
+      frontend:
+        extraOptionsSpec:
+          replicas: 2
+      backend:
+        extraOptionsSpec:
+          replicas: '{{ .Values.frontend.extraOptionsSpec.replicas }}'
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2

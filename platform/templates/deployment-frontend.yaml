@@ -7,7 +7,7 @@ metadata:
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
     app: frontend
   {{- with .Values.commonAnnotations }}
-  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
 spec:
@@ -20,7 +20,7 @@ spec:
   # omitted (selector).
   {{- $extraOptionsSpec := omit .Values.frontend.extraOptionsSpec "selector" }}
   {{- if $extraOptionsSpec }}
-  {{- include "common.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
+  {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
   {{- end }}
 
   template:
@@ -39,12 +39,12 @@ spec:
       {{- end }}
       {{- $extraOptionsTemplateSpec := omit .Values.frontend.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
       {{- if $extraOptionsTemplateSpec }}
-      {{- include "common.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
+      {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
       {{- end }}
 
       initContainers:
         {{- with .Values.frontend.initContainers }}
-        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
         {{- end }}
 
       containers:
@@ -61,11 +61,11 @@ spec:
           envFrom:
             {{- with .Values.frontend.extraEnvVarsCM }}
             - configMapRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
             {{- with .Values.frontend.extraEnvVarsSecret }}
             - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
 
           env:
@@ -76,7 +76,7 @@ spec:
             - name: NGINX_LISTEN_PORT
               value: {{ .Values.frontend.service.http.targetPort | quote }}
             {{- with .Values.frontend.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
 
           {{- with .Values.frontend.resources }}
@@ -85,7 +85,7 @@ spec:
 
           volumeMounts:
             {{- with .Values.frontend.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 10 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 10 }}
             {{- end }}
           - name: tmp-volume
             mountPath: /tmp/
@@ -108,7 +108,7 @@ spec:
 
       volumes:
         {{- with .Values.frontend.extraVolumes }}
-        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
         {{- end }}
 
         # Mount temporary directories for nginx to support read-only root filesystem.

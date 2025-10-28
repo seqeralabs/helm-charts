@@ -45,34 +45,136 @@ Examples:
     {{- if regexMatch "^-?[0-9]+$" $rendered -}}
       {{- $rendered | atoi -}}
     {{- else -}}
-      {{- $rendered | quote -}}
+      {{- $rendered -}}
     {{- end -}}
   {{- else if regexMatch "^-?[0-9]+$" .value -}}
     {{- .value | atoi -}}
   {{- else -}}
-    {{- .value | quote -}}
+    {{- .value -}}
   {{- end -}}
 {{- else if kindIs "map" .value -}}
-  {{- print "{" -}}
-  {{- $first := true -}}
-  {{- range $k, $v := .value -}}
-    {{- if not $first -}}{{- print "," -}}{{- end -}}
-    {{- $first = false -}}
-    {{- $k | quote -}}
-    {{- print ":" -}}
-    {{- include "seqera.tplvalues.render" (dict "value" $v "context" $.context) -}}
-  {{- end -}}
-  {{- print "}" -}}
+  {{- include "seqera.tplvalues.renderMap" (dict "value" .value "context" .context) -}}
 {{- else if kindIs "slice" .value -}}
-  {{- print "[" -}}
-  {{- $first := true -}}
-  {{- range .value -}}
-    {{- if not $first -}}{{- print "," -}}{{- end -}}
-    {{- $first = false -}}
-    {{- include "seqera.tplvalues.render" (dict "value" . "context" $.context) -}}
-  {{- end -}}
-  {{- print "]" -}}
+  {{- include "seqera.tplvalues.renderSlice" (dict "value" .value "context" .context) -}}
 {{- else -}}
   {{- .value | toYaml -}}
 {{- end -}}
+{{- end -}}
+
+{{- define "seqera.tplvalues.renderMap" -}}
+{{- $dict := dict -}}
+{{- range $k, $v := .value -}}
+  {{- if kindIs "string" $v -}}
+    {{- if contains "{{" $v -}}
+      {{- $rendered := tpl $v $.context -}}
+      {{- if regexMatch "^-?[0-9]+$" $rendered -}}
+        {{- $_ := set $dict $k ($rendered | atoi) -}}
+      {{- else -}}
+        {{- $_ := set $dict $k $rendered -}}
+      {{- end -}}
+    {{- else if regexMatch "^-?[0-9]+$" $v -}}
+      {{- $_ := set $dict $k ($v | atoi) -}}
+    {{- else -}}
+      {{- $_ := set $dict $k $v -}}
+    {{- end -}}
+  {{- else if kindIs "map" $v -}}
+    {{- $nested := include "seqera.tplvalues.renderMapToDict" (dict "value" $v "context" $.context) | fromYaml -}}
+    {{- $_ := set $dict $k $nested -}}
+  {{- else if kindIs "slice" $v -}}
+    {{- $wrappedYaml := printf "list:\n%s" (include "seqera.tplvalues.renderSliceToList" (dict "value" $v "context" $.context) | nindent 2) -}}
+    {{- $parsed := $wrappedYaml | fromYaml -}}
+    {{- $_ := set $dict $k $parsed.list -}}
+  {{- else -}}
+    {{- $_ := set $dict $k $v -}}
+  {{- end -}}
+{{- end -}}
+{{- $dict | toYaml -}}
+{{- end -}}
+
+{{- define "seqera.tplvalues.renderMapToDict" -}}
+{{- $dict := dict -}}
+{{- range $k, $v := .value -}}
+  {{- if kindIs "string" $v -}}
+    {{- if contains "{{" $v -}}
+      {{- $rendered := tpl $v $.context -}}
+      {{- if regexMatch "^-?[0-9]+$" $rendered -}}
+        {{- $_ := set $dict $k ($rendered | atoi) -}}
+      {{- else -}}
+        {{- $_ := set $dict $k $rendered -}}
+      {{- end -}}
+    {{- else if regexMatch "^-?[0-9]+$" $v -}}
+      {{- $_ := set $dict $k ($v | atoi) -}}
+    {{- else -}}
+      {{- $_ := set $dict $k $v -}}
+    {{- end -}}
+  {{- else if kindIs "map" $v -}}
+    {{- $nested := include "seqera.tplvalues.renderMapToDict" (dict "value" $v "context" $.context) | fromYaml -}}
+    {{- $_ := set $dict $k $nested -}}
+  {{- else if kindIs "slice" $v -}}
+    {{- $wrappedYaml := printf "list:\n%s" (include "seqera.tplvalues.renderSliceToList" (dict "value" $v "context" $.context) | nindent 2) -}}
+    {{- $parsed := $wrappedYaml | fromYaml -}}
+    {{- $_ := set $dict $k $parsed.list -}}
+  {{- else -}}
+    {{- $_ := set $dict $k $v -}}
+  {{- end -}}
+{{- end -}}
+{{- $dict | toYaml -}}
+{{- end -}}
+
+{{- define "seqera.tplvalues.renderSlice" -}}
+{{- $list := list -}}
+{{- range .value -}}
+  {{- if kindIs "string" . -}}
+    {{- if contains "{{" . -}}
+      {{- $rendered := tpl . $.context -}}
+      {{- if regexMatch "^-?[0-9]+$" $rendered -}}
+        {{- $list = append $list ($rendered | atoi) -}}
+      {{- else -}}
+        {{- $list = append $list $rendered -}}
+      {{- end -}}
+    {{- else if regexMatch "^-?[0-9]+$" . -}}
+      {{- $list = append $list (. | atoi) -}}
+    {{- else -}}
+      {{- $list = append $list . -}}
+    {{- end -}}
+  {{- else if kindIs "map" . -}}
+    {{- $nested := include "seqera.tplvalues.renderMapToDict" (dict "value" . "context" $.context) | fromYaml -}}
+    {{- $list = append $list $nested -}}
+  {{- else if kindIs "slice" . -}}
+    {{- $nested := include "seqera.tplvalues.renderSliceToList" (dict "value" . "context" $.context) | fromYaml -}}
+    {{- $list = append $list $nested -}}
+  {{- else -}}
+    {{- $list = append $list . -}}
+  {{- end -}}
+{{- end -}}
+{{- $list | toYaml -}}
+{{- end -}}
+
+{{- define "seqera.tplvalues.renderSliceToList" -}}
+{{- $list := list -}}
+{{- range .value -}}
+  {{- if kindIs "string" . -}}
+    {{- if contains "{{" . -}}
+      {{- $rendered := tpl . $.context -}}
+      {{- if regexMatch "^-?[0-9]+$" $rendered -}}
+        {{- $list = append $list ($rendered | atoi) -}}
+      {{- else -}}
+        {{- $list = append $list $rendered -}}
+      {{- end -}}
+    {{- else if regexMatch "^-?[0-9]+$" . -}}
+      {{- $list = append $list (. | atoi) -}}
+    {{- else -}}
+      {{- $list = append $list . -}}
+    {{- end -}}
+  {{- else if kindIs "map" . -}}
+    {{- $nested := include "seqera.tplvalues.renderMapToDict" (dict "value" . "context" $.context) | fromYaml -}}
+    {{- $list = append $list $nested -}}
+  {{- else if kindIs "slice" . -}}
+    {{- $nested := include "seqera.tplvalues.renderSliceToList" (dict "value" . "context" $.context) | fromYaml -}}
+    {{- $list = append $list $nested -}}
+  {{- else -}}
+    {{- $list = append $list . -}}
+  {{- end -}}
+{{- end -}}
+{{- $list | toYaml -}}
 {{- end -}}

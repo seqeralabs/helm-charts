@@ -7,7 +7,7 @@ metadata:
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
     app: cron
   {{- with .Values.commonAnnotations }}
-  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
 spec:
@@ -24,7 +24,7 @@ spec:
   # omitted (replicas, strategy, selector).
   {{- $extraOptionsSpec := omit .Values.cron.extraOptionsSpec "replicas" "strategy" "selector" }}
   {{- if $extraOptionsSpec }}
-  {{- include "common.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
+  {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
   {{- end }}
 
   template:
@@ -45,7 +45,7 @@ spec:
       {{- end }}
       {{- $extraOptionsTemplateSpec := omit .Values.cron.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
       {{- if $extraOptionsTemplateSpec }}
-      {{- include "common.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
+      {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
       {{- end }}
 
       initContainers:
@@ -64,7 +64,7 @@ spec:
           {{- end }}
           env:
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
           envFrom:
             - configMapRef:
@@ -75,11 +75,11 @@ spec:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
             - configMapRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
             {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsSecret }}
             - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
 
           {{- if .Values.cron.dbMigrationInitContainer.containerSecurityContext.enabled }}
@@ -91,13 +91,13 @@ spec:
           {{- end }}
           volumeMounts:
             {{- with .Values.cron.dbMigrationInitContainer.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
         {{- with .Values.cron.initContainers }}
-        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
         {{- end }}
 
       containers:
@@ -121,11 +121,11 @@ spec:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             {{- with .Values.cron.extraEnvVarsCM }}
             - configMapRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
             {{- with .Values.cron.extraEnvVarsSecret }}
             - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+                name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
             {{- end }}
 
           env:
@@ -134,7 +134,7 @@ spec:
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
             {{- with .Values.cron.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
 
           {{- with .Values.cron.resources }}
@@ -143,7 +143,7 @@ spec:
 
           volumeMounts:
             {{- with .Values.cron.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
             {{- end }}
             - name: config-volume
               mountPath: /tower.yml
@@ -172,7 +172,7 @@ spec:
 
       volumes:
         {{- with .Values.cron.extraVolumes }}
-        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
         {{- end }}
         - name: config-volume
           configMap:

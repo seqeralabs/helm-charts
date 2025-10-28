@@ -358,6 +358,19 @@ tests:
           path: spec.revisionHistoryLimit
           value: 3
 
+  - it: should render extraOptionsTemplateSpec under spec.template.spec (simple test)
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+
   - it: should render extraOptionsTemplateSpec under spec.template.spec
     template: deployment-cron.yaml
     set:
@@ -1183,3 +1196,18 @@ tests:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 3
+
+  - it: should render a templated integer value as integer
+    template: deployment-cron.yaml
+    set:
+      backend:
+        extraOptionsSpec:
+          replicas: 2
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disksizeGb: '{{ .Values.backend.extraOptionsSpec.replicas }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector.disksizeGb
+          value: 2
