@@ -1,0 +1,1062 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform cron
+templates:
+  - deployment-cron.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should produce a Deployment resource with minimal values
+    template: deployment-cron.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: release-name-platform-cron
+
+  - it: should produce a minimal working spec
+    template: deployment-cron.yaml
+    set:
+      redis:
+        host: "asdf"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: metadata.name
+          value: release-name-platform-cron
+      - equal:
+          path: spec.template.spec
+          value:
+            containers:
+              - env:
+                  - name: NXF_HOME
+                    value: /var/cache/tower/
+                  - name: NXF_PLUGINS_DIR
+                    value: /var/cache/tower/plugins/
+                envFrom:
+                  - configMapRef:
+                      name: release-name-platform-cron
+                  - configMapRef:
+                      name: release-name-platform-shared-backend-cron
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
+                imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 10
+                  httpGet:
+                    path: /health
+                    port: "8082"
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                name: cron
+                readinessProbe:
+                  failureThreshold: 5
+                  httpGet:
+                    path: /health
+                    port: "8082"
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tower.yml
+                    name: config-volume
+                    subPath: tower.yml
+                  - mountPath: /var/cache/tower/
+                    name: plugin-volume
+                  - mountPath: /.nextflow/
+                    name: plugin-volume
+                  - mountPath: /?/.nextflow/
+                    name: plugin-volume
+            initContainers:
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                    until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): db server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: DB_HOST
+                    value: ""
+                  - name: DB_PORT
+                    value: "3306"
+                  - name: DB_NAME
+                    value: null
+                  - name: DB_USERNAME
+                    value: ""
+                envFrom:
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: mysql:9
+                imagePullPolicy: IfNotPresent
+                name: wait-for-db
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - |
+                    echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                    until redis-cli -u "$REDIS_URI" get hello; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): redis server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: REDIS_URI
+                    value: redis://asdf:6379
+                image: redis:7
+                imagePullPolicy: IfNotPresent
+                name: wait-for-redis
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - /migrate-db.sh
+                env: null
+                envFrom:
+                  - configMapRef:
+                      name: release-name-platform-cron
+                  - configMapRef:
+                      name: release-name-platform-shared-backend-cron
+                  - secretRef:
+                      name: release-name-platform-backend
+                image: cr.seqera.io/private/nf-tower-enterprise/migrate-db:v9.9.9
+                imagePullPolicy: IfNotPresent
+                name: migrate-db
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tower.yml
+                    name: config-volume
+                    subPath: tower.yml
+            securityContext:
+              fsGroup: 101
+            serviceAccountName: release-name-platform-sa
+            volumes:
+              - configMap:
+                  name: release-name-platform-tower-yml
+                name: config-volume
+              - emptyDir:
+                  sizeLimit: 1Gi
+                name: plugin-volume
+
+  - it: should render the cron deployment with the specified tag version
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          tag: "9.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend:9.0.0"
+
+  - it: should render the cron deployment with the specified digest, overriding the tag
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          tag: "this will be ignored"
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/backend@sha256:1234abcdef"
+
+  - it: should render the cron deployment with the correct checksums, labels and annotations
+    template: deployment-cron.yaml
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: unittest
+            namespace: NAMESPACE
+          data:
+            db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
+    set:
+      global:
+        platformDatabase:
+          existingSecretName: "unittest"
+          existingSecretKey: "db-password-key"
+      commonLabels:
+        key123: this-should-be-overridden
+        key456: this-should-not-be-overridden
+      commonAnnotations:
+        common-annotation-key: common-annotation-value
+      cron:
+        podLabels:
+          key123: this-overrides-the-commonLabels
+        podAnnotations:
+          pod-annotation-key: pod-annotation-value
+      tower:
+        jwtSeedString: these need to be defined
+        cryptoSeedString: otherwise 'helm template' creates random ones each time
+        # Take the license from a secret instead of a string, just for fun
+        licenseSecretName: "unittest"
+        licenseSecretKey: "license-token-key"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            common-annotation-key: common-annotation-value
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            pod-annotation-key: pod-annotation-value
+            # If these values change, it means that values in the CM/Secret yaml files changed, and
+            # you may want to double check that the related test files were updated/integrated with
+            # new unittests as well, then update the values below. Check with 'helm unittest -d .'
+            # that the secret file produced for this test matches your expectations too.
+            checksum/configmap: 482109670699dd04526432cd6f433fb296fc233d55f446d98f4c93564ec69d0b
+            checksum/secret: 9daad093a89e1b9bc147a0f91215874f976126be124a7360ead666ebb60ec28d
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
+      # Check that the selector includes the correct labels too, but no custom podlabels should be
+      # defined on the selector, see bitnami/common for an explanation here:
+      # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: shouldn't obey custom replicas requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          replicas: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: shouldn't obey custom strategy requests
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsSpec:
+          replicas: 3
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+          revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+          dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render default podsecurityContext
+    template: deployment-cron.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should disable podSecurityContext when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: false
+        extraOptionsTemplateSpec:
+          securityContext:
+            fsGroup: 2000
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should omit the 'enabled' field from podSecurityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.enabled
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should render whatever podsecurityContext is set
+    template: deployment-cron.yaml
+    set:
+      cron:
+        podSecurityContext:
+          enabled: true
+          fsGroup: 2000
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            asdf: 123
+
+  - it: should render custom container securityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        containerSecurityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+          runAsUser: 2000
+          runAsNonRoot: false
+          readOnlyRootFilesystem: false
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
+
+  - it: should render container with extraEnvVars, extraEnvVarsCM and extraEnvVarsSecret
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraEnvVars:
+          - name: CUSTOM_ENV_VAR
+            value: custom-value
+        extraEnvVarsCM: extra-env-vars-cm
+        extraEnvVarsSecret: extra-env-vars-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: NXF_HOME
+              value: /var/cache/tower/
+            - name: NXF_PLUGINS_DIR
+              value: /var/cache/tower/plugins/
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.containers[0].envFrom
+          value:
+            - configMapRef:
+                name: release-name-platform-cron
+            - configMapRef:
+                name: release-name-platform-shared-backend-cron
+            - secretRef:
+                name: release-name-platform-backend
+            - configMapRef:
+                name: extra-env-vars-cm
+            - secretRef:
+                name: extra-env-vars-secret
+
+  - it: should render initContainers that wait for required services to be ready and to migrate the DB
+    template: deployment-cron.yaml
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 3
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-redis
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: migrate-db
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: cr.seqera.io/private/nf-tower-enterprise/migrate-db:v9.9.9
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: ""
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: null
+            - name: DB_USERNAME
+              value: ""
+      - equal:
+          path: spec.template.spec.initContainers[0].envFrom
+          value:
+            - secretRef:
+                name: release-name-platform-backend
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: REDIS_URI
+              value: redis://:6379
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value: null
+
+  - it: should render initContainer with appropriate env vars
+    template: deployment-cron.yaml
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: my-db-secret
+            namespace: NAMESPACE
+          data:
+            my-db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+    set:
+      global:
+        platformDatabase:
+          host: "my-db-host"
+          port: 3307
+          name: "my-db-name"
+          username: "my-db-username"
+          existingSecretName: "my-db-secret"
+          existingSecretKey: "my-db-password-key"
+        redis:
+          host: "my-redis-host"
+          port: 6380
+          auth:
+            enabled: true
+            password: "my-redis-password123"
+      cron:
+        dbMigrationInitContainer:
+          extraEnvVars:
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+          extraEnvVarsCM: extra-env-vars-cm
+          extraEnvVarsSecret: extra-env-vars-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: my-db-host
+            - name: DB_PORT
+              value: "3307"
+            - name: DB_NAME
+              value: my-db-name
+            - name: DB_USERNAME
+              value: my-db-username
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: REDIS_URI
+              value: redis://my-redis-host:6379
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-platform-backend
+                  key: TOWER_REDIS_PASSWORD
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value:
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.initContainers[2].envFrom
+          value:
+            - configMapRef:
+                name: release-name-platform-cron
+            - configMapRef:
+                name: release-name-platform-shared-backend-cron
+            - secretRef:
+                name: release-name-platform-backend
+            - configMapRef:
+                name: extra-env-vars-cm
+            - secretRef:
+                name: extra-env-vars-secret
+
+  - it: should render extra initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        initContainers:
+          - name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 4
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+
+  - it: should render multiple extra initContainers
+    template: deployment-cron.yaml
+    set:
+      cron:
+        initContainers:
+          - name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+          - name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 5
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+      - equal:
+          path: spec.template.spec.initContainers[4]
+          value:
+            name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+
+  - it: should include extra Volumes in the cron migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          extraVolumeMounts:
+            - name: extra-volume
+              mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].volumeMounts
+          value:
+            - name: extra-volume
+              mountPath: /extra/path
+            - mountPath: /tower.yml
+              name: config-volume
+              subPath: tower.yml
+
+  - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          containerSecurityContext:
+            enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[2].securityContext
+
+  - it: should render custom initContainer securityContext
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          enabled: true
+          containerSecurityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+            runAsUser: 2000
+            runAsNonRoot: false
+            readOnlyRootFilesystem: false
+            asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
+
+  - it: should include extra volumeMounts in the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraVolumeMounts:
+          - name: extra-volume
+            mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts
+          value:
+            - name: extra-volume
+              mountPath: /extra/path
+            - mountPath: /tower.yml
+              name: config-volume
+              subPath: tower.yml
+            - mountPath: /var/cache/tower/
+              name: plugin-volume
+            - mountPath: /.nextflow/
+              name: plugin-volume
+            - mountPath: /?/.nextflow/
+              name: plugin-volume
+
+  - it: should include extra Volumes in the cron pod spec
+    template: deployment-cron.yaml
+    set:
+      cron:
+        extraVolumes:
+          - name: extra-volume
+            emptyDir: {}
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes
+          value:
+            - emptyDir: {}
+              name: extra-volume
+            - configMap:
+                name: release-name-platform-tower-yml
+              name: config-volume
+            - emptyDir:
+                sizeLimit: 1Gi
+              name: plugin-volume
+
+  - it: should use custom image for the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-cron-image
+          tag: "2.0.0"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-cron-image:2.0.0"
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest for the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-cron-image
+          tag: "this-will-be-ignored"
+          digest: "sha256:whatever"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-cron-image@sha256:whatever"
+
+  - it: should use custom image for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            registry: my-custom-registry.io
+            repository: my-custom-repo/my-migrate-db-image
+            tag: "3.0.0"
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: "my-custom-registry.io/my-custom-repo/my-migrate-db-image:3.0.0"
+      - equal:
+          path: spec.template.spec.initContainers[2].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            registry: my-custom-registry.io
+            repository: my-custom-repo/my-migrate-db-image
+            tag: "this-will-be-ignored"
+            digest: "sha256:migratedbwhatever"
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: "my-custom-registry.io/my-custom-repo/my-migrate-db-image@sha256:migratedbwhatever"
+      - equal:
+          path: spec.template.spec.initContainers[2].imagePullPolicy
+          value: Always
+
+  - it: should use custom command and args for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        command: ["/bin/custom-cron-start"]
+        args: ["--custom-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: ["/bin/custom-cron-start"]
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value: ["--custom-arg1", "value1"]
+
+  - it: should use custom command and args for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          command: ["/bin/custom-migrate-db"]
+          args: ["--migrate-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].command
+          value: ["/bin/custom-migrate-db"]
+      - equal:
+          path: spec.template.spec.initContainers[2].args
+          value: ["--migrate-arg1", "value1"]
+
+  - it: should render custom resources for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+  - it: should render custom resources for the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+  - it: should disable probes for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        livenessProbe:
+          enabled: false
+        readinessProbe:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: should use custom probe settings for the cron container
+    template: deployment-cron.yaml
+    set:
+      cron:
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 25
+        startupProbe:
+          enabled: true
+          initialDelaySeconds: 20
+          periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: "8082"
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: "8082"
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: "8082"
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should add image pull secrets to the cron deployment
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          pullSecrets:
+            - my-custom-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+
+  - it: should add image pull secrets to the migrate-db initContainer
+    template: deployment-cron.yaml
+    set:
+      cron:
+        dbMigrationInitContainer:
+          image:
+            pullSecrets:
+              - my-migrate-db-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-migrate-db-pull-secret
+
+  - it: should add both cron and migrate-db image pull secrets
+    template: deployment-cron.yaml
+    set:
+      cron:
+        image:
+          pullSecrets:
+            - my-custom-pull-secret
+        dbMigrationInitContainer:
+          image:
+            pullSecrets:
+              - my-migrate-db-pull-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+            - name: my-migrate-db-pull-secret

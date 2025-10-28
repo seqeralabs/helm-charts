@@ -128,6 +128,37 @@ tests:
                   - sh
                   - -c
                   - |
+                    echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                    until redis-cli -u "$REDIS_URI" get hello; do
+                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                      sleep $SLEEP_PERIOD_SECONDS
+                    done
+                    echo "$(date): redis server ready"
+                env:
+                  - name: SLEEP_PERIOD_SECONDS
+                    value: "5"
+                  - name: REDIS_URI
+                    value: redis://asdf:6379
+                image: redis:7
+                imagePullPolicy: IfNotPresent
+                name: wait-for-redis
+                resources:
+                  limits:
+                    memory: 100Mi
+                  requests:
+                    cpu: "0.5"
+                    memory: 50Mi
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+              - command:
+                  - sh
+                  - -c
+                  - |
                     echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
                     until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
                       echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
@@ -252,3 +283,104 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
+
+  - it: shouldn't obey custom selector requests
+    template: deployment-backend.yaml
+    set:
+      backend:
+        extraOptionsSpec:
+          selector:
+            matchLabels:
+              app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+    template: deployment-backend.yaml
+    set:
+      backend:
+        extraOptionsSpec:
+          replicas: 3
+          selector:
+            matchLabels:
+              app: something-else
+          revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment-backend.yaml
+    set:
+      backend:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
+    template: deployment-backend.yaml
+    set:
+      backend:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    template: deployment-backend.yaml
+    set:
+      backend:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+          dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet

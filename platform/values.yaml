@@ -674,15 +674,11 @@ cron:
   # -- Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
   podAnnotations: {}
 
-  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-  # Evaluated as a template.
+  # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
+  # Note that cron deployment needs to have a single replica with Recreate strategy.
   #
   # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
-  #       maxSurge: y
+  #   revisionHistoryLimit: 4
   extraOptionsSpec: {}
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template.
@@ -756,6 +752,11 @@ cron:
   startupProbe:
     # -- Enable startup probe.
     enabled: false
+    httpGet:
+      # -- HTTP GET path for startup probe.
+      path: "/health"
+      # -- HTTP GET port for startup probe. Evaluated as a template.
+      port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Longer initial wait to accommodate slow-starting apps.
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting.
@@ -771,6 +772,11 @@ cron:
   readinessProbe:
     # -- Enable readiness probe.
     enabled: true
+    httpGet:
+      # -- HTTP GET path for readiness probe.
+      path: "/health"
+      # -- HTTP GET port for readiness probe. Evaluated as a template.
+      port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing).
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation.
@@ -786,6 +792,11 @@ cron:
   livenessProbe:
     # -- Enable liveness probe.
     enabled: true
+    httpGet:
+      # -- HTTP GET path for liveness probe.
+      path: "/health"
+      # -- HTTP GET port for liveness probe. Evaluated as a template.
+      port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing).
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation.
@@ -840,17 +851,7 @@ cron:
     # `extraVolumes`.
     extraVolumeMounts: []
 
-    # Configure Pods Security Context.
-    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-    # Empty map to disable Pod Security Context configuration.
-    podSecurityContext:
-      # -- Enable backend pods Security Context.
-      enabled: true
-      # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
-      # in the pod can share group-owned access.
-      fsGroup: 101
-
-    # Configure Container Security Context.
+    # Configure Init Container Security Context.
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext:
       # -- Enable backend containers Security Context
