@@ -1,0 +1,568 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+suite: test Platform frontend deployment
+templates:
+  - deployment-frontend.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should produce a Deployment resource with minimal values
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: release-name-platform-frontend
+      - equal:
+          path: spec.template.spec
+          value:
+            containers:
+              - name: frontend
+                env:
+                  - name: NGINX_UPSTREAM_HOST
+                    value: release-name-platform-backend
+                  - name: NGINX_UPSTREAM_PORT
+                    value: "8080"
+                  - name: NGINX_LISTEN_PORT
+                    value: "8083"
+                envFrom: null
+                image: cr.seqera.io/private/nf-tower-enterprise/frontend:v9.9.9-unprivileged
+                imagePullPolicy: IfNotPresent
+                livenessProbe:
+                  failureThreshold: 10
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                readinessProbe:
+                  failureThreshold: 5
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+                  successThreshold: 1
+                  timeoutSeconds: 3
+                securityContext:
+                  capabilities:
+                    drop:
+                      - ALL
+                  readOnlyRootFilesystem: true
+                  runAsNonRoot: true
+                  runAsUser: 101
+                volumeMounts:
+                  - mountPath: /tmp/
+                    name: tmp-volume
+                  - mountPath: /etc/nginx/conf.d/
+                    name: nginx-conf-volume
+            initContainers: null
+            securityContext:
+              fsGroup: 101
+            serviceAccountName: release-name-platform-sa
+            volumes:
+              - emptyDir:
+                  sizeLimit: 100Mi
+                name: tmp-volume
+              - emptyDir:
+                  sizeLimit: 10Mi
+                name: nginx-conf-volume
+
+  - it: should render the frontend deployment with the specified tag version
+    set:
+      frontend:
+        image:
+          tag: "9.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/frontend:9.0.0"
+
+  - it: should render the frontend deployment with the specified digest, overriding the tag
+    set:
+      frontend:
+        image:
+          tag: "this will be ignored"
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/frontend@sha256:1234abcdef"
+
+  - it: should render the frontend deployment with the correct labels and annotations
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      global:
+        platformDatabase:
+          existingSecretName: "unittest"
+          existingSecretKey: "db-password-key"
+      commonLabels:
+        key123: this-should-be-overridden
+        key456: this-should-not-be-overridden
+      commonAnnotations:
+        common-annotation-key: common-annotation-value
+      frontend:
+        podLabels:
+          key123: this-overrides-the-commonLabels
+        podAnnotations:
+          pod-annotation-key: pod-annotation-value
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            common-annotation-key: common-annotation-value
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            pod-annotation-key: pod-annotation-value
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: frontend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
+      # Check that the selector includes the correct labels too, but no custom podlabels should be
+      # defined on the selector, see bitnami/common for an explanation here:
+      # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: frontend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: shouldn't obey custom selector requests
+    set:
+      frontend:
+        extraOptionsSpec:
+          selector:
+            matchLabels:
+              app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: frontend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+    set:
+      frontend:
+        extraOptionsSpec:
+          replicas: 3
+          selector:
+            matchLabels:
+              app: something-else
+          revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: frontend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: platform
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    set:
+      frontend:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
+    set:
+      frontend:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    set:
+      frontend:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+          dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-platform-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render default podsecurityContext
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should disable podSecurityContext when 'enabled' is false
+    set:
+      frontend:
+        podSecurityContext:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
+    set:
+      frontend:
+        podSecurityContext:
+          enabled: false
+        extraOptionsTemplateSpec:
+          securityContext:
+            fsGroup: 2000
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should omit the 'enabled' field from podSecurityContext
+    set:
+      frontend:
+        podSecurityContext:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.enabled
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should render whatever podsecurityContext is set
+    set:
+      frontend:
+        podSecurityContext:
+          enabled: true
+          fsGroup: 2000
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            asdf: 123
+
+  - it: should render custom container securityContext
+    set:
+      frontend:
+        containerSecurityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+          runAsUser: 2000
+          runAsNonRoot: false
+          readOnlyRootFilesystem: false
+          asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
+
+  - it: should render container with extraEnvVars, extraEnvVarsCM and extraEnvVarsSecret
+    set:
+      frontend:
+        extraEnvVars:
+          - name: CUSTOM_ENV_VAR
+            value: custom-value
+        extraEnvVarsCM: extra-env-vars-cm
+        extraEnvVarsSecret: extra-env-vars-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: NGINX_UPSTREAM_HOST
+              value: release-name-platform-backend
+            - name: NGINX_UPSTREAM_PORT
+              value: "8080"
+            - name: NGINX_LISTEN_PORT
+              value: "8083"
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.containers[0].envFrom
+          value:
+            - configMapRef:
+                name: extra-env-vars-cm
+            - secretRef:
+                name: extra-env-vars-secret
+
+  - it: should render extra initContainer
+    set:
+      frontend:
+        initContainers:
+          - name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0]
+          value:
+            name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+
+  - it: should render multiple extra initContainers
+    set:
+      frontend:
+        initContainers:
+          - name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+          - name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0]
+          value:
+            name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+      - equal:
+          path: spec.template.spec.initContainers[1]
+          value:
+            name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+
+  - it: should include extra volumeMounts in the frontend container
+    set:
+      frontend:
+        extraVolumeMounts:
+          - name: extra-volume
+            mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts
+          value:
+            - mountPath: /extra/path
+              name: extra-volume
+            - mountPath: /tmp/
+              name: tmp-volume
+            - mountPath: /etc/nginx/conf.d/
+              name: nginx-conf-volume
+
+  - it: should include extra Volumes in the frontend pod spec
+    set:
+      frontend:
+        extraVolumes:
+          - name: extra-volume
+            emptyDir: {}
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes
+          value:
+            - emptyDir: {}
+              name: extra-volume
+            - emptyDir:
+                sizeLimit: 100Mi
+              name: tmp-volume
+            - emptyDir:
+                sizeLimit: 10Mi
+              name: nginx-conf-volume
+
+  - it: should use custom image for the frontend deployment
+    set:
+      frontend:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-frontend-image
+          tag: "2.0.0"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-frontend-image:2.0.0"
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest for the frontend deployment
+    set:
+      frontend:
+        image:
+          registry: my-custom-registry.io
+          repository: my-custom-repo/my-frontend-image
+          tag: "this-will-be-ignored"
+          digest: "sha256:whatever"
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-frontend-image@sha256:whatever"
+
+  - it: should use custom command and args for the frontend container
+    set:
+      frontend:
+        command: ["/bin/custom-frontend-start"]
+        args: ["--custom-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: ["/bin/custom-frontend-start"]
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value: ["--custom-arg1", "value1"]
+
+  - it: should render custom resources for the frontend container
+    set:
+      frontend:
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: "1"
+            memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+  - it: should disable probes for the frontend container
+    set:
+      frontend:
+        livenessProbe:
+          enabled: false
+        readinessProbe:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: should use custom probe settings for the frontend container
+    set:
+      frontend:
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 25
+        startupProbe:
+          enabled: true
+          initialDelaySeconds: 20
+          periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should add image pull secrets to the frontend deployment
+    set:
+      frontend:
+        image:
+          pullSecrets:
+            - my-custom-pull-secret
+            - my-custom-pull-secret2
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+            - name: my-custom-pull-secret2
