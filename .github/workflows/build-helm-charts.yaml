@@ -28,26 +28,21 @@ jobs:
 
       - name: Extract list of changed Helm charts
         id: extract-charts
+        # This script defines the charts_to_package env var with a space-separated list of charts to
+        # package based on the changed files
         run: python3 .github/scripts/extract_charts.py
 
       - name: Run chart test linter
         if: env.charts_to_package != ''
         run: python3 .github/scripts/helm_unittests_files_exist.py
 
-      - name: Login to Helm registry
-        if: env.charts_to_package != ''
-        shell: bash
-        run: |
-          # Use single quotes for credentials since robot accounts contain dollar signs that don't have to be expanded.
-          helm registry login '${{vars.TOWER_HELM_CR_REPO_DOMAIN}}/${{vars.TOWER_HELM_CR_REPO_PROJECT}}' --username '${{vars.TOWER_HELM_CR_USERNAME}}' --password '${{secrets.TOWER_HELM_CR_PASSWORD}}'
-
       - name: Check for existence of helm charts on registry
         if: env.charts_to_package != ''
         env:
-          TOWER_HELM_CR_REPO_DOMAIN: ${{vars.TOWER_HELM_CR_REPO_DOMAIN}}
-          TOWER_HELM_CR_REPO_PROJECT: ${{vars.TOWER_HELM_CR_REPO_PROJECT}}
-          TOWER_HELM_CR_USERNAME: ${{vars.TOWER_HELM_CR_USERNAME}}
-          TOWER_HELM_CR_PASSWORD: ${{secrets.TOWER_HELM_CR_PASSWORD}}
+          REPO_HOSTNAME: ${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}
+          REPO_PROJECT: ${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}
+          REPO_USERNAME: ${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}
+          REPO_PASSWORD: ${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}
         run: python3 .github/scripts/check_chart_versions.py
 
       - name: 'Build Helm charts'
@@ -68,6 +63,6 @@ jobs:
           for chart in $charts_to_package; do
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             echo "Pushing chart ${chart}, version ${chart_version}.."
-            helm push ${chart}-${chart_version}.tgz "oci://${{vars.TOWER_HELM_CR_REPO_DOMAIN}}/${{vars.TOWER_HELM_CR_REPO_PROJECT}}/"
+            helm push ${chart}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}'
             echo "Pushed chart ${chart}"
           done
