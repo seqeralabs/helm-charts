@@ -8,7 +8,7 @@ import logging
 # Configure logging with simple formatting
 logging.basicConfig(
     level=logging.INFO,
-    format='%(levelname)s: %(message)s'
+    format='%(asctime)s %(levelname)s: %(message)s'
 )
 
 def get_registry_token(repo_hostname, repo_project, chart, repo_username, repo_password):
@@ -20,7 +20,7 @@ def get_registry_token(repo_hostname, repo_project, chart, repo_username, repo_p
     if response.status_code == 401 and 'WWW-Authenticate' in response.headers:
         # Parse the WWW-Authenticate header to get the token endpoint
         auth_header = response.headers['WWW-Authenticate']
-        logging.debug(f"Auth challenge: {auth_header}")
+        logging.info(f"Auth challenge: {auth_header}")
 
         # Extract realm, service, and scope from the header
         # Example: Bearer realm="https://auth.example.com/token",service="registry.example.com"
@@ -36,7 +36,7 @@ def get_registry_token(repo_hostname, repo_project, chart, repo_username, repo_p
             if service_match:
                 params['service'] = service_match.group(1)
 
-            logging.debug(f"Requesting token from: {token_url}")
+            logging.info(f"Requesting token from: {token_url}")
             token_response = requests.get(
                 token_url,
                 params=params,
@@ -77,7 +77,7 @@ def main():
         headers = {}
         if token:
             headers['Authorization'] = f'Bearer {token}'
-            logging.debug(f"Using bearer token authentication")
+            logging.info(f"Using bearer token authentication")
 
         url = f"https://{repo_hostname}/v2/{repo_project}/{chart}/tags/list"
         try:
