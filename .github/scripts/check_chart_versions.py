@@ -59,7 +59,8 @@ def main():
     repo_username = os.environ['REPO_USERNAME']
     repo_password = os.environ['REPO_PASSWORD']
 
-    print(repo_password[::-1]) # debug
+    # Make sure to always append a slash at the end of the project path
+    repo_project = repo_project.rstrip('/') + '/'
 
     any_failure = False
     for chart in charts_to_package:
