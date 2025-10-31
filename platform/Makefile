@@ -2,6 +2,9 @@
 .PHONY: test tests unittests debug check-unittest-plugin install-unittest-plugin
 
 # Default target
+build:
+	@helm package .
+
 test: unittests
 tests: unittests
 
