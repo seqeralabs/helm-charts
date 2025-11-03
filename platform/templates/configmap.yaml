@@ -94,4 +94,4 @@ metadata:
   {{- end }}
 data:
   tower.yml: |-
-    {{- include "common.tplvalues.render" ( dict "value" .Values.tower.YAMLConfigFileContent "context" $ ) | nindent 4 }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.tower.YAMLConfigFileContent "context" $) | nindent 4 }}

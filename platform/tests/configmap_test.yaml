@@ -140,3 +140,60 @@ tests:
             TOWER_REDIS_URL: redis://:6379
             TOWER_SERVER_URL: https://example.com
             WAVE_SERVER_URL: https://wave.seqera.io
+
+  - it: should render tower-yml cm with no data in it
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            tower.yml: ""
+
+  - it: should render tower-yml cm with provided data
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    set:
+      tower:
+        YAMLConfigFileContent: |
+          someKey: someValue
+          anotherKey:
+            nestedKey: nestedValue
+    asserts:
+      - equal:
+          path: data
+          value:
+            tower.yml: |-
+              someKey: someValue
+              anotherKey:
+                nestedKey: nestedValue
+
+  - it: should render tower-yml cm with templated data
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    set:
+      global:
+        platformExternalDomain: "my-platform.example.com"
+        platformServicePort: 1234
+      tower:
+        YAMLConfigFileContent: |
+          templatedKey:
+            url: https://{{ .Values.global.platformExternalDomain }}
+            url2: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) }}
+            # The port should be rendered as a number, not as a string
+            port: {{ .Values.global.platformServicePort }}
+    asserts:
+      - equal:
+          path: data
+          value:
+            tower.yml: |-
+              templatedKey:
+                url: https://my-platform.example.com
+                url2: https://my-platform.example.com
+                # The port should be rendered as a number, not as a string
+                port: 1234
