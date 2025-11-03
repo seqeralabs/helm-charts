@@ -45,22 +45,23 @@ tests:
           path: spec.ingressClassName
           value: nginx
 
-  - it: should apply ingress annotations
+  - it: should apply ingress annotations with templated values
     set:
       ingress:
         enabled: true
         annotations:
           nginx.ingress.kubernetes.io/rewrite-target: "/"
           nginx.ingress.kubernetes.io/ssl-redirect: "true"
+          whatever: "{{ .Values.global.platformServicePort | default 8443 }}"
       global:
         platformExternalDomain: "platform.example.com"
     asserts:
       - equal:
-          path: metadata.annotations["nginx.ingress.kubernetes.io/rewrite-target"]
-          value: "/"
-      - equal:
-          path: metadata.annotations["nginx.ingress.kubernetes.io/ssl-redirect"]
-          value: "true"
+          path: metadata.annotations
+          value:
+            nginx.ingress.kubernetes.io/rewrite-target: "/"
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            whatever: 8080  # should be rendered as integer and take the default value from values.yaml
 
   - it: should expose user-data. (content) subdomain when enabled
     set:

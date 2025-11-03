@@ -9,13 +9,13 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 
 spec:
   {{- with .Values.ingress.defaultBackend }}
-  defaultBackend: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  defaultBackend: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
   {{- if .Values.ingress.ingressClassName }}
@@ -23,7 +23,7 @@ spec:
   {{- end }}
 
   {{- with .Values.ingress.tls }}
-  tls: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  tls: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
   rules:
