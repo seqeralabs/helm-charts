@@ -45,3 +45,22 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].livenessProbe.httpGet.port
           value: 8081
+
+  - it: should merge configMapAnnotations and commonAnnotations correctly in configmaps, rendering numbers as integers
+    template: configmap.yaml
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      global:
+        platformServicePort: 8443
+      tower:
+        configMapAnnotations:
+          annotation1: "value1"
+          annotation2: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 8443

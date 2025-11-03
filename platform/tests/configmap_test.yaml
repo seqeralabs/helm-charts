@@ -197,3 +197,110 @@ tests:
                 url2: https://my-platform.example.com
                 # The port should be rendered as a number, not as a string
                 port: 1234
+
+  - it: should render annotations in all configmaps when provided
+    set:
+      global:
+        platformServicePort: 1234
+      commonAnnotations:
+        annotation1: "value1"
+        annotation2: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 1234
+        documentIndex: 0
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 1234
+        documentIndex: 1
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 1234
+        documentIndex: 2
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 1234
+        documentIndex: 3
+
+  - it: should render annotations in all configmaps when provided via tower.configMapAnnotations
+    set:
+      global:
+        platformServicePort: 1234
+      tower:
+        configMapAnnotations:
+          annotationA: "valueA"
+          annotationB: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotationA: "valueA"
+            annotationB: 1234
+        documentIndex: 0
+      - equal:
+          path: metadata.annotations
+          value:
+            annotationA: "valueA"
+            annotationB: 1234
+        documentIndex: 1
+      - equal:
+          path: metadata.annotations
+          value:
+            annotationA: "valueA"
+            annotationB: 1234
+        documentIndex: 2
+      - equal:
+          path: metadata.annotations
+          value:
+            annotationA: "valueA"
+            annotationB: 1234
+        documentIndex: 3
+
+  - it: should merge annotations from commonAnnotations and tower.configMapAnnotations
+    set:
+      commonAnnotations:
+        annotation1: "this should get overwritten"
+        annotation2: "this should stay"
+      tower:
+        configMapAnnotations:
+          annotation1: "this overrides the common annotation"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "this overrides the common annotation"
+            annotation2: "this should stay"
+        documentIndex: 0
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "this overrides the common annotation"
+            annotation2: "this should stay"
+        documentIndex: 1
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "this overrides the common annotation"
+            annotation2: "this should stay"
+        documentIndex: 2
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "this overrides the common annotation"
+            annotation2: "this should stay"
+        documentIndex: 3

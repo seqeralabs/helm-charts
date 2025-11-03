@@ -9,8 +9,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
@@ -25,8 +25,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.cron.micronautEnvs" . }}
@@ -42,8 +42,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
   TOWER_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) | quote }}
@@ -89,9 +89,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 data:
   tower.yml: |-
-    {{- include "common.tplvalues.render" (dict "value" .Values.tower.YAMLConfigFileContent "context" $) | nindent 4 }}
+    {{- include "seqera.tplvalues.render" (dict "value" .Values.tower.YAMLConfigFileContent "context" $) | nindent 4 }}

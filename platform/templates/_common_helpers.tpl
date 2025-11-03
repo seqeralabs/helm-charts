@@ -178,3 +178,27 @@ Examples:
 {{- end -}}
 {{- $list | toYaml -}}
 {{- end -}}
+
+
+{{/*
+Merge multiple maps into a single map after rendering them with seqera.tplvalues.render.
+Merge precedence is consistent with http://masterminds.github.io/sprig/dicts.html#merge-mustmerge
+(earlier maps have higher precedence).
+Returns a YAML string representation of the merged map.
+
+Usage: {{ include "seqera.tplvalues.merge" (dict "values" (list .Values.map1 .Values.map2) "context" .) }}
+
+Example:
+  values: [
+    {key1: "value1", key2: "overridden"},
+    {key2: "value2", key3: "value3"}
+  ]
+  Result: {key1: "value1", key2: "overridden", key3: "value3"}
+*/}}
+{{- define "seqera.tplvalues.merge" -}}
+{{- $dst := dict -}}
+{{- range .values -}}
+{{- $dst = include "seqera.tplvalues.render" (dict "value" . "context" $.context "scope" $.scope) | fromYaml | merge $dst -}}
+{{- end -}}
+{{ $dst | toYaml }}
+{{- end -}}
