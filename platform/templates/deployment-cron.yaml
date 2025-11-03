@@ -32,8 +32,9 @@ spec:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
         app: cron
       annotations:
-        {{- with .Values.cron.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+        {{- if or .Values.cron.podAnnotations .Values.commonAnnotations }}
+        {{- $podAnnotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.cron.podAnnotations .Values.commonAnnotations) "context" $) }}
+        {{- include "seqera.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
         {{- end }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}

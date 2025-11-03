@@ -113,6 +113,7 @@ tests:
           key123: this-overrides-the-commonLabels
         podAnnotations:
           pod-annotation-key: pod-annotation-value
+          pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
     asserts:
       - equal:
           path: metadata.annotations
@@ -122,6 +123,8 @@ tests:
           path: spec.template.metadata.annotations
           value:
             pod-annotation-key: pod-annotation-value
+            pod-annotation-key2: 8080  # this should be rendered as integer and take the default value from values.yaml
+            common-annotation-key: common-annotation-value
       - equal:
           path: spec.template.metadata.labels
           value:
@@ -580,3 +583,18 @@ tests:
       - equal:
           path: spec.replicas
           value: 2
+
+  - it: should render annotations on deployment when provided
+    template: deployment-frontend.yaml
+    set:
+      global:
+        platformServicePort: 1234
+      commonAnnotations:
+        annotation1: "value1"
+        annotation2: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: 1234
