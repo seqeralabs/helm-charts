@@ -9,7 +9,6 @@ metadata:
   {{- with .Values.commonAnnotations }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
-
 spec:
   {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
   selector:
@@ -28,8 +27,9 @@ spec:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
         app: backend
       annotations:
-        {{- with .Values.backend.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+        {{- if or .Values.backend.podAnnotations .Values.commonAnnotations }}
+        {{- $podAnnotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.backend.podAnnotations .Values.commonAnnotations) "context" $) }}
+        {{- include "seqera.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
         {{- end }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
