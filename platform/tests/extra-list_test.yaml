@@ -86,13 +86,15 @@ tests:
           path: kind
           value: Secret
 
-  - it: should handle complex extra objects
+  - it: should handle complex extra objects with templated rendering
     set:
       extraDeploy:
         - apiVersion: apps/v1
           kind: Deployment
           metadata:
             name: extra-deployment
+            annotations:
+              rendered-annotation: "{{ .Values.global.platformServicePort | default 8443 }}"
           spec:
             replicas: 2
             selector:
@@ -112,6 +114,10 @@ tests:
       - equal:
           path: metadata.name
           value: extra-deployment
+      - equal:
+          path: metadata.annotations
+          value:
+            rendered-annotation: 8080  # should be rendered as integer and take the default value from values.yaml
       - equal:
           path: spec.replicas
           value: 2
