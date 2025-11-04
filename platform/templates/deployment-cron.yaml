@@ -6,12 +6,12 @@ metadata:
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
     app: cron
-  {{- with .Values.commonAnnotations }}
+{{- with .Values.commonAnnotations }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
-  {{- end }}
+{{- end }}
 
 spec:
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
+{{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
       app: cron
@@ -22,31 +22,31 @@ spec:
     type: Recreate
   # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
   # omitted (replicas, strategy, selector).
-  {{- $extraOptionsSpec := omit .Values.cron.extraOptionsSpec "replicas" "strategy" "selector" }}
-  {{- if $extraOptionsSpec }}
+{{- $extraOptionsSpec := omit .Values.cron.extraOptionsSpec "replicas" "strategy" "selector" }}
+{{- if $extraOptionsSpec }}
   {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
-  {{- end }}
+{{- end }}
 
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
         app: cron
       annotations:
-        {{- with .Values.cron.podAnnotations }}
+{{- with .Values.cron.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
+{{- end }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
 
     spec:
       serviceAccountName: {{ include "platform.serviceAccountName" . }}
-      {{- if .Values.cron.podSecurityContext.enabled }}
+{{- if .Values.cron.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.cron.podSecurityContext "enabled" | toYaml | nindent 8 }}
-      {{- end }}
-      {{- $extraOptionsTemplateSpec := omit .Values.cron.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
-      {{- if $extraOptionsTemplateSpec }}
+{{- end }}
+{{- $extraOptionsTemplateSpec := omit .Values.cron.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
+{{- if $extraOptionsTemplateSpec }}
       {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
-      {{- end }}
+{{- end }}
 
       initContainers:
         {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) | nindent 8 }}
@@ -54,18 +54,18 @@ spec:
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}
-          {{- with .Values.cron.dbMigrationInitContainer.command }}
+{{- with .Values.cron.dbMigrationInitContainer.command }}
           command: {{- toYaml . | nindent 12 }}
-          {{- else }}
+{{- else }}
           command: ["sh", "-c", "/migrate-db.sh"]
-          {{- end }}
-          {{- with .Values.cron.dbMigrationInitContainer.args }}
+{{- end }}
+{{- with .Values.cron.dbMigrationInitContainer.args }}
           args: {{- toYaml . | nindent 12 }}
-          {{- end }}
+{{- end }}
           env:
-            {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
+{{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-            {{- end }}
+{{- end }}
           envFrom:
             - configMapRef:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
@@ -73,43 +73,43 @@ spec:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-            {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
+{{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
-            {{- end }}
-            {{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsSecret }}
+{{- end }}
+{{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsSecret }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
-            {{- end }}
+{{- end }}
 
-          {{- if .Values.cron.dbMigrationInitContainer.containerSecurityContext.enabled }}
+{{- if .Values.cron.dbMigrationInitContainer.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.cron.dbMigrationInitContainer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
-          {{- end }}
+{{- end }}
 
-          {{- with .Values.cron.dbMigrationInitContainer.resources }}
+{{- with .Values.cron.dbMigrationInitContainer.resources }}
           resources: {{- toYaml . | nindent 12 }}
-          {{- end }}
+{{- end }}
           volumeMounts:
-            {{- with .Values.cron.dbMigrationInitContainer.extraVolumeMounts }}
+{{- with .Values.cron.dbMigrationInitContainer.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-            {{- end }}
+{{- end }}
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
-        {{- with .Values.cron.initContainers }}
+{{- with .Values.cron.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
+{{- end }}
 
       containers:
         - name: cron
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.cron.image.pullPolicy }}
-          {{- with .Values.cron.command }}
+{{- with .Values.cron.command }}
           command: {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.cron.args }}
+{{- end }}
+{{- with .Values.cron.args }}
           args: {{- toYaml . | nindent 12 }}
-          {{- end }}
+{{- end }}
 
           envFrom:
             - configMapRef:
@@ -119,32 +119,32 @@ spec:
             - secretRef:
                 {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-            {{- with .Values.cron.extraEnvVarsCM }}
+{{- with .Values.cron.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
-            {{- end }}
-            {{- with .Values.cron.extraEnvVarsSecret }}
+{{- end }}
+{{- with .Values.cron.extraEnvVarsSecret }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
-            {{- end }}
+{{- end }}
 
           env:
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
-            {{- with .Values.cron.extraEnvVars }}
+{{- with .Values.cron.extraEnvVars }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-            {{- end }}
+{{- end }}
 
-          {{- with .Values.cron.resources }}
+{{- with .Values.cron.resources }}
           resources: {{- toYaml . | nindent 12 }}
-          {{- end }}
+{{- end }}
 
           volumeMounts:
-            {{- with .Values.cron.extraVolumeMounts }}
+{{- with .Values.cron.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-            {{- end }}
+{{- end }}
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
@@ -156,24 +156,24 @@ spec:
             - name: plugin-volume
               mountPath: /?/.nextflow/
 
-          {{- if .Values.cron.containerSecurityContext.enabled }}
+{{- if .Values.cron.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.cron.containerSecurityContext "enabled" | toYaml | nindent 12 }}
-          {{- end }}
+{{- end }}
 
-          {{- if .Values.cron.livenessProbe.enabled }}
+{{- if .Values.cron.livenessProbe.enabled }}
           livenessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.livenessProbe "enabled") "context" $) | nindent 12 }}
-          {{- end }}
-          {{- if .Values.cron.readinessProbe.enabled }}
+{{- end }}
+{{- if .Values.cron.readinessProbe.enabled }}
           readinessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.readinessProbe "enabled") "context" $) | nindent 12 }}
-          {{- end }}
-          {{- if .Values.cron.startupProbe.enabled }}
+{{- end }}
+{{- if .Values.cron.startupProbe.enabled }}
           startupProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.cron.startupProbe "enabled") "context" $) | nindent 12 }}
-          {{- end }}
+{{- end }}
 
       volumes:
-        {{- with .Values.cron.extraVolumes }}
+{{- with .Values.cron.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-        {{- end }}
+{{- end }}
         - name: config-volume
           configMap:
             name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
