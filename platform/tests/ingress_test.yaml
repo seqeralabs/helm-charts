@@ -2,6 +2,9 @@
 suite: test Platform ingress
 templates:
   - ingress.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
 tests:
   - it: should not render ingress when disabled
     set:
@@ -61,6 +64,27 @@ tests:
           value:
             nginx.ingress.kubernetes.io/rewrite-target: "/"
             nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            whatever: 8080  # should be rendered as integer and take the default value from values.yaml
+
+  - it: should apply ingress labels with templated values
+    set:
+      global:
+        platformExternalDomain: "platform.example.com"
+      ingress:
+        enabled: true
+        extraLabels:
+          domain: "{{ .Values.global.platformExternalDomain }}"
+          whatever: "{{ .Values.global.platformServicePort | default 8443 }}"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v9.9.9
+            helm.sh/chart: platform-1.2.3
+            domain: platform.example.com
             whatever: 8080  # should be rendered as integer and take the default value from values.yaml
 
   - it: should expose user-data. (content) subdomain when enabled

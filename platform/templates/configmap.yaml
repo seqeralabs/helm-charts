@@ -1,4 +1,4 @@
-{{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+{{- $commonLabels := include "seqera.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
 {{- $mergedlabels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels $commonLabels) "context" .) -}}
 {{- $labels := include "seqera.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
 {{- $mergedAnnotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
