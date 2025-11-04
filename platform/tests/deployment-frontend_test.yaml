@@ -104,7 +104,7 @@ tests:
           existingSecretName: "unittest"
           existingSecretKey: "db-password-key"
       commonLabels:
-        key123: this-should-be-overridden
+        key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
       commonAnnotations:
         common-annotation-key: common-annotation-value
@@ -115,6 +115,17 @@ tests:
           pod-annotation-key: pod-annotation-value
           pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
     asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app: frontend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-should-be-overridden-in-pod-labels
+            key456: this-should-not-be-overridden
       - equal:
           path: metadata.annotations
           value:
