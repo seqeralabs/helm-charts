@@ -93,6 +93,9 @@ tests:
           kind: Deployment
           metadata:
             name: extra-deployment
+            labels:
+              app: extra-app
+              a-label-with-templated-value: "{{ .Values.global.platformServicePort | default 8443 }}"
             annotations:
               rendered-annotation: "{{ .Values.global.platformServicePort | default 8443 }}"
           spec:
@@ -104,6 +107,7 @@ tests:
               metadata:
                 labels:
                   app: extra-app
+                  a-label-with-templated-value: "{{ .Values.global.platformServicePort | default 8443 }}"
               spec:
                 containers:
                   - name: extra-container
@@ -118,6 +122,20 @@ tests:
           path: metadata.annotations
           value:
             rendered-annotation: 8080  # should be rendered as integer and take the default value from values.yaml
+      - equal:
+          path: metadata.labels
+          value:
+            app: extra-app
+            a-label-with-templated-value: 8080  # should be rendered as integer and take the default value from values.yaml
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: extra-app
+      - equal:
+          path: .spec.template.metadata.labels
+          value:
+            app: extra-app
+            a-label-with-templated-value: 8080  # should be rendered as integer and take the default value from values.yaml
       - equal:
           path: spec.replicas
           value: 2
