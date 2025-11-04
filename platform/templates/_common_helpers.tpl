@@ -202,3 +202,30 @@ Example:
 {{- end -}}
 {{ $dst | toYaml }}
 {{- end -}}
+
+{{/*
+Kubernetes standard labels with automatic type preservation (numbers as integers).
+This is a wrapper around common.labels.standard that uses seqera.tplvalues.render
+to ensure numeric strings are converted to integers.
+
+Usage: {{ include "seqera.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) }}
+
+Example:
+  customLabels:
+    app.kubernetes.io/version: "1.2.3"
+    custom.label/port: "8080"
+    custom.label/name: "my-app"
+
+  Result:
+    app.kubernetes.io/name: platform
+    helm.sh/chart: platform-1.0.0
+    app.kubernetes.io/instance: my-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.2.3"
+    custom.label/port: 8080
+    custom.label/name: "my-app"
+*/}}
+{{- define "seqera.labels.standard" -}}
+{{- $commonLabels := include "common.labels.standard" . | fromYaml -}}
+{{- include "seqera.tplvalues.render" (dict "value" $commonLabels "context" .context) -}}
+{{- end -}}

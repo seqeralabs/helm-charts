@@ -478,6 +478,77 @@ tests:
           value: towerValue
         documentIndex: 0
 
+  - it: should render commonLabels with templated numeric values as integers for backend service
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3-asdf
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      backend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3-asdf
+            helm.sh/chart: platform-9.8.7
+            commonLabelKey: commonLabelValue
+            templatedLabelKey: 8080
+        documentIndex: 0
+
+  - it: should render tower.serviceLabels with templated numeric values as integers for backend service
+    set:
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      backend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.towerLabelKey
+          value: towerLabelValue
+        documentIndex: 0
+      - equal:
+          path: metadata.labels.templatedLabelKey
+          value: 8080
+        documentIndex: 0
+
+  - it: should merge and render service labels with templated numeric values as integers for backend service
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        overriddenKey: willBeOverridden
+        templatedCommonKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          overriddenKey: towerOverrideValue
+          templatedTowerKey: "{{ .Values.global.platformServicePort | default 8442 }}"
+      backend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.overriddenKey
+          value: towerOverrideValue
+        documentIndex: 0
+      - equal:
+          path: metadata.labels.templatedCommonKey
+          value: 8080
+        documentIndex: 0
+      - equal:
+          path: metadata.labels.templatedTowerKey
+          value: 8080
+        documentIndex: 0
+
   - it: should apply commonAnnotations to backend service
     set:
       commonAnnotations:
@@ -793,6 +864,73 @@ tests:
           path: metadata.labels.towerKey
           value: towerValue
 
+  - it: should render commonLabels with templated numeric values as integers for cron service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      cron:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.commonLabelKey
+          value: commonLabelValue
+      - equal:
+          path: metadata.labels.templatedLabelKey
+          value: 8080
+
+  - it: should render tower.serviceLabels with templated numeric values as integers for cron service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      cron:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.towerLabelKey
+          value: towerLabelValue
+      - equal:
+          path: metadata.labels.templatedLabelKey
+          value: 8080
+
+  - it: should merge and render service labels with templated numeric values as integers for cron service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-cron
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        overriddenKey: willBeOverridden
+        templatedCommonKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          overriddenKey: towerOverrideValue
+          templatedTowerKey: "{{ .Values.global.platformServicePort | default 8442 }}"
+      cron:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.overriddenKey
+          value: towerOverrideValue
+      - equal:
+          path: metadata.labels.templatedCommonKey
+          value: 8080
+      - equal:
+          path: metadata.labels.templatedTowerKey
+          value: 8080
+
   - it: should apply commonAnnotations to cron service
     documentSelector:
       path: metadata.name
@@ -906,6 +1044,73 @@ tests:
       - equal:
           path: metadata.labels.towerKey
           value: towerValue
+
+  - it: should render commonLabels with templated numeric values as integers for frontend service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-frontend
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      frontend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.commonLabelKey
+          value: commonLabelValue
+      - equal:
+          path: metadata.labels.templatedLabelKey
+          value: 8080
+
+  - it: should render tower.serviceLabels with templated numeric values as integers for frontend service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-frontend
+    set:
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      frontend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.towerLabelKey
+          value: towerLabelValue
+      - equal:
+          path: metadata.labels.templatedLabelKey
+          value: 8080
+
+  - it: should merge and render service labels with templated numeric values as integers for frontend service
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-frontend
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        overriddenKey: willBeOverridden
+        templatedCommonKey: "{{ .Values.global.platformServicePort | default 8441 }}"
+      tower:
+        serviceLabels:
+          towerLabelKey: towerLabelValue
+          overriddenKey: towerOverrideValue
+          templatedTowerKey: "{{ .Values.global.platformServicePort | default 8442 }}"
+      frontend:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels.overriddenKey
+          value: towerOverrideValue
+      - equal:
+          path: metadata.labels.templatedCommonKey
+          value: 8080
+      - equal:
+          path: metadata.labels.templatedTowerKey
+          value: 8080
 
   - it: should apply commonAnnotations to frontend service
     documentSelector:

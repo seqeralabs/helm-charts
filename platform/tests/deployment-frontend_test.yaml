@@ -106,6 +106,7 @@ tests:
       commonLabels:
         key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
+        key789: "{{ .Values.global.platformServicePort | default 8443 }}"
       commonAnnotations:
         common-annotation-key: common-annotation-value
       frontend:
@@ -126,6 +127,7 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-should-be-overridden-in-pod-labels
             key456: this-should-not-be-overridden
+            key789: 8080
       - equal:
           path: metadata.annotations
           value:
@@ -147,6 +149,7 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
+            key789: 8080
       # Check that the selector includes the correct labels too, but no custom podlabels should be
       # defined on the selector, see bitnami/common for an explanation here:
       # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37

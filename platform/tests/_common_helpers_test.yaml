@@ -64,3 +64,50 @@ tests:
           value:
             annotation1: "value1"
             annotation2: 8443
+
+  - it: should render standard labels with seqera.labels.standard rendering numbers as integers
+    template: deployment-cron.yaml
+    set:
+      global:
+        platformServicePort: 8080
+      commonLabels:
+        custom.label/port: "{{ .Values.global.platformServicePort }}"
+        custom.label/version: "1.2.3"
+        custom.label/replica-count: "3"
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            custom.label/port: 8080
+            custom.label/version: "1.2.3"
+            custom.label/replica-count: 3
+
+  - it: should render standard labels without customLabels
+    template: deployment-cron.yaml
+    set:
+      commonLabels: {}
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+
+  - it: should render standard labels with template evaluation
+    template: deployment-cron.yaml
+    set:
+      global:
+        customValue: "custom-value"
+      commonLabels:
+        templated-label: "{{ .Values.global.customValue }}"
+        numeric-label: "9000"
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            templated-label: "custom-value"
+            numeric-label: 9000

@@ -9,7 +9,7 @@ metadata:
   # global.platformServicePort is a valid port.
   name: {{ tpl .Values.global.platformServiceAddress . | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
@@ -21,7 +21,7 @@ spec:
   {{- include "common.tplvalues.render" (dict "value" (omit . "selector" "type" "ports") "context" $) | nindent 2 -}}
   {{- end }}
 
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
+  {{- $podLabels := include "seqera.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
     app: backend
   ports:
@@ -44,7 +44,7 @@ kind: Service
 metadata:
   name: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
@@ -55,7 +55,7 @@ spec:
   {{- with .Values.cron.service.extraOptions -}}
   {{- include "common.tplvalues.render" (dict "value" (omit . "selector" "type" "ports") "context" $) | nindent 2 -}}
   {{- end }}
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
+  {{- $podLabels := include "seqera.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
     app: cron
   ports:
@@ -74,7 +74,7 @@ kind: Service
 metadata:
   name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
@@ -85,7 +85,7 @@ spec:
   {{- with .Values.frontend.service.extraOptions -}}
   {{- include "common.tplvalues.render" (dict "value" (omit . "selector" "type" "ports") "context" $) | nindent 2 -}}
   {{- end }}
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.frontend.podLabels .Values.commonLabels) "context" .) }}
+  {{- $podLabels := include "seqera.tplvalues.merge" (dict "values" (list .Values.frontend.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
     app: frontend
   ports:

@@ -4,14 +4,14 @@ kind: Deployment
 metadata:
   name: {{ printf "%s-frontend" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+  labels: {{- include "seqera.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
     app: frontend
   {{- with .Values.commonAnnotations }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
 spec:
-  {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.frontend.podLabels .Values.commonLabels) "context" .) }}
+  {{- $podLabels := include "seqera.tplvalues.merge" (dict "values" (list .Values.frontend.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
       app: frontend
@@ -25,7 +25,7 @@ spec:
 
   template:
     metadata:
-      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+      labels: {{- include "seqera.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
         app: frontend
       annotations:
         {{- if or .Values.frontend.podAnnotations .Values.commonAnnotations }}

@@ -244,6 +244,7 @@ tests:
       commonLabels:
         key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
+        key789: "{{ .Values.global.platformServicePort | default 8445 }}"
       commonAnnotations:
         common-annotation-key: common-annotation-value
       cron:
@@ -270,6 +271,7 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-should-be-overridden-in-pod-labels
             key456: this-should-not-be-overridden
+            key789: 8080
       - equal:
           path: metadata.annotations
           value:
@@ -284,8 +286,8 @@ tests:
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: 809c68f6c7d14aea08c38f9b646c4c1ca1256a9653474f597523092a62cf1f1f
-            checksum/secret: 874f1300df78155e05997c9851607b3caba133de5c564bea7dc9bfd8df93cd32
+            checksum/configmap: a6af190f52ffa0e121c6ee4614684c92249e11809e2486d39a4e32a5b679afca
+            checksum/secret: 9b7110f5787d8b33593c1de588cfb49d66f81ea61858b5ad1479dbf234d08fe6
       - equal:
           path: spec.template.metadata.labels
           value:
@@ -297,6 +299,7 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
+            key789: 8080
       # Check that the selector includes the correct labels too, but no custom podlabels should be
       # defined on the selector, see bitnami/common for an explanation here:
       # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
