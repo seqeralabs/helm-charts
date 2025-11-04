@@ -409,6 +409,7 @@ tests:
               app.kubernetes.io/name: platform
               app.kubernetes.io/version: 1.2.3+asdf
               helm.sh/chart: platform-9.9.9
+            annotations: {}
       - equal:
           path: spec
           value:
@@ -553,13 +554,16 @@ tests:
     set:
       commonAnnotations:
         commonAnnotationKey: commonAnnotationValue
+        templatedAnnotationKey: "{{ .Values.global.platformServicePort | default 8441 }}"
       backend:
         service:
           type: ClusterIP
     asserts:
       - equal:
-          path: metadata.annotations.commonAnnotationKey
-          value: commonAnnotationValue
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: commonAnnotationValue
+            templatedAnnotationKey: 8080
         documentIndex: 0
 
   - it: should apply tower.serviceAnnotations to backend service
@@ -938,13 +942,16 @@ tests:
     set:
       commonAnnotations:
         commonAnnotationKey: commonAnnotationValue
+        templatedCommonKey: "{{ .Values.global.platformServicePort | default 8441 }}"
       cron:
         service:
           type: ClusterIP
     asserts:
       - equal:
-          path: metadata.annotations.commonAnnotationKey
-          value: commonAnnotationValue
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: commonAnnotationValue
+            templatedCommonKey: 8080
 
   - it: should apply tower.serviceAnnotations to cron service
     documentSelector:
@@ -1404,3 +1411,26 @@ tests:
       - equal:
           path: spec.ports[0].targetPort
           value: 8383
+
+  - it: should template labels on all services
+    chart:
+      version: 1.2.3
+      appVersion: "4.5.6+build"
+    set:
+      commonLabels:
+        templatedPort: "{{ .Chart.Version }}"
+        commonLabel: this should be overridden
+      tower:
+        serviceLabels:
+          commonLabel: "{{ .Values.global.platformServicePort | default 8441 }}"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: 4.5.6+build
+            helm.sh/chart: platform-1.2.3
+            templatedPort: "1.2.3"
+            commonLabel: 8080
