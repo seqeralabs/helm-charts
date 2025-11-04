@@ -86,6 +86,9 @@ tests:
           path: data.TOWER_SMTP_PASSWORD
 
   - it: should apply common labels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
     documentSelector:
       path: metadata.name
       value: release-name-platform-backend
@@ -93,13 +96,19 @@ tests:
       commonLabels:
         environment: "dev"
         team: "platform"
+        integerLabel: "{{ .Values.global.platformServicePort | default 1234 }}"
     asserts:
       - equal:
-          path: metadata.labels.environment
-          value: dev
-      - equal:
-          path: metadata.labels.team
-          value: platform
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: platform-9.8.7
+            environment: dev
+            team: platform
+            integerLabel: 8080
 
   - it: should include AWS SES configuration when enabled
     documentSelector:

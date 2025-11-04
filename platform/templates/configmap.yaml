@@ -4,10 +4,8 @@ apiVersion: v1
 metadata:
   name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels (include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml)) "context" .) }}
+  labels: {{- include "seqera.tplvalues.render" (dict "value" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
@@ -20,10 +18,8 @@ apiVersion: v1
 metadata:
   name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels (include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml)) "context" .) }}
+  labels: {{- include "seqera.tplvalues.render" (dict "value" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
@@ -37,10 +33,8 @@ apiVersion: v1
 metadata:
   name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels (include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml)) "context" .) }}
+  labels: {{- include "seqera.tplvalues.render" (dict "value" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
@@ -84,10 +78,8 @@ apiVersion: v1
 metadata:
   name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- $labels := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels (include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml)) "context" .) }}
+  labels: {{- include "seqera.tplvalues.render" (dict "value" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
