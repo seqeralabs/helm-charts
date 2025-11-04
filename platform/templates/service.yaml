@@ -12,8 +12,8 @@ metadata:
   {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 spec:
   type: {{ .Values.backend.service.type }}
@@ -47,8 +47,8 @@ metadata:
   {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 spec:
   type: {{ .Values.cron.service.type }}
@@ -77,8 +77,8 @@ metadata:
   {{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
   labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
   {{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
+  {{- $annotations := include "seqera.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
+  annotations: {{- include "seqera.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 spec:
   type: {{ .Values.frontend.service.type }}
