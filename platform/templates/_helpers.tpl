@@ -49,7 +49,7 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 {{- $list = append $list "redis" -}}
 {{- $list = append $list "ha" -}}
   {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
-  {{- if not (empty .Values.tower.waveServerUrl) -}}
+  {{- if not (empty .Values.platform.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
   {{- end -}}
 {{- uniq $list | join "," | quote -}}
@@ -140,44 +140,44 @@ Return the key of the secret containing the Redis password.
 Return the name of the secret containing the JWT token.
 */}}
 {{- define "platform.jwt.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.jwt.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
 {{- define "platform.crypto.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.crypto.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
 {{- define "platform.license.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.license.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
 {{- define "platform.smtp.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.smtp.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
 {{- define "tower.containerSecurityContextMinimal" -}}

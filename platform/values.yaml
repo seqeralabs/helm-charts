@@ -65,25 +65,7 @@ global:
   #   email: someone@example.com  # Optional.
   imageCredentials: []
 
-
-
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-####### needs to be renamed to platform
-#######
-#######
-#######
-#######
-#######
-#######
-tower:
+platform:
   # TODO: check the following stance:
   # Only tower.* properties can be applied through the YAML file.
   # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines)

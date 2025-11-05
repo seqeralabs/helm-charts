@@ -257,7 +257,7 @@ tests:
         podAnnotations:
           pod-annotation-key: pod-annotation-value
           pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
-      tower:
+      platform:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
         # Take the license from a secret instead of a string, just for fun

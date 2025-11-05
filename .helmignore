@@ -25,13 +25,15 @@
 *.tmproj
 .vscode/
 
-# Actual implementation value files.
+# Development values files
 values_*.y*ml
 values-*.y*ml
+*_values.y*ml
+*-values.y*ml
 
-# Any possible helm package temporarily stored in the main directory.
-#tower-*.tgz
-#*/*-*.tgz
+# Exclude tarballed charts in the root directory only
+# (charts/ subdirectory .tgz files are kept for dependencies)
+/*.tgz
 
 charts/.gitkeep
 

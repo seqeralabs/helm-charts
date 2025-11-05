@@ -608,7 +608,7 @@ tests:
                 port: 9090
                 targetPort: 9090
 
-  - it: should merge commonLabels and tower.serviceLabels
+  - it: should merge commonLabels and platform.serviceLabels
     chart:
       version: 9.8.7
       appVersion: v1.2.3-asdf
@@ -616,10 +616,10 @@ tests:
       commonLabels:
         commonKey: commonValue
         anotherCommonKey: anotherCommonValue
-      tower:
+      platform:
         serviceLabels:
           towerKey: towerValue
-          commonKey: towerOverrideValue # tower.serviceLabels should override commonLabels
+          commonKey: towerOverrideValue # platform.serviceLabels should override commonLabels
     asserts:
       - equal:
           path: metadata.labels
@@ -666,9 +666,9 @@ tests:
           value:
             commonAnnotationKey: commonAnnotationValue
 
-  - it: should apply tower.serviceAnnotations
+  - it: should apply platform.serviceAnnotations
     set:
-      tower:
+      platform:
         serviceAnnotations:
           towerAnnotationKey: towerAnnotationValue
     asserts:
@@ -677,15 +677,15 @@ tests:
           value:
             towerAnnotationKey: towerAnnotationValue
 
-  - it: should merge commonAnnotations and tower.serviceAnnotations
+  - it: should merge commonAnnotations and platform.serviceAnnotations
     set:
       commonAnnotations:
         commonAnnotationKey: commonAnnotationValue
         anotherCommonAnnotationKey: anotherCommonAnnotationValue
-      tower:
+      platform:
         serviceAnnotations:
           towerAnnotationKey: towerAnnotationValue
-          commonAnnotationKey: towerAnnotationOverrideValue # tower.serviceAnnotations should override commonAnnotations
+          commonAnnotationKey: towerAnnotationOverrideValue # platform.serviceAnnotations should override commonAnnotations
     asserts:
       - equal:
           path: metadata.annotations

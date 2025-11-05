@@ -66,7 +66,7 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      tower:
+      platform:
         smtp:
           host: "smtp.example.com"
           port: "587"
@@ -115,7 +115,7 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      tower:
+      platform:
         awsSesEnable: true
     asserts:
       - equal:
@@ -156,7 +156,7 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      tower:
+      platform:
         executionBackends: [altair-platform, slurm-platform]
     asserts:
       - equal:
@@ -180,7 +180,7 @@ tests:
       path: metadata.name
       value: release-name-platform-tower-yml
     set:
-      tower:
+      platform:
         YAMLConfigFileContent: |
           someKey: someValue
           anotherKey:
@@ -201,7 +201,7 @@ tests:
       global:
         platformExternalDomain: "my-platform.example.com"
         platformServicePort: 1234
-      tower:
+      platform:
         YAMLConfigFileContent: |
           templatedKey:
             url: https://{{ .Values.global.platformExternalDomain }}
@@ -235,11 +235,11 @@ tests:
             annotation1: "value1"
             annotation2: "1234"  # should be rendered as string, k8s doesn't support integers in annotations nor labels
 
-  - it: should render annotations in all configmaps when provided via tower.configMapAnnotations
+  - it: should render annotations in all configmaps when provided via platform.configMapAnnotations
     set:
       global:
         platformServicePort: 1234
-      tower:
+      platform:
         configMapAnnotations:
           annotationA: "valueA"
           annotationB: "{{ .Values.global.platformServicePort }}"
@@ -252,12 +252,12 @@ tests:
             annotationA: "valueA"
             annotationB: "1234"
 
-  - it: should merge annotations from commonAnnotations and tower.configMapAnnotations
+  - it: should merge annotations from commonAnnotations and platform.configMapAnnotations
     set:
       commonAnnotations:
         annotation1: "this should get overwritten"
         annotation2: "this should stay"
-      tower:
+      platform:
         configMapAnnotations:
           annotation1: "this overrides the common annotation"
     asserts:
@@ -293,14 +293,14 @@ tests:
             label1: "value1"
             label2: "1234"  # should be rendered as string, k8s doesn't support integers in labels nor labels
 
-  - it: should render labels in all configmaps when provided via tower.configMapLabels
+  - it: should render labels in all configmaps when provided via platform.configMapLabels
     chart:
       version: 9.8.7
       appVersion: v1.2.3+abcdef
     set:
       global:
         platformServicePort: 1234
-      tower:
+      platform:
         configMapLabels:
           labelA: "valueA"
           labelB: "{{ .Values.global.platformServicePort }}"
@@ -318,7 +318,7 @@ tests:
             labelA: "valueA"
             labelB: "1234"
 
-  - it: should merge labels from commonLabels and tower.configMapLabels
+  - it: should merge labels from commonLabels and platform.configMapLabels
     chart:
       version: 9.8.7
       appVersion: v1.2.3+abcdef
@@ -326,7 +326,7 @@ tests:
       commonLabels:
         label1: "this should get overwritten"
         label2: "this should stay"
-      tower:
+      platform:
         configMapLabels:
           label1: "this overrides the common label"
     asserts:

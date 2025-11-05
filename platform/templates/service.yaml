@@ -1,7 +1,7 @@
 {{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
-{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels $commonLabels) "context" .) -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.platform.serviceLabels $commonLabels) "context" .) -}}
 {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
-{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.platform.serviceAnnotations .Values.commonAnnotations) "context" .) -}}
 {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
 ---
 apiVersion: v1
