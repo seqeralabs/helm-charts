@@ -86,13 +86,18 @@ tests:
           path: kind
           value: Secret
 
-  - it: should handle complex extra objects
+  - it: should handle complex extra objects with templated rendering
     set:
       extraDeploy:
         - apiVersion: apps/v1
           kind: Deployment
           metadata:
             name: extra-deployment
+            labels:
+              app: extra-app
+              a-label-with-templated-value: "{{ .Values.global.platformServicePort | default 8443 }}"
+            annotations:
+              rendered-annotation: "{{ .Values.global.platformServicePort | default 8443 }}"
           spec:
             replicas: 2
             selector:
@@ -102,6 +107,7 @@ tests:
               metadata:
                 labels:
                   app: extra-app
+                  a-label-with-templated-value: "{{ .Values.global.platformServicePort | default 8443 }}"
               spec:
                 containers:
                   - name: extra-container
@@ -112,6 +118,24 @@ tests:
       - equal:
           path: metadata.name
           value: extra-deployment
+      - equal:
+          path: metadata.annotations
+          value:
+            rendered-annotation: "8080"
+      - equal:
+          path: metadata.labels
+          value:
+            app: extra-app
+            a-label-with-templated-value: "8080"
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app: extra-app
+      - equal:
+          path: .spec.template.metadata.labels
+          value:
+            app: extra-app
+            a-label-with-templated-value: "8080"
       - equal:
           path: spec.replicas
           value: 2

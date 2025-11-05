@@ -1,18 +1,17 @@
 {{ if .Values.ingress.enabled }}
+  {{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+  {{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.extraLabels $commonLabels) "context" .) -}}
+  {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+  {{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) -}}
+  {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-  {{- with .Values.ingress.extraLabels }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
-    {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
-
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
 spec:
   {{- with .Values.ingress.defaultBackend }}
   defaultBackend: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}

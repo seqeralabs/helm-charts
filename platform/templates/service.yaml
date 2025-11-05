@@ -1,3 +1,8 @@
+{{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels $commonLabels) "context" .) -}}
+{{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
 ---
 apiVersion: v1
 kind: Service
@@ -9,12 +14,8 @@ metadata:
   # global.platformServicePort is a valid port.
   name: {{ tpl .Values.global.platformServiceAddress . | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-{{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
-{{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-{{- end }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
 spec:
   type: {{ .Values.backend.service.type }}
 {{- with .Values.backend.service.extraOptions -}}
@@ -44,12 +45,8 @@ kind: Service
 metadata:
   name: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-{{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
-{{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-{{- end }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
 spec:
   type: {{ .Values.cron.service.type }}
 {{- with .Values.cron.service.extraOptions -}}
@@ -59,7 +56,7 @@ spec:
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
     app: cron
   ports:
-    - name: {{ .Values.cron.service.name | default "http" }}
+    - name: {{ .Values.cron.service.http.name | default "http" }}
       port: {{ .Values.cron.service.http.port }}
       targetPort: {{ .Values.cron.service.http.targetPort }}
 {{- if and .Values.cron.service.http.nodePort (or (eq .Values.cron.service.type "NodePort") (eq .Values.cron.service.type "LoadBalancer")) }}
@@ -74,12 +71,8 @@ kind: Service
 metadata:
   name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
   namespace: {{ include "common.names.namespace" . | quote }}
-{{- $labels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceLabels .Values.commonLabels) "context" .) }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" $labels "context" $) | nindent 4 }}
-{{- if or .Values.tower.serviceAnnotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.serviceAnnotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-{{- end }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
 spec:
   type: {{ .Values.frontend.service.type }}
 {{- with .Values.frontend.service.extraOptions -}}
