@@ -609,6 +609,9 @@ tests:
                 targetPort: 9090
 
   - it: should merge commonLabels and tower.serviceLabels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3-asdf
     set:
       commonLabels:
         commonKey: commonValue
@@ -624,8 +627,8 @@ tests:
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v25.2.3
-            helm.sh/chart: platform-0.12.0
+            app.kubernetes.io/version: v1.2.3-asdf
+            helm.sh/chart: platform-9.8.7
             commonKey: towerOverrideValue
             anotherCommonKey: anotherCommonValue
             towerKey: towerValue
