@@ -854,7 +854,12 @@ cron:
       #   - myRegistryKeySecretName
       pullSecrets: []
 
-    # -- Extra environment variables to set on the frontend pod.
+    # -- Override default container command (useful when using custom images).
+    command: ["/bin/sh", "-c", "/migrate-db.sh"]
+    # -- Override default container args (useful when using custom images).
+    args: []
+
+    # -- Extra environment variables to set on the cron pod.
     #
     # extraEnvVars:
     #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"

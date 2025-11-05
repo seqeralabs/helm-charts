@@ -301,7 +301,9 @@ $ helm install my-release example/platform
 | cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format 'sha256:1234abcdef'. |
 | cron.dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the database migration init container. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent' ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | cron.dbMigrationInitContainer.image.pullSecrets | list | `[]` | Optional list of imagePullSecrets. Secrets must be manually created in the same namespace. See the extraDeploy array above. ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  pullSecrets:   - myRegistryKeySecretName |
-| cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
+| cron.dbMigrationInitContainer.command | list | `["/bin/sh","-c","/migrate-db.sh"]` | Override default container command (useful when using custom images). |
+| cron.dbMigrationInitContainer.args | list | `[]` | Override default container args (useful when using custom images). |
+| cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
 | cron.dbMigrationInitContainer.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
 | cron.dbMigrationInitContainer.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
 | cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |

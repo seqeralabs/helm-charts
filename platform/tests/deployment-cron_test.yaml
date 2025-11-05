@@ -154,9 +154,10 @@ tests:
                   runAsNonRoot: true
                   runAsUser: 101
               - command:
-                  - sh
+                  - /bin/sh
                   - -c
                   - /migrate-db.sh
+                args: []
                 env: null
                 envFrom:
                   - configMapRef:

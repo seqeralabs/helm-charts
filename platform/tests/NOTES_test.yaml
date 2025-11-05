@@ -142,6 +142,7 @@ tests:
         licenseString: "whatever"
       cron:
         dbMigrationInitContainer:
+          command: []
           args: ["--some-arg"]
     asserts:
       - failedTemplate:
