@@ -46,8 +46,8 @@ spec:
 {{- end }}
 
       initContainers:
-        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
-        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
+        {{- include "platform.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
+        {{- include "platform.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
         - name: wait-for-cron
           image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainersUtils.waitForCronImage "global" .Values.global) }}
           imagePullPolicy: {{ .Values.initContainersUtils.waitForCronImage.pullPolicy }}
@@ -68,8 +68,8 @@ spec:
               value: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
             - name: CRON_PORT
               value: {{ .Values.cron.service.http.port | int | quote }}
-          {{ include "tower.containerSecurityContextMinimal" . | nindent 10 }}
-          {{ include "tower.resourcesMinimal" . | nindent 10 }}
+          {{ include "platform.containerSecurityContextMinimal" . | nindent 10 }}
+          {{ include "platform.resourcesMinimal" . | nindent 10 }}
 {{- with .Values.backend.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

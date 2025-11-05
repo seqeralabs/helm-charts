@@ -180,7 +180,7 @@ Return the name of the secret containing the SMTP password.
   {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
-{{- define "tower.containerSecurityContextMinimal" -}}
+{{- define "platform.containerSecurityContextMinimal" -}}
 securityContext:
   runAsUser: 101
   runAsNonRoot: true
@@ -190,7 +190,7 @@ securityContext:
       - ALL
 {{- end -}}
 
-{{- define "tower.resourcesMinimal" -}}
+{{- define "platform.resourcesMinimal" -}}
 resources:
   requests:
     cpu: "0.5"
@@ -202,9 +202,9 @@ resources:
 {{/*
 Common initContainer to wait for MySQL database to be ready.
 
-{{ include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) }}
 */}}
-{{- define "tower.initContainerWaitForDB" -}}
+{{- define "platform.initContainerWaitForDB" -}}
 - name: wait-for-db
   image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForMySQLImage "global" .context.Values.global) }}
   imagePullPolicy: {{ .context.Values.initContainersUtils.waitForMySQLImage.pullPolicy }}
@@ -233,16 +233,16 @@ Common initContainer to wait for MySQL database to be ready.
     - secretRef:
         name: {{ printf "%s-backend" (include "common.names.fullname" .context) }}
 
-  {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "tower.resourcesMinimal" . | nindent 2 }}
+  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
+  {{ include "platform.resourcesMinimal" . | nindent 2 }}
 {{- end -}}
 
 {{/*
 Common initContainer to wait for Redis to be ready.
 
-{{ include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) }}
 */}}
-{{- define "tower.initContainerWaitForRedis" -}}
+{{- define "platform.initContainerWaitForRedis" -}}
 - name: wait-for-redis
   image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForRedisImage "global" .context.Values.global) }}
   imagePullPolicy: {{ .context.Values.initContainersUtils.waitForRedisImage.pullPolicy }}
@@ -268,8 +268,8 @@ Common initContainer to wait for Redis to be ready.
           name: {{ include "platform.redis.secretName" .context }}
           key: {{ include "platform.redis.secretKey" .context }}
   {{- end }}
-  {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "tower.resourcesMinimal" . | nindent 2 }}
+  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
+  {{ include "platform.resourcesMinimal" . | nindent 2 }}
 {{- end -}}
 
 {{/*
