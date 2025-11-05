@@ -922,6 +922,28 @@ initContainerDependencies:
       digest: ""
       pullPolicy: IfNotPresent
 
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
   waitForRedis:
     # -- Enable wait for Redis init container before starting backend and cron.
     enabled: true
@@ -934,6 +956,28 @@ initContainerDependencies:
       digest: ""
       pullPolicy: IfNotPresent
 
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
   waitForCron:
     # -- Enable wait for Platform cron init container before starting backend.
     enabled: true
@@ -945,6 +989,28 @@ initContainerDependencies:
       # Digest must be in the format 'sha256:1234abcdef'.
       digest: ""
       pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
 
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated.

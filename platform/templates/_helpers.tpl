@@ -180,34 +180,16 @@ Return the name of the secret containing the SMTP password.
   {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
-{{- define "platform.containerSecurityContextMinimal" -}}
-securityContext:
-  runAsUser: 101
-  runAsNonRoot: true
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-{{- end -}}
-
-{{- define "platform.resourcesMinimal" -}}
-resources:
-  requests:
-    cpu: "0.5"
-    memory: "50Mi"
-  limits:
-    memory: "100Mi"
-{{- end -}}
-
 {{/*
 Common initContainer to wait for MySQL database to be ready.
 
 {{ include "platform.initContainerWaitForDB" $ }}
 */}}
 {{- define "platform.initContainerWaitForDB" -}}
+  {{- with .Values.initContainerDependencies.waitForMySQL -}}
 - name: wait-for-db
-  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global) }}
-  imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -222,19 +204,20 @@ Common initContainer to wait for MySQL database to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: DB_HOST
-      value: {{ .Values.global.platformDatabase.host | quote }}
+      value: {{ $.Values.global.platformDatabase.host | quote }}
     - name: DB_PORT
-      value: {{ .Values.global.platformDatabase.port | quote }}
+      value: {{ $.Values.global.platformDatabase.port | quote }}
     - name: DB_NAME
-      value: {{ .Values.global.platformDatabase.name | quote }}
+      value: {{ $.Values.global.platformDatabase.name | quote }}
     - name: DB_USERNAME
-      value: {{ .Values.global.platformDatabase.username | quote }}
+      value: {{ $.Values.global.platformDatabase.username | quote }}
   envFrom:
     - secretRef:
-        name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
+        name: {{ printf "%s-backend" (include "common.names.fullname" $) }}
 
-  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "platform.resourcesMinimal" . | nindent 2 }}
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -243,9 +226,10 @@ Common initContainer to wait for Redis to be ready.
 {{ include "platform.initContainerWaitForRedis" $ }}
 */}}
 {{- define "platform.initContainerWaitForRedis" -}}
+  {{- with .Values.initContainerDependencies.waitForRedis -}}
 - name: wait-for-redis
-  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForRedis.image "global" .Values.global) }}
-  imagePullPolicy: {{ .Values.initContainerDependencies.waitForRedis.image.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -260,16 +244,18 @@ Common initContainer to wait for Redis to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: REDIS_URI
-      value: {{ include "platform.redis.uri" . | quote }}
-  {{- if or .Values.redis.auth.enabled .Values.global.redis.auth.enabled }}
+      value: {{ include "platform.redis.uri" $ | quote }}
+    {{- if or $.Values.redis.auth.enabled $.Values.global.redis.auth.enabled }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:
-          name: {{ include "platform.redis.secretName" . }}
-          key: {{ include "platform.redis.secretKey" . }}
-  {{- end }}
-  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "platform.resourcesMinimal" . | nindent 2 }}
+          name: {{ include "platform.redis.secretName" $ }}
+          key: {{ include "platform.redis.secretKey" $ }}
+    {{- end }}
+
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
 {{- end -}}
 
 {{/* Common initContainer to wait for Cron service to be ready.
@@ -277,9 +263,10 @@ Common initContainer to wait for Redis to be ready.
 {{ include "platform.initContainerWaitForCron" $ }}
 */}}
 {{- define "platform.initContainerWaitForCron" -}}
+  {{- with .Values.initContainerDependencies.waitForCron -}}
 - name: wait-for-cron
-  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForCron.image "global" .Values.global) }}
-  imagePullPolicy: {{ .Values.initContainerDependencies.waitForCron.image.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -294,11 +281,13 @@ Common initContainer to wait for Redis to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: CRON_HOST
-      value: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
+      value: {{ printf "%s-cron" (include "common.names.fullname" $) | quote }}
     - name: CRON_PORT
-      value: {{ .Values.cron.service.http.port | int | quote }}
-  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "platform.resourcesMinimal" . | nindent 2 }}
+      value: {{ $.Values.cron.service.http.port | int | quote }}
+
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
 {{- end -}}
 
 {{/*

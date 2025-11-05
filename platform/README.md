@@ -319,18 +319,33 @@ $ helm install my-release example/platform
 | initContainerDependencies.waitForMySQL.image.tag | string | `"9"` |  |
 | initContainerDependencies.waitForMySQL.image.digest | string | `""` |  |
 | initContainerDependencies.waitForMySQL.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | `101` | Specifies the numeric UID the container processes should run as (overrides container image default). |
+| initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0). |
+| initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering. |
+| initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
+| initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Set container requests and limits for different resources like CPU or memory. |
 | initContainerDependencies.waitForRedis.enabled | bool | `true` | Enable wait for Redis init container before starting backend and cron. |
 | initContainerDependencies.waitForRedis.image.registry | string | `""` | Override default wait for Redis init container image. |
 | initContainerDependencies.waitForRedis.image.repository | string | `"redis"` |  |
 | initContainerDependencies.waitForRedis.image.tag | string | `"7"` |  |
 | initContainerDependencies.waitForRedis.image.digest | string | `""` |  |
 | initContainerDependencies.waitForRedis.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForRedis.securityContext.runAsUser | int | `101` | Specifies the numeric UID the container processes should run as (overrides container image default). |
+| initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0). |
+| initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering. |
+| initContainerDependencies.waitForRedis.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
+| initContainerDependencies.waitForRedis.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Set container requests and limits for different resources like CPU or memory. |
 | initContainerDependencies.waitForCron.enabled | bool | `true` | Enable wait for Platform cron init container before starting backend. |
 | initContainerDependencies.waitForCron.image.registry | string | `""` | Override default wait for cron init container image. |
 | initContainerDependencies.waitForCron.image.repository | string | `"curlimages/curl"` |  |
 | initContainerDependencies.waitForCron.image.tag | string | `"latest"` |  |
 | initContainerDependencies.waitForCron.image.digest | string | `""` |  |
 | initContainerDependencies.waitForCron.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForCron.securityContext.runAsUser | int | `101` | Specifies the numeric UID the container processes should run as (overrides container image default). |
+| initContainerDependencies.waitForCron.securityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0). |
+| initContainerDependencies.waitForCron.securityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering. |
+| initContainerDependencies.waitForCron.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
+| initContainerDependencies.waitForCron.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Set container requests and limits for different resources like CPU or memory. |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated. |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the Tower ServiceAccount to generate. |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries. |
