@@ -53,7 +53,7 @@ tests:
         licenseString: ""
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the License or a secret name are needed, not both."
+          errorPattern: "Either a string version of the License at platform.licenseString or a secret name at platform.licenseSecretName are needed, not both."
 
   - it: should pass when redis.host and global.platformDatabase.host are defined
     set:
@@ -98,7 +98,7 @@ tests:
         jwtSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the JWT seed or a secret name are needed, not both."
+          errorPattern: "Either a string version of the JWT seed at platform.jwtSeedString or a secret name at platform.jwtSeedSecretName are needed, not both."
 
   - it: should fail when both platform.cryptoSeedString and platform.cryptoSeedSecretName are defined
     set:
@@ -113,7 +113,7 @@ tests:
         cryptoSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the Crypto seed or a secret name are needed, not both."
+          errorPattern: "Either a string version of the Crypto seed at platform.cryptoSeedString or a secret name at platform.cryptoSeedSecretName are needed, not both."
 
   - it: should fail when both platform.smtp.host and platform.awsSesEnable are defined
     set:
