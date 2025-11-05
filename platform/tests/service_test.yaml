@@ -25,9 +25,6 @@ tests:
               - name: http
                 port: 8080
                 targetPort: 8080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service correctly by default
     documentSelector:
@@ -89,9 +86,6 @@ tests:
                 port: 8080
                 targetPort: 8080
                 nodePort: 30080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service with custom nodePort when requested
     documentSelector:
@@ -167,9 +161,6 @@ tests:
                 port: 8080
                 targetPort: 8080
                 nodePort: 30080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service with LoadBalancer type and custom nodePort when requested
     documentSelector:
@@ -247,9 +238,6 @@ tests:
               - name: http
                 port: 8080
                 targetPort: 8080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service with ExternalName type and external address, ignoring nodePort
     documentSelector:
@@ -328,9 +316,6 @@ tests:
               - name: http
                 port: 8080
                 targetPort: 8080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should not render cron service with custom nodePort when not using NodePort or LoadBalancer
     documentSelector:
@@ -412,9 +397,6 @@ tests:
               - name: http
                 port: 8080
                 targetPort: 8080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service correctly with default values
     chart:
@@ -524,9 +506,6 @@ tests:
               - name: custom-http-name
                 port: 9123
                 targetPort: 8080
-              - name: jmx
-                port: 1099
-                targetPort: 1099
 
   - it: should render cron service correctly with custom ports and custom service name
     chart:
@@ -801,9 +780,6 @@ tests:
             - name: http
               port: 8080
               targetPort: 8080
-            - name: jmx
-              port: 1099
-              targetPort: 1099
       - equal:
           path: spec.customOption
           value: customValue
