@@ -202,12 +202,12 @@ resources:
 {{/*
 Common initContainer to wait for MySQL database to be ready.
 
-{{ include "platform.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForDB" $ }}
 */}}
 {{- define "platform.initContainerWaitForDB" -}}
 - name: wait-for-db
-  image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForMySQLImage "global" .context.Values.global) }}
-  imagePullPolicy: {{ .context.Values.initContainersUtils.waitForMySQLImage.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global) }}
+  imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -222,16 +222,16 @@ Common initContainer to wait for MySQL database to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: DB_HOST
-      value: {{ .context.Values.global.platformDatabase.host | quote }}
+      value: {{ .Values.global.platformDatabase.host | quote }}
     - name: DB_PORT
-      value: {{ .context.Values.global.platformDatabase.port | quote }}
+      value: {{ .Values.global.platformDatabase.port | quote }}
     - name: DB_NAME
-      value: {{ .context.Values.global.platformDatabase.name | quote }}
+      value: {{ .Values.global.platformDatabase.name | quote }}
     - name: DB_USERNAME
-      value: {{ .context.Values.global.platformDatabase.username | quote }}
+      value: {{ .Values.global.platformDatabase.username | quote }}
   envFrom:
     - secretRef:
-        name: {{ printf "%s-backend" (include "common.names.fullname" .context) }}
+        name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
 
   {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "platform.resourcesMinimal" . | nindent 2 }}
@@ -240,12 +240,12 @@ Common initContainer to wait for MySQL database to be ready.
 {{/*
 Common initContainer to wait for Redis to be ready.
 
-{{ include "platform.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForRedis" $ }}
 */}}
 {{- define "platform.initContainerWaitForRedis" -}}
 - name: wait-for-redis
-  image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForRedisImage "global" .context.Values.global) }}
-  imagePullPolicy: {{ .context.Values.initContainersUtils.waitForRedisImage.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForRedis.image "global" .Values.global) }}
+  imagePullPolicy: {{ .Values.initContainerDependencies.waitForRedis.image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -260,14 +260,43 @@ Common initContainer to wait for Redis to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: REDIS_URI
-      value: {{ include "platform.redis.uri" .context | quote }}
-  {{- if or .context.Values.redis.auth.enabled .context.Values.global.redis.auth.enabled }}
+      value: {{ include "platform.redis.uri" . | quote }}
+  {{- if or .Values.redis.auth.enabled .Values.global.redis.auth.enabled }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:
-          name: {{ include "platform.redis.secretName" .context }}
-          key: {{ include "platform.redis.secretKey" .context }}
+          name: {{ include "platform.redis.secretName" . }}
+          key: {{ include "platform.redis.secretKey" . }}
   {{- end }}
+  {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
+  {{ include "platform.resourcesMinimal" . | nindent 2 }}
+{{- end -}}
+
+{{/* Common initContainer to wait for Cron service to be ready.
+
+{{ include "platform.initContainerWaitForCron" $ }}
+*/}}
+{{- define "platform.initContainerWaitForCron" -}}
+- name: wait-for-cron
+  image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForCron.image "global" .Values.global) }}
+  imagePullPolicy: {{ .Values.initContainerDependencies.waitForCron.image.pullPolicy }}
+  command:
+    - 'sh'
+    - '-c'
+    - |
+      echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
+      until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
+        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+        sleep $SLEEP_PERIOD_SECONDS
+      done
+      echo "$(date): cron ready"
+  env:
+    - name: SLEEP_PERIOD_SECONDS
+      value: "5"
+    - name: CRON_HOST
+      value: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
+    - name: CRON_PORT
+      value: {{ .Values.cron.service.http.port | int | quote }}
   {{ include "platform.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "platform.resourcesMinimal" . | nindent 2 }}
 {{- end -}}

@@ -313,21 +313,24 @@ $ helm install my-release example/platform
 | cron.dbMigrationInitContainer.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
 | cron.dbMigrationInitContainer.resources | object | `{}` | Set container requests and limits for different resources like CPU or memory. .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. .limits are the maximum resources a container is allowed to use. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ We usually recommend not to specify default resources and to leave this as a conscious choice for the user.  requests:   requests:     cpu: "1"     memory: "1000Mi"   limits:     memory: "3000Mi" |
 | initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies between Platform components (e.g., wait for database readiness before cron starts, wait for cron before backend starts). |
-| initContainersUtils.waitForMySQLImage.registry | string | `""` |  |
-| initContainersUtils.waitForMySQLImage.repository | string | `"mysql"` |  |
-| initContainersUtils.waitForMySQLImage.tag | string | `"9"` |  |
-| initContainersUtils.waitForMySQLImage.digest | string | `""` |  |
-| initContainersUtils.waitForMySQLImage.pullPolicy | string | `"IfNotPresent"` |  |
-| initContainersUtils.waitForRedisImage.registry | string | `""` |  |
-| initContainersUtils.waitForRedisImage.repository | string | `"redis"` |  |
-| initContainersUtils.waitForRedisImage.tag | string | `"7"` |  |
-| initContainersUtils.waitForRedisImage.digest | string | `""` |  |
-| initContainersUtils.waitForRedisImage.pullPolicy | string | `"IfNotPresent"` |  |
-| initContainersUtils.waitForCronImage.registry | string | `""` |  |
-| initContainersUtils.waitForCronImage.repository | string | `"curlimages/curl"` |  |
-| initContainersUtils.waitForCronImage.tag | string | `"latest"` |  |
-| initContainersUtils.waitForCronImage.digest | string | `""` |  |
-| initContainersUtils.waitForCronImage.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForMySQL.enabled | bool | `true` | Enable wait for MySQL init container before starting backend and cron. |
+| initContainerDependencies.waitForMySQL.image.registry | string | `""` | Override default wait for MySQL init container image. |
+| initContainerDependencies.waitForMySQL.image.repository | string | `"mysql"` |  |
+| initContainerDependencies.waitForMySQL.image.tag | string | `"9"` |  |
+| initContainerDependencies.waitForMySQL.image.digest | string | `""` |  |
+| initContainerDependencies.waitForMySQL.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForRedis.enabled | bool | `true` | Enable wait for Redis init container before starting backend and cron. |
+| initContainerDependencies.waitForRedis.image.registry | string | `""` | Override default wait for Redis init container image. |
+| initContainerDependencies.waitForRedis.image.repository | string | `"redis"` |  |
+| initContainerDependencies.waitForRedis.image.tag | string | `"7"` |  |
+| initContainerDependencies.waitForRedis.image.digest | string | `""` |  |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForCron.enabled | bool | `true` | Enable wait for Platform cron init container before starting backend. |
+| initContainerDependencies.waitForCron.image.registry | string | `""` | Override default wait for cron init container image. |
+| initContainerDependencies.waitForCron.image.repository | string | `"curlimages/curl"` |  |
+| initContainerDependencies.waitForCron.image.tag | string | `"latest"` |  |
+| initContainerDependencies.waitForCron.image.digest | string | `""` |  |
+| initContainerDependencies.waitForCron.image.pullPolicy | string | `"IfNotPresent"` |  |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated. |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the Tower ServiceAccount to generate. |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries. |
