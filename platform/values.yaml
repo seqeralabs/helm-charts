@@ -33,6 +33,16 @@ global:
     # Enable encryption in transit when connecting to the external database.
     # TODO: implement support for this in the templates.
     #tls: true
+    # -- JDBC driver class name.
+    driver: "org.mariadb.jdbc.Driver"
+    # -- Hibernate dialect to use.
+    dialect: "io.seqera.util.MySQL55DialectCollateBin"
+    # -- Connection pool minimum size.
+    minPoolSize: "0"
+    # -- Connection pool maximum size.
+    maxPoolSize: "5"
+    # -- Connection pool maximum lifetime.
+    maxLifetime: "60000"
 
   # Global Redis configuration values. Values set here will be used by multiple seqera products
   # that require Redis, unless overridden in each product's own .redis section. See README.
@@ -142,19 +152,6 @@ platform:
   # the appropriate permissions needs to be exposed to the cron pod, e.g. via IRSA, EKS Pod
   # Identity, etc.
   awsSesEnable: false
-
-  # TODO: Move this into .global.platformDatabase section?
-  db:
-    # -- JDBC driver class name.
-    driver: "org.mariadb.jdbc.Driver"
-    # -- Hibernate dialect to use.
-    dialect: "io.seqera.util.MySQL55DialectCollateBin"
-    # -- Connection pool minimum size.
-    minPoolSize: "0"
-    # -- Connection pool maximum size.
-    maxPoolSize: "5"
-    # -- Connection pool maximum lifetime.
-    maxLifetime: "60000"
 
   # -- URL of the Wave service Platform needs to use (evaluated as template).
   # The Wave service provided by Seqera is 'https://wave.seqera.io'.

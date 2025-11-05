@@ -73,6 +73,11 @@ $ helm install my-release example/platform
 | global.platformDatabase.password | string | `""` | Platform MySQL database password. |
 | global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. |
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
+| global.platformDatabase.driver | string | `"org.mariadb.jdbc.Driver"` | JDBC driver class name. |
+| global.platformDatabase.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |
+| global.platformDatabase.minPoolSize | string | `"0"` | Connection pool minimum size. |
+| global.platformDatabase.maxPoolSize | string | `"5"` | Connection pool maximum size. |
+| global.platformDatabase.maxLifetime | string | `"60000"` | Connection pool maximum lifetime. |
 | global.redis.host | string | `""` | Redis hostname. |
 | global.redis.port | int | `6379` | Redis port. |
 | global.redis.auth.enabled | bool | `false` | Enable Redis authentication. |
@@ -101,11 +106,6 @@ $ helm install my-release example/platform
 | platform.smtp.existingSecretName | string | `""` | Name of an existing secret containing the SMTP password. |
 | platform.smtp.existingSecretKey | string | `"TOWER_SMTP_PASSWORD"` | Key in the existing secret containing the SMTP password. |
 | platform.awsSesEnable | bool | `false` | Use AWS Simple Email Service (SES) to send Seqera emails instead of SMTP. An IAM role with the appropriate permissions needs to be exposed to the cron pod, e.g. via IRSA, EKS Pod Identity, etc. |
-| platform.db.driver | string | `"org.mariadb.jdbc.Driver"` | JDBC driver class name. |
-| platform.db.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |
-| platform.db.minPoolSize | string | `"0"` | Connection pool minimum size. |
-| platform.db.maxPoolSize | string | `"5"` | Connection pool maximum size. |
-| platform.db.maxLifetime | string | `"60000"` | Connection pool maximum lifetime. |
 | platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform needs to use (evaluated as template). The Wave service provided by Seqera is 'https://wave.seqera.io'. |
 | platform.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template. |
 | platform.secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template. |
