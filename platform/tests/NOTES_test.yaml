@@ -64,6 +64,7 @@ tests:
         host: "whatever"
       tower:
         licenseString: "whatever"
+        executionBackends: [anything]
     asserts:
       - hasDocuments:
           count: 1
@@ -79,6 +80,7 @@ tests:
         host: "whatever"
       tower:
         licenseString: "whatever"
+        executionBackends: [anything]
     asserts:
       - hasDocuments:
           count: 1
@@ -161,3 +163,17 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "The AWS SES provider is not compatible with the test environment, disable/drop either of them"
+
+  - it: should fail when an empty list of execution backends is defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      tower:
+        licenseString: "whatever"
+        executionBackends: []
+    asserts:
+      - failedTemplate:
+          errorPattern: "At least one execution backend must be defined in 'tower.executionBackends'"

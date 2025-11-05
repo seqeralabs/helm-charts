@@ -70,6 +70,11 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
+{{- if not .Values.tower.executionBackends -}}
+{{- $message := "At least one execution backend must be defined in 'tower.executionBackends'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
 Thank you for installing {{ .Chart.Name | title }}!
 
 Your release is named '{{ .Release.Name }}' and was installed in the '{{ include "common.names.namespace" . }}' namespace.

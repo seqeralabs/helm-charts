@@ -110,9 +110,23 @@ tower:
   # -- Key in the existing secret containing the crypto seed.
   cryptoSeedSecretKey: TOWER_CRYPTO_SECRETKEY
 
-  # TODO: should this become a list, similarly to the micronaut envs?
-  # -- Enable the platforms that Platform will allow users to create environments for.
-  enablePlatforms: "altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform"
+  # -- List of execution backends to enable. At least one is required. See
+  # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#configuration-values-not-supported-in-toweryml-or-aws-parameter-store
+  executionBackends:
+    - altair-platform
+    - awsbatch-platform
+    - awscloud-platform
+    - azbatch-platform
+    - eks-platform
+    - gke-platform
+    - googlebatch-platform
+    - googlecloud-platform
+    - k8s-platform
+    - local-platform
+    - lsf-platform
+    - moab-platform
+    - slurm-platform
+
   # TODO: do we even need to expose this? This is currently in the default CM.
   flywayLocations: "classpath:db-schema/mysql"
 

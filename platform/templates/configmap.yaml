@@ -37,7 +37,7 @@ data:
   TOWER_CONTENT_URL: {{ printf "https://%s" (tpl .Values.global.contentDomain $) | quote }}
   TOWER_CONTACT_EMAIL: {{ .Values.tower.contactEmail | quote }}
 
-  TOWER_ENABLE_PLATFORMS: {{ .Values.tower.enablePlatforms | quote }}
+  TOWER_ENABLE_PLATFORMS: {{ uniq .Values.tower.executionBackends | join "," | quote }}
 
   TOWER_REDIS_URL: {{ include "platform.redis.uri" . | quote }}
 

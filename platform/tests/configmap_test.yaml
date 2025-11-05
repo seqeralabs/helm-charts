@@ -145,10 +145,23 @@ tests:
             TOWER_DB_MIN_POOL_SIZE: "0"
             TOWER_DB_URL: jdbc:mysql://:3306/?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true
             TOWER_DB_USER: ""
-            TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform
+            TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,awscloud-platform,azbatch-platform,eks-platform,gke-platform,googlebatch-platform,googlecloud-platform,k8s-platform,local-platform,lsf-platform,moab-platform,slurm-platform
             TOWER_REDIS_URL: redis://:6379
             TOWER_SERVER_URL: https://example.com
             WAVE_SERVER_URL: https://wave.seqera.io
+
+  # The case with no execution backends is tested in the NOTES.txt unittests
+  - it: should render env var with the requested execution backends
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      tower:
+        executionBackends: [altair-platform, slurm-platform]
+    asserts:
+      - equal:
+          path: data.TOWER_ENABLE_PLATFORMS
+          value: altair-platform,slurm-platform
 
   - it: should render tower-yml cm with no data in it
     documentSelector:
