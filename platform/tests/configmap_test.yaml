@@ -136,7 +136,7 @@ tests:
             # because we didn't include the NOTES.txt file in the templates to be tested, so no
             # validation is done.
             FLYWAY_LOCATIONS: classpath:db-schema/mysql
-            TOWER_CONTACT_EMAIL: tower-support@example.com
+            TOWER_CONTACT_EMAIL: support@example.com
             TOWER_CONTENT_URL: "https://user-data.example.com"
             TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin
             TOWER_DB_DRIVER: org.mariadb.jdbc.Driver

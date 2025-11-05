@@ -74,7 +74,7 @@ platform:
   YAMLConfigFileContent: ""
 
   # -- Sender email address for user support.
-  contactEmail: tower-support@example.com
+  contactEmail: support@example.com
 
   # -- JWT seed, defined as string. It is used to sign authentication tokens.
   # Either define the value as a String or a Secret, not both at the same time.
