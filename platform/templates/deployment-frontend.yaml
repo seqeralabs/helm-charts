@@ -60,11 +60,11 @@ spec:
 {{- end }}
 
           envFrom:
-{{- with .Values.frontend.extraEnvVarsCM }}
+{{- range .Values.frontend.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
-{{- with .Values.frontend.extraEnvVarsSecret }}
+{{- range .Values.frontend.extraEnvVarsSecrets }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}

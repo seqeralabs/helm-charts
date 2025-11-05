@@ -309,9 +309,9 @@ backend:
   #     value: "set-a-value-here"
   extraEnvVars: []
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -515,11 +515,10 @@ frontend:
   #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
   #     value: "set-a-value-here"
   extraEnvVars: []
-  # TODO: extraEnvVarsCM should be a list
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -723,9 +722,9 @@ cron:
   #     value: "set-a-value-here"
   extraEnvVars: []
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -872,11 +871,10 @@ cron:
     #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
     #     value: "set-a-value-here"
     extraEnvVars: []
-    # TODO: extraEnvVarsCM should be a list
     # -- ConfigMap containing extra env vars.
-    extraEnvVarsCM: ""
+    extraEnvVarsCMs: []
     # -- Secret containing extra env vars.
-    extraEnvVarsSecret: ""
+    extraEnvVarsSecrets: []
     # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
     # `extraVolumeMounts`.
     extraVolumes: []
