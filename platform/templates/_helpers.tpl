@@ -1,6 +1,6 @@
 {{/*
 Let the user specify a ServiceAccount name, or default to the same Service Account name used
-     by the Tower Terraform module.
+by the Tower Terraform module.
 */}}
 {{- define "platform.serviceAccountName" -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
@@ -18,47 +18,47 @@ TODO: check whether we can deprecate the root-ful image.
 {{ include "platform.frontend.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global "chart" .Chart ) }}
 */}}
 {{- define "platform.frontend.image" -}}
-{{- $registryName := default .imageRoot.registry ((.global).imageRegistry) -}}
-{{- $repositoryName := .imageRoot.repository -}}
-{{- $separator := ":" -}}
-{{- $termination := .imageRoot.tag | toString -}}
+  {{- $registryName := default .imageRoot.registry ((.global).imageRegistry) -}}
+  {{- $repositoryName := .imageRoot.repository -}}
+  {{- $separator := ":" -}}
+  {{- $termination := .imageRoot.tag | toString -}}
 
-{{- if not .imageRoot.tag }}
-  {{- if .chart }}
+  {{- if not .imageRoot.tag }}
+    {{- if .chart }}
     {{- $termination = printf "%s-unprivileged" .chart.AppVersion | toString -}}
+    {{- end -}}
   {{- end -}}
-{{- end -}}
-{{- if .imageRoot.digest }}
+  {{- if .imageRoot.digest }}
     {{- $separator = "@" -}}
     {{- $termination = .imageRoot.digest | toString -}}
-{{- end -}}
-{{- if $registryName }}
+  {{- end -}}
+  {{- if $registryName }}
     {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
-{{- else -}}
+  {{- else -}}
     {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
-{{- end -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
 Build the backend micronaut envs list: add envs if features are requested in other values.
 */}}
 {{- define "platform.backend.micronautEnvs" -}}
-{{- $list := .Values.backend.micronautEnvironments -}}
+  {{- $list := .Values.backend.micronautEnvironments -}}
 {{/* Always make sure the required micronaut environments are added to the list for backend */}}
 {{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
 {{- $list = append $list "ha" -}}
-{{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
-{{- if not (empty .Values.tower.waveServerUrl) -}}
+  {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
+  {{- if not (empty .Values.tower.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
-{{- end -}}
+  {{- end -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
 {{/*
 Build the cron micronaut envs list: add envs if features are requested in other values. */}}
 {{- define "platform.cron.micronautEnvs" -}}
-{{- $list := .Values.cron.micronautEnvironments -}}
+  {{- $list := .Values.cron.micronautEnvironments -}}
 {{/* Always make sure the required micronaut environments are added to the list for cron */}}
 {{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
@@ -70,15 +70,15 @@ Build the cron micronaut envs list: add envs if features are requested in other 
 Return the name of the secret containing the Platform database password.
 */}}
 {{- define "platform.database.secretName" -}}
-{{- /* When no external secret is passed, default to the secret name that will store the token.
-      On the first execution, the lookup function will not find the secret and will generate a
-      random token; on successive executions, the lookup function will find the secret and will
-      extract and re-save the token back in its original key. */ -}}
-{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- /* When no external secret is passed, default to the secret name that will store the token.
+  On the first execution, the lookup function will not find the secret and will generate a
+  random token; on successive executions, the lookup function will find the secret and will
+  extract and re-save the token back in its original key. */ -}}
+  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
-{{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
 {{- end -}}
 
 {{/*
@@ -86,8 +86,8 @@ Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.host" -}}
-{{- /* Redis is a requirement, so no need to check whether it was defined or not. */}}
-{{- printf "%s" (tpl .Values.redis.host $) | default (printf "%s" (tpl .Values.global.redis.host $)) -}}
+  {{- /* Redis is a requirement, so no need to check whether it was defined or not. */}}
+  {{- printf "%s" (tpl .Values.redis.host $) | default (printf "%s" (tpl .Values.global.redis.host $)) -}}
 {{- end -}}
 
 {{/*
@@ -95,7 +95,7 @@ Return the port of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.port" -}}
-{{- printf "%s" (tpl (.Values.redis.port | toString) $) | default (printf "%s" (tpl (.Values.global.redis.port | toString) $)) -}}
+  {{- printf "%s" (tpl (.Values.redis.port | toString) $) | default (printf "%s" (tpl (.Values.global.redis.port | toString) $)) -}}
 {{- end -}}
 
 {{/*
@@ -103,21 +103,21 @@ Return whether TLS is enabled for the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.tlsEnabled" -}}
-{{- if or .Values.redis.tls.enabled .Values.global.redis.tls.enabled -}}
+  {{- if or .Values.redis.tls.enabled .Values.global.redis.tls.enabled -}}
 true
-{{- else -}}
+  {{- else -}}
 false
-{{- end -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
 Return the Redis URI. */}}
 {{- define "platform.redis.uri" -}}
-{{- printf "%s://%s:%d"
-            (ternary "rediss" "redis" (eq (include "platform.redis.tlsEnabled" .) "true"))
-            (include "platform.redis.host" .)
-            (include "platform.redis.port" . | int )
--}}
+  {{- printf "%s://%s:%d"
+  (ternary "rediss" "redis" (eq (include "platform.redis.tlsEnabled" .) "true"))
+  (include "platform.redis.host" .)
+  (include "platform.redis.port" . | int )
+  -}}
 {{- end -}}
 
 {{/*
@@ -125,7 +125,7 @@ Return the name of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretName" -}}
-{{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{/*
@@ -133,51 +133,51 @@ Return the key of the secret containing the Redis password.
 'redis.auth' takes precedence over 'global.redis.auth'.
 */}}
 {{- define "platform.redis.secretKey" -}}
-{{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the JWT token.
 */}}
 {{- define "platform.jwt.secretName" -}}
-{{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.jwt.secretKey" -}}
-{{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
 {{- define "platform.crypto.secretName" -}}
-{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.crypto.secretKey" -}}
-{{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
 {{- define "platform.license.secretName" -}}
-{{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.license.secretKey" -}}
-{{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
 {{- define "platform.smtp.secretName" -}}
-{{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.smtp.secretKey" -}}
-{{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
 {{- define "tower.containerSecurityContextMinimal" -}}
@@ -261,13 +261,13 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" .context | quote }}
-    {{- if or .context.Values.redis.auth.enabled .context.Values.global.redis.auth.enabled }}
+  {{- if or .context.Values.redis.auth.enabled .context.Values.global.redis.auth.enabled }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:
           name: {{ include "platform.redis.secretName" .context }}
           key: {{ include "platform.redis.secretKey" .context }}
-    {{- end }}
+  {{- end }}
   {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
   {{ include "tower.resourcesMinimal" . | nindent 2 }}
 {{- end -}}
@@ -286,16 +286,16 @@ Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/
 {{ include "platform.validate.dnsLabel" (dict "value" "value_to_validate") -}}
 */}}
 {{- define "platform.validate.dnsLabel" -}}
-{{- $errors := list -}}
-{{- if gt (len .value) 63 -}}
+  {{- $errors := list -}}
+  {{- if gt (len .value) 63 -}}
 {{- $errors = append $errors (printf "must not be longer than 63 characters") -}}
-{{- end -}}
-{{- if not (regexMatch "^[a-z]([-a-z0-9]*[a-z0-9])?$" .value) -}}
+  {{- end -}}
+  {{- if not (regexMatch "^[a-z]([-a-z0-9]*[a-z0-9])?$" .value) -}}
 {{- $errors = append $errors (printf "'global.platformServiceAddress' must be a valid DNS subdomain (a-z, 0-9, and '-').") -}}
-{{- end -}}
-{{- if $errors -}}
+  {{- end -}}
+  {{- if $errors -}}
 {{- join "; " $errors -}}
-{{- end -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -304,14 +304,14 @@ Validate that a value is a string representation of an integer.
 {{ include "platform.validate.isInteger" (dict "value" "value_to_validate") -}}
 */}}
 {{- define "platform.validate.isInteger" -}}
-{{- $errors := list -}}
-{{- if not (regexMatch "^[0-9]+$" (.value | toString)) -}}
+  {{- $errors := list -}}
+  {{- if not (regexMatch "^[0-9]+$" (.value | toString)) -}}
 {{- $errors = append $errors (printf "must be an integer between 1 and 65535") -}}
-{{- end -}}
-{{- if .value | int |lt 65535 -}}
+  {{- end -}}
+  {{- if .value | int |lt 65535 -}}
 {{- $errors = append $errors (printf "must not be greater than 65535") -}}
-{{- end -}}
-{{- if $errors -}}
+  {{- end -}}
+  {{- if $errors -}}
 {{- join "; " $errors -}}
-{{- end -}}
+  {{- end -}}
 {{- end -}}

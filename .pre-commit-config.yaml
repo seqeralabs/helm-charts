@@ -21,3 +21,8 @@ repos:
         language: python
         pass_filenames: false
         always_run: true
+
+  - repo: https://github.com/digitalstudium/helmfmt
+    rev: v0.4.2
+    hooks:
+      - id: helmfmt

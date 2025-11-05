@@ -5,11 +5,11 @@ metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.ingress.extraLabels }}
+  {{- with .Values.ingress.extraLabels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- end }}
   {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
-  {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
+    {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "common.tplvalues.render" (dict "value" $annotations "context" $) | nindent 4 }}
   {{- end }}
 
@@ -39,7 +39,7 @@ spec:
                 port:
                   number: {{ .Values.frontend.service.http.port }}
 
-    {{- if (tpl .Values.global.contentDomain $) }}
+  {{- if (tpl .Values.global.contentDomain $) }}
     {{/* Hostname where Tower reports are exposed to the user. */}}
     - host: {{ tpl .Values.global.contentDomain $ | quote }}
       http:
@@ -51,13 +51,13 @@ spec:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
                 port:
                   number: {{ .Values.frontend.service.http.port }}
-    {{- end }}
+  {{- end }}
 
-    {{- range .Values.ingress.extraHosts }}
+  {{- range .Values.ingress.extraHosts }}
     - host: {{ tpl .host $ | quote }}
       http:
         paths:
-          {{- range .paths }}
+    {{- range .paths }}
           - path: {{ .path }}
             pathType: {{ .pathType | default $.Values.ingress.defaultPathType }}
             backend:
@@ -65,6 +65,6 @@ spec:
                 name: {{ tpl .serviceName $ | quote }}
                 port:
                   number: {{ tpl .portNumber $ }}
-          {{- end }}
     {{- end }}
+  {{- end }}
 {{- end }}

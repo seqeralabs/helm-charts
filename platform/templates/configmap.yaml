@@ -5,13 +5,13 @@ metadata:
   name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
+{{- with .Values.tower.configMapLabels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+{{- end }}
+{{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
+{{- end }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
 ---
@@ -21,13 +21,13 @@ metadata:
   name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
+{{- with .Values.tower.configMapLabels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+{{- end }}
+{{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
+{{- end }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.cron.micronautEnvs" . }}
   TOWER_CRON_SERVER_PORT: {{ .Values.cron.service.http.targetPort | int | quote }}
@@ -38,13 +38,13 @@ metadata:
   name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
+{{- with .Values.tower.configMapLabels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+{{- end }}
+{{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
+{{- end }}
 data:
   TOWER_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) | quote }}
   TOWER_CONTENT_URL: {{ printf "https://%s" (tpl .Values.global.contentDomain $) | quote }}
@@ -68,13 +68,13 @@ data:
   TOWER_DB_MAX_POOL_SIZE: {{ .Values.tower.db.maxPoolSize | toString | quote }}
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.tower.db.minPoolSize | toString | quote }}
 
-  {{- if .Values.tower.smtp.host }}
+{{- if .Values.tower.smtp.host }}
   TOWER_SMTP_HOST: {{ .Values.tower.smtp.host | quote }}
   TOWER_SMTP_PORT: {{ .Values.tower.smtp.port | quote }}
   TOWER_SMTP_USER: {{ .Values.tower.smtp.user | quote }}
-  {{- else if .Values.tower.awsSesEnable }}
+{{- else if .Values.tower.awsSesEnable }}
   TOWER_ENABLE_AWS_SES: "true"
-  {{- end }}
+{{- end }}
 
   # TODO: is this a cron-only variable?
   FLYWAY_LOCATIONS: {{ .Values.tower.flywayLocations | quote }}
@@ -85,13 +85,13 @@ metadata:
   name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    {{- with .Values.tower.configMapLabels }}
+{{- with .Values.tower.configMapLabels }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
+{{- end }}
+{{- if or .Values.tower.configMapAnnotations .Values.commonAnnotations }}
   {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) }}
   annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
+{{- end }}
 data:
   tower.yml: |-
     {{- include "common.tplvalues.render" ( dict "value" .Values.tower.YAMLConfigFileContent "context" $ ) | nindent 4 }}
