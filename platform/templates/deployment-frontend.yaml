@@ -28,8 +28,9 @@ spec:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
         app: frontend
       annotations:
-{{- with .Values.frontend.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+{{- if or .Values.frontend.podAnnotations .Values.commonAnnotations }}
+  {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.frontend.podAnnotations .Values.commonAnnotations) "context" $) }}
+        {{- include "common.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
 {{- end }}
 
     spec:

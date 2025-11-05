@@ -242,8 +242,9 @@ tests:
           existingSecretName: "unittest"
           existingSecretKey: "db-password-key"
       commonLabels:
-        key123: this-should-be-overridden
+        key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
+        key789: "{{ .Values.global.platformServicePort | default 8443 }}"
       commonAnnotations:
         common-annotation-key: common-annotation-value
       cron:
@@ -251,6 +252,7 @@ tests:
           key123: this-overrides-the-commonLabels
         podAnnotations:
           pod-annotation-key: pod-annotation-value
+          pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
       tower:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
@@ -259,6 +261,18 @@ tests:
         licenseSecretKey: "license-token-key"
     asserts:
       - equal:
+          path: metadata.labels
+          value:
+            app: cron
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-should-be-overridden-in-pod-labels
+            key456: this-should-not-be-overridden
+            key789: "8080"
+      - equal:
           path: metadata.annotations
           value:
             common-annotation-key: common-annotation-value
@@ -266,12 +280,14 @@ tests:
           path: spec.template.metadata.annotations
           value:
             pod-annotation-key: pod-annotation-value
+            pod-annotation-key2: "8080"
+            common-annotation-key: common-annotation-value
             # If these values change, it means that values in the CM/Secret yaml files changed, and
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: 482109670699dd04526432cd6f433fb296fc233d55f446d98f4c93564ec69d0b
-            checksum/secret: 9daad093a89e1b9bc147a0f91215874f976126be124a7360ead666ebb60ec28d
+            checksum/configmap: 06397823a9efd00c039a739e006511a22e0c4d9f04b5c0ce93267b7dce2892b9
+            checksum/secret: 9b7110f5787d8b33593c1de588cfb49d66f81ea61858b5ad1479dbf234d08fe6
       - equal:
           path: spec.template.metadata.labels
           value:
@@ -283,6 +299,7 @@ tests:
             helm.sh/chart: platform-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
+            key789: "8080"
       # Check that the selector includes the correct labels too, but no custom podlabels should be
       # defined on the selector, see bitnami/common for an explanation here:
       # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
