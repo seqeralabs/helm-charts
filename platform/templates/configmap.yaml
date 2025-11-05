@@ -75,4 +75,4 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   tower.yml: |-
-    {{- include "seqera.tplvalues.render" ( dict "value" .Values.platform.YAMLConfigFileContent "context" $ ) | nindent 4 }}
+    {{- include "seqera.tplvalues.render" (dict "value" .Values.platform.YAMLConfigFileContent "context" $) | nindent 4 }}

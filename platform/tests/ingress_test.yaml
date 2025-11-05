@@ -264,7 +264,7 @@ tests:
               - path: /*  # For ALB ingress controller
                 pathType: Prefix  # Optional, defaults to defaultPathType value
                 serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
-                portNumber: '{{ .Values.global.platformServicePort | int }}'
+                portNumber: '{{ .Values.global.platformServicePort }}'
           - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
             paths:
               - path: /*  # For ALB ingress controller
