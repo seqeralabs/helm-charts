@@ -86,6 +86,9 @@ tests:
           path: data.TOWER_SMTP_PASSWORD
 
   - it: should apply common labels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
     documentSelector:
       path: metadata.name
       value: release-name-platform-backend
@@ -93,13 +96,19 @@ tests:
       commonLabels:
         environment: "dev"
         team: "platform"
+        numericLabelAsString: "{{ .Values.global.platformServicePort | default 1234 }}"
     asserts:
       - equal:
-          path: metadata.labels.environment
-          value: dev
-      - equal:
-          path: metadata.labels.team
-          value: platform
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: platform-9.8.7
+            environment: dev
+            team: platform
+            numericLabelAsString: "8080"
 
   - it: should include AWS SES configuration when enabled
     documentSelector:
@@ -140,3 +149,183 @@ tests:
             TOWER_REDIS_URL: redis://:6379
             TOWER_SERVER_URL: https://example.com
             WAVE_SERVER_URL: https://wave.seqera.io
+
+  - it: should render tower-yml cm with no data in it
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data
+          value:
+            tower.yml: ""
+
+  - it: should render tower-yml cm with provided data
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    set:
+      tower:
+        YAMLConfigFileContent: |
+          someKey: someValue
+          anotherKey:
+            nestedKey: nestedValue
+    asserts:
+      - equal:
+          path: data
+          value:
+            tower.yml: |-
+              someKey: someValue
+              anotherKey:
+                nestedKey: nestedValue
+  - it: should render tower-yml cm with templated data
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-tower-yml
+    set:
+      global:
+        platformExternalDomain: "my-platform.example.com"
+        platformServicePort: 1234
+      tower:
+        YAMLConfigFileContent: |
+          templatedKey:
+            url: https://{{ .Values.global.platformExternalDomain }}
+            url2: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) }}
+            # The port should be rendered as a number, not as a string
+            port: {{ .Values.global.platformServicePort }}
+    asserts:
+      - equal:
+          path: data
+          value:
+            tower.yml: |-
+              templatedKey:
+                url: https://my-platform.example.com
+                url2: https://my-platform.example.com
+                # The port should be rendered as a number, not as a string
+                port: 1234
+
+  - it: should render annotations in all configmaps when provided
+    set:
+      global:
+        platformServicePort: 1234
+      commonAnnotations:
+        annotation1: "value1"
+        annotation2: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "value1"
+            annotation2: "1234"  # should be rendered as string, k8s doesn't support integers in annotations nor labels
+
+  - it: should render annotations in all configmaps when provided via tower.configMapAnnotations
+    set:
+      global:
+        platformServicePort: 1234
+      tower:
+        configMapAnnotations:
+          annotationA: "valueA"
+          annotationB: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotationA: "valueA"
+            annotationB: "1234"
+
+  - it: should merge annotations from commonAnnotations and tower.configMapAnnotations
+    set:
+      commonAnnotations:
+        annotation1: "this should get overwritten"
+        annotation2: "this should stay"
+      tower:
+        configMapAnnotations:
+          annotation1: "this overrides the common annotation"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "this overrides the common annotation"
+            annotation2: "this should stay"
+
+  - it: should render labels in all configmaps when provided
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      global:
+        platformServicePort: 1234
+      commonLabels:
+        label1: "value1"
+        label2: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: platform-9.8.7
+            label1: "value1"
+            label2: "1234"  # should be rendered as string, k8s doesn't support integers in labels nor labels
+
+  - it: should render labels in all configmaps when provided via tower.configMapLabels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      global:
+        platformServicePort: 1234
+      tower:
+        configMapLabels:
+          labelA: "valueA"
+          labelB: "{{ .Values.global.platformServicePort }}"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: platform-9.8.7
+            labelA: "valueA"
+            labelB: "1234"
+
+  - it: should merge labels from commonLabels and tower.configMapLabels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      commonLabels:
+        label1: "this should get overwritten"
+        label2: "this should stay"
+      tower:
+        configMapLabels:
+          label1: "this overrides the common label"
+    asserts:
+      - hasDocuments:
+          count: 4  # make sure to update this too if more configmaps are added
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: platform-9.8.7
+            label1: "this overrides the common label"
+            label2: "this should stay"
