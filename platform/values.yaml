@@ -905,7 +905,12 @@ cron:
     #     memory: "3000Mi"
     resources: {}
 
-# Define container images for various init containers.
+initContainerDependencies:
+  # -- Enable init containers that coordinate startup dependencies between Platform components
+  # (e.g., wait for database readiness before cron starts, wait for cron before backend starts).
+  enabled: true
+
+# Define container images for init containers that handle startup coordination.
 initContainersUtils:
   # Image for the init container that waits for the MySQL database to be ready.
   waitForMySQLImage:

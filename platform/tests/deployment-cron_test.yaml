@@ -1228,3 +1228,16 @@ tests:
       - equal:
           path: spec.template.spec.nodeSelector.disksizeGb
           value: 2
+
+  - it: should disable initContainers that wait for required services to be ready
+    template: deployment-cron.yaml
+    set:
+      initContainerDependencies:
+        enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: migrate-db

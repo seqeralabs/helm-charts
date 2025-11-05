@@ -1025,3 +1025,13 @@ tests:
       - equal:
           path: spec.replicas
           value: 2
+
+  - it: should disable initContainers that wait for required services to be ready
+    template: deployment-backend.yaml
+    set:
+      initContainerDependencies:
+        enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers
+          value: null

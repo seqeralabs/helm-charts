@@ -312,6 +312,7 @@ $ helm install my-release example/platform
 | cron.dbMigrationInitContainer.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering. |
 | cron.dbMigrationInitContainer.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container. |
 | cron.dbMigrationInitContainer.resources | object | `{}` | Set container requests and limits for different resources like CPU or memory. .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. .limits are the maximum resources a container is allowed to use. Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ We usually recommend not to specify default resources and to leave this as a conscious choice for the user.  requests:   requests:     cpu: "1"     memory: "1000Mi"   limits:     memory: "3000Mi" |
+| initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies between Platform components (e.g., wait for database readiness before cron starts, wait for cron before backend starts). |
 | initContainersUtils.waitForMySQLImage.registry | string | `""` |  |
 | initContainersUtils.waitForMySQLImage.repository | string | `"mysql"` |  |
 | initContainersUtils.waitForMySQLImage.tag | string | `"9"` |  |

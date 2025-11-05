@@ -46,6 +46,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- if .Values.initContainerDependencies.enabled }}
         {{- include "platform.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
         {{- include "platform.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
         - name: wait-for-cron
@@ -70,6 +71,7 @@ spec:
               value: {{ .Values.cron.service.http.port | int | quote }}
           {{ include "platform.containerSecurityContextMinimal" . | nindent 10 }}
           {{ include "platform.resourcesMinimal" . | nindent 10 }}
+{{- end }}
 {{- with .Values.backend.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
