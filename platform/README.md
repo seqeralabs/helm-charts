@@ -12,8 +12,10 @@ A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
 - Kubernetes 1.19+
 - Helm 3+
-- MySQL database
+- MySQL 8+ database
 - Redis v7-compatible cache
+
+For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
 ## Platform architecture
 
@@ -21,18 +23,15 @@ The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/en
 consists of the following components:
 
 - Backend
-  * The backend app is the main application server, exposing the REST API and handling most of the
-    business logic.
+  * The backend app is a JVM-based web application based on the Micronaut framework, exposing the REST API and handling most of the business logic.
 - Cron pod
-  * The cron app is needed to perform certain async operations on the database and on the
-    environment (CE environment creation, etc). For this reason there can only be one at a time, and
-    it's a separate deployment and not a sidecar deployment of the backend deployment.
+  * The cron app is backend service that executes regularly-occurring activities, such as sending email notifications and cleaning up stale data. The cron service also performs database migrations at startup.
 - Frontend pod
-  * The frontend app is a separate deployment serving the web UI.
+  * The frontend app is a Nginx web server serving the web UI.
 - MySQL database
-  * The MySQL database is required to store all the Platform data.
+  * The MySQL database is required to persist the Platform data.
 - Redis cache
-  * The Redis cache is required for caching and for managing async jobs.
+  * The Redis cache is required for caching.
 
 ### Redis Cache details
 
@@ -48,9 +47,12 @@ Values in the `.redis` section take precedence over values in the `.global.redis
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm repo add example http://charts.example.com
-$ helm install my-release example/platform
+helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.14.1 --namespace my-namespace --create-namespace
 ```
+
+For a list of available chart versions, visit the chart repository: https://public.cr.seqera.io/repo/charts/platform
+
+##
 
 ## Requirements
 
