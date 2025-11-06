@@ -257,7 +257,7 @@ backend:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
     #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
     #   nodePort: ""
     extraServices: []
@@ -464,7 +464,7 @@ frontend:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
     #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
     #   nodePort: ""
     extraServices: []
@@ -472,7 +472,7 @@ frontend:
     # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
     extraOptions: {}
 
-  # Add additional init containers to the pod. Evaluated as a template.
+  # -- Additional init containers for the frontend pod. Evaluated as a template.
   initContainers: []
 
   # -- Override default container command (useful when using custom images)
@@ -674,11 +674,11 @@ cron:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
     #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
     #   nodePort: ""
     extraServices: []
-    # Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
+    # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
     extraOptions: {}
 

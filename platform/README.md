@@ -129,7 +129,7 @@ $ helm install my-release example/platform
 | backend.service.type | string | `"ClusterIP"` | Backend Service type. Note: ingresses using AWS ALB require the service to be NodePort. |
 | backend.service.http.name | string | `"http"` | Service name to use. |
 | backend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| backend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
+| backend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # nodePort is only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | backend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
 | backend.initContainers | list | `[]` | Additional init containers for the backend pod. Evaluated as a template. |
 | backend.command | list | `[]` | Override default container command (useful when using custom images). |
@@ -186,9 +186,9 @@ $ helm install my-release example/platform
 | frontend.service.http.port | int | `80` | Service port. |
 | frontend.service.http.targetPort | int | `8083` | The port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). |
 | frontend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| frontend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
+| frontend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # nodePort is only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | frontend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
-| frontend.initContainers | list | `[]` |  |
+| frontend.initContainers | list | `[]` | Additional init containers for the frontend pod. Evaluated as a template. |
 | frontend.command | list | `[]` | Override default container command (useful when using custom images) |
 | frontend.args | list | `[]` | Override default container args (useful when using custom images) |
 | frontend.podLabels | object | `{}` | Additional labels for the frontend pod. Evaluated as a template. |
@@ -244,8 +244,8 @@ $ helm install my-release example/platform
 | cron.service.http.port | int | `8080` | Service port. |
 | cron.service.http.targetPort | int | `8082` | The port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). |
 | cron.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| cron.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
-| cron.service.extraOptions | object | `{}` |  |
+| cron.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # nodePort is only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
+| cron.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
 | cron.initContainers | list | `[]` | Additional init containers for the cron pod. Evaluated as a template. |
 | cron.command | list | `[]` | Override default container command (useful when using custom images). |
 | cron.args | list | `[]` | Override default container args (useful when using custom images). |
