@@ -50,19 +50,15 @@ spec:
 {{- end }}
 
       initContainers:
-        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) | nindent 8 }}
-        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) | nindent 8 }}
+{{- if .Values.initContainerDependencies.enabled }}
+        {{- include "platform.initContainerWaitForDB" . | nindent 8 }}
+        {{- include "platform.initContainerWaitForRedis" . | nindent 8 }}
+{{- end }}
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.cron.dbMigrationInitContainer.image.pullPolicy }}
-{{- with .Values.cron.dbMigrationInitContainer.command }}
-          command: {{- toYaml . | nindent 12 }}
-{{- else }}
-          command: ["sh", "-c", "/migrate-db.sh"]
-{{- end }}
-{{- with .Values.cron.dbMigrationInitContainer.args }}
-          args: {{- toYaml . | nindent 12 }}
-{{- end }}
+          command: {{- include "seqera.tplvalues.render" (dict "value" .Values.cron.dbMigrationInitContainer.command "context" $) | nindent 12 }}
+          args: {{- include "seqera.tplvalues.render" (dict "value" .Values.cron.dbMigrationInitContainer.args "context" $) | nindent 12 }}
           env:
 {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}

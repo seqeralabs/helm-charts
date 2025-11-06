@@ -154,9 +154,10 @@ tests:
                   runAsNonRoot: true
                   runAsUser: 101
               - command:
-                  - sh
+                  - /bin/sh
                   - -c
                   - /migrate-db.sh
+                args: []
                 env: null
                 envFrom:
                   - configMapRef:
@@ -253,7 +254,7 @@ tests:
         podAnnotations:
           pod-annotation-key: pod-annotation-value
           pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
-      tower:
+      platform:
         jwtSeedString: these need to be defined
         cryptoSeedString: otherwise 'helm template' creates random ones each time
         # Take the license from a secret instead of a string, just for fun
@@ -286,7 +287,7 @@ tests:
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: 06397823a9efd00c039a739e006511a22e0c4d9f04b5c0ce93267b7dce2892b9
+            checksum/configmap: 7f40f33f40126e2d8e15700867c35f1c017883e013044489e9778e33cacab200
             checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
       - equal:
           path: spec.template.metadata.labels
@@ -1228,3 +1229,16 @@ tests:
       - equal:
           path: spec.template.spec.nodeSelector.disksizeGb
           value: 2
+
+  - it: should disable initContainers that wait for required services to be ready
+    template: deployment-cron.yaml
+    set:
+      initContainerDependencies:
+        enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: migrate-db

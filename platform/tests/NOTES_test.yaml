@@ -49,11 +49,11 @@ tests:
           host: "whatever"
         redis:
           host: "whatever"
-      tower:
+      platform:
         licenseString: ""
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the License or a secret name are needed, not both."
+          errorPattern: "Either a string version of the License at platform.licenseString or a secret name at platform.licenseSecretName are needed, not both."
 
   - it: should pass when redis.host and global.platformDatabase.host are defined
     set:
@@ -62,8 +62,9 @@ tests:
           host: "whatever"
       redis:
         host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
+        executionBackends: [anything]
     asserts:
       - hasDocuments:
           count: 1
@@ -77,57 +78,58 @@ tests:
           host: "whatever"
       redis:
         host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
+        executionBackends: [anything]
     asserts:
       - hasDocuments:
           count: 1
 
-  - it: should fail when both tower.jwtSeedString and tower.jwtSeedSecretName are defined
+  - it: should fail when both platform.jwtSeedString and platform.jwtSeedSecretName are defined
     set:
       global:
         redis:
           host: "whatever"
         platformDatabase:
           host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
         jwtSeedString: "whatever"
         jwtSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the JWT seed or a secret name are needed, not both."
+          errorPattern: "Either a string version of the JWT seed at platform.jwtSeedString or a secret name at platform.jwtSeedSecretName are needed, not both."
 
-  - it: should fail when both tower.cryptoSeedString and tower.cryptoSeedSecretName are defined
+  - it: should fail when both platform.cryptoSeedString and platform.cryptoSeedSecretName are defined
     set:
       global:
         redis:
           host: "whatever"
         platformDatabase:
           host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
         cryptoSeedString: "whatever"
         cryptoSeedSecretName: "whatever"
     asserts:
       - failedTemplate:
-          errorPattern: "Either a string version of the Crypto seed or a secret name are needed, not both."
+          errorPattern: "Either a string version of the Crypto seed at platform.cryptoSeedString or a secret name at platform.cryptoSeedSecretName are needed, not both."
 
-  - it: should fail when both tower.smtp.host and tower.awsSesEnable are defined
+  - it: should fail when both platform.smtp.host and platform.awsSesEnable are defined
     set:
       global:
         redis:
           host: "whatever"
         platformDatabase:
           host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
         smtp:
           host: "whatever"
         awsSesEnable: true
     asserts:
       - failedTemplate:
-          errorPattern: "Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both"
+          errorPattern: "Either define a SMTP server at platform.smtp.host, or enable AWS SES with platform.awsSesEnable, not both"
 
   - it: should fail if migrate-db args are set but command is not
     set:
@@ -136,23 +138,24 @@ tests:
           host: "whatever"
         redis:
           host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
       cron:
         dbMigrationInitContainer:
+          command: []
           args: ["--some-arg"]
     asserts:
       - failedTemplate:
           errorPattern: "If 'cron.dbMigrationInitContainer.args' are provided, 'cron.dbMigrationInitContainer.command' must also be provided."
 
-  - it: should fail when tower.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
+  - it: should fail when platform.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
     set:
       global:
         redis:
           host: "whatever"
         platformDatabase:
           host: "whatever"
-      tower:
+      platform:
         licenseString: "whatever"
         awsSesEnable: true
       backend:
@@ -161,3 +164,17 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "The AWS SES provider is not compatible with the test environment, disable/drop either of them"
+
+  - it: should fail when an empty list of execution backends is defined
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: []
+    asserts:
+      - failedTemplate:
+          errorPattern: "At least one execution backend must be defined in 'platform.executionBackends'"

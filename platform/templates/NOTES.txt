@@ -34,39 +34,44 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if and .Values.tower.smtp.host .Values.tower.awsSesEnable -}}
-{{- $message := "Either define a SMTP server at tower.smtp.host, or enable AWS SES with tower.awsSesEnable, not both." -}}
+{{- if and .Values.platform.smtp.host .Values.platform.awsSesEnable -}}
+{{- $message := "Either define a SMTP server at platform.smtp.host, or enable AWS SES with platform.awsSesEnable, not both." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
-{{- if and .Values.tower.awsSesEnable (has "e2e" .Values.backend.micronautEnvironments) -}}
+{{- if and .Values.platform.awsSesEnable (has "e2e" .Values.backend.micronautEnvironments) -}}
 {{- $message := "The AWS SES provider is not compatible with the test environment, disable/drop either of them." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
 {{/* Check that string and secret values are not passed together for jwt, crypto and license. */}}
-{{- if and .Values.tower.jwtSeedString .Values.tower.jwtSeedSecretName -}}
+{{- if and .Values.platform.jwtSeedString .Values.platform.jwtSeedSecretName -}}
 {{- $messages := list -}}
-{{- $messages := append $messages "Either a string version of the JWT seed or a secret name are needed, not both." -}}
+{{- $messages := append $messages "Either a string version of the JWT seed at platform.jwtSeedString or a secret name at platform.jwtSeedSecretName are needed, not both." -}}
 {{- $message := join "\n" $messages -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
-{{- if and .Values.tower.cryptoSeedString .Values.tower.cryptoSeedSecretName -}}
+{{- if and .Values.platform.cryptoSeedString .Values.platform.cryptoSeedSecretName -}}
 {{- $messages := list -}}
-{{- $messages := append $messages "Either a string version of the Crypto seed or a secret name are needed, not both." -}}
+{{- $messages := append $messages "Either a string version of the Crypto seed at platform.cryptoSeedString or a secret name at platform.cryptoSeedSecretName are needed, not both." -}}
 {{- $message := join "\n" $messages -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
-{{- if or (and .Values.tower.licenseString .Values.tower.licenseSecretName)
-          (and (not .Values.tower.licenseString) (not .Values.tower.licenseSecretName) )
+{{- if or (and .Values.platform.licenseString .Values.platform.licenseSecretName)
+          (and (not .Values.platform.licenseString) (not .Values.platform.licenseSecretName) )
 -}}
 {{- $messages := list -}}
-{{- $messages := append $messages "Either a string version of the License or a secret name are needed, not both." -}}
+{{- $messages := append $messages "Either a string version of the License at platform.licenseString or a secret name at platform.licenseSecretName are needed, not both." -}}
 {{- $message := join "\n" $messages -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
 {{- if and .Values.cron.dbMigrationInitContainer.args (not .Values.cron.dbMigrationInitContainer.command) -}}
 {{- $message := "If 'cron.dbMigrationInitContainer.args' are provided, 'cron.dbMigrationInitContainer.command' must also be provided." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if not .Values.platform.executionBackends -}}
+{{- $message := "At least one execution backend must be defined in 'platform.executionBackends'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 

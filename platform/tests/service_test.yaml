@@ -608,7 +608,7 @@ tests:
                 port: 9090
                 targetPort: 9090
 
-  - it: should merge commonLabels and tower.serviceLabels
+  - it: should merge commonLabels and platform.serviceLabels
     chart:
       version: 9.8.7
       appVersion: v1.2.3-asdf
@@ -616,10 +616,10 @@ tests:
       commonLabels:
         commonKey: commonValue
         anotherCommonKey: anotherCommonValue
-      tower:
+      platform:
         serviceLabels:
-          towerKey: towerValue
-          commonKey: towerOverrideValue # tower.serviceLabels should override commonLabels
+          platformKey: platformValue
+          commonKey: platformOverrideValue # platform.serviceLabels should override commonLabels
     asserts:
       - equal:
           path: metadata.labels
@@ -629,9 +629,9 @@ tests:
             app.kubernetes.io/name: platform
             app.kubernetes.io/version: v1.2.3-asdf
             helm.sh/chart: platform-9.8.7
-            commonKey: towerOverrideValue
+            commonKey: platformOverrideValue
             anotherCommonKey: anotherCommonValue
-            towerKey: towerValue
+            platformKey: platformValue
 
   - it: should render commonLabels with templated values
     chart:
@@ -666,33 +666,33 @@ tests:
           value:
             commonAnnotationKey: commonAnnotationValue
 
-  - it: should apply tower.serviceAnnotations
+  - it: should apply platform.serviceAnnotations
     set:
-      tower:
+      platform:
         serviceAnnotations:
-          towerAnnotationKey: towerAnnotationValue
+          platformAnnotationKey: platformAnnotationValue
     asserts:
       - equal:
           path: metadata.annotations
           value:
-            towerAnnotationKey: towerAnnotationValue
+            platformAnnotationKey: platformAnnotationValue
 
-  - it: should merge commonAnnotations and tower.serviceAnnotations
+  - it: should merge commonAnnotations and platform.serviceAnnotations
     set:
       commonAnnotations:
         commonAnnotationKey: commonAnnotationValue
         anotherCommonAnnotationKey: anotherCommonAnnotationValue
-      tower:
+      platform:
         serviceAnnotations:
-          towerAnnotationKey: towerAnnotationValue
-          commonAnnotationKey: towerAnnotationOverrideValue # tower.serviceAnnotations should override commonAnnotations
+          platformAnnotationKey: platformAnnotationValue
+          commonAnnotationKey: platformAnnotationOverrideValue # platform.serviceAnnotations should override commonAnnotations
     asserts:
       - equal:
           path: metadata.annotations
           value:
-            commonAnnotationKey: towerAnnotationOverrideValue
+            commonAnnotationKey: platformAnnotationOverrideValue
             anotherCommonAnnotationKey: anotherCommonAnnotationValue
-            towerAnnotationKey: towerAnnotationValue
+            platformAnnotationKey: platformAnnotationValue
 
   - it: should not apply custom .podLabels to service selector, only if they override standard labels
     set:

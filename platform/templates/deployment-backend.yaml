@@ -46,30 +46,11 @@ spec:
 {{- end }}
 
       initContainers:
-        {{- include "tower.initContainerWaitForDB" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
-        {{- include "tower.initContainerWaitForRedis" (dict "deployment" .Values.backend "context" $) | nindent 8 }}
-        - name: wait-for-cron
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainersUtils.waitForCronImage "global" .Values.global) }}
-          imagePullPolicy: {{ .Values.initContainersUtils.waitForCronImage.pullPolicy }}
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
-              until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
-                echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-                sleep $SLEEP_PERIOD_SECONDS
-              done
-              echo "$(date): cron ready"
-          env:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: CRON_HOST
-              value: {{ printf "%s-cron" (include "common.names.fullname" .) | quote }}
-            - name: CRON_PORT
-              value: {{ .Values.cron.service.http.port | int | quote }}
-          {{ include "tower.containerSecurityContextMinimal" . | nindent 10 }}
-          {{ include "tower.resourcesMinimal" . | nindent 10 }}
+{{- if .Values.initContainerDependencies.enabled }}
+        {{- include "platform.initContainerWaitForDB" . | nindent 8 }}
+        {{- include "platform.initContainerWaitForRedis" . | nindent 8 }}
+        {{- include "platform.initContainerWaitForCron" . | nindent 8 }}
+{{- end }}
 {{- with .Values.backend.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

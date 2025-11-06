@@ -33,6 +33,16 @@ global:
     # Enable encryption in transit when connecting to the external database.
     # TODO: implement support for this in the templates.
     #tls: true
+    # -- JDBC driver class name.
+    driver: "org.mariadb.jdbc.Driver"
+    # -- Hibernate dialect to use.
+    dialect: "io.seqera.util.MySQL55DialectCollateBin"
+    # -- Connection pool minimum size.
+    minPoolSize: "0"
+    # -- Connection pool maximum size.
+    maxPoolSize: "5"
+    # -- Connection pool maximum lifetime.
+    maxLifetime: "60000"
 
   # Global Redis configuration values. Values set here will be used by multiple seqera products
   # that require Redis, unless overridden in each product's own .redis section. See README.
@@ -65,32 +75,16 @@ global:
   #   email: someone@example.com  # Optional.
   imageCredentials: []
 
-
-
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-#######
-####### needs to be renamed to platform
-#######
-#######
-#######
-#######
-#######
-#######
-tower:
+platform:
+  # TODO: rename variable?
   # TODO: check the following stance:
-  # Only tower.* properties can be applied through the YAML file.
-  # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines)
+  # Only tower.* Groovy properties can be applied through the YAML file.
+  # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See
+  # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
   YAMLConfigFileContent: ""
 
   # -- Sender email address for user support.
-  contactEmail: tower-support@example.com
+  contactEmail: support@example.com
 
   # -- JWT seed, defined as string. It is used to sign authentication tokens.
   # Either define the value as a String or a Secret, not both at the same time.
@@ -110,9 +104,23 @@ tower:
   # -- Key in the existing secret containing the crypto seed.
   cryptoSeedSecretKey: TOWER_CRYPTO_SECRETKEY
 
-  # TODO: should this become a list, similarly to the micronaut envs?
-  # -- Enable the platforms that Platform will allow users to create environments for.
-  enablePlatforms: "altair-platform,awsbatch-platform,azbatch-platform,eks-platform,googlebatch-platform,gke-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform"
+  # -- List of execution backends to enable. At least one is required. See
+  # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#configuration-values-not-supported-in-toweryml-or-aws-parameter-store
+  executionBackends:
+    - altair-platform
+    - awsbatch-platform
+    - awscloud-platform
+    - azbatch-platform
+    - eks-platform
+    - gke-platform
+    - googlebatch-platform
+    - googlecloud-platform
+    - k8s-platform
+    - local-platform
+    - lsf-platform
+    - moab-platform
+    - slurm-platform
+
   # TODO: do we even need to expose this? This is currently in the default CM.
   flywayLocations: "classpath:db-schema/mysql"
 
@@ -144,19 +152,6 @@ tower:
   # the appropriate permissions needs to be exposed to the cron pod, e.g. via IRSA, EKS Pod
   # Identity, etc.
   awsSesEnable: false
-
-  # TODO: Move this into .global.platformDatabase section?
-  db:
-    # -- JDBC driver class name.
-    driver: "org.mariadb.jdbc.Driver"
-    # -- Hibernate dialect to use.
-    dialect: "io.seqera.util.MySQL55DialectCollateBin"
-    # -- Connection pool minimum size.
-    minPoolSize: "0"
-    # -- Connection pool maximum size.
-    maxPoolSize: "5"
-    # -- Connection pool maximum lifetime.
-    maxLifetime: "60000"
 
   # -- URL of the Wave service Platform needs to use (evaluated as template).
   # The Wave service provided by Seqera is 'https://wave.seqera.io'.
@@ -859,7 +854,12 @@ cron:
       #   - myRegistryKeySecretName
       pullSecrets: []
 
-    # -- Extra environment variables to set on the frontend pod.
+    # -- Override default container command (useful when using custom images).
+    command: ["/bin/sh", "-c", "/migrate-db.sh"]
+    # -- Override default container args (useful when using custom images).
+    args: []
+
+    # -- Extra environment variables to set on the cron pod.
     #
     # extraEnvVars:
     #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
@@ -910,32 +910,112 @@ cron:
     #     memory: "3000Mi"
     resources: {}
 
-# Define container images for various init containers.
-initContainersUtils:
-  # Image for the init container that waits for the MySQL database to be ready.
-  waitForMySQLImage:
-    registry: ""
-    repository: mysql
-    tag: "9"
-    # Digest must be in the format 'sha256:1234abcdef'.
-    digest: ""
-    pullPolicy: IfNotPresent
-  # Image for the init container that waits for Redis to be ready.
-  waitForRedisImage:
-    registry: ""
-    repository: redis
-    tag: "7"
-    # Digest must be in the format 'sha256:1234abcdef'.
-    digest: ""
-    pullPolicy: IfNotPresent
-  # Image for the Backend init container that waits for Tower Cron to be ready.
-  waitForCronImage:
-    registry: ""
-    repository: curlimages/curl
-    tag: "latest"
-    # Digest must be in the format 'sha256:1234abcdef'.
-    digest: ""
-    pullPolicy: IfNotPresent
+initContainerDependencies:
+  # -- Enable init containers that coordinate startup dependencies between Platform components
+  # (e.g., wait for database readiness before cron starts, wait for cron before backend starts).
+  enabled: true
+
+  waitForMySQL:
+    # -- Enable wait for MySQL init container before starting backend and cron.
+    enabled: true
+    image:
+      # -- Override default wait for MySQL init container image.
+      registry: ""
+      repository: "mysql"
+      tag: "9"
+      # Digest must be in the format 'sha256:1234abcdef'.
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+  waitForRedis:
+    # -- Enable wait for Redis init container before starting backend and cron.
+    enabled: true
+    image:
+      # -- Override default wait for Redis init container image.
+      registry: ""
+      repository: "redis"
+      tag: "7"
+      # Digest must be in the format 'sha256:1234abcdef'.
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+  waitForCron:
+    # -- Enable wait for Platform cron init container before starting backend.
+    enabled: true
+    image:
+      # -- Override default wait for cron init container image.
+      registry: ""
+      repository: "curlimages/curl"
+      tag: "latest"
+      # Digest must be in the format 'sha256:1234abcdef'.
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- Specifies the numeric UID the container processes should run as (overrides container
+      # image default).
+      runAsUser: 101
+      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
+      # 0).
+      runAsNonRoot: true
+      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Set container requests and limits for different resources like CPU or memory.
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
 
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated.
@@ -976,18 +1056,18 @@ ingress:
   # -- Additional hosts you want to include. Evaluated as a template.
   #
   # extraHosts:
-  #   - host: {{ printf "api.%s" .Values.global.platformExternalDomain }}
+  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
   #     paths:
   #       - path: /*  # For ALB ingress controller
   #         pathType: Prefix  # Optional, defaults to defaultPathType value
-  #         serviceName: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-  #         portNumber: {{ .Values.global.platformServicePort | int }}
-  #   - host: {{ printf "www.%s" .Values.global.platformExternalDomain }}
+  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.global.platformServicePort }}'
+  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
   #     paths:
   #       - path: /*  # For ALB ingress controller
   #         pathType: Prefix  # Optional, defaults to defaultPathType value
-  #         serviceName: {{ printf "%s-frontend" (include "common.names.fullname" .) }}
-  #         portNumber: {{ .Values.frontend.service.http.port }}
+  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.frontend.service.http.port }}'
   extraHosts: []
   # -- Ingress annotations specific to your load balancer. Evaluated as a template.
   annotations: {}

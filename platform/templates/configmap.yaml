@@ -1,7 +1,7 @@
 {{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
-{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapLabels $commonLabels) "context" .) -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.platform.configMapLabels $commonLabels) "context" .) -}}
 {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
-{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.tower.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.platform.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
 {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
 ---
 kind: ConfigMap
@@ -35,13 +35,13 @@ metadata:
 data:
   TOWER_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) | quote }}
   TOWER_CONTENT_URL: {{ printf "https://%s" (tpl .Values.global.contentDomain $) | quote }}
-  TOWER_CONTACT_EMAIL: {{ .Values.tower.contactEmail | quote }}
+  TOWER_CONTACT_EMAIL: {{ .Values.platform.contactEmail | quote }}
 
-  TOWER_ENABLE_PLATFORMS: {{ .Values.tower.enablePlatforms | quote }}
+  TOWER_ENABLE_PLATFORMS: {{ uniq .Values.platform.executionBackends | join "," | quote }}
 
   TOWER_REDIS_URL: {{ include "platform.redis.uri" . | quote }}
 
-  WAVE_SERVER_URL: {{ tpl .Values.tower.waveServerUrl $ | quote }}
+  WAVE_SERVER_URL: {{ tpl .Values.platform.waveServerUrl $ | quote }}
 
   TOWER_DB_URL: {{ printf "jdbc:mysql://%s:%d/%s?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true"
                           .Values.global.platformDatabase.host
@@ -49,22 +49,22 @@ data:
                           .Values.global.platformDatabase.database
                               | quote }}
   TOWER_DB_USER: {{ tpl .Values.global.platformDatabase.username . | quote }}
-  TOWER_DB_DRIVER: {{ .Values.tower.db.driver | quote }}
-  TOWER_DB_DIALECT: {{ .Values.tower.db.dialect | quote }}
-  TOWER_DB_MAX_LIFETIME: {{ .Values.tower.db.maxLifetime | toString | quote }}
-  TOWER_DB_MAX_POOL_SIZE: {{ .Values.tower.db.maxPoolSize | toString | quote }}
-  TOWER_DB_MIN_POOL_SIZE: {{ .Values.tower.db.minPoolSize | toString | quote }}
+  TOWER_DB_DRIVER: {{ .Values.global.platformDatabase.driver | quote }}
+  TOWER_DB_DIALECT: {{ .Values.global.platformDatabase.dialect | quote }}
+  TOWER_DB_MAX_LIFETIME: {{ .Values.global.platformDatabase.maxLifetime | toString | quote }}
+  TOWER_DB_MAX_POOL_SIZE: {{ .Values.global.platformDatabase.maxPoolSize | toString | quote }}
+  TOWER_DB_MIN_POOL_SIZE: {{ .Values.global.platformDatabase.minPoolSize | toString | quote }}
 
-{{- if .Values.tower.smtp.host }}
-  TOWER_SMTP_HOST: {{ .Values.tower.smtp.host | quote }}
-  TOWER_SMTP_PORT: {{ .Values.tower.smtp.port | quote }}
-  TOWER_SMTP_USER: {{ .Values.tower.smtp.user | quote }}
-{{- else if .Values.tower.awsSesEnable }}
+{{- if .Values.platform.smtp.host }}
+  TOWER_SMTP_HOST: {{ .Values.platform.smtp.host | quote }}
+  TOWER_SMTP_PORT: {{ .Values.platform.smtp.port | quote }}
+  TOWER_SMTP_USER: {{ .Values.platform.smtp.user | quote }}
+{{- else if .Values.platform.awsSesEnable }}
   TOWER_ENABLE_AWS_SES: "true"
 {{- end }}
 
   # TODO: is this a cron-only variable?
-  FLYWAY_LOCATIONS: {{ .Values.tower.flywayLocations | quote }}
+  FLYWAY_LOCATIONS: {{ .Values.platform.flywayLocations | quote }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -75,4 +75,4 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   tower.yml: |-
-    {{- include "seqera.tplvalues.render" ( dict "value" .Values.tower.YAMLConfigFileContent "context" $ ) | nindent 4 }}
+    {{- include "seqera.tplvalues.render" (dict "value" .Values.platform.YAMLConfigFileContent "context" $) | nindent 4 }}

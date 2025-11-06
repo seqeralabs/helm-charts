@@ -49,7 +49,7 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 {{- $list = append $list "redis" -}}
 {{- $list = append $list "ha" -}}
   {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
-  {{- if not (empty .Values.tower.waveServerUrl) -}}
+  {{- if not (empty .Values.platform.waveServerUrl) -}}
   {{- $list = append $list "wave" -}}
   {{- end -}}
 {{- uniq $list | join "," | quote -}}
@@ -140,74 +140,56 @@ Return the key of the secret containing the Redis password.
 Return the name of the secret containing the JWT token.
 */}}
 {{- define "platform.jwt.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.jwt.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
 {{- define "platform.crypto.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.crypto.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
 {{- define "platform.license.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.license.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
 
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
 {{- define "platform.smtp.secretName" -}}
-  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.smtp.secretKey" -}}
-  {{- printf "%s" (tpl .Values.tower.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
-{{- end -}}
-
-{{- define "tower.containerSecurityContextMinimal" -}}
-securityContext:
-  runAsUser: 101
-  runAsNonRoot: true
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-{{- end -}}
-
-{{- define "tower.resourcesMinimal" -}}
-resources:
-  requests:
-    cpu: "0.5"
-    memory: "50Mi"
-  limits:
-    memory: "100Mi"
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
 
 {{/*
 Common initContainer to wait for MySQL database to be ready.
 
-{{ include "tower.initContainerWaitForDB" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForDB" $ }}
 */}}
-{{- define "tower.initContainerWaitForDB" -}}
+{{- define "platform.initContainerWaitForDB" -}}
+  {{- with .Values.initContainerDependencies.waitForMySQL -}}
 - name: wait-for-db
-  image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForMySQLImage "global" .context.Values.global) }}
-  imagePullPolicy: {{ .context.Values.initContainersUtils.waitForMySQLImage.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -222,30 +204,32 @@ Common initContainer to wait for MySQL database to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: DB_HOST
-      value: {{ .context.Values.global.platformDatabase.host | quote }}
+      value: {{ $.Values.global.platformDatabase.host | quote }}
     - name: DB_PORT
-      value: {{ .context.Values.global.platformDatabase.port | quote }}
+      value: {{ $.Values.global.platformDatabase.port | quote }}
     - name: DB_NAME
-      value: {{ .context.Values.global.platformDatabase.name | quote }}
+      value: {{ $.Values.global.platformDatabase.name | quote }}
     - name: DB_USERNAME
-      value: {{ .context.Values.global.platformDatabase.username | quote }}
+      value: {{ $.Values.global.platformDatabase.username | quote }}
   envFrom:
     - secretRef:
-        name: {{ printf "%s-backend" (include "common.names.fullname" .context) }}
+        name: {{ printf "%s-backend" (include "common.names.fullname" $) }}
 
-  {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "tower.resourcesMinimal" . | nindent 2 }}
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
 {{- end -}}
 
 {{/*
 Common initContainer to wait for Redis to be ready.
 
-{{ include "tower.initContainerWaitForRedis" (dict "deployment" .Values.cron "context" $) }}
+{{ include "platform.initContainerWaitForRedis" $ }}
 */}}
-{{- define "tower.initContainerWaitForRedis" -}}
+{{- define "platform.initContainerWaitForRedis" -}}
+  {{- with .Values.initContainerDependencies.waitForRedis -}}
 - name: wait-for-redis
-  image: {{ include "common.images.image" (dict "imageRoot" .context.Values.initContainersUtils.waitForRedisImage "global" .context.Values.global) }}
-  imagePullPolicy: {{ .context.Values.initContainersUtils.waitForRedisImage.pullPolicy }}
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
   command:
     - 'sh'
     - '-c'
@@ -260,16 +244,50 @@ Common initContainer to wait for Redis to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: REDIS_URI
-      value: {{ include "platform.redis.uri" .context | quote }}
-  {{- if or .context.Values.redis.auth.enabled .context.Values.global.redis.auth.enabled }}
+      value: {{ include "platform.redis.uri" $ | quote }}
+    {{- if or $.Values.redis.auth.enabled $.Values.global.redis.auth.enabled }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:
-          name: {{ include "platform.redis.secretName" .context }}
-          key: {{ include "platform.redis.secretKey" .context }}
-  {{- end }}
-  {{ include "tower.containerSecurityContextMinimal" . | nindent 2 }}
-  {{ include "tower.resourcesMinimal" . | nindent 2 }}
+          name: {{ include "platform.redis.secretName" $ }}
+          key: {{ include "platform.redis.secretKey" $ }}
+    {{- end }}
+
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
+{{- end -}}
+
+{{/* Common initContainer to wait for Cron service to be ready.
+
+{{ include "platform.initContainerWaitForCron" $ }}
+*/}}
+{{- define "platform.initContainerWaitForCron" -}}
+  {{- with .Values.initContainerDependencies.waitForCron -}}
+- name: wait-for-cron
+  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
+  imagePullPolicy: {{ .image.pullPolicy }}
+  command:
+    - 'sh'
+    - '-c'
+    - |
+      echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
+      until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
+        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+        sleep $SLEEP_PERIOD_SECONDS
+      done
+      echo "$(date): cron ready"
+  env:
+    - name: SLEEP_PERIOD_SECONDS
+      value: "5"
+    - name: CRON_HOST
+      value: {{ printf "%s-cron" (include "common.names.fullname" $) | quote }}
+    - name: CRON_PORT
+      value: {{ $.Values.cron.service.http.port | int | quote }}
+
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
 {{- end -}}
 
 {{/*
