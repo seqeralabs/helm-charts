@@ -110,18 +110,6 @@ tests:
             team: platform
             numericLabelAsString: "8080"
 
-  - it: should include AWS SES configuration when enabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platform:
-        awsSesEnable: true
-    asserts:
-      - equal:
-          path: data.TOWER_ENABLE_AWS_SES
-          value: "true"
-
   - it: should render shared cm with default values
     documentSelector:
       path: metadata.name

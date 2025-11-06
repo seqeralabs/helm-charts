@@ -34,15 +34,6 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if and .Values.platform.smtp.host .Values.platform.awsSesEnable -}}
-{{- $message := "Either define a SMTP server at platform.smtp.host, or enable AWS SES with platform.awsSesEnable, not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- if and .Values.platform.awsSesEnable (has "e2e" .Values.backend.micronautEnvironments) -}}
-{{- $message := "The AWS SES provider is not compatible with the test environment, disable/drop either of them." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
 {{/* Check that string and secret values are not passed together for jwt, crypto and license. */}}
 {{- if and .Values.platform.jwtSeedString .Values.platform.jwtSeedSecretName -}}
 {{- $messages := list -}}

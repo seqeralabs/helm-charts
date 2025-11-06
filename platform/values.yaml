@@ -143,11 +143,6 @@ platform:
     # -- Key in the existing secret containing the SMTP password.
     existingSecretKey: TOWER_SMTP_PASSWORD
 
-  # -- Use AWS Simple Email Service (SES) to send Seqera emails instead of SMTP. An IAM role with
-  # the appropriate permissions needs to be exposed to the cron pod, e.g. via IRSA, EKS Pod
-  # Identity, etc.
-  awsSesEnable: false
-
   # -- URL of the Wave service Platform needs to use (evaluated as template).
   # The Wave service provided by Seqera is 'https://wave.seqera.io'.
   waveServerUrl: "https://wave.seqera.io"

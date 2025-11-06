@@ -104,7 +104,6 @@ $ helm install my-release example/platform
 | platform.smtp.password | string | `""` | SMTP server password. |
 | platform.smtp.existingSecretName | string | `""` | Name of an existing secret containing the SMTP password. |
 | platform.smtp.existingSecretKey | string | `"TOWER_SMTP_PASSWORD"` | Key in the existing secret containing the SMTP password. |
-| platform.awsSesEnable | bool | `false` | Use AWS Simple Email Service (SES) to send Seqera emails instead of SMTP. An IAM role with the appropriate permissions needs to be exposed to the cron pod, e.g. via IRSA, EKS Pod Identity, etc. |
 | platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform needs to use (evaluated as template). The Wave service provided by Seqera is 'https://wave.seqera.io'. |
 | platform.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template. |
 | platform.secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template. |
