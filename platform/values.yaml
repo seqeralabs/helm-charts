@@ -117,9 +117,6 @@ platform:
     - moab-platform
     - slurm-platform
 
-  # TODO: do we even need to expose this? This is currently in the default CM.
-  flywayLocations: "classpath:db-schema/mysql"
-
   # -- Platform license key. A license key is a long alphanumeric string provided by your Seqera
   # Labs account manager.
   # Either define the value as a String or a Secret, not both at the same time.

@@ -94,7 +94,6 @@ $ helm install my-release example/platform
 | platform.cryptoSeedSecretName | string | `""` | Name of the Secret containing the crypto seed. |
 | platform.cryptoSeedSecretKey | string | `"TOWER_CRYPTO_SECRETKEY"` | Key in the existing secret containing the crypto seed. |
 | platform.executionBackends | list | `["altair-platform","awsbatch-platform","awscloud-platform","azbatch-platform","eks-platform","gke-platform","googlebatch-platform","googlecloud-platform","k8s-platform","local-platform","lsf-platform","moab-platform","slurm-platform"]` | List of execution backends to enable. At least one is required. See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#configuration-values-not-supported-in-toweryml-or-aws-parameter-store |
-| platform.flywayLocations | string | `"classpath:db-schema/mysql"` |  |
 | platform.licenseString | string | `""` | Platform license key. A license key is a long alphanumeric string provided by your Seqera Labs account manager. Either define the value as a String or a Secret, not both at the same time. |
 | platform.licenseSecretName | string | `""` | Name of the Secret containing the Platform license key. |
 | platform.licenseSecretKey | string | `"TOWER_LICENSE"` | Key in the existing secret containing the Platform license key. |

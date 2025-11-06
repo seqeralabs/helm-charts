@@ -60,9 +60,6 @@ data:
   TOWER_SMTP_PORT: {{ .Values.platform.smtp.port | quote }}
   TOWER_SMTP_USER: {{ .Values.platform.smtp.user | quote }}
 {{- end }}
-
-  # TODO: is this a cron-only variable?
-  FLYWAY_LOCATIONS: {{ .Values.platform.flywayLocations | quote }}
 ---
 kind: ConfigMap
 apiVersion: v1

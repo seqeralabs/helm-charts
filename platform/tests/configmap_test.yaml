@@ -123,7 +123,6 @@ tests:
             # Here required values such as redis or db url are empty and the unittest doesn't fail
             # because we didn't include the NOTES.txt file in the templates to be tested, so no
             # validation is done.
-            FLYWAY_LOCATIONS: classpath:db-schema/mysql
             TOWER_CONTACT_EMAIL: support@example.com
             TOWER_CONTENT_URL: "https://user-data.example.com"
             TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin
