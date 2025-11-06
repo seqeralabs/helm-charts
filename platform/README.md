@@ -10,8 +10,8 @@ A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
 ## Requirements
 
-- Kubernetes 1.19+
-- Helm 3+
+- Kubernetes 1.33+
+- Helm 3.19+
 - MySQL 8+ database
 - Redis v7-compatible cache
 
