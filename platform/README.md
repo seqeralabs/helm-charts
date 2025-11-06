@@ -80,7 +80,7 @@ $ helm install my-release example/platform
 | global.platformDatabase.maxLifetime | string | `"60000"` | Connection pool maximum lifetime. |
 | global.redis.host | string | `""` | Redis hostname. |
 | global.redis.port | int | `6379` | Redis port. |
-| global.redis.password | string | `""` | Redis authentication password. |
+| global.redis.password | string | `""` | Optional Redis password if the installation requires it. |
 | global.redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis, in alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
 | global.redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |
@@ -112,7 +112,7 @@ $ helm install my-release example/platform
 | platform.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template. |
 | redis.host | string | `""` | Redis hostname. |
 | redis.port | int | `6379` | Redis port. |
-| redis.password | string | `""` | Redis authentication password. |
+| redis.password | string | `""` | Optional Redis password if the installation requires it. |
 | redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis, in alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
 | redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |

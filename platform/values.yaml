@@ -52,7 +52,7 @@ global:
     host: ""
     # -- Redis port.
     port: 6379
-    # -- Redis authentication password.
+    # -- Optional Redis password if the installation requires it.
     password: ""
     # -- Name of an existing secret containing credentials for Redis, in alternative to the password
     # field. Note: the secret must already exist in the same namespace at the time of deployment, it
@@ -175,7 +175,7 @@ redis:
   host: ""
   # -- Redis port.
   port: 6379
-  # -- Redis authentication password.
+  # -- Optional Redis password if the installation requires it.
   password: ""
   # -- Name of an existing secret containing credentials for Redis, in alternative to the password
   # field. Note: the secret must already exist in the same namespace at the time of deployment, it
