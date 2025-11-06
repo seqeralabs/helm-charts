@@ -256,16 +256,17 @@ backend:
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
       # Choose port between 30000-32767, unless the cluster was configured differently than default.
       nodePort: null
-    # TODO: do we need the jmx service??
     # -- Other services that should live in the Service object.
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-    extraServices:
-      - name: jmx
-        port: 1099
-        targetPort: 1099
-        # Only used when service.type is Nodeport or LoadBalancer.
-        # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
-        # nodePort: ""  # Optional.
+    #
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+    #   nodePort: ""
+    extraServices: []
     # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
     extraOptions: {}
@@ -308,9 +309,9 @@ backend:
   #     value: "set-a-value-here"
   extraEnvVars: []
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -469,6 +470,9 @@ frontend:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
+    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+    #   nodePort: ""
     extraServices: []
     # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
@@ -511,11 +515,10 @@ frontend:
   #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
   #     value: "set-a-value-here"
   extraEnvVars: []
-  # TODO: extraEnvVarsCM should be a list
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -677,6 +680,9 @@ cron:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
+    #   # Only used when service.type is Nodeport or LoadBalancer.
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+    #   nodePort: ""
     extraServices: []
     # Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
@@ -716,9 +722,9 @@ cron:
   #     value: "set-a-value-here"
   extraEnvVars: []
   # -- ConfigMap containing extra env vars.
-  extraEnvVarsCM: ""
+  extraEnvVarsCMs: []
   # -- Secret containing extra env vars.
-  extraEnvVarsSecret: ""
+  extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`.
   extraVolumes: []
@@ -865,11 +871,10 @@ cron:
     #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
     #     value: "set-a-value-here"
     extraEnvVars: []
-    # TODO: extraEnvVarsCM should be a list
     # -- ConfigMap containing extra env vars.
-    extraEnvVarsCM: ""
+    extraEnvVarsCMs: []
     # -- Secret containing extra env vars.
-    extraEnvVarsSecret: ""
+    extraEnvVarsSecrets: []
     # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
     # `extraVolumeMounts`.
     extraVolumes: []

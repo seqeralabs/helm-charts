@@ -501,15 +501,15 @@ tests:
             runAsUser: 2000
             asdf: 123
 
-  - it: should render container with extraEnvVars, extraEnvVarsCM and extraEnvVarsSecret
+  - it: should render container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
     template: deployment-backend.yaml
     set:
       backend:
         extraEnvVars:
           - name: CUSTOM_ENV_VAR
             value: custom-value
-        extraEnvVarsCM: extra-env-vars-cm
-        extraEnvVarsSecret: extra-env-vars-secret
+        extraEnvVarsCMs: [extra-env-vars-cm1, extra-env-vars-cm2]
+        extraEnvVarsSecrets: [extra-env-vars-secret1, extra-env-vars-secret2]
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env
@@ -530,9 +530,13 @@ tests:
             - secretRef:
                 name: release-name-platform-backend
             - configMapRef:
-                name: extra-env-vars-cm
+                name: extra-env-vars-cm1
+            - configMapRef:
+                name: extra-env-vars-cm2
             - secretRef:
-                name: extra-env-vars-secret
+                name: extra-env-vars-secret1
+            - secretRef:
+                name: extra-env-vars-secret2
 
   - it: should render initContainers that wait for required services to be ready
     template: deployment-backend.yaml

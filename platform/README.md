@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -134,7 +134,7 @@ $ helm install my-release example/platform
 | backend.service.type | string | `"ClusterIP"` | Backend Service type. Note: ingresses using AWS ALB require the service to be NodePort. |
 | backend.service.http.name | string | `"http"` | Service name to use. |
 | backend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| backend.service.extraServices | list | `[{"name":"jmx","port":1099,"targetPort":1099}]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
+| backend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | backend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
 | backend.initContainers | list | `[]` | Additional init containers for the backend pod. Evaluated as a template. |
 | backend.command | list | `[]` | Override default container command (useful when using custom images). |
@@ -144,8 +144,8 @@ $ helm install my-release example/platform
 | backend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
 | backend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | backend.extraEnvVars | list | `[]` | Extra environment variables to set on the backend pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
-| backend.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
-| backend.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
+| backend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
+| backend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars. |
 | backend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |
 | backend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`. |
 | backend.podSecurityContext.enabled | bool | `true` | Enable backend pods Security Context. |
@@ -191,7 +191,7 @@ $ helm install my-release example/platform
 | frontend.service.http.port | int | `80` | Service port. |
 | frontend.service.http.targetPort | int | `8083` | The port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). |
 | frontend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| frontend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678 |
+| frontend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | frontend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
 | frontend.initContainers | list | `[]` |  |
 | frontend.command | list | `[]` | Override default container command (useful when using custom images) |
@@ -201,8 +201,8 @@ $ helm install my-release example/platform
 | frontend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
 | frontend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | frontend.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
-| frontend.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
-| frontend.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
+| frontend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
+| frontend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars. |
 | frontend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |
 | frontend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`. |
 | frontend.podSecurityContext.enabled | bool | `true` | Enable backend pods Security Context. |
@@ -249,7 +249,7 @@ $ helm install my-release example/platform
 | cron.service.http.port | int | `8080` | Service port. |
 | cron.service.http.targetPort | int | `8082` | The port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). |
 | cron.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
-| cron.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678 |
+| cron.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # Only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | cron.service.extraOptions | object | `{}` |  |
 | cron.initContainers | list | `[]` | Additional init containers for the cron pod. Evaluated as a template. |
 | cron.command | list | `[]` | Override default container command (useful when using custom images). |
@@ -259,8 +259,8 @@ $ helm install my-release example/platform
 | cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note that cron deployment needs to have a single replica with Recreate strategy.  extraOptionsSpec:   revisionHistoryLimit: 4 |
 | cron.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
-| cron.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
-| cron.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
+| cron.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
+| cron.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars. |
 | cron.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |
 | cron.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`. |
 | cron.podSecurityContext.enabled | bool | `true` | Enable backend pods Security Context. |
@@ -304,8 +304,8 @@ $ helm install my-release example/platform
 | cron.dbMigrationInitContainer.command | list | `["/bin/sh","-c","/migrate-db.sh"]` | Override default container command (useful when using custom images). |
 | cron.dbMigrationInitContainer.args | list | `[]` | Override default container args (useful when using custom images). |
 | cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
-| cron.dbMigrationInitContainer.extraEnvVarsCM | string | `""` | ConfigMap containing extra env vars. |
-| cron.dbMigrationInitContainer.extraEnvVarsSecret | string | `""` | Secret containing extra env vars. |
+| cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
+| cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars. |
 | cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts`. |
 | cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`. |
 | cron.dbMigrationInitContainer.containerSecurityContext.enabled | bool | `true` | Enable backend containers Security Context |

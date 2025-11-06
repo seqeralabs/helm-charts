@@ -70,11 +70,11 @@ spec:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
             - secretRef:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-{{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsCM }}
+{{- range .Values.cron.dbMigrationInitContainer.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
-{{- with .Values.cron.dbMigrationInitContainer.extraEnvVarsSecret }}
+{{- range .Values.cron.dbMigrationInitContainer.extraEnvVarsSecrets }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
@@ -116,11 +116,11 @@ spec:
             - secretRef:
                 {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-{{- with .Values.cron.extraEnvVarsCM }}
+{{- range .Values.cron.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
-{{- with .Values.cron.extraEnvVarsSecret }}
+{{- range .Values.cron.extraEnvVarsSecrets }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}

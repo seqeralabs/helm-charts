@@ -74,11 +74,11 @@ spec:
             - secretRef:
                 {{/* TODO: Common secrets should be probably split into a separate resource. */}}
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-{{- with .Values.backend.extraEnvVarsCM }}
+{{- range .Values.backend.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
-{{- with .Values.backend.extraEnvVarsSecret }}
+{{- range .Values.backend.extraEnvVarsSecrets }}
             - secretRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
 {{- end }}
