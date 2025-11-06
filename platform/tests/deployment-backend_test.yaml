@@ -290,7 +290,7 @@ tests:
             # you may want to double check that the related test files were updated/integrated with
             # new unittests as well, then update the values below. Check with 'helm unittest -d .'
             # that the secret file produced for this test matches your expectations too.
-            checksum/configmap: 7f40f33f40126e2d8e15700867c35f1c017883e013044489e9778e33cacab200
+            checksum/configmap: b7baad957772b72a306f63bec119c23126d668da52d579afe28243242cfb9d84
             checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
       - equal:
           path: spec.template.metadata.labels
@@ -621,9 +621,7 @@ tests:
         redis:
           host: "my-redis-host"
           port: 6380
-          auth:
-            enabled: true
-            password: "my-redis-password123"
+          password: "my-redis-password123"
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].env

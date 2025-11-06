@@ -59,12 +59,7 @@ data:
   TOWER_SMTP_HOST: {{ .Values.platform.smtp.host | quote }}
   TOWER_SMTP_PORT: {{ .Values.platform.smtp.port | quote }}
   TOWER_SMTP_USER: {{ .Values.platform.smtp.user | quote }}
-{{- else if .Values.platform.awsSesEnable }}
-  TOWER_ENABLE_AWS_SES: "true"
 {{- end }}
-
-  # TODO: is this a cron-only variable?
-  FLYWAY_LOCATIONS: {{ .Values.platform.flywayLocations | quote }}
 ---
 kind: ConfigMap
 apiVersion: v1

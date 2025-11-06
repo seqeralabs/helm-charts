@@ -110,18 +110,6 @@ tests:
             team: platform
             numericLabelAsString: "8080"
 
-  - it: should include AWS SES configuration when enabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platform:
-        awsSesEnable: true
-    asserts:
-      - equal:
-          path: data.TOWER_ENABLE_AWS_SES
-          value: "true"
-
   - it: should render shared cm with default values
     documentSelector:
       path: metadata.name
@@ -135,7 +123,6 @@ tests:
             # Here required values such as redis or db url are empty and the unittest doesn't fail
             # because we didn't include the NOTES.txt file in the templates to be tested, so no
             # validation is done.
-            FLYWAY_LOCATIONS: classpath:db-schema/mysql
             TOWER_CONTACT_EMAIL: support@example.com
             TOWER_CONTENT_URL: "https://user-data.example.com"
             TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin

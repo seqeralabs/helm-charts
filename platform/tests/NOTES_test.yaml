@@ -115,22 +115,6 @@ tests:
       - failedTemplate:
           errorPattern: "Either a string version of the Crypto seed at platform.cryptoSeedString or a secret name at platform.cryptoSeedSecretName are needed, not both."
 
-  - it: should fail when both platform.smtp.host and platform.awsSesEnable are defined
-    set:
-      global:
-        redis:
-          host: "whatever"
-        platformDatabase:
-          host: "whatever"
-      platform:
-        licenseString: "whatever"
-        smtp:
-          host: "whatever"
-        awsSesEnable: true
-    asserts:
-      - failedTemplate:
-          errorPattern: "Either define a SMTP server at platform.smtp.host, or enable AWS SES with platform.awsSesEnable, not both"
-
   - it: should fail if migrate-db args are set but command is not
     set:
       global:
@@ -147,23 +131,6 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "If 'cron.dbMigrationInitContainer.args' are provided, 'cron.dbMigrationInitContainer.command' must also be provided."
-
-  - it: should fail when platform.awsSesEnable is defined and 'e2e' is set in backend.micronautEnvironments
-    set:
-      global:
-        redis:
-          host: "whatever"
-        platformDatabase:
-          host: "whatever"
-      platform:
-        licenseString: "whatever"
-        awsSesEnable: true
-      backend:
-        micronautEnvironments:
-          - e2e
-    asserts:
-      - failedTemplate:
-          errorPattern: "The AWS SES provider is not compatible with the test environment, disable/drop either of them"
 
   - it: should fail when an empty list of execution backends is defined
     set:
