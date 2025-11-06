@@ -122,18 +122,18 @@ Return the Redis URI. */}}
 
 {{/*
 Return the name of the secret containing the Redis password.
-'redis.auth' takes precedence over 'global.redis.auth'.
+'redis' takes precedence over 'global.redis'.
 */}}
 {{- define "platform.redis.secretName" -}}
-  {{- printf "%s" (tpl .Values.redis.auth.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{/*
 Return the key of the secret containing the Redis password.
-'redis.auth' takes precedence over 'global.redis.auth'.
+'redis' takes precedence over 'global.redis'.
 */}}
 {{- define "platform.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.auth.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.auth.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 
 {{/*
@@ -245,7 +245,11 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" $ | quote }}
-    {{- if or $.Values.redis.auth.enabled $.Values.global.redis.auth.enabled }}
+    # {{ $.Values.redis.password }}
+    # {{ $.Values.global.redis.password }}
+    # {{ $.Values.redis.existingSecretName }}
+    # {{ $.Values.global.redis.existingSecretName }}
+    {{- if or $.Values.redis.password $.Values.global.redis.password $.Values.redis.existingSecretName $.Values.global.redis.existingSecretName }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:

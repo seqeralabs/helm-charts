@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.14.1](https://img.shields.io/badge/Version-0.14.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -80,10 +80,9 @@ $ helm install my-release example/platform
 | global.platformDatabase.maxLifetime | string | `"60000"` | Connection pool maximum lifetime. |
 | global.redis.host | string | `""` | Redis hostname. |
 | global.redis.port | int | `6379` | Redis port. |
-| global.redis.auth.enabled | bool | `false` | Enable Redis authentication. |
-| global.redis.auth.password | string | `""` | Redis authentication password. |
-| global.redis.auth.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis. |
-| global.redis.auth.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
+| global.redis.password | string | `""` | Redis authentication password. |
+| global.redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis. |
+| global.redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
 | global.redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |
 | global.imageCredentials | list | `[]` | Optionally define credentials to login and fetch images from a private registry.  - registry: ""   username: ""   password: ""   email: someone@example.com  # Optional. |
 | platform.YAMLConfigFileContent | string | `""` | Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview |
@@ -115,10 +114,9 @@ $ helm install my-release example/platform
 | platform.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template. |
 | redis.host | string | `""` | Redis hostname. |
 | redis.port | int | `6379` | Redis port. |
-| redis.auth.enabled | bool | `false` | Enable Redis authentication. |
-| redis.auth.password | string | `""` | Redis authentication password. |
-| redis.auth.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis. |
-| redis.auth.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
+| redis.password | string | `""` | Redis authentication password. |
+| redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis. |
+| redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
 | redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |
 | redis.prefix | string | `""` | Prefix for the Redis database to use. |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release.  extraDeploy:   - apiVersion: v1     kind: MyExtraObjectKind     ...   - apiVersion: v1     kind: AnotherExtraObjectKind     ... |

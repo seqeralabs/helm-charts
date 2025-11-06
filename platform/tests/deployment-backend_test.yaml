@@ -621,9 +621,7 @@ tests:
         redis:
           host: "my-redis-host"
           port: 6380
-          auth:
-            enabled: true
-            password: "my-redis-password123"
+          password: "my-redis-password123"
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].env

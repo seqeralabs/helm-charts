@@ -51,18 +51,13 @@ global:
     host: ""
     # -- Redis port.
     port: 6379
-    # TODO: Shall we streamline this by removing the auth subsection and keeping only
-    # password/secret here?
-    # TODO: how should we define which redis database each product should use?
-    auth:
-      # -- Enable Redis authentication.
-      enabled: false
-      # -- Redis authentication password.
-      password: ""
-      # -- Name of an existing secret containing credentials for Redis.
-      existingSecretName: ""
-      # -- Key in the existing secret containing the password for Redis.
-      existingSecretKey: TOWER_REDIS_PASSWORD
+    # TODO: how should we define which redis database each product should use? prefix in .redis?
+    # -- Redis authentication password.
+    password: ""
+    # -- Name of an existing secret containing credentials for Redis.
+    existingSecretName: ""
+    # -- Key in the existing secret containing the password for Redis.
+    existingSecretKey: TOWER_REDIS_PASSWORD
     tls:
       # -- Enable TLS when connecting to Redis.
       enabled: false
@@ -177,17 +172,14 @@ redis:
   host: ""
   # -- Redis port.
   port: 6379
-  auth:
-    # -- Enable Redis authentication.
-    enabled: false
-    # -- Redis authentication password.
-    password: ""
-    # TODO: check whether creating the secret with extraDeploy and passing it here can cause race
-    # conditions
-    # -- Name of an existing secret containing credentials for Redis.
-    existingSecretName: ""
-    # -- Key in the existing secret containing the password for Redis.
-    existingSecretKey: TOWER_REDIS_PASSWORD
+  # -- Redis authentication password.
+  password: ""
+  # TODO: check whether creating the secret with extraDeploy and passing it here can cause race
+  # conditions
+  # -- Name of an existing secret containing credentials for Redis.
+  existingSecretName: ""
+  # -- Key in the existing secret containing the password for Redis.
+  existingSecretKey: TOWER_REDIS_PASSWORD
   tls:
     # -- Enable TLS when connecting to Redis.
     enabled: false

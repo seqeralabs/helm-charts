@@ -3,9 +3,6 @@ Generate base64-encoded Docker config JSON for image pull secrets from global.im
 Each credential needs: registry, username, password, and optionally email.
 
 Usage: {{ include "seqera.images.pullSecretCredentials" . }}
-
-TODO: maybe create a boolean _is_pullSecret_defined so it's easier to check for existence?
-TODO: does it make sense to not scope this template, since templates are shared between the chart and its subcharts? would it make things harder to maintain if the subcharts redefine this template?
 */}}
 {{- define "seqera.images.pullSecretCredentials" -}}
   {{- if .Values.global.imageCredentials -}}
