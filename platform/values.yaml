@@ -75,8 +75,6 @@ global:
 
 platform:
   # TODO: rename variable?
-  # TODO: check the following stance:
-  # Only tower.* Groovy properties can be applied through the YAML file.
   # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
   YAMLConfigFileContent: ""
