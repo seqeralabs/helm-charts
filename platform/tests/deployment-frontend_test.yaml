@@ -116,49 +116,7 @@ tests:
           pod-annotation-key: pod-annotation-value
           pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
     asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app: frontend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: 9.9.9
-            helm.sh/chart: platform-9.9.9_test
-            key123: this-should-be-overridden-in-pod-labels
-            key456: this-should-not-be-overridden
-            key789: "8080"
-      - equal:
-          path: metadata.annotations
-          value:
-            common-annotation-key: common-annotation-value
-      - equal:
-          path: spec.template.metadata.annotations
-          value:
-            pod-annotation-key: pod-annotation-value
-            pod-annotation-key2: "8080"
-            common-annotation-key: common-annotation-value
-      - equal:
-          path: spec.template.metadata.labels
-          value:
-            app: frontend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: "9.9.9"
-            helm.sh/chart: platform-9.9.9_test
-            key123: this-overrides-the-commonLabels
-            key456: this-should-not-be-overridden
-            key789: "8080"
-      # Check that the selector includes the correct labels too, but no custom podlabels should be
-      # defined on the selector, see bitnami/common for an explanation here:
-      # https://github.com/bitnami/charts/blob/0705a02/bitnami/common/templates/_labels.tpl#L34-L37
-      - equal:
-          path: spec.selector.matchLabels
-          value:
-            app: frontend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: platform
+      - matchSnapshot: {}
 
   - it: shouldn't obey custom selector requests
     set:

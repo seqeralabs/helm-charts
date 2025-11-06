@@ -1,0 +1,210 @@
+should render the backend deployment with the correct checksums, labels and annotations:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        common-annotation-key: common-annotation-value
+      labels:
+        app: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: platform-9.9.9_test
+        key123: this-should-be-overridden-in-pod-labels
+        key456: this-should-not-be-overridden
+        key789: "8080"
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app: backend
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: platform
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: b7baad957772b72a306f63bec119c23126d668da52d579afe28243242cfb9d84
+            checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
+            common-annotation-key: common-annotation-value
+            pod-annotation-key: pod-annotation-value
+            pod-annotation-key2: "8080"
+          labels:
+            app: backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: platform
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: platform-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
+            key789: "8080"
+        spec:
+          containers:
+            - env:
+                - name: NXF_HOME
+                  value: /var/cache/tower/
+                - name: NXF_PLUGINS_DIR
+                  value: /var/cache/tower/plugins/
+              envFrom:
+                - configMapRef:
+                    name: release-name-platform-backend
+                - configMapRef:
+                    name: release-name-platform-shared-backend-cron
+                - secretRef:
+                    name: release-name-platform-backend
+              image: cr.seqera.io/private/nf-tower-enterprise/backend:9.9.9
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 10
+                httpGet:
+                  path: /health
+                  port: 8080
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              name: backend
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: 8080
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /tower.yml
+                  name: config-volume
+                  subPath: tower.yml
+                - mountPath: /var/cache/tower/
+                  name: plugin-volume
+                - mountPath: /.nextflow/
+                  name: plugin-volume
+                - mountPath: /?/.nextflow/
+                  name: plugin-volume
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): db server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: DB_HOST
+                  value: ""
+                - name: DB_PORT
+                  value: "3306"
+                - name: DB_NAME
+                  value: null
+                - name: DB_USERNAME
+                  value: ""
+              envFrom:
+                - secretRef:
+                    name: release-name-platform-backend
+              image: mysql:9
+              imagePullPolicy: IfNotPresent
+              name: wait-for-db
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                  until redis-cli -u "$REDIS_URI" get hello; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): redis server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: REDIS_URI
+                  value: redis://:6379
+              image: redis:7
+              imagePullPolicy: IfNotPresent
+              name: wait-for-redis
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
+                  until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): cron ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: CRON_HOST
+                  value: release-name-platform-cron
+                - name: CRON_PORT
+                  value: "8080"
+              image: curlimages/curl:latest
+              imagePullPolicy: IfNotPresent
+              name: wait-for-cron
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+          securityContext:
+            fsGroup: 101
+          serviceAccountName: release-name-platform-sa
+          volumes:
+            - configMap:
+                name: release-name-platform-tower-yml
+              name: config-volume
+            - emptyDir:
+                sizeLimit: 1Gi
+              name: plugin-volume
