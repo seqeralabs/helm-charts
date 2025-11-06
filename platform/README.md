@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.14.1](https://img.shields.io/badge/Version-0.14.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.14.2](https://img.shields.io/badge/Version-0.14.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -47,7 +47,7 @@ Values in the `.redis` section take precedence over values in the `.global.redis
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.14.1 --namespace my-namespace --create-namespace
+helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.14.2 --namespace my-namespace --create-namespace
 ```
 
 For a list of available chart versions, visit the chart repository: https://public.cr.seqera.io/repo/charts/platform
