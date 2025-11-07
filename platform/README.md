@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.14.2](https://img.shields.io/badge/Version-0.14.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.14.3](https://img.shields.io/badge/Version-0.14.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
