@@ -180,48 +180,23 @@ tests:
                     path: /
                     pathType: ImplementationSpecific
 
-  # TODO: set up TLS support
-  # - it: should configure TLS when enabled
-  #   set:
-  #     ingress:
-  #       enabled: true
-  #       tls:
-  #         enabled: true
-  #         secretName: "platform-tls"
-  #     global:
-  #       platformExternalDomain: "platform.example.com"
-  #   asserts:
-  #     - equal:
-  #         path: spec.tls[0].secretName
-  #         value: platform-tls
-  #     - contains:
-  #         path: spec.tls[0].hosts
-  #         content: platform.example.com
-
-  # - it: should configure multiple paths
-  #   set:
-  #     ingress:
-  #       enabled: true
-  #       paths:
-  #         - path: "/"
-  #           pathType: "Prefix"
-  #           service:
-  #             name: "backend"
-  #             port: 8080
-  #         - path: "/api"
-  #           pathType: "Prefix"
-  #           service:
-  #             name: "api"
-  #             port: 8081
-  #     global:
-  #       platformExternalDomain: "platform.example.com"
-  #   asserts:
-  #     - equal:
-  #         path: spec.rules[0].http.paths[0].path
-  #         value: "/*"
-  #     - equal:
-  #         path: spec.rules[0].http.paths[0].pathType
-  #         value: "Prefix"
+  - it: should configure TLS when enabled
+    set:
+      ingress:
+        enabled: true
+        tls:
+          - hosts:
+              - platform.example.com
+            secretName: platform-tls
+      global:
+        platformExternalDomain: "platform.example.com"
+    asserts:
+      - equal:
+          path: spec.tls[0]
+          value:
+            hosts:
+              - platform.example.com
+            secretName: platform-tls
 
   - it: should use default path when not set
     set:
