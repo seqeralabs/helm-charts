@@ -65,6 +65,54 @@ tests:
                 port: 80
                 targetPort: 8083
 
+  - it: should render backend service with custom targetPort when requested, in v25.3+
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "25.3.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should not render backend service with custom targetPort when <v25.3
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "25.2.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+
+  - it: should not render backend service with custom targetPort when =v24.9
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "24.8.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8080
+
   - it: should render backend service with custom nodePort when requested
     documentSelector:
       path: metadata.name

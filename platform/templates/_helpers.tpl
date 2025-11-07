@@ -40,6 +40,18 @@ TODO: check whether we can deprecate the root-ful image.
 {{- end -}}
 
 {{/*
+Return the backend service target port.
+Only available in Platform v25.3+, in previous versions it was hardcoded to 8080.
+*/}}
+{{- define "platform.backend.targetPort" -}}
+  {{- if semverCompare "~25.3.0" $.Chart.AppVersion -}}
+{{ tpl (toString .Values.backend.service.http.targetPort) . }}
+  {{- else -}}
+8080
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Build the backend micronaut envs list: add envs if features are requested in other values.
 */}}
 {{- define "platform.backend.micronautEnvs" -}}

@@ -248,10 +248,10 @@ backend:
       # The external port is defined as the global variable .global.platformServicePort, so it can
       # be used by subcharts too.
 
-      # TODO: targetPort is hardcoded for now, needs engineering time to make it configurable.
       # -- The port on the pod/container that the Service forwards traffic to (can be a number or
-      # named port, distinct from the Service's external port).
-      # targetPort: 8080
+      # named port, distinct from the Service's external port). Platform v25.3+ only; previous
+      # versions were hardcoded to 8080.
+      targetPort: 8080
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
       # Choose port between 30000-32767, unless the cluster was configured differently than default.
       nodePort: null
