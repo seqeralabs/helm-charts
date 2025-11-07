@@ -54,6 +54,99 @@ should configure extra hosts:
                       number: 80
                 path: /*
                 pathType: Prefix
+should configure extra hosts with multiple paths:
+  1: |
+    - host: example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: release-name-platform-frontend
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+    - host: user-data.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: release-name-platform-frontend
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+    - host: api.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: api-v1
+                port:
+                  number: 8080
+            path: /v1
+            pathType: Prefix
+          - backend:
+              service:
+                name: api-v2
+                port:
+                  number: 8081
+            path: /v2
+            pathType: Prefix
+should render complete ingress with all options:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform
+      namespace: NAMESPACE
+    spec:
+      ingressClassName: nginx
+      rules:
+        - host: example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-platform-frontend
+                    port:
+                      number: 80
+                path: /*
+                pathType: Prefix
+        - host: user-data.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-platform-frontend
+                    port:
+                      number: 80
+                path: /content/*
+                pathType: Prefix
+        - host: api.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: api-service
+                    port:
+                      number: 8080
+                path: /
+                pathType: Prefix
+      tls:
+        - hosts:
+            - platform.example.com
+            - user-data.platform.example.com
+          secretName: wildcard-tls
 should render ingress when enabled:
   1: |
     apiVersion: networking.k8s.io/v1
