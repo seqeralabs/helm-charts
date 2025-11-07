@@ -63,10 +63,8 @@ global:
     # -- Key in the existing secret containing the password for Redis.
     # @default -- `"TOWER_REDIS_PASSWORD"`
     existingSecretKey: ""
-    tls:
-      # TODO: shall we get rid of this map tls: {enabled: false} and have just a boolean tlsEnabled?
-      # -- Enable TLS when connecting to Redis.
-      enabled: false
+    # -- Enable TLS when connecting to Redis.
+    enableTls: false
 
   # -- Optionally define credentials to login and fetch images from a private registry.
   #
@@ -192,9 +190,8 @@ redis:
   # -- Key in the existing secret containing the password for Redis.
   # @default -- `"TOWER_REDIS_PASSWORD"`
   existingSecretKey: ""
-  tls:
-    # -- Enable TLS when connecting to Redis.
-    enabled: false
+  # -- Enable TLS when connecting to Redis.
+  enableTls: false
 
 # -- Array of extra objects to deploy with the release.
 #
