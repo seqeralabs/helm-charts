@@ -22,3 +22,22 @@ the type of change you are making (patch, minor, major).
 Each push to a branch will trigger GitHub Actions workflows to lint and test the charts and verify
 that no clash exists in the chart versions. Pull requests merging to the `main` branch will also trigger
 the publication of the charts to the OCI registry at `public.cr.seqera.io/charts`.
+
+## Helm unittest snapshots
+
+Snapshot files are useful for testing complex outputs or large data structures, as they allow
+you to easily compare the actual output of your Helm templates against the expected output stored
+in the snapshot files previously generated. These snapshots can be updated as needed when the
+Helm templates change.
+
+When using the `helm-unittest` plugin, you can create snapshot files to store expected outputs
+for your tests. To create or update snapshot files, run the following command in the chart
+directory:
+
+```console
+$ make test-update-snapshots
+```
+
+This will generate or update the snapshot files in the `tests/snapshots` directory.
+Snapshot files should be committed to the repository to ensure that tests can be run consistently
+across different environments and over time.
