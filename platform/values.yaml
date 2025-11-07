@@ -29,7 +29,8 @@ global:
     # -- Name of an existing secret containing credentials for the Platform MySQL db.
     existingSecretName: ""
     # -- Key in the existing secret containing the password for the Platform MySQL db.
-    existingSecretKey: TOWER_DB_PASSWORD
+    # @default -- `"TOWER_DB_PASSWORD"`
+    existingSecretKey: ""
     # Enable encryption in transit when connecting to the external database.
     # TODO: implement support for this in the templates.
     #tls: true
@@ -60,7 +61,8 @@ global:
     # on the Kubernetes API server at install/upgrade time.
     existingSecretName: ""
     # -- Key in the existing secret containing the password for Redis.
-    existingSecretKey: TOWER_REDIS_PASSWORD
+    # @default -- `"TOWER_REDIS_PASSWORD"`
+    existingSecretKey: ""
     tls:
       # -- Enable TLS when connecting to Redis.
       enabled: false
@@ -92,7 +94,8 @@ platform:
   # install/upgrade time.
   jwtSeedSecretName: ""
   # -- Key in the existing secret containing the JWT seed.
-  jwtSeedSecretKey: TOWER_JWT_SECRET
+  # @default -- `"TOWER_JWT_SECRET"`
+  jwtSeedSecretKey: ""
 
   # -- Crypto seed, defined as string, used to encrypt sensitive data in the database.
   # Either define the value as a String or a Secret, not both at the same time.
@@ -104,7 +107,8 @@ platform:
   # install/upgrade time.
   cryptoSeedSecretName: ""
   # -- Key in the existing secret containing the crypto seed.
-  cryptoSeedSecretKey: TOWER_CRYPTO_SECRETKEY
+  # @default -- `"TOWER_CRYPTO_SECRETKEY"`
+  cryptoSeedSecretKey: ""
 
   # -- List of execution backends to enable. At least one is required. See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#configuration-values-not-supported-in-toweryml-or-aws-parameter-store
@@ -133,7 +137,8 @@ platform:
   # install/upgrade time.
   licenseSecretName: ""
   # -- Key in the existing secret containing the Platform license key.
-  licenseSecretKey: TOWER_LICENSE
+  # @default -- `"TOWER_LICENSE"`
+  licenseSecretKey: ""
 
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
@@ -148,7 +153,8 @@ platform:
     # -- Name of an existing secret containing the SMTP password.
     existingSecretName: ""
     # -- Key in the existing secret containing the SMTP password.
-    existingSecretKey: TOWER_SMTP_PASSWORD
+    # @default -- `"TOWER_SMTP_PASSWORD"`
+    existingSecretKey: ""
 
   # -- URL of the Wave service Platform needs to use (evaluated as template).
   # The Wave service provided by Seqera is 'https://wave.seqera.io'.
@@ -183,7 +189,8 @@ redis:
   # on the Kubernetes API server at install/upgrade time.
   existingSecretName: ""
   # -- Key in the existing secret containing the password for Redis.
-  existingSecretKey: TOWER_REDIS_PASSWORD
+  # @default -- `"TOWER_REDIS_PASSWORD"`
+  existingSecretKey: ""
   tls:
     # -- Enable TLS when connecting to Redis.
     enabled: false
