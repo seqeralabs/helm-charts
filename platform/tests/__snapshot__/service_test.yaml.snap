@@ -8,8 +8,8 @@ should not render frontend service with custom nodePort when not using NodePort 
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: v25.2.3
-        helm.sh/chart: platform-0.14.1
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
       name: release-name-platform-frontend
       namespace: NAMESPACE
     spec:
