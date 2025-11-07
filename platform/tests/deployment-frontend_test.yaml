@@ -8,69 +8,7 @@ chart:
 tests:
   - it: should produce a Deployment resource with minimal values
     asserts:
-      - hasDocuments:
-          count: 1
-      - isKind:
-          of: Deployment
-      - equal:
-          path: metadata.name
-          value: release-name-platform-frontend
-      - equal:
-          path: spec.template.spec
-          value:
-            containers:
-              - name: frontend
-                env:
-                  - name: NGINX_UPSTREAM_HOST
-                    value: release-name-platform-backend
-                  - name: NGINX_UPSTREAM_PORT
-                    value: "8080"
-                  - name: NGINX_LISTEN_PORT
-                    value: "8083"
-                envFrom: null
-                image: cr.seqera.io/private/nf-tower-enterprise/frontend:v9.9.9-unprivileged
-                imagePullPolicy: IfNotPresent
-                livenessProbe:
-                  failureThreshold: 10
-                  httpGet:
-                    path: /health
-                    port: 8080
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  successThreshold: 1
-                  timeoutSeconds: 3
-                readinessProbe:
-                  failureThreshold: 5
-                  httpGet:
-                    path: /health
-                    port: 8080
-                  initialDelaySeconds: 5
-                  periodSeconds: 5
-                  successThreshold: 1
-                  timeoutSeconds: 3
-                securityContext:
-                  capabilities:
-                    drop:
-                      - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  runAsUser: 101
-                volumeMounts:
-                  - mountPath: /tmp/
-                    name: tmp-volume
-                  - mountPath: /etc/nginx/conf.d/
-                    name: nginx-conf-volume
-            initContainers: null
-            securityContext:
-              fsGroup: 101
-            serviceAccountName: release-name-platform-sa
-            volumes:
-              - emptyDir:
-                  sizeLimit: 100Mi
-                name: tmp-volume
-              - emptyDir:
-                  sizeLimit: 10Mi
-                name: nginx-conf-volume
+      - matchSnapshot: {}
 
   - it: should render the frontend deployment with the specified tag version
     set:
@@ -81,6 +19,15 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: "cr.seqera.io/private/nf-tower-enterprise/frontend:9.0.0"
+
+  - it: should render the frontend deployment with a tag version ending with -unprivileged depending on the chart appVersion
+    chart:
+      version: 1.2.3       # helm chart version
+      appVersion: "9.8.7"  # seqera platform version
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "cr.seqera.io/private/nf-tower-enterprise/frontend:9.8.7-unprivileged"
 
   - it: should render the frontend deployment with the specified digest, overriding the tag
     set:

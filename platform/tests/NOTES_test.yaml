@@ -55,36 +55,6 @@ tests:
       - failedTemplate:
           errorPattern: "Either a string version of the License at platform.licenseString or a secret name at platform.licenseSecretName are needed, not both."
 
-  - it: should pass when redis.host and global.platformDatabase.host are defined
-    set:
-      global:
-        platformDatabase:
-          host: "whatever"
-      redis:
-        host: "whatever"
-      platform:
-        licenseString: "whatever"
-        executionBackends: [anything]
-    asserts:
-      - hasDocuments:
-          count: 1
-
-  - it: should pass when both redis.host and global.redis.host are defined (we'll check in another test that the redis.host takes precedence over global.redis.host)
-    set:
-      global:
-        redis:
-          host: "whatever"
-        platformDatabase:
-          host: "whatever"
-      redis:
-        host: "whatever"
-      platform:
-        licenseString: "whatever"
-        executionBackends: [anything]
-    asserts:
-      - hasDocuments:
-          count: 1
-
   - it: should fail when both platform.jwtSeedString and platform.jwtSeedSecretName are defined
     set:
       global:
@@ -145,3 +115,33 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: "At least one execution backend must be defined in 'platform.executionBackends'"
+
+  - it: should pass when redis.host and global.platformDatabase.host are defined
+    set:
+      global:
+        platformDatabase:
+          host: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when both redis.host and global.redis.host are defined (we'll check in another test that the redis.host takes precedence over global.redis.host)
+    set:
+      global:
+        redis:
+          host: "whatever"
+        platformDatabase:
+          host: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+    asserts:
+      - hasDocuments:
+          count: 1

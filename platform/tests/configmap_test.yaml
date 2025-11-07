@@ -2,6 +2,9 @@
 suite: test Platform configmaps
 templates:
   - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
 tests:
   - it: should render 4 different CM documents by default
     asserts:

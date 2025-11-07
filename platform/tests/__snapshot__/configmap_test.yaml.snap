@@ -22,7 +22,7 @@ should render shared cm with default values:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: v25.2.3
-        helm.sh/chart: platform-0.14.1
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
       name: release-name-platform-shared-backend-cron
       namespace: NAMESPACE
