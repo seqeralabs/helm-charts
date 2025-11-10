@@ -43,11 +43,7 @@ data:
 
   WAVE_SERVER_URL: {{ tpl .Values.platform.waveServerUrl $ | quote }}
 
-  TOWER_DB_URL: {{ printf "jdbc:mysql://%s:%d/%s?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true"
-                          .Values.global.platformDatabase.host
-                          (.Values.global.platformDatabase.port | int)
-                          .Values.global.platformDatabase.database
-                              | quote }}
+  TOWER_DB_URL: {{ include "platform.database.url" . | quote }}
   TOWER_DB_USER: {{ tpl .Values.global.platformDatabase.username . | quote }}
   TOWER_DB_DRIVER: {{ include "platform.database.driver" . | quote }}
   TOWER_DB_DIALECT: {{ include "platform.database.dialect" . | quote }}

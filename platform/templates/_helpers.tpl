@@ -97,6 +97,33 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{/*
+Return the JDBC URL for the database connection, including connection options.
+Constructs URL in format: jdbc:mysql://host:port/database?option1=value1&option2=value2
+
+For now this template is built around the only driver that can be set, 'mariadb'.
+*/}}
+{{- define "platform.database.url" -}}
+  {{- $baseUrl := printf "jdbc:mysql://%s:%d/%s"
+  .Values.global.platformDatabase.host
+  (.Values.global.platformDatabase.port | int)
+  .Values.global.platformDatabase.database -}}
+  {{- $options := list -}}
+  {{/* Evaluate mysql first, so if both are defined we pick mariadb options. */}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mysql -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mysql -}}
+  {{- end -}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mariadb -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mariadb -}}
+  {{- end -}}
+
+  {{- if $options -}}
+    {{- printf "%s?%s" $baseUrl (join "&" $options) -}}
+  {{- else -}}
+    {{- $baseUrl -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the JDBC driver class name based on the selected database driver.
 */}}
 {{- define "platform.database.driver" -}}
