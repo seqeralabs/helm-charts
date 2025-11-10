@@ -18,6 +18,7 @@ should render the backend deployment with the correct checksums, labels and anno
       name: release-name-platform-backend
       namespace: NAMESPACE
     spec:
+      replicas: 3
       selector:
         matchLabels:
           app: backend

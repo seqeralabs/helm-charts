@@ -13,6 +13,7 @@ should produce a Deployment resource with minimal values:
       name: release-name-platform-frontend
       namespace: NAMESPACE
     spec:
+      replicas: 1
       selector:
         matchLabels:
           app: frontend
@@ -102,6 +103,7 @@ should render the frontend deployment with the correct labels and annotations:
       name: release-name-platform-frontend
       namespace: NAMESPACE
     spec:
+      replicas: 1
       selector:
         matchLabels:
           app: frontend

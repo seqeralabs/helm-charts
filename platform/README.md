@@ -139,7 +139,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | backend.args | list | `[]` | Override default container args (useful when using custom images). |
 | backend.podLabels | object | `{}` | Additional labels for the backend pod. Evaluated as a template. |
 | backend.podAnnotations | object | `{}` | Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template. |
-| backend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
+| backend.extraOptionsSpec | object | `{"replicas":3}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
 | backend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | backend.extraEnvVars | list | `[]` | Extra environment variables to set on the backend pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
 | backend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
@@ -196,7 +196,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | frontend.args | list | `[]` | Override default container args (useful when using custom images) |
 | frontend.podLabels | object | `{}` | Additional labels for the frontend pod. Evaluated as a template. |
 | frontend.podAnnotations | object | `{}` | Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template. |
-| frontend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
+| frontend.extraOptionsSpec | object | `{"replicas":1}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template.  extraOptionsSpec:   replicas: 2   strategy:     rollingUpdate:       maxUnavailable: x       maxSurge: y |
 | frontend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | frontend.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
 | frontend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |
@@ -254,7 +254,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | cron.args | list | `[]` | Override default container args (useful when using custom images). |
 | cron.podLabels | object | `{}` | Additional labels for the cron pod. Evaluated as a template. |
 | cron.podAnnotations | object | `{}` | Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template. |
-| cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note that cron deployment needs to have a single replica with Recreate strategy.  extraOptionsSpec:   revisionHistoryLimit: 4 |
+| cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note: the cron deployment can only run a single replica and use Recreate strategy.  extraOptionsSpec:   revisionHistoryLimit: 4 |
 | cron.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template.  extraOptionsTemplateSpec:   nodeSelector:     service: myspecialnodegroup |
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod.  extraEnvVars:   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"     value: "set-a-value-here" |
 | cron.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars. |

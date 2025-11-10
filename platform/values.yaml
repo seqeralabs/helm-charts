@@ -297,7 +297,8 @@ backend:
   #     rollingUpdate:
   #       maxUnavailable: x
   #       maxSurge: y
-  extraOptionsSpec: {}
+  extraOptionsSpec:
+    replicas: 3
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template.
   #
@@ -504,7 +505,8 @@ frontend:
   #     rollingUpdate:
   #       maxUnavailable: x
   #       maxSurge: y
-  extraOptionsSpec: {}
+  extraOptionsSpec:
+    replicas: 1
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template.
   #
@@ -706,7 +708,7 @@ cron:
   podAnnotations: {}
 
   # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
-  # Note that cron deployment needs to have a single replica with Recreate strategy.
+  # Note: the cron deployment can only run a single replica and use Recreate strategy.
   #
   # extraOptionsSpec:
   #   revisionHistoryLimit: 4
