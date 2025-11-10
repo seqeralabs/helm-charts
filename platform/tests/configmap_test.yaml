@@ -352,3 +352,83 @@ tests:
     asserts:
       - failedTemplate:
           errorMessage: "Unsupported database driver: ''. Supported drivers are: 'mariadb' (or its alias 'mysql')."
+
+  - it: should render db dialect correctly with default "mysql-8"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DIALECT
+          value: "io.seqera.util.MySQL8DialectCollateBin"
+
+  - it: should render db dialect correctly when explicitly set to "mysql-8"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      global:
+        platformDatabase:
+          dialect: "mysql-8"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DIALECT
+          value: "io.seqera.util.MySQL8DialectCollateBin"
+
+
+  - it: should render db dialect correctly when set to "mysql-5.5"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      global:
+        platformDatabase:
+          dialect: "mysql-5.5"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DIALECT
+          value: "io.seqera.util.MySQL55DialectCollateBin"
+
+  - it: should render db dialect correctly when set to "mysql-5.7"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      global:
+        platformDatabase:
+          dialect: "mysql-5.7"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DIALECT
+          value: "io.seqera.util.MySQL57DialectCollateBin"
+
+  - it: should render db dialect correctly when set to "mariadb-10"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      global:
+        platformDatabase:
+          dialect: "mariadb-10"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DIALECT
+          value: "io.seqera.util.MariaDB10DialectCollateBin"
+
+  - it: should fail when database dialect is unsupported
+    set:
+      global:
+        platformDatabase:
+          dialect: "unsupported-dialect"
+    asserts:
+      - failedTemplate:
+          errorMessage: "Unsupported database dialect: 'unsupported-dialect'. Supported dialects are: 'mysql-5.5', 'mysql-5.7', 'mysql-8', 'mariadb-10'."
+
+  - it: should fail when empty database dialect is provided
+    set:
+      global:
+        platformDatabase:
+          dialect: ""
+    asserts:
+      - failedTemplate:
+          errorMessage: "Unsupported database dialect: ''. Supported dialects are: 'mysql-5.5', 'mysql-5.7', 'mysql-8', 'mariadb-10'."

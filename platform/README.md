@@ -76,7 +76,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
 | global.platformDatabase.driver | string | `"mariadb"` | Database driver. Possible choices: "mariadb" (or its alias "mysql"). |
-| global.platformDatabase.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |
+| global.platformDatabase.dialect | string | `"mysql-8"` | Hibernate dialect to use, depending on the database version. Possible options: mysql-5.5 (deprecated), mysql-5.7 (deprecated), mysql-8 (default), mariadb-10. |
 | global.platformDatabase.minPoolSize | string | `"2"` | Connection pool minimum size. |
 | global.platformDatabase.maxPoolSize | string | `"10"` | Connection pool maximum size. |
 | global.platformDatabase.maxLifetime | string | `"180000"` | Connection pool maximum lifetime. |

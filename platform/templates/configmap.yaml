@@ -50,7 +50,7 @@ data:
                               | quote }}
   TOWER_DB_USER: {{ tpl .Values.global.platformDatabase.username . | quote }}
   TOWER_DB_DRIVER: {{ include "platform.database.driver" . | quote }}
-  TOWER_DB_DIALECT: {{ .Values.global.platformDatabase.dialect | quote }}
+  TOWER_DB_DIALECT: {{ include "platform.database.dialect" . | quote }}
   TOWER_DB_MAX_LIFETIME: {{ .Values.global.platformDatabase.maxLifetime | toString | quote }}
   TOWER_DB_MAX_POOL_SIZE: {{ .Values.global.platformDatabase.maxPoolSize | toString | quote }}
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.global.platformDatabase.minPoolSize | toString | quote }}
