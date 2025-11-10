@@ -312,3 +312,43 @@ tests:
             helm.sh/chart: platform-9.8.7
             label1: "this overrides the common label"
             label2: "this should stay"
+
+  - it: should render database driver correctly with default "mariadb"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DRIVER
+          value: "org.mariadb.jdbc.Driver"
+
+  - it: should render database driver correctly when using "mysql" as alias
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      global:
+        platformDatabase:
+          driver: "mysql"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DRIVER
+          value: "org.mariadb.jdbc.Driver"
+
+  - it: should fail when database driver is unsupported
+    set:
+      global:
+        platformDatabase:
+          driver: "unsupported"
+    asserts:
+      - failedTemplate:
+          errorMessage: "Unsupported database driver: 'unsupported'. Supported drivers are: 'mariadb' (or its alias 'mysql')."
+
+  - it: should fail when empty database driver is provided
+    set:
+      global:
+        platformDatabase:
+          driver: ""
+    asserts:
+      - failedTemplate:
+          errorMessage: "Unsupported database driver: ''. Supported drivers are: 'mariadb' (or its alias 'mysql')."

@@ -97,6 +97,17 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{/*
+Return the JDBC driver class name based on the selected database driver.
+*/}}
+{{- define "platform.database.driver" -}}
+  {{- if or (eq .Values.global.platformDatabase.driver "mariadb") (eq .Values.global.platformDatabase.driver "mysql") -}}
+org.mariadb.jdbc.Driver
+  {{- else -}}
+    {{- fail (printf "Unsupported database driver: '%s'. Supported drivers are: 'mariadb' (or its alias 'mysql')." .Values.global.platformDatabase.driver) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
 */}}

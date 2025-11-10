@@ -37,8 +37,8 @@ global:
     # Enable encryption in transit when connecting to the external database.
     # TODO: implement support for this in the templates.
     #tls: true
-    # -- JDBC driver class name.
-    driver: "org.mariadb.jdbc.Driver"
+    # -- Database driver. Possible choices: "mariadb" (or its alias "mysql").
+    driver: "mariadb"
     # -- Hibernate dialect to use.
     dialect: "io.seqera.util.MySQL55DialectCollateBin"
     # -- Connection pool minimum size.
