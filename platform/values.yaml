@@ -64,6 +64,7 @@ global:
     # @default -- `"TOWER_REDIS_PASSWORD"`
     existingSecretKey: ""
     tls:
+      # TODO: shall we get rid of this map tls: {enabled: false} and have just a boolean tlsEnabled?
       # -- Enable TLS when connecting to Redis.
       enabled: false
 

@@ -14,7 +14,7 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 spec:
   {{- with .Values.ingress.defaultBackend }}
-  defaultBackend: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+  defaultBackend: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
   {{- if .Values.ingress.ingressClassName }}
