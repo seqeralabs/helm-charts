@@ -111,16 +111,12 @@ org.mariadb.jdbc.Driver
 Return the Hibernate dialect based on the selected database dialect.
 */}}
 {{- define "platform.database.dialect" -}}
-  {{- if eq .Values.global.platformDatabase.dialect "mysql-5.5" -}}
-io.seqera.util.MySQL55DialectCollateBin
-  {{- else if eq .Values.global.platformDatabase.dialect "mysql-5.7" -}}
-io.seqera.util.MySQL57DialectCollateBin
-  {{- else if eq .Values.global.platformDatabase.dialect "mysql-8" -}}
+  {{- if eq .Values.global.platformDatabase.dialect "mysql-8" -}}
 io.seqera.util.MySQL8DialectCollateBin
   {{- else if eq .Values.global.platformDatabase.dialect "mariadb-10" -}}
 io.seqera.util.MariaDB10DialectCollateBin
   {{- else -}}
-    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-5.5', 'mysql-5.7', 'mysql-8', 'mariadb-10'." .Values.global.platformDatabase.dialect) -}}
+    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-8', 'mariadb-10'." .Values.global.platformDatabase.dialect) -}}
   {{- end -}}
 {{- end -}}
 

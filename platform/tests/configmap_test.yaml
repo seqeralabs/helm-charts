@@ -322,6 +322,15 @@ tests:
           path: data.TOWER_DB_DRIVER
           value: "org.mariadb.jdbc.Driver"
 
+  - it: should render database driver correctly with explicit "mariadb"
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    asserts:
+      - equal:
+          path: data.TOWER_DB_DRIVER
+          value: "org.mariadb.jdbc.Driver"
+
   - it: should render database driver correctly when using "mysql" as alias
     documentSelector:
       path: metadata.name
@@ -375,33 +384,6 @@ tests:
           path: data.TOWER_DB_DIALECT
           value: "io.seqera.util.MySQL8DialectCollateBin"
 
-
-  - it: should render db dialect correctly when set to "mysql-5.5"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      global:
-        platformDatabase:
-          dialect: "mysql-5.5"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DIALECT
-          value: "io.seqera.util.MySQL55DialectCollateBin"
-
-  - it: should render db dialect correctly when set to "mysql-5.7"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      global:
-        platformDatabase:
-          dialect: "mysql-5.7"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DIALECT
-          value: "io.seqera.util.MySQL57DialectCollateBin"
-
   - it: should render db dialect correctly when set to "mariadb-10"
     documentSelector:
       path: metadata.name
@@ -422,7 +404,7 @@ tests:
           dialect: "unsupported-dialect"
     asserts:
       - failedTemplate:
-          errorMessage: "Unsupported database dialect: 'unsupported-dialect'. Supported dialects are: 'mysql-5.5', 'mysql-5.7', 'mysql-8', 'mariadb-10'."
+          errorMessage: "Unsupported database dialect: 'unsupported-dialect'. Supported dialects are: 'mysql-8', 'mariadb-10'."
 
   - it: should fail when empty database dialect is provided
     set:
@@ -431,4 +413,4 @@ tests:
           dialect: ""
     asserts:
       - failedTemplate:
-          errorMessage: "Unsupported database dialect: ''. Supported dialects are: 'mysql-5.5', 'mysql-5.7', 'mysql-8', 'mariadb-10'."
+          errorMessage: "Unsupported database dialect: ''. Supported dialects are: 'mysql-8', 'mariadb-10'."
