@@ -73,7 +73,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.platformDatabase.database | string | `""` | Platform MySQL database name. |
 | global.platformDatabase.username | string | `""` | Platform MySQL database username. |
 | global.platformDatabase.password | string | `""` | Platform MySQL database password. |
-| global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. |
+| global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
 | global.platformDatabase.driver | string | `"org.mariadb.jdbc.Driver"` | JDBC driver class name. |
 | global.platformDatabase.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |

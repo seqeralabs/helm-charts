@@ -27,6 +27,9 @@ global:
     # -- Platform MySQL database password.
     password: ""
     # -- Name of an existing secret containing credentials for the Platform MySQL db.
+    # Note: the secret must already exist in the same namespace at the time of deployment, it
+    # can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup
+    # on the Kubernetes API server at install/upgrade time.
     existingSecretName: ""
     # -- Key in the existing secret containing the password for the Platform MySQL db.
     # @default -- `"TOWER_DB_PASSWORD"`
