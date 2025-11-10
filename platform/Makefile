@@ -13,6 +13,10 @@ unittests:
 	@echo "Running all unit tests..."
 	@helm unittest .
 
+unittests-update-snapshots:
+	@echo "Running all unit tests and updating snapshots..."
+	@helm unittest -u .
+
 debug:
 	@echo "Running unit tests in debug mode..."
 	@helm unittest -d .

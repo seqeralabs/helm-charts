@@ -1,0 +1,168 @@
+should not render frontend service with custom nodePort when not using NodePort or LoadBalancer:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-frontend
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 80
+          targetPort: 8083
+      selector:
+        app: frontend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render backend service correctly with custom ports and custom service name:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: custom-backend-service-name
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: custom-http-name
+          port: 9123
+          targetPort: 8080
+      selector:
+        app: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render backend service correctly with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render cron service correctly with custom ports and custom service name:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-cron
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: custom-http-name
+          port: 9090
+          targetPort: 9090
+      selector:
+        app: cron
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render cron service correctly with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-cron
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 8080
+          targetPort: 8082
+      selector:
+        app: cron
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render frontend service correctly with custom ports and custom service name:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-frontend
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: custom-http-name
+          port: 9090
+          targetPort: 9090
+      selector:
+        app: frontend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP
+should render frontend service correctly with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 1.2.3+asdf
+        helm.sh/chart: platform-9.9.9
+      name: release-name-platform-frontend
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 80
+          targetPort: 8083
+      selector:
+        app: frontend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+      type: ClusterIP

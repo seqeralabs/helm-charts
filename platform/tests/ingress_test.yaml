@@ -19,11 +19,7 @@ tests:
       ingress:
         enabled: true
     asserts:
-      - isKind:
-          of: Ingress
-      - equal:
-          path: metadata.name
-          value: release-name-platform
+      - matchSnapshot: {}
 
   - it: should set correct hostname
     set:
@@ -272,46 +268,4 @@ tests:
                 serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
                 portNumber: '{{ .Values.frontend.service.http.port }}'
     asserts:
-      - equal:
-          path: spec.rules
-          value:
-            - host: example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /
-                    pathType: ImplementationSpecific
-            - host: user-data.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /
-                    pathType: ImplementationSpecific
-            - host: api.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-backend
-                        port:
-                          number: 8080
-                    path: /*
-                    pathType: Prefix
-            - host: www.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /*
-                    pathType: Prefix
+      - matchSnapshot: {}
