@@ -30,7 +30,7 @@ spec:
          referenced by the frontend, so don't use 'with' here. */}}
     - name: {{ .Values.backend.service.http.name | default "http" }}
       port: {{ tpl (toString .Values.global.platformServicePort) . | int }}
-      targetPort: 8080  # TODO: backend doesn't allow changing this, hardcoded for now.
+      targetPort: {{ include "platform.backend.targetPort" . | int }}
 {{- if and .Values.backend.service.http.nodePort
 (or (eq .Values.backend.service.type "NodePort") (eq .Values.backend.service.type "LoadBalancer")) }}
       nodePort: {{ .Values.backend.service.http.nodePort }}

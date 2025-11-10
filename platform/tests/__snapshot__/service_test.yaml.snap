@@ -32,7 +32,7 @@ should render backend service correctly with custom ports and custom service nam
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: 1.2.3+asdf
+        app.kubernetes.io/version: 25.6.3
         helm.sh/chart: platform-9.9.9
       name: custom-backend-service-name
       namespace: NAMESPACE
@@ -40,7 +40,7 @@ should render backend service correctly with custom ports and custom service nam
       ports:
         - name: custom-http-name
           port: 9123
-          targetPort: 8080
+          targetPort: 9090
       selector:
         app: backend
         app.kubernetes.io/instance: RELEASE-NAME

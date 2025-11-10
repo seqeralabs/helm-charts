@@ -65,6 +65,134 @@ tests:
                 port: 80
                 targetPort: 8083
 
+  - it: should render backend service with custom targetPort when requested, in v26
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "26"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should render backend service with custom targetPort when requested, in v26.1.2
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "26.1.2"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should render backend service with custom targetPort when requested, in v25.4
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "25.4.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should render backend service with custom targetPort when requested, in v25.4.0+asdf
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "25.4.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should render backend service with custom targetPort when requested, in v25.3
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    chart:
+      appVersion: "25.3.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should not render backend service with custom targetPort when v25.2.0
+    chart:
+      appVersion: "25.2.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - failedTemplate:
+          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
+
+  - it: should not render backend service with custom targetPort when v25.2.0+asdf
+    chart:
+      appVersion: "25.2.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - failedTemplate:
+          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
+
+  - it: should not render backend service with custom targetPort when v24.8
+    chart:
+      appVersion: "24.8.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - failedTemplate:
+          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
+
+  - it: should not render backend service with custom targetPort when v24
+    chart:
+      appVersion: "24"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: 9090
+    asserts:
+      - failedTemplate:
+          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
+
   - it: should render backend service with custom nodePort when requested
     documentSelector:
       path: metadata.name
@@ -382,6 +510,8 @@ tests:
     documentSelector:
       path: metadata.name
       value: custom-backend-service-name
+    chart:
+      appVersion: "25.6.3"
     set:
       global:
         platformServiceAddress: custom-backend-service-name
