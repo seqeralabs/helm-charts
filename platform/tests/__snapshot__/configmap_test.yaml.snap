@@ -6,9 +6,9 @@ should render shared cm with default values:
       TOWER_CONTENT_URL: https://user-data.example.com
       TOWER_DB_DIALECT: io.seqera.util.MySQL55DialectCollateBin
       TOWER_DB_DRIVER: org.mariadb.jdbc.Driver
-      TOWER_DB_MAX_LIFETIME: "60000"
-      TOWER_DB_MAX_POOL_SIZE: "5"
-      TOWER_DB_MIN_POOL_SIZE: "0"
+      TOWER_DB_MAX_LIFETIME: "180000"
+      TOWER_DB_MAX_POOL_SIZE: "10"
+      TOWER_DB_MIN_POOL_SIZE: "2"
       TOWER_DB_URL: jdbc:mysql://:3306/?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true
       TOWER_DB_USER: ""
       TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,awscloud-platform,azbatch-platform,eks-platform,gke-platform,googlebatch-platform,googlecloud-platform,k8s-platform,local-platform,lsf-platform,moab-platform,slurm-platform

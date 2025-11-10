@@ -42,11 +42,11 @@ global:
     # -- Hibernate dialect to use.
     dialect: "io.seqera.util.MySQL55DialectCollateBin"
     # -- Connection pool minimum size.
-    minPoolSize: "0"
+    minPoolSize: "2"
     # -- Connection pool maximum size.
-    maxPoolSize: "5"
+    maxPoolSize: "10"
     # -- Connection pool maximum lifetime.
-    maxLifetime: "60000"
+    maxLifetime: "180000"
 
   # Global Redis configuration values. Values set here will be used by multiple seqera products
   # that require Redis, unless overridden in each product's own .redis section. See README.

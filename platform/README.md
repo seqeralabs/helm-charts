@@ -77,9 +77,9 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
 | global.platformDatabase.driver | string | `"org.mariadb.jdbc.Driver"` | JDBC driver class name. |
 | global.platformDatabase.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |
-| global.platformDatabase.minPoolSize | string | `"0"` | Connection pool minimum size. |
-| global.platformDatabase.maxPoolSize | string | `"5"` | Connection pool maximum size. |
-| global.platformDatabase.maxLifetime | string | `"60000"` | Connection pool maximum lifetime. |
+| global.platformDatabase.minPoolSize | string | `"2"` | Connection pool minimum size. |
+| global.platformDatabase.maxPoolSize | string | `"10"` | Connection pool maximum size. |
+| global.platformDatabase.maxLifetime | string | `"180000"` | Connection pool maximum lifetime. |
 | global.redis.host | string | `""` | Redis hostname. |
 | global.redis.port | int | `6379` | Redis port. |
 | global.redis.password | string | `""` | Optional Redis password if the installation requires it. |
