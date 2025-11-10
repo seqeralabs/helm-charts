@@ -73,7 +73,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.platformDatabase.database | string | `""` | Platform MySQL database name. |
 | global.platformDatabase.username | string | `""` | Platform MySQL database username. |
 | global.platformDatabase.password | string | `""` | Platform MySQL database password. |
-| global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. |
+| global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
 | global.platformDatabase.driver | string | `"org.mariadb.jdbc.Driver"` | JDBC driver class name. |
 | global.platformDatabase.dialect | string | `"io.seqera.util.MySQL55DialectCollateBin"` | Hibernate dialect to use. |
@@ -130,6 +130,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | backend.micronautEnvironments | list | `["prod","redis","ha"]` | List of Micronaut Environments to enable on the backend pod. |
 | backend.service.type | string | `"ClusterIP"` | Backend Service type. Note: ingresses using AWS ALB require the service to be NodePort. |
 | backend.service.http.name | string | `"http"` | Service name to use. |
+| backend.service.http.targetPort | int | `8080` | The port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). Platform v25.3+ only; previous versions were hardcoded to 8080. |
 | backend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer. Choose port between 30000-32767, unless the cluster was configured differently than default. |
 | backend.service.extraServices | list | `[]` | Other services that should live in the Service object. https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service  extraServices: - name: myspecialservice   port: 1234   targetPort: 5678   # nodePort is only used when service.type is Nodeport or LoadBalancer.   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).   nodePort: "" |
 | backend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs, etc). Evaluated as a template. |
