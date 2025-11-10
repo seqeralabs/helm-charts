@@ -103,7 +103,7 @@ Return whether TLS is enabled for the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.tlsEnabled" -}}
-  {{- if or .Values.redis.tls.enabled .Values.global.redis.tls.enabled -}}
+  {{- if or .Values.redis.enableTls .Values.global.redis.enableTls -}}
 true
   {{- else -}}
 false

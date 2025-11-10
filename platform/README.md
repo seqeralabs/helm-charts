@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.14.3](https://img.shields.io/badge/Version-0.14.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.14.4](https://img.shields.io/badge/Version-0.14.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -85,7 +85,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.redis.password | string | `""` | Optional Redis password if the installation requires it. |
 | global.redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis, in alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
-| global.redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |
+| global.redis.enableTls | bool | `false` | Enable TLS when connecting to Redis. |
 | global.imageCredentials | list | `[]` | Optionally define credentials to login and fetch images from a private registry.  - registry: ""   username: ""   password: ""   email: someone@example.com  # Optional. |
 | platform.YAMLConfigFileContent | string | `""` | Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview |
 | platform.contactEmail | string | `"support@example.com"` | Sender email address for user support. |
@@ -117,7 +117,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | redis.password | string | `""` | Optional Redis password if the installation requires it. |
 | redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis, in alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis. |
-| redis.tls.enabled | bool | `false` | Enable TLS when connecting to Redis. |
+| redis.enableTls | bool | `false` | Enable TLS when connecting to Redis. |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release.  extraDeploy:   - apiVersion: v1     kind: MyExtraObjectKind     ...   - apiVersion: v1     kind: AnotherExtraObjectKind     ... |
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects. |
 | commonLabels | object | `{}` | Labels to add to all deployed objects. |
