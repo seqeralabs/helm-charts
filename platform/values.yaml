@@ -1,80 +1,80 @@
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
-  # -- Optional domain where Seqera Platform (formerly known as Tower) will listen on.
+  # -- Domain where Seqera Platform (formerly known as Tower) listens
   platformExternalDomain: example.com
 
-  # -- Domain where user-created Platform reports are exposed at (evaluated as template), to avoid
-  # Cross-Site Scripting attacks. If unset, data will be served through the main domain
-  # .global.platformExternalDomain. Evaluated as a template.
+  # -- Domain where user-created Platform reports are exposed (evaluated as template), to avoid
+  # Cross-Site Scripting attacks. If unset, data is served through the main domain
+  # .global.platformExternalDomain. Evaluated as a template
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
-  # -- Seqera Platform Service name: can be the internal kubernetes hostname or an external ingress
-  # hostname. Evaluated as a template.
+  # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
+  # hostname. Evaluated as a template
   platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
-  # -- Seqera Platform Service port.
+  # -- Seqera Platform Service port
   platformServicePort: 8080
 
   platformDatabase:
-    # -- Platform MySQL database hostname.
+    # -- Platform MySQL database hostname
     host: ""
-    # -- Platform MySQL database port.
+    # -- Platform MySQL database port
     port: 3306
-    # -- Platform MySQL database name.
+    # -- Platform MySQL database name
     database: ""
-    # -- Platform MySQL database username.
+    # -- Platform MySQL database username
     username: ""
-    # -- Platform MySQL database password.
+    # -- Platform MySQL database password
     password: ""
-    # -- Name of an existing secret containing credentials for the Platform MySQL db.
+    # -- Name of an existing secret containing credentials for the Platform MySQL database
     # Note: the secret must already exist in the same namespace at the time of deployment, it
-    # can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup
-    # on the Kubernetes API server at install/upgrade time.
+    # can't be created by this chart with extraDeploy, since this chart performs a lookup
+    # on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
-    # -- Key in the existing secret containing the password for the Platform MySQL db.
-    # @default -- `"TOWER_DB_PASSWORD"`
+    # -- Key in the existing secret containing the password for the Platform MySQL database
+    # @default -- TOWER_DB_PASSWORD
     existingSecretKey: ""
-    # Enable encryption in transit when connecting to the external database.
-    # TODO: implement support for this in the templates.
+    # Enable encryption in transit when connecting to the external database
+    # TODO: implement support for this in the templates
     #tls: true
-    # -- JDBC driver class name.
+    # -- JDBC driver class name
     driver: "org.mariadb.jdbc.Driver"
-    # -- Hibernate dialect to use.
+    # -- Hibernate dialect to use
     dialect: "io.seqera.util.MySQL55DialectCollateBin"
-    # -- Connection pool minimum size.
+    # -- Connection pool minimum size
     minPoolSize: "0"
-    # -- Connection pool maximum size.
+    # -- Connection pool maximum size
     maxPoolSize: "5"
-    # -- Connection pool maximum lifetime.
+    # -- Connection pool maximum lifetime
     maxLifetime: "60000"
 
-  # Global Redis configuration values. Values set here will be used by multiple seqera products
-  # that require Redis, unless overridden in each product's own .redis section. See README.
-  # Note that Platform doesn't allow configuring a Redis database within a Redis instance.
+  # Global Redis configuration values. Values set here are used by multiple Seqera products
+  # that require Redis, unless overridden in each product's own .redis section. See README
+  # Note that Platform doesn't support the configuration of a Redis database within a Redis instance
   redis:
-    # -- Redis hostname.
+    # -- Redis hostname
     host: ""
-    # -- Redis port.
+    # -- Redis port
     port: 6379
-    # -- Optional Redis password if the installation requires it.
+    # -- Redis password if the installation requires it
     password: ""
-    # -- Name of an existing secret containing credentials for Redis, in alternative to the password
+    # -- Name of an existing secret containing credentials for Redis, as an alternative to the password
     # field. Note: the secret must already exist in the same namespace at the time of deployment, it
-    # can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup
-    # on the Kubernetes API server at install/upgrade time.
+    # can't be created by this chart with extraDeploy, since this chart performs a lookup
+    # on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
-    # -- Key in the existing secret containing the password for Redis.
-    # @default -- `"TOWER_REDIS_PASSWORD"`
+    # -- Key in the existing secret containing the password for Redis
+    # @default -- TOWER_REDIS_PASSWORD
     existingSecretKey: ""
-    # -- Enable TLS when connecting to Redis.
+    # -- Enable TLS when connecting to Redis
     enableTls: false
 
-  # -- Optionally define credentials to login and fetch images from a private registry.
+  # -- Define credentials to log in and fetch images from a private registry
   #
   # - registry: ""
   #   username: ""
   #   password: ""
-  #   email: someone@example.com  # Optional.
+  #   email: someone@example.com  # Optional
   imageCredentials: []
 
 platform:
@@ -83,37 +83,37 @@ platform:
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
   YAMLConfigFileContent: ""
 
-  # -- Sender email address for user support.
+  # -- Sender email address for user support
   contactEmail: support@example.com
 
-  # -- JWT seed, defined as string, used to sign authentication tokens.
-  # Either define the value as a String or a Secret, not both at the same time.
-  # If neither is defined, a random 35 characters long string will be generated by Helm.
+  # -- JWT seed, defined as string, used to sign authentication tokens
+  # Define the value as a String or a Secret, not both at the same time
+  # If neither is defined, Helm generates a random 35-character string
   jwtSeedString: ""
   # -- Name of an existing Secret containing the JWT seed. Note: the secret must already exist in
-  # the same namespace at the time of deployment, it can't be created by this chart with e.g.
-  # extraDeploy, since this chart will perform a lookup on the Kubernetes API server at
-  # install/upgrade time.
+  # the same namespace at the time of deployment, it can't be created by this chart with
+  # extraDeploy, since this chart performs a lookup on the Kubernetes API server at
+  # install/upgrade time
   jwtSeedSecretName: ""
-  # -- Key in the existing secret containing the JWT seed.
-  # @default -- `"TOWER_JWT_SECRET"`
+  # -- Key in the existing secret containing the JWT seed
+  # @default -- TOWER_JWT_SECRET
   jwtSeedSecretKey: ""
 
-  # -- Crypto seed, defined as string, used to encrypt sensitive data in the database.
-  # Either define the value as a String or a Secret, not both at the same time.
-  # If neither is defined, a random 35 characters long string will be generated by Helm.
+  # -- Crypto seed, defined as string, used to encrypt sensitive data in the database
+  # Define the value as a String or a Secret, not both at the same time
+  # If neither is defined, Helm generates a random 35-character string
   cryptoSeedString: ""
   # -- Name of an existing Secret containing the crypto seed. Note: the secret must already exist in
-  # the same namespace at the time of deployment, it can't be created by this chart with e.g.
-  # extraDeploy, since this chart will perform a lookup on the Kubernetes API server at
-  # install/upgrade time.
+  # the same namespace at the time of deployment, it can't be created by this chart with
+  # extraDeploy, since this chart performs a lookup on the Kubernetes API server at
+  # install/upgrade time
   cryptoSeedSecretName: ""
-  # -- Key in the existing secret containing the crypto seed.
-  # @default -- `"TOWER_CRYPTO_SECRETKEY"`
+  # -- Key in the existing secret containing the crypto seed
+  # @default -- TOWER_CRYPTO_SECRETKEY
   cryptoSeedSecretKey: ""
 
   # -- List of execution backends to enable. At least one is required. See
-  # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#configuration-values-not-supported-in-toweryml-or-aws-parameter-store
+  # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#compute-environments
   executionBackends:
     - altair-platform
     - awsbatch-platform
@@ -130,73 +130,73 @@ platform:
     - slurm-platform
 
   # -- Platform license key. A license key is a long alphanumeric string provided by your Seqera
-  # Labs account manager.
-  # Either define the value as a String or a Secret, not both at the same time.
+  # account manager
+  # Define the value as a String or a Secret, not both at the same time
   licenseString: ""
   # -- Name of an existing Secret containing the Platform license key. Note: the secret must already
   # exist in the same namespace at the time of deployment, it can't be created by this chart with
-  # e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at
-  # install/upgrade time.
+  # extraDeploy, since this chart performs a lookup on the Kubernetes API server at
+  # install/upgrade time
   licenseSecretName: ""
-  # -- Key in the existing secret containing the Platform license key.
-  # @default -- `"TOWER_LICENSE"`
+  # -- Key in the existing secret containing the Platform license key
+  # @default -- TOWER_LICENSE
   licenseSecretKey: ""
 
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
-    # notifications for events.
+    # notifications for events
     host: ""
-    # -- SMTP server port.
+    # -- SMTP server port
     port: ""
-    # -- SMTP server username.
+    # -- SMTP server username
     user: ""
-    # -- SMTP server password.
+    # -- SMTP server password
     password: ""
-    # -- Name of an existing secret containing the SMTP password.
+    # -- Name of an existing secret containing the SMTP password
     existingSecretName: ""
-    # -- Key in the existing secret containing the SMTP password.
-    # @default -- `"TOWER_SMTP_PASSWORD"`
+    # -- Key in the existing secret containing the SMTP password
+    # @default -- TOWER_SMTP_PASSWORD
     existingSecretKey: ""
 
-  # -- URL of the Wave service Platform needs to use (evaluated as template).
-  # The Wave service provided by Seqera is 'https://wave.seqera.io'.
+  # -- URL of the Wave service Platform uses (evaluated as template)
+  # The Wave service provided by Seqera is 'https://wave.seqera.io'
   waveServerUrl: "https://wave.seqera.io"
 
-  # -- Additional labels for the ConfigMap objects. Evaluated as a template.
+  # -- Additional labels for the ConfigMap objects. Evaluated as a template
   configMapLabels: {}
-  # -- Additional labels for the Secret objects. Evaluated as a template.
+  # -- Additional labels for the Secret objects. Evaluated as a template
   secretLabels: {}
-  # -- Additional labels for the Service objects. Evaluated as a template.
+  # -- Additional labels for the Service objects. Evaluated as a template
   serviceLabels: {}
-  # -- Additional annotations for the ConfigMap objects. Evaluated as a template.
+  # -- Additional annotations for the ConfigMap objects. Evaluated as a template
   configMapAnnotations: {}
-  # -- Additional annotations for the Secret objects. Evaluated as a template.
+  # -- Additional annotations for the Secret objects. Evaluated as a template
   secretAnnotations: {}
-  # -- Additional annotations for the Service objects. Evaluated as a template.
+  # -- Additional annotations for the Service objects. Evaluated as a template
   serviceAnnotations: {}
 
-# Redis configuration values: for more details refer to .global.redis. These values take precedence
-# over values in .global.redis.
-# Note that Platform doesn't allow configuring a Redis database within a Redis instance.
+# Redis configuration values: for more details, refer to .global.redis. These values take precedence
+# over values in .global.redis
+# Note that Platform doesn't support the configuration of a Redis database within a Redis instance
 redis:
-  # -- Redis hostname.
+  # -- Redis hostname
   host: ""
-  # -- Redis port.
+  # -- Redis port
   port: 6379
-  # -- Optional Redis password if the installation requires it.
+  # -- Redis password if the installation requires it
   password: ""
-  # -- Name of an existing secret containing credentials for Redis, in alternative to the password
+  # -- Name of an existing secret containing credentials for Redis, as an alternative to the password
   # field. Note: the secret must already exist in the same namespace at the time of deployment, it
-  # can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup
-  # on the Kubernetes API server at install/upgrade time.
+  # can't be created by this chart with extraDeploy, since this chart performs a lookup
+  # on the Kubernetes API server at install/upgrade time
   existingSecretName: ""
-  # -- Key in the existing secret containing the password for Redis.
-  # @default -- `"TOWER_REDIS_PASSWORD"`
+  # -- Key in the existing secret containing the password for Redis
+  # @default -- TOWER_REDIS_PASSWORD
   existingSecretKey: ""
-  # -- Enable TLS when connecting to Redis.
+  # -- Enable TLS when connecting to Redis
   enableTls: false
 
-# -- Array of extra objects to deploy with the release.
+# -- Array of extra objects to deploy with the release
 #
 # extraDeploy:
 #   - apiVersion: v1
@@ -207,280 +207,73 @@ redis:
 #     ...
 extraDeploy: []
 
-# -- Annotations to add to all deployed objects.
+# -- Annotations to add to all deployed objects
 commonAnnotations: {}
-# -- Labels to add to all deployed objects.
+# -- Labels to add to all deployed objects
 commonLabels: {}
 
-# Options specific to the Platform backend deployment.
+# Options specific to the Platform backend deployment
 backend:
   image:
-    # -- Backend container image registry.
+    # -- Backend container image registry
     registry: cr.seqera.io
-    # -- Backend container image repository.
+    # -- Backend container image repository
     repository: private/nf-tower-enterprise/backend
-    # -- Backend container image tag.
+    # -- Backend container image tag
     # @default -- {{ .chart.AppVersion }}
     tag: ""
-    # -- Backend container image digest in the format 'sha256:1234abcdef'.
+    # -- Backend container image digest in the format 'sha256:1234abcdef'
     digest: ""
 
-    # -- imagePullPolicy for the backend container.
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'.
+    # -- imagePullPolicy for the backend container
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
     pullPolicy: IfNotPresent
 
-    # -- Optional list of imagePullSecrets.
-    # Secrets must be already created in the same namespace, e.g. with the extraDeploy array above.
+    # -- List of imagePullSecrets
+    # Secrets must already exist in the same namespace, for example, with the extraDeploy array above
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
     # pullSecrets:
     #   - myRegistryKeySecretName
     pullSecrets: []
 
-  # -- List of Micronaut Environments to enable on the backend pod.
+  # -- List of Micronaut Environments to enable on the backend pod
   micronautEnvironments: [prod, redis, ha]
 
   service:
-    # -- Backend Service type.
-    # Note: ingresses using AWS ALB require the service to be NodePort.
+    # -- Backend Service type
+    # Note: ingresses using AWS ALB require the service to be NodePort
     type: ClusterIP
     http:
-      # -- Service name to use.
+      # -- Service name to use
       name: http
       # The external port is defined as the global variable .global.platformServicePort, so it can
-      # be used by subcharts too.
+      # be used by subcharts too
 
-      # -- The port on the pod/container that the Service forwards traffic to (can be a number or
+      # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
-      # versions were hardcoded to 8080.
+      # versions were hardcoded to 8080
       targetPort: 8080
-      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
-      # Choose port between 30000-32767, unless the cluster was configured differently than default.
+      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # Choose port between 30000-32767, unless the cluster was configured differently than default
       nodePort: null
-    # -- Other services that should live in the Service object.
+    # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     #
     # extraServices:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
-    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently)
     #   nodePort: ""
     extraServices: []
-    # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
-    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
+    # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs). Evaluated as a template
     extraOptions: {}
 
-  # -- Additional init containers for the backend pod. Evaluated as a template.
-  initContainers: []
-
-  # -- Override default container command (useful when using custom images).
-  command: []
-  # -- Override default container args (useful when using custom images).
-  args: []
-
-  # -- Additional labels for the backend pod. Evaluated as a template.
-  podLabels: {}
-  # -- Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
-  podAnnotations: {}
-
-  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-  # Evaluated as a template.
-  #
-  # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
-  #       maxSurge: y
-  extraOptionsSpec: {}
-  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
-  # etc). Evaluated as a template.
-  #
-  # extraOptionsTemplateSpec:
-  #   nodeSelector:
-  #     service: myspecialnodegroup
-  extraOptionsTemplateSpec: {}
-
-  # -- Extra environment variables to set on the backend pod.
-  #
-  # extraEnvVars:
-  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
-  #     value: "set-a-value-here"
-  extraEnvVars: []
-  # -- ConfigMap containing extra env vars.
-  extraEnvVarsCMs: []
-  # -- Secret containing extra env vars.
-  extraEnvVarsSecrets: []
-  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-  # `extraVolumeMounts`.
-  extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # `extraVolumes`.
-  extraVolumeMounts: []
-
-  # Configure Pods Security Context.
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-  # Empty map to disable Pod Security Context configuration.
-  podSecurityContext:
-    # -- Enable backend pods Security Context.
-    enabled: true
-    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
-    # in the pod can share group-owned access.
-    fsGroup: 101
-
-  # Configure Container Security Context.
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
-  containerSecurityContext:
-    # -- Enable backend containers Security Context
-    enabled: true
-    # -- Specifies the numeric UID the container processes should run as (overrides container image
-    # default).
-    runAsUser: 101
-    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0).
-    runAsNonRoot: true
-    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
-    readOnlyRootFilesystem: true
-    # -- Fine-grained Linux kernel privileges to add or drop for the container.
-    capabilities:
-      drop:
-        - ALL
-
-  # -- Set container requests and limits for different resources like CPU or memory.
-  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-  # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use.
-  # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user.
-  #
-  # requests:
-  #   requests:
-  #     cpu: "1"
-  #     memory: "1000Mi"
-  #   limits:
-  #     memory: "3000Mi"
-  resources: {}
-
-  # Configure extra options for the startup probe
-  startupProbe:
-    # -- Enable startup probe.
-    enabled: false
-    httpGet:
-      # -- HTTP GET path for startup probe.
-      path: "/health"
-      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now.
-      port: 8080
-    # -- Longer initial wait to accommodate slow-starting apps.
-    initialDelaySeconds: 5
-    # -- Often set longer to avoid frequent checks while starting.
-    periodSeconds: 10
-    # -- Can be longer to allow slow initialization responses.
-    timeoutSeconds: 3
-    # -- Consecutive failures during startup before killing the container (instead of immediate restarts).
-    failureThreshold: 5
-    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness.
-    successThreshold: 1
-
-  # Configure extra options for the readiness probe
-  readinessProbe:
-    # -- Enable readiness probe.
-    enabled: true
-    httpGet:
-      # -- HTTP GET path for readiness probe.
-      path: "/health"
-      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
-      port: 8080
-    # -- Delay before first check (normal start timing).
-    initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
-    periodSeconds: 5
-    # -- Short timeout to detect unresponsive containers for readiness.
-    timeoutSeconds: 3
-    # -- Consecutive failures before marking the container Unready (no restart).
-    failureThreshold: 5
-    # -- Number of consecutive successes required to mark the container Ready after failures.
-    successThreshold: 1
-
-  # Configure extra options for the liveness probe
-  livenessProbe:
-    # -- Enable liveness probe.
-    enabled: true
-    httpGet:
-      # -- HTTP GET path for liveness probe.
-      path: "/health"
-      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
-      port: 8080
-    # -- Delay before first check (normal start timing).
-    initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
-    periodSeconds: 10
-    # -- Short timeout to detect hung containers quickly.
-    timeoutSeconds: 3
-    # -- Consecutive failures before restarting the container.
-    failureThreshold: 10
-    # -- Typically 1 (usually ignored).
-    successThreshold: 1
-
-# Options specific to the Platform frontend deployment.
-frontend:
-  image:
-    # -- Frontend container image registry.
-    registry: cr.seqera.io
-    # -- Frontend container image repository.
-    repository: private/nf-tower-enterprise/frontend
-    # -- Specify a tag to override the version defined in .Chart.appVersion.
-    # @default -- {{ .chart.AppVersion }}-unprivileged
-    tag: ""
-    # -- Frontend container image digest in the format 'sha256:1234abcdef'.
-    digest: ""
-
-    # -- imagePullPolicy for the frontend container.
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
-    pullPolicy: IfNotPresent
-
-    # -- Optional list of imagePullSecrets.
-    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
-    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-    #
-    # pullSecrets:
-    #   - myRegistryKeySecretName
-    pullSecrets: []
-
-  service:
-    # -- Frontend Service type.
-    # Note: ingresses using AWS ALB require the service to be NodePort.
-    type: ClusterIP
-    http:
-      # -- Service name to use.
-      name: http
-      # -- Service port.
-      port: 80
-      # -- The port on the pod/container that the Service forwards traffic to (can be a number or
-      # named port, distinct from the Service's external port).
-      targetPort: 8083
-      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
-      # Choose port between 30000-32767, unless the cluster was configured differently than default.
-      nodePort: null
-    # -- Other services that should live in the Service object.
-    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-    #
-    # extraServices:
-    # - name: myspecialservice
-    #   port: 1234
-    #   targetPort: 5678
-    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
-    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
-    #   nodePort: ""
-    extraServices: []
-    # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
-    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
-    extraOptions: {}
-
-  # -- Additional init containers for the frontend pod. Evaluated as a template.
+  # -- Additional init containers for the backend pod. Evaluated as a template
   initContainers: []
 
   # -- Override default container command (useful when using custom images)
@@ -488,13 +281,13 @@ frontend:
   # -- Override default container args (useful when using custom images)
   args: []
 
-  # -- Additional labels for the frontend pod. Evaluated as a template.
+  # -- Additional labels for the backend pod. Evaluated as a template
   podLabels: {}
-  # -- Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
+  # -- Additional annotations to apply to the pods (for example, Prometheus). Evaluated as a template
   podAnnotations: {}
 
-  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-  # Evaluated as a template.
+  # -- Extra options to place under .spec (for example, replicas, strategy, revisionHistoryLimit)
+  # Evaluated as a template
   #
   # extraOptionsSpec:
   #   replicas: 2
@@ -503,65 +296,65 @@ frontend:
   #       maxUnavailable: x
   #       maxSurge: y
   extraOptionsSpec: {}
-  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
-  # etc). Evaluated as a template.
+  # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy)
+  # Evaluated as a template
   #
   # extraOptionsTemplateSpec:
   #   nodeSelector:
   #     service: myspecialnodegroup
   extraOptionsTemplateSpec: {}
 
-  # -- Extra environment variables to set on the frontend pod.
+  # -- Extra environment variables to set on the backend pod
   #
   # extraEnvVars:
   #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
   #     value: "set-a-value-here"
   extraEnvVars: []
-  # -- ConfigMap containing extra env vars.
+  # -- ConfigMap containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars.
+  # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
-  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-  # `extraVolumeMounts`.
+  # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
+  # extraVolumeMounts
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # `extraVolumes`.
+  # extraVolumes
   extraVolumeMounts: []
 
-  # Configure Pods Security Context.
+  # Configure Pods Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-  # Empty map to disable Pod Security Context configuration.
+  # Empty map to disable Pod Security Context configuration
   podSecurityContext:
-    # -- Enable backend pods Security Context.
+    # -- Enable backend pods Security Context
     enabled: true
-    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
-    # in the pod can share group-owned access.
+    # -- GID that Kubernetes applies to mounted volumes and created files so processes
+    # in the pod can share group-owned access
     fsGroup: 101
 
-  # Configure Container Security Context.
+  # Configure Container Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable backend containers Security Context
     enabled: true
-    # -- Specifies the numeric UID the container processes should run as (overrides container image
-    # default).
+    # -- Numeric UID the container processes run as (overrides container image
+    # default)
     runAsUser: 101
-    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0).
+    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
-    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
     readOnlyRootFilesystem: true
-    # -- Fine-grained Linux kernel privileges to add or drop for the container.
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
     capabilities:
       drop:
         - ALL
 
-  # -- Set container requests and limits for different resources like CPU or memory.
+  # -- Container requests and limits for different resources like CPU or memory
   # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
   # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use.
+  # container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user.
+  # Seqera recommends not to specify default resources and to leave this as a conscious
+  # choice for the user
   #
   # requests:
   #   requests:
@@ -573,201 +366,202 @@ frontend:
 
   # Configure extra options for the startup probe
   startupProbe:
-    # -- Enable startup probe.
+    # -- Enable startup probe
     enabled: false
     httpGet:
-      # -- HTTP GET path for startup probe.
+      # -- HTTP GET path for startup probe
       path: "/health"
-      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now
       port: 8080
-    # -- Longer initial wait to accommodate slow-starting apps.
+    # -- Longer initial wait to accommodate slow-starting apps
     initialDelaySeconds: 5
-    # -- Often set longer to avoid frequent checks while starting.
+    # -- Often set longer to avoid frequent checks while starting
     periodSeconds: 10
-    # -- Can be longer to allow slow initialization responses.
+    # -- Can be longer to allow slow initialization responses
     timeoutSeconds: 3
-    # -- Consecutive failures during startup before killing the container (instead of immediate restarts).
+    # -- Consecutive failures during startup before killing the container (instead of immediate restarts)
     failureThreshold: 5
-    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness.
+    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness
     successThreshold: 1
 
   # Configure extra options for the readiness probe
   readinessProbe:
-    # -- Enable readiness probe.
+    # -- Enable readiness probe
     enabled: true
     httpGet:
-      # -- HTTP GET path for readiness probe.
+      # -- HTTP GET path for readiness probe
       path: "/health"
-      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now
       port: 8080
-    # -- Delay before first check (normal start timing).
+    # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
+    # -- Regular check interval during normal operation
     periodSeconds: 5
-    # -- Short timeout to detect unresponsive containers for readiness.
+    # -- Short timeout to detect unresponsive containers for readiness
     timeoutSeconds: 3
-    # -- Consecutive failures before marking the container Unready (no restart).
+    # -- Consecutive failures before marking the container Unready (no restart)
     failureThreshold: 5
-    # -- Number of consecutive successes required to mark the container Ready after failures.
+    # -- Number of consecutive successes required to mark the container Ready after failures
     successThreshold: 1
 
   # Configure extra options for the liveness probe
   livenessProbe:
-    # -- Enable liveness probe.
+    # -- Enable liveness probe
     enabled: true
     httpGet:
-      # -- HTTP GET path for liveness probe.
+      # -- HTTP GET path for liveness probe
       path: "/health"
-      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now.
+      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now
       port: 8080
-    # -- Delay before first check (normal start timing).
+    # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
+    # -- Regular check interval during normal operation
     periodSeconds: 10
-    # -- Short timeout to detect hung containers quickly.
+    # -- Short timeout to detect hung containers quickly
     timeoutSeconds: 3
-    # -- Consecutive failures before restarting the container.
+    # -- Consecutive failures before restarting the container
     failureThreshold: 10
-    # -- Typically 1 (usually ignored).
+    # -- Typically 1 (usually ignored)
     successThreshold: 1
 
-# Options specific to the Platform cron deployment.
-cron:
+# Options specific to the Platform frontend deployment
+frontend:
   image:
-    # -- Cron container image registry.
+    # -- Frontend container image registry
     registry: cr.seqera.io
-    # -- Cron container image repository.
-    repository: private/nf-tower-enterprise/backend
-    # -- Cron container image tag.
-    # @default -- {{ .chart.AppVersion }}
+    # -- Frontend container image repository
+    repository: private/nf-tower-enterprise/frontend
+    # -- Specify a tag to override the version defined in .Chart.appVersion
+    # @default -- {{ .chart.AppVersion }}-unprivileged
     tag: ""
-    # -- Cron container image digest in the format 'sha256:1234abcdef'.
+    # -- Frontend container image digest in the format 'sha256:1234abcdef'
     digest: ""
 
-    # -- imagePullPolicy for the cron container.
+    # -- imagePullPolicy for the frontend container
     # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
     pullPolicy: IfNotPresent
 
-    # -- Optional list of imagePullSecrets.
-    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
-    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # -- List of imagePullSecrets
+    # Secrets must be manually created in the same namespace. See the extraDeploy array above
+    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
     # pullSecrets:
     #   - myRegistryKeySecretName
     pullSecrets: []
 
-  # -- List of Micronaut Environments to enable on the cron pod.
-  micronautEnvironments: [prod, redis, cron]
-
   service:
-    # -- Cron Service type.
-    # Note: ingresses using AWS ALB require the service to be NodePort.
+    # -- Frontend Service type
+    # Note: ingresses using AWS ALB require the service to be NodePort
     type: ClusterIP
     http:
-      # -- Service name to use.
+      # -- Service name to use
       name: http
-      # -- Service port.
-      port: 8080
-      # -- The port on the pod/container that the Service forwards traffic to (can be a number or
-      # named port, distinct from the Service's external port).
-      targetPort: 8082
-      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
-      # Choose port between 30000-32767, unless the cluster was configured differently than default.
+      # -- Service port
+      port: 80
+      # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+      # named port, distinct from the Service's external port)
+      targetPort: 8083
+      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # Choose port between 30000-32767, unless the cluster was configured differently than default
       nodePort: null
-    # -- Other services that should live in the Service object.
+    # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     #
     # extraServices:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
-    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently)
     #   nodePort: ""
     extraServices: []
-    # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
-    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
+    # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs). Evaluated as a template
     extraOptions: {}
 
-  # -- Additional init containers for the cron pod. Evaluated as a template.
+  # -- Additional init containers for the frontend pod. Evaluated as a template
   initContainers: []
 
-  # -- Override default container command (useful when using custom images).
+  # -- Override default container command (useful when using custom images)
   command: []
-  # -- Override default container args (useful when using custom images).
+  # -- Override default container args (useful when using custom images)
   args: []
 
-  # -- Additional labels for the cron pod. Evaluated as a template.
+  # -- Additional labels for the frontend pod. Evaluated as a template
   podLabels: {}
-  # -- Additional annotations to apply to the pods (e.g. Prometheus, etc). Evaluated as a template.
+  # -- Additional annotations to apply to the pods (for example, Prometheus). Evaluated as a template
   podAnnotations: {}
 
-  # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
-  # Note that cron deployment needs to have a single replica with Recreate strategy.
+  # -- Extra options to place under .spec (for example, replicas, strategy, revisionHistoryLimit)
+  # Evaluated as a template
   #
   # extraOptionsSpec:
-  #   revisionHistoryLimit: 4
+  #   replicas: 2
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
   extraOptionsSpec: {}
-  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
-  # etc). Evaluated as a template.
+  # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy)
+  # Evaluated as a template
   #
   # extraOptionsTemplateSpec:
   #   nodeSelector:
   #     service: myspecialnodegroup
   extraOptionsTemplateSpec: {}
 
-  # -- Extra environment variables to set on the cron pod.
+  # -- Extra environment variables to set on the frontend pod
   #
   # extraEnvVars:
   #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
   #     value: "set-a-value-here"
   extraEnvVars: []
-  # -- ConfigMap containing extra env vars.
+  # -- ConfigMap containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars.
+  # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
-  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-  # `extraVolumeMounts`.
+  # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
+  # extraVolumeMounts
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # `extraVolumes`.
+  # extraVolumes
   extraVolumeMounts: []
 
-  # Configure Pods Security Context.
+  # Configure Pods Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-  # Empty map to disable Pod Security Context configuration.
+  # Empty map to disable Pod Security Context configuration
   podSecurityContext:
-    # -- Enable backend pods Security Context.
+    # -- Enable backend pods Security Context
     enabled: true
-    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
-    # in the pod can share group-owned access.
+    # -- GID that Kubernetes applies to mounted volumes and created files so processes
+    # in the pod can share group-owned access
     fsGroup: 101
 
-  # Configure Container Security Context.
+  # Configure Container Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable backend containers Security Context
     enabled: true
-    # -- Specifies the numeric UID the container processes should run as (overrides container image
-    # default).
+    # -- Numeric UID the container processes run as (overrides container image
+    # default)
     runAsUser: 101
-    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0).
+    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
-    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
     readOnlyRootFilesystem: true
-    # -- Fine-grained Linux kernel privileges to add or drop for the container.
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
     capabilities:
       drop:
         - ALL
 
-  # -- Set container requests and limits for different resources like CPU or memory.
+  # -- Container requests and limits for different resources like CPU or memory
   # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
   # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use.
+  # container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user.
+  # Seqera recommends not to specify default resources and to leave this as a conscious
+  # choice for the user
   #
   # requests:
   #   requests:
@@ -779,135 +573,341 @@ cron:
 
   # Configure extra options for the startup probe
   startupProbe:
-    # -- Enable startup probe.
+    # -- Enable startup probe
     enabled: false
     httpGet:
-      # -- HTTP GET path for startup probe.
+      # -- HTTP GET path for startup probe
       path: "/health"
-      # -- HTTP GET port for startup probe. Evaluated as a template.
-      port: "{{ .Values.cron.service.http.targetPort }}"
-    # -- Longer initial wait to accommodate slow-starting apps.
+      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now
+      port: 8080
+    # -- Longer initial wait to accommodate slow-starting apps
     initialDelaySeconds: 5
-    # -- Often set longer to avoid frequent checks while starting.
+    # -- Often set longer to avoid frequent checks while starting
     periodSeconds: 10
-    # -- Can be longer to allow slow initialization responses.
+    # -- Can be longer to allow slow initialization responses
     timeoutSeconds: 3
-    # -- Consecutive failures during startup before killing the container (instead of immediate restarts).
+    # -- Consecutive failures during startup before killing the container (instead of immediate restarts)
     failureThreshold: 5
-    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness.
+    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness
     successThreshold: 1
 
   # Configure extra options for the readiness probe
   readinessProbe:
-    # -- Enable readiness probe.
+    # -- Enable readiness probe
     enabled: true
     httpGet:
-      # -- HTTP GET path for readiness probe.
+      # -- HTTP GET path for readiness probe
       path: "/health"
-      # -- HTTP GET port for readiness probe. Evaluated as a template.
-      port: "{{ .Values.cron.service.http.targetPort }}"
-    # -- Delay before first check (normal start timing).
+      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now
+      port: 8080
+    # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
+    # -- Regular check interval during normal operation
     periodSeconds: 5
-    # -- Short timeout to detect unresponsive containers for readiness.
+    # -- Short timeout to detect unresponsive containers for readiness
     timeoutSeconds: 3
-    # -- Consecutive failures before marking the container Unready (no restart).
+    # -- Consecutive failures before marking the container Unready (no restart)
     failureThreshold: 5
-    # -- Number of consecutive successes required to mark the container Ready after failures.
+    # -- Number of consecutive successes required to mark the container Ready after failures
     successThreshold: 1
 
   # Configure extra options for the liveness probe
   livenessProbe:
-    # -- Enable liveness probe.
+    # -- Enable liveness probe
     enabled: true
     httpGet:
-      # -- HTTP GET path for liveness probe.
+      # -- HTTP GET path for liveness probe
       path: "/health"
-      # -- HTTP GET port for liveness probe. Evaluated as a template.
-      port: "{{ .Values.cron.service.http.targetPort }}"
-    # -- Delay before first check (normal start timing).
+      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now
+      port: 8080
+    # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
-    # -- Regular check interval during normal operation.
+    # -- Regular check interval during normal operation
     periodSeconds: 10
-    # -- Short timeout to detect hung containers quickly.
+    # -- Short timeout to detect hung containers quickly
     timeoutSeconds: 3
-    # -- Consecutive failures before restarting the container.
+    # -- Consecutive failures before restarting the container
     failureThreshold: 10
-    # -- Typically 1 (usually ignored).
+    # -- Typically 1 (usually ignored)
+    successThreshold: 1
+
+# Options specific to the Platform cron deployment
+cron:
+  image:
+    # -- Cron container image registry
+    registry: cr.seqera.io
+    # -- Cron container image repository
+    repository: private/nf-tower-enterprise/backend
+    # -- Cron container image tag
+    # @default -- {{ .chart.AppVersion }}
+    tag: ""
+    # -- Cron container image digest in the format 'sha256:1234abcdef'
+    digest: ""
+
+    # -- imagePullPolicy for the cron container
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # -- List of imagePullSecrets
+    # Secrets must be manually created in the same namespace. See the extraDeploy array above
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    #
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+    pullSecrets: []
+
+  # -- List of Micronaut Environments to enable on the cron pod
+  micronautEnvironments: [prod, redis, cron]
+
+  service:
+    # -- Cron Service type
+    # Note: ingresses using AWS ALB require the service to be NodePort
+    type: ClusterIP
+    http:
+      # -- Service name to use
+      name: http
+      # -- Service port
+      port: 8080
+      # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+      # named port, distinct from the Service's external port)
+      targetPort: 8082
+      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # Choose port between 30000-32767, unless the cluster was configured differently than default
+      nodePort: null
+    # -- Other services that should live in the Service object
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    #
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    #   # nodePort is only used when service.type is Nodeport or LoadBalancer
+    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently)
+    #   nodePort: ""
+    extraServices: []
+    # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs). Evaluated as a template
+    extraOptions: {}
+
+  # -- Additional init containers for the cron pod. Evaluated as a template
+  initContainers: []
+
+  # -- Override default container command (useful when using custom images)
+  command: []
+  # -- Override default container args (useful when using custom images)
+  args: []
+
+  # -- Additional labels for the cron pod. Evaluated as a template
+  podLabels: {}
+  # -- Additional annotations to apply to the pods (for example, Prometheus). Evaluated as a template
+  podAnnotations: {}
+
+  # -- Extra options to place under .spec (for example, revisionHistoryLimit). Evaluated as a template
+  # Note that cron deployment needs to have a single replica with Recreate strategy
+  #
+  # extraOptionsSpec:
+  #   revisionHistoryLimit: 4
+  extraOptionsSpec: {}
+  # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy)
+  # Evaluated as a template
+  #
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+  extraOptionsTemplateSpec: {}
+
+  # -- Extra environment variables to set on the cron pod
+  #
+  # extraEnvVars:
+  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  #     value: "set-a-value-here"
+  extraEnvVars: []
+  # -- ConfigMap containing extra env vars
+  extraEnvVarsCMs: []
+  # -- Secret containing extra env vars
+  extraEnvVarsSecrets: []
+  # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
+  # extraVolumeMounts
+  extraVolumes: []
+  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # extraVolumes
+  extraVolumeMounts: []
+
+  # Configure Pods Security Context
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Empty map to disable Pod Security Context configuration
+  podSecurityContext:
+    # -- Enable backend pods Security Context
+    enabled: true
+    # -- GID that Kubernetes applies to mounted volumes and created files so processes
+    # in the pod can share group-owned access
+    fsGroup: 101
+
+  # Configure Container Security Context
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  containerSecurityContext:
+    # -- Enable backend containers Security Context
+    enabled: true
+    # -- Numeric UID the container processes run as (overrides container image
+    # default)
+    runAsUser: 101
+    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+    runAsNonRoot: true
+    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: true
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
+    capabilities:
+      drop:
+        - ALL
+
+  # -- Container requests and limits for different resources like CPU or memory
+  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
+  # then guarantees at least these resources to the pod. .limits are the maximum resources a
+  # container is allowed to use
+  # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # Seqera recommends not to specify default resources and to leave this as a conscious
+  # choice for the user
+  #
+  # requests:
+  #   requests:
+  #     cpu: "1"
+  #     memory: "1000Mi"
+  #   limits:
+  #     memory: "3000Mi"
+  resources: {}
+
+  # Configure extra options for the startup probe
+  startupProbe:
+    # -- Enable startup probe
+    enabled: false
+    httpGet:
+      # -- HTTP GET path for startup probe
+      path: "/health"
+      # -- HTTP GET port for startup probe. Evaluated as a template
+      port: "{{ .Values.cron.service.http.targetPort }}"
+    # -- Longer initial wait to accommodate slow-starting apps
+    initialDelaySeconds: 5
+    # -- Often set longer to avoid frequent checks while starting
+    periodSeconds: 10
+    # -- Can be longer to allow slow initialization responses
+    timeoutSeconds: 3
+    # -- Consecutive failures during startup before killing the container (instead of immediate restarts)
+    failureThreshold: 5
+    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness
+    successThreshold: 1
+
+  # Configure extra options for the readiness probe
+  readinessProbe:
+    # -- Enable readiness probe
+    enabled: true
+    httpGet:
+      # -- HTTP GET path for readiness probe
+      path: "/health"
+      # -- HTTP GET port for readiness probe. Evaluated as a template
+      port: "{{ .Values.cron.service.http.targetPort }}"
+    # -- Delay before first check (normal start timing)
+    initialDelaySeconds: 5
+    # -- Regular check interval during normal operation
+    periodSeconds: 5
+    # -- Short timeout to detect unresponsive containers for readiness
+    timeoutSeconds: 3
+    # -- Consecutive failures before marking the container Unready (no restart)
+    failureThreshold: 5
+    # -- Number of consecutive successes required to mark the container Ready after failures
+    successThreshold: 1
+
+  # Configure extra options for the liveness probe
+  livenessProbe:
+    # -- Enable liveness probe
+    enabled: true
+    httpGet:
+      # -- HTTP GET path for liveness probe
+      path: "/health"
+      # -- HTTP GET port for liveness probe. Evaluated as a template
+      port: "{{ .Values.cron.service.http.targetPort }}"
+    # -- Delay before first check (normal start timing)
+    initialDelaySeconds: 5
+    # -- Regular check interval during normal operation
+    periodSeconds: 10
+    # -- Short timeout to detect hung containers quickly
+    timeoutSeconds: 3
+    # -- Consecutive failures before restarting the container
+    failureThreshold: 10
+    # -- Typically 1 (usually ignored)
     successThreshold: 1
 
   dbMigrationInitContainer:
     image:
-      # -- Database migration container image registry.
+      # -- Database migration container image registry
       registry: cr.seqera.io
-      # -- Database migration container image repository.
+      # -- Database migration container image repository
       repository: private/nf-tower-enterprise/migrate-db
-      # -- Specify a tag to override the version defined in .Chart.appVersion.
+      # -- Specify a tag to override the version defined in .Chart.appVersion
       # @default -- {{ .chart.AppVersion }}
       tag: ""
-      # -- Database migration container image digest in the format 'sha256:1234abcdef'.
+      # -- Database migration container image digest in the format 'sha256:1234abcdef'
       digest: ""
 
-      # -- imagePullPolicy for the database migration init container.
+      # -- imagePullPolicy for the database migration init container
       # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
       # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
       pullPolicy: IfNotPresent
 
-      # -- Optional list of imagePullSecrets.
-      # Secrets must be manually created in the same namespace. See the extraDeploy array above.
+      # -- List of imagePullSecrets
+      # Secrets must be manually created in the same namespace. See the extraDeploy array above
       # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
       #
       # pullSecrets:
       #   - myRegistryKeySecretName
       pullSecrets: []
 
-    # -- Override default container command (useful when using custom images).
+    # -- Override default container command (useful when using custom images)
     command: ["/bin/sh", "-c", "/migrate-db.sh"]
-    # -- Override default container args (useful when using custom images).
+    # -- Override default container args (useful when using custom images)
     args: []
 
-    # -- Extra environment variables to set on the cron pod.
+    # -- Extra environment variables to set on the cron pod
     #
     # extraEnvVars:
     #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
     #     value: "set-a-value-here"
     extraEnvVars: []
-    # -- ConfigMap containing extra env vars.
+    # -- ConfigMap containing extra env vars
     extraEnvVarsCMs: []
-    # -- Secret containing extra env vars.
+    # -- Secret containing extra env vars
     extraEnvVarsSecrets: []
-    # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-    # `extraVolumeMounts`.
+    # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
+    # extraVolumeMounts
     extraVolumes: []
     # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-    # `extraVolumes`.
+    # extraVolumes
     extraVolumeMounts: []
 
-    # Configure Init Container Security Context.
+    # Configure Init Container Security Context
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext:
       # -- Enable backend containers Security Context
       enabled: true
-      # -- Specifies the numeric UID the container processes should run as (overrides container image
-      # default).
+      # -- Numeric UID the container processes run as (overrides container image
+      # default)
       runAsUser: 101
-      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0).
+      # -- Require the container to run as a non-root UID (prevents starting if UID 0)
       runAsNonRoot: true
-      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
       readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
       capabilities:
         drop:
           - ALL
 
-    # -- Set container requests and limits for different resources like CPU or memory.
+    # -- Container requests and limits for different resources like CPU or memory
     # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
     # then guarantees at least these resources to the pod. .limits are the maximum resources a
-    # container is allowed to use.
+    # container is allowed to use
     # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user.
+    # Seqera recommends not to specify default resources and to leave this as a conscious
+    # choice for the user
     #
     # requests:
     #   requests:
@@ -919,36 +919,36 @@ cron:
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies between Platform components
-  # (e.g., wait for database readiness before cron starts, wait for cron before backend starts).
+  # (for example, wait for database readiness before cron starts, wait for cron before backend starts)
   enabled: true
 
   waitForMySQL:
-    # -- Enable wait for MySQL init container before starting backend and cron.
+    # -- Enable wait for MySQL init container before starting backend and cron
     enabled: true
     image:
-      # -- Override default wait for MySQL init container image.
+      # -- Override default wait for MySQL init container image
       registry: ""
       repository: "mysql"
       tag: "9"
-      # Digest must be in the format 'sha256:1234abcdef'.
+      # Digest must be in the format 'sha256:1234abcdef'
       digest: ""
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Specifies the numeric UID the container processes should run as (overrides container
-      # image default).
+      # -- Numeric UID the container processes run as (overrides container
+      # image default)
       runAsUser: 101
-      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
-      # 0).
+      # -- Require the container to run as a non-root UID (prevents starting if UID
+      # 0)
       runAsNonRoot: true
-      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
       readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
       capabilities:
         drop:
           - ALL
 
-    # -- Set container requests and limits for different resources like CPU or memory.
+    # -- Container requests and limits for different resources like CPU or memory
     resources:
       requests:
         cpu: "0.5"
@@ -957,32 +957,32 @@ initContainerDependencies:
         memory: "100Mi"
 
   waitForRedis:
-    # -- Enable wait for Redis init container before starting backend and cron.
+    # -- Enable wait for Redis init container before starting backend and cron
     enabled: true
     image:
-      # -- Override default wait for Redis init container image.
+      # -- Override default wait for Redis init container image
       registry: ""
       repository: "redis"
       tag: "7"
-      # Digest must be in the format 'sha256:1234abcdef'.
+      # Digest must be in the format 'sha256:1234abcdef'
       digest: ""
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Specifies the numeric UID the container processes should run as (overrides container
-      # image default).
+      # -- Numeric UID the container processes run as (overrides container
+      # image default)
       runAsUser: 101
-      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
-      # 0).
+      # -- Require the container to run as a non-root UID (prevents starting if UID
+      # 0)
       runAsNonRoot: true
-      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
       readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
       capabilities:
         drop:
           - ALL
 
-    # -- Set container requests and limits for different resources like CPU or memory.
+    # -- Container requests and limits for different resources like CPU or memory
     resources:
       requests:
         cpu: "0.5"
@@ -991,32 +991,32 @@ initContainerDependencies:
         memory: "100Mi"
 
   waitForCron:
-    # -- Enable wait for Platform cron init container before starting backend.
+    # -- Enable wait for Platform cron init container before starting backend
     enabled: true
     image:
-      # -- Override default wait for cron init container image.
+      # -- Override default wait for cron init container image
       registry: ""
       repository: "curlimages/curl"
       tag: "latest"
-      # Digest must be in the format 'sha256:1234abcdef'.
+      # Digest must be in the format 'sha256:1234abcdef'
       digest: ""
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Specifies the numeric UID the container processes should run as (overrides container
-      # image default).
+      # -- Numeric UID the container processes run as (overrides container
+      # image default)
       runAsUser: 101
-      # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID
-      # 0).
+      # -- Require the container to run as a non-root UID (prevents starting if UID
+      # 0)
       runAsNonRoot: true
-      # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering.
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
       readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container.
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
       capabilities:
         drop:
           - ALL
 
-    # -- Set container requests and limits for different resources like CPU or memory.
+    # -- Container requests and limits for different resources like CPU or memory
     resources:
       requests:
         cpu: "0.5"
@@ -1025,33 +1025,33 @@ initContainerDependencies:
         memory: "100Mi"
 
 serviceAccount:
-  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated.
+  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated
   name: ""
-  # -- Additional annotations for the Tower ServiceAccount to generate.
+  # -- Additional annotations for the Tower ServiceAccount to generate
   annotations: {}
-  # -- Names of Secrets containing credentials to pull images from registries.
+  # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
-  # -- Whether to automount service account token when the server service account is generated.
+  # -- Automount service account token when the server service account is generated
   automountServiceAccountToken: false
 
 ingress:
-  # -- Enable ingress for Platform.
+  # -- Enable ingress for Platform
   enabled: false
 
-  # -- Path for the main ingress rule.
-  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller.
+  # -- Path for the main ingress rule
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
   path: "/"
 
-  # -- Path for the content domain ingress rule.
-  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller.
+  # -- Path for the content domain ingress rule
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
   contentPath: "/"
 
-  # -- Default path type for the Ingress.
+  # -- Default path type for the Ingress
   defaultPathType: "ImplementationSpecific"
 
-  # -- Optionally configure the default service for the ingress (evaluated as template).
+  # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
-  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems.
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
   #
   # defaultBackend:
   #   service:
@@ -1060,7 +1060,7 @@ ingress:
   #       number: '{{ .Values.frontend.service.http.port }}'
   defaultBackend: {}
 
-  # -- Additional hosts you want to include. Evaluated as a template.
+  # -- Additional hosts you want to include. Evaluated as a template
   #
   # extraHosts:
   #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
@@ -1076,11 +1076,11 @@ ingress:
   #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
   #         portNumber: '{{ .Values.frontend.service.http.port }}'
   extraHosts: []
-  # -- Ingress annotations specific to your load balancer. Evaluated as a template.
+  # -- Ingress annotations specific to your load balancer. Evaluated as a template
   annotations: {}
-  # -- Additional labels for the ingress object. Evaluated as a template.
+  # -- Additional labels for the ingress object. Evaluated as a template
   extraLabels: {}
-  # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class').
+  # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class')
   ingressClassName: ""
-  # -- TLS configuration. Evaluated as a template.
+  # -- TLS configuration. Evaluated as a template
   tls: []
