@@ -1098,4 +1098,10 @@ ingress:
   # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class').
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template.
+  #
+  # tls:
+  #   - hosts:
+  #       - '{{ .Values.global.platformExternalDomain }}'
+  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  #     secretName: my-tls
   tls: []

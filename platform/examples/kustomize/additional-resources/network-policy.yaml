@@ -1,0 +1,67 @@
+# Additional NetworkPolicy not provided by the Helm chart
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: seqera-platform-network-policy
+  namespace: seqera-platform
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: platform
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # Allow internal communication between platform pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: platform
+      ports:
+        - protocol: TCP
+          port: 8080
+
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Allow MySQL
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: database
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    # Allow Redis
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow HTTPS for external API calls
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 443
