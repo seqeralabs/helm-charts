@@ -1,10 +1,10 @@
 # Seqera Helm charts library
 
-This repository contains Helm charts for deploying Seqera Labs products and related software on
+This repository contains Helm charts for deploying Seqera products and related software on
 Kubernetes clusters.
 
 Currently, it includes charts for:
-- [Platform](./platform/README.md): Seqera Labs Platform for workflow orchestration and management.
+- [Platform](./platform/README.md): Seqera Platform for workflow orchestration and management.
 
 More products and services will be added in the future.
 
