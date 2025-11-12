@@ -34,11 +34,21 @@ global:
     # -- Key in the existing secret containing the password for the Platform MySQL db.
     # @default -- `"TOWER_DB_PASSWORD"`
     existingSecretKey: ""
-    # Enable encryption in transit when connecting to the external database.
-    # TODO: implement support for this in the templates.
-    #tls: true
     # -- Database driver. Possible options: "mariadb" (or its alias "mysql").
     driver: "mariadb"
+    # -- Connection options to compose in the driver URL according to the driver used. The only
+    # driver that can be set is 'mariadb'.
+    connectionOptions:
+      # -- Connection options to use with the MariaDB driver. For the full list of supported
+      # options see:
+      # https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j
+      mariadb:
+        # permitMysqlScheme=true allows the MariaDB driver to communicate with MySQL databases.
+        - permitMysqlScheme=true
+        # sslMode enables TLS encryption with varying levels of certificate acceptance criteria.
+        # Other options allow the enabling or disabling of specific TLS ciphers, the path to the
+        # server's CA certificate, etc.
+        # - sslMode=verify-ca
     # -- Hibernate dialect to use, depending on the database version. Possible options: mysql-8
     # (default), mariadb-10.
     dialect: "mysql-8"

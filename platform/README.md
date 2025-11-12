@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -47,7 +47,7 @@ Values in the `.redis` section take precedence over values in the `.global.redis
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.15.0 --namespace my-namespace --create-namespace
+helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.16.0 --namespace my-namespace --create-namespace
 ```
 
 For a list of available chart versions, visit the chart repository: https://public.cr.seqera.io/repo/charts/platform
@@ -76,6 +76,8 @@ For a list of available chart versions, visit the chart repository: https://publ
 | global.platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL db. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with e.g. extraDeploy, since this chart will perform a lookup on the Kubernetes API server at install/upgrade time. |
 | global.platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL db. |
 | global.platformDatabase.driver | string | `"mariadb"` | Database driver. Possible options: "mariadb" (or its alias "mysql"). |
+| global.platformDatabase.connectionOptions | object | `{"mariadb":["permitMysqlScheme=true"]}` | Connection options to compose in the driver URL according to the driver used. The only driver that can be set is 'mariadb'. |
+| global.platformDatabase.connectionOptions.mariadb | list | `["permitMysqlScheme=true"]` | Connection options to use with the MariaDB driver. For the full list of supported options see: https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j |
 | global.platformDatabase.dialect | string | `"mysql-8"` | Hibernate dialect to use, depending on the database version. Possible options: mysql-8 (default), mariadb-10. |
 | global.platformDatabase.minPoolSize | string | `"2"` | Connection pool minimum size. |
 | global.platformDatabase.maxPoolSize | string | `"10"` | Connection pool maximum size. |
