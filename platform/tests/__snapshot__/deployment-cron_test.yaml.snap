@@ -58,7 +58,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-shared-backend-cron
                 - secretRef:
                     name: release-name-platform-backend
-              image: cr.seqera.io/private/nf-tower-enterprise/backend:9.9.9
+              image: private/nf-tower-enterprise/backend:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -181,7 +181,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-shared-backend-cron
                 - secretRef:
                     name: release-name-platform-backend
-              image: cr.seqera.io/private/nf-tower-enterprise/migrate-db:9.9.9
+              image: private/nf-tower-enterprise/migrate-db:9.9.9
               imagePullPolicy: IfNotPresent
               name: migrate-db
               securityContext:

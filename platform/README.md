@@ -17,6 +17,8 @@ A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
 For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
+Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
+
 ## Platform architecture
 
 The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview)
@@ -47,18 +49,15 @@ Values in the `.redis` section take precedence over values in the `.global.redis
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release oci://public.cr.seqera.io/charts/platform --version 0.16.0 --namespace my-namespace --create-namespace
+helm install my-release oci://public.cr.seqera.io/charts/platform \
+  --version 0.16.0 \
+  --namespace my-namespace \
+  --create-namespace
 ```
 
 For a list of available chart versions, visit the chart repository: https://public.cr.seqera.io/repo/charts/platform
 
-##
-
-## Requirements
-
-| Repository | Name | Version |
-|------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
+Some chart values are mandatory and must be provided by the user, e.g. internal registry hostname containing Seqera container images, Database credentials, Redis configuration and the Seqera license.
 
 ## Values
 
@@ -123,7 +122,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release.  extraDeploy:   - apiVersion: v1     kind: MyExtraObjectKind     ...   - apiVersion: v1     kind: AnotherExtraObjectKind     ... |
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects. |
 | commonLabels | object | `{}` | Labels to add to all deployed objects. |
-| backend.image.registry | string | `"cr.seqera.io"` | Backend container image registry. |
+| backend.image.registry | string | `""` | Backend container image registry. |
 | backend.image.repository | string | `"private/nf-tower-enterprise/backend"` | Backend container image repository. |
 | backend.image.tag | string | {{ .chart.AppVersion }} | Backend container image tag. |
 | backend.image.digest | string | `""` | Backend container image digest in the format 'sha256:1234abcdef'. |
@@ -180,7 +179,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | backend.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |
 | backend.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container. |
 | backend.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored). |
-| frontend.image.registry | string | `"cr.seqera.io"` | Frontend container image registry. |
+| frontend.image.registry | string | `""` | Frontend container image registry. |
 | frontend.image.repository | string | `"private/nf-tower-enterprise/frontend"` | Frontend container image repository. |
 | frontend.image.tag | string | {{ .chart.AppVersion }}-unprivileged | Specify a tag to override the version defined in .Chart.appVersion. |
 | frontend.image.digest | string | `""` | Frontend container image digest in the format 'sha256:1234abcdef'. |
@@ -237,7 +236,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | frontend.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |
 | frontend.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container. |
 | frontend.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored). |
-| cron.image.registry | string | `"cr.seqera.io"` | Cron container image registry. |
+| cron.image.registry | string | `""` | Cron container image registry. |
 | cron.image.repository | string | `"private/nf-tower-enterprise/backend"` | Cron container image repository. |
 | cron.image.tag | string | {{ .chart.AppVersion }} | Cron container image tag. |
 | cron.image.digest | string | `""` | Cron container image digest in the format 'sha256:1234abcdef'. |
@@ -295,7 +294,7 @@ For a list of available chart versions, visit the chart repository: https://publ
 | cron.livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly. |
 | cron.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container. |
 | cron.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored). |
-| cron.dbMigrationInitContainer.image.registry | string | `"cr.seqera.io"` | Database migration container image registry. |
+| cron.dbMigrationInitContainer.image.registry | string | `""` | Database migration container image registry. |
 | cron.dbMigrationInitContainer.image.repository | string | `"private/nf-tower-enterprise/migrate-db"` | Database migration container image repository. |
 | cron.dbMigrationInitContainer.image.tag | string | {{ .chart.AppVersion }} | Specify a tag to override the version defined in .Chart.appVersion. |
 | cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format 'sha256:1234abcdef'. |
@@ -362,3 +361,9 @@ For a list of available chart versions, visit the chart repository: https://publ
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template. |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class'). |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template. |
+
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |

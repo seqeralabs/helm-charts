@@ -40,7 +40,7 @@ tests:
                       name: release-name-platform-shared-backend-cron
                   - secretRef:
                       name: release-name-platform-backend
-                image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
+                image: private/nf-tower-enterprise/backend:v9.9.9
                 imagePullPolicy: IfNotPresent
                 livenessProbe:
                   failureThreshold: 10
@@ -203,7 +203,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/backend:9.0.0"
+          value: "private/nf-tower-enterprise/backend:9.0.0"
 
   - it: should render the backend deployment with the specified digest, overriding the tag
     template: deployment-backend.yaml
@@ -215,7 +215,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/backend@sha256:1234abcdef"
+          value: "private/nf-tower-enterprise/backend@sha256:1234abcdef"
 
   - it: should render the backend deployment with the correct checksums, labels and annotations
     template: deployment-backend.yaml

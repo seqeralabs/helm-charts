@@ -39,7 +39,7 @@ should produce a Deployment resource with minimal values:
                 - name: NGINX_LISTEN_PORT
                   value: "8083"
               envFrom: null
-              image: cr.seqera.io/private/nf-tower-enterprise/frontend:v9.9.9-unprivileged
+              image: private/nf-tower-enterprise/frontend:v9.9.9-unprivileged
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -135,7 +135,7 @@ should render the frontend deployment with the correct labels and annotations:
                 - name: NGINX_LISTEN_PORT
                   value: "8083"
               envFrom: null
-              image: cr.seqera.io/private/nf-tower-enterprise/frontend:9.9.9-unprivileged
+              image: private/nf-tower-enterprise/frontend:9.9.9-unprivileged
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10

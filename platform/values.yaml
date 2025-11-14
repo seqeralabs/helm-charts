@@ -229,7 +229,7 @@ commonLabels: {}
 backend:
   image:
     # -- Backend container image registry.
-    registry: cr.seqera.io
+    registry: ""
     # -- Backend container image repository.
     repository: private/nf-tower-enterprise/backend
     # -- Backend container image tag.
@@ -442,7 +442,7 @@ backend:
 frontend:
   image:
     # -- Frontend container image registry.
-    registry: cr.seqera.io
+    registry: ""
     # -- Frontend container image repository.
     repository: private/nf-tower-enterprise/frontend
     # -- Specify a tag to override the version defined in .Chart.appVersion.
@@ -650,7 +650,7 @@ frontend:
 cron:
   image:
     # -- Cron container image registry.
-    registry: cr.seqera.io
+    registry: ""
     # -- Cron container image repository.
     repository: private/nf-tower-enterprise/backend
     # -- Cron container image tag.
@@ -855,7 +855,7 @@ cron:
   dbMigrationInitContainer:
     image:
       # -- Database migration container image registry.
-      registry: cr.seqera.io
+      registry: ""
       # -- Database migration container image repository.
       repository: private/nf-tower-enterprise/migrate-db
       # -- Specify a tag to override the version defined in .Chart.appVersion.
