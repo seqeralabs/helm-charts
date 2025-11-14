@@ -7,7 +7,7 @@ namespace: albertoc-platform
 helmCharts:
 - name: platform
   repo: oci://public.cr.seqera.io/charts
-  version: 0.14.5
+  version: 0.16.1
   releaseName: seqera-platform
   # Basic values to provide to the Helm chart
   valuesFile: values.yaml
@@ -19,6 +19,8 @@ helmCharts:
         host: platform-db.example.com
         database: platform
         username: platform
+      redis:
+        host: redis.example.com
     frontend:
       extraOptionsSpec:
         replicas: 2

@@ -1,5 +1,4 @@
-# Seqera Platform helm chart values
-# This file contains some minimal values for the Helm chart
+# This file contains some example values for the Seqera Platform Helm chart
 # Additional values can be set in kustomization.yaml's valuesInline
 
 global:
@@ -9,7 +8,7 @@ global:
     host: ""
     database: "platform"
     username: "platform"
-    # Password should be provided via existing secret
+    # Passwords should be provided via existing secret
     existingSecretName: "platform-db-credentials"
 
   redis:
