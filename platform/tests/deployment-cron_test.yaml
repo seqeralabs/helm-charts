@@ -348,16 +348,6 @@ tests:
                 secretKeyRef:
                   key: TOWER_CRYPTO_SECRETKEY
                   name: release-name-platform-backend
-            - name: TOWER_REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_REDIS_PASSWORD
-                  name: release-name-platform-backend
-            - name: TOWER_SMTP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_SMTP_PASSWORD
-                  name: release-name-platform-backend
             - name: NXF_HOME
               value: /var/cache/tower/
             - name: NXF_PLUGINS_DIR
@@ -1069,6 +1059,7 @@ tests:
         jwtSeedSecretName: "my-jwt-seed-secret"
         cryptoSeedSecretName: "my-crypto-seed-secret"
         smtp:
+          host: asdf
           existingSecretName: "my-smtp-secret"
     asserts:
       - equal:
@@ -1138,6 +1129,7 @@ tests:
         cryptoSeedSecretName: "my-crypto-seed-secret"
         cryptoSeedSecretKey: "my-crypto-seed-secret-key"
         smtp:
+          host: asdf
           existingSecretName: "my-smtp-secret"
           existingSecretKey: "my-smtp-secret-key"
     asserts:

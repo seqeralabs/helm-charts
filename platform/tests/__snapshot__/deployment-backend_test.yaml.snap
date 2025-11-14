@@ -22,16 +22,6 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: TOWER_CRYPTO_SECRETKEY
                 name: release-name-platform-backend
-          - name: TOWER_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: TOWER_REDIS_PASSWORD
-                name: release-name-platform-backend
-          - name: TOWER_SMTP_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: TOWER_SMTP_PASSWORD
-                name: release-name-platform-backend
           - name: NXF_HOME
             value: /var/cache/tower/
           - name: NXF_PLUGINS_DIR
@@ -224,7 +214,7 @@ should render the backend deployment with the correct checksums, labels and anno
         metadata:
           annotations:
             checksum/configmap: 380b749392f400fe4829101e8a4fc5f15e4f13cfe8e24c4ba4bd8082b141b596
-            checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
+            checksum/secret: 27e0ae5efe3beffdc19e0c47ecc973b5ecff8679033f1ea6ca92a640a4f46fdf
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
@@ -260,16 +250,6 @@ should render the backend deployment with the correct checksums, labels and anno
                   valueFrom:
                     secretKeyRef:
                       key: TOWER_CRYPTO_SECRETKEY
-                      name: release-name-platform-backend
-                - name: TOWER_REDIS_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: TOWER_REDIS_PASSWORD
-                      name: release-name-platform-backend
-                - name: TOWER_SMTP_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: TOWER_SMTP_PASSWORD
                       name: release-name-platform-backend
                 - name: NXF_HOME
                   value: /var/cache/tower/

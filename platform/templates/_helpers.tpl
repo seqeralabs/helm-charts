@@ -84,12 +84,11 @@ Build the cron micronaut envs list: add envs if features are requested in other 
 {{/*
 Return the name of the secret containing the Platform database password.
 */}}
+{{- define "platform.database.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) -}}
+{{- end -}}
 {{- define "platform.database.secretName" -}}
-  {{- /* When no external secret is passed, default to the secret name that will store the token.
-  On the first execution, the lookup function will not find the secret and will generate a
-  random token; on successive executions, the lookup function will find the secret and will
-  extract and re-save the token back in its original key. */ -}}
-  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- include "platform.database.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
@@ -190,10 +189,12 @@ Return the Redis URI. */}}
 Return the name of the secret containing the Redis password.
 'redis' takes precedence over 'global.redis'.
 */}}
-{{- define "platform.redis.secretName" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.redis.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) -}}
 {{- end -}}
-
+{{- define "platform.redis.secretName" -}}
+  {{- include "platform.redis.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{/*
 Return the key of the secret containing the Redis password.
 'redis' takes precedence over 'global.redis'.
@@ -205,10 +206,12 @@ Return the key of the secret containing the Redis password.
 {{/*
 Return the name of the secret containing the JWT token.
 */}}
-{{- define "platform.jwt.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.jwt.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.jwt.secretName" -}}
+  {{- include "platform.jwt.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.jwt.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
@@ -216,10 +219,12 @@ Return the name of the secret containing the JWT token.
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
-{{- define "platform.crypto.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.crypto.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.crypto.secretName" -}}
+  {{- include "platform.crypto.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.crypto.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
@@ -227,10 +232,12 @@ Return the name of the secret containing the crypto token.
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
-{{- define "platform.license.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.license.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.license.secretName" -}}
+  {{- include "platform.license.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.license.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
@@ -238,10 +245,12 @@ Return the name of the secret containing the Platform license token.
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
-{{- define "platform.smtp.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.smtp.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.smtp.secretName" -}}
+  {{- include "platform.smtp.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.smtp.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
@@ -311,10 +320,6 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" $ | quote }}
-    # {{ $.Values.redis.password }}
-    # {{ $.Values.global.redis.password }}
-    # {{ $.Values.redis.existingSecretName }}
-    # {{ $.Values.global.redis.existingSecretName }}
     {{- if or $.Values.redis.password $.Values.global.redis.password $.Values.redis.existingSecretName $.Values.global.redis.existingSecretName }}
     - name: REDISCLI_AUTH
       valueFrom:

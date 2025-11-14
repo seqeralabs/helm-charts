@@ -47,23 +47,6 @@ tests:
     chart:
       version: "9.9.9+test"
       appVersion: "9.9.9"
-    kubernetesProvider:
-      scheme:
-        "v1/Secret":
-          gvr:
-            version:  "v1"
-            resource: "secrets"
-          namespaced: true
-      objects:
-        - apiVersion: v1
-          kind: Secret
-          type: Opaque
-          metadata:
-            name: unittest
-            namespace: NAMESPACE
-          data:
-            db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
-            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
     set:
       global:
         platformDatabase:
@@ -309,16 +292,6 @@ tests:
               valueFrom:
                 secretKeyRef:
                   key: TOWER_CRYPTO_SECRETKEY
-                  name: release-name-platform-backend
-            - name: TOWER_REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_REDIS_PASSWORD
-                  name: release-name-platform-backend
-            - name: TOWER_SMTP_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_SMTP_PASSWORD
                   name: release-name-platform-backend
             - name: NXF_HOME
               value: /var/cache/tower/
@@ -855,6 +828,7 @@ tests:
         jwtSeedSecretName: "my-jwt-seed-secret"
         cryptoSeedSecretName: "my-crypto-seed-secret"
         smtp:
+          host: asdf
           existingSecretName: "my-smtp-secret"
     asserts:
       - equal:
@@ -924,6 +898,7 @@ tests:
         cryptoSeedSecretName: "my-crypto-seed-secret"
         cryptoSeedSecretKey: "my-crypto-seed-secret-key"
         smtp:
+          host: asdf
           existingSecretName: "my-smtp-secret"
           existingSecretKey: "my-smtp-secret-key"
     asserts:
