@@ -71,11 +71,6 @@ spec:
                 name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
             - configMapRef:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
-{{/*
-- secretRef:
-{{/* TODO: Common secrets should be probably split into a separate resource.
-name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
-*/}}
 {{- range .Values.backend.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
