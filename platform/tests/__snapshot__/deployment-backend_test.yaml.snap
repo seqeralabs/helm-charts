@@ -18,6 +18,7 @@ should render the backend deployment with the correct checksums, labels and anno
       name: release-name-platform-backend
       namespace: NAMESPACE
     spec:
+      replicas: 3
       selector:
         matchLabels:
           app: backend
@@ -26,7 +27,7 @@ should render the backend deployment with the correct checksums, labels and anno
       template:
         metadata:
           annotations:
-            checksum/configmap: b7baad957772b72a306f63bec119c23126d668da52d579afe28243242cfb9d84
+            checksum/configmap: 380b749392f400fe4829101e8a4fc5f15e4f13cfe8e24c4ba4bd8082b141b596
             checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value

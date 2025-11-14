@@ -43,14 +43,10 @@ data:
 
   WAVE_SERVER_URL: {{ tpl .Values.platform.waveServerUrl $ | quote }}
 
-  TOWER_DB_URL: {{ printf "jdbc:mysql://%s:%d/%s?&usePipelineAuth=false&useBatchMultiSend=false&permitMysqlScheme=true"
-                          .Values.global.platformDatabase.host
-                          (.Values.global.platformDatabase.port | int)
-                          .Values.global.platformDatabase.database
-                              | quote }}
+  TOWER_DB_URL: {{ include "platform.database.url" . | quote }}
   TOWER_DB_USER: {{ tpl .Values.global.platformDatabase.username . | quote }}
-  TOWER_DB_DRIVER: {{ .Values.global.platformDatabase.driver | quote }}
-  TOWER_DB_DIALECT: {{ .Values.global.platformDatabase.dialect | quote }}
+  TOWER_DB_DRIVER: {{ include "platform.database.driver" . | quote }}
+  TOWER_DB_DIALECT: {{ include "platform.database.dialect" . | quote }}
   TOWER_DB_MAX_LIFETIME: {{ .Values.global.platformDatabase.maxLifetime | toString | quote }}
   TOWER_DB_MAX_POOL_SIZE: {{ .Values.global.platformDatabase.maxPoolSize | toString | quote }}
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.global.platformDatabase.minPoolSize | toString | quote }}

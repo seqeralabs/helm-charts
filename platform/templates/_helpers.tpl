@@ -97,6 +97,57 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{/*
+Return the JDBC URL for the database connection, including connection options.
+Constructs URL in format: jdbc:mysql://host:port/database?option1=value1&option2=value2
+
+For now this template is built around the only driver that can be set, 'mariadb'.
+*/}}
+{{- define "platform.database.url" -}}
+  {{- $baseUrl := printf "jdbc:mysql://%s:%d/%s"
+  .Values.global.platformDatabase.host
+  (.Values.global.platformDatabase.port | int)
+  .Values.global.platformDatabase.database -}}
+  {{- $options := list -}}
+  {{/* Evaluate mysql first, so if both are defined we pick mariadb options. */}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mysql -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mysql -}}
+  {{- end -}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mariadb -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mariadb -}}
+  {{- end -}}
+
+  {{- if $options -}}
+    {{- printf "%s?%s" $baseUrl (join "&" $options) -}}
+  {{- else -}}
+    {{- $baseUrl -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the JDBC driver class name based on the selected database driver.
+*/}}
+{{- define "platform.database.driver" -}}
+  {{- if or (eq .Values.global.platformDatabase.driver "mariadb") (eq .Values.global.platformDatabase.driver "mysql") -}}
+org.mariadb.jdbc.Driver
+  {{- else -}}
+    {{- fail (printf "Unsupported database driver: '%s'. Supported drivers are: 'mariadb' (or its alias 'mysql')." .Values.global.platformDatabase.driver) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the Hibernate dialect based on the selected database dialect.
+*/}}
+{{- define "platform.database.dialect" -}}
+  {{- if eq .Values.global.platformDatabase.dialect "mysql-8" -}}
+io.seqera.util.MySQL8DialectCollateBin
+  {{- else if eq .Values.global.platformDatabase.dialect "mariadb-10" -}}
+io.seqera.util.MariaDB10DialectCollateBin
+  {{- else -}}
+    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-8', 'mariadb-10'." .Values.global.platformDatabase.dialect) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
 */}}

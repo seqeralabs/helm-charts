@@ -214,21 +214,25 @@ helm unittest -u platform/
 
 ### Testing Changes Locally
 
-```bash
-# Render templates to inspect output
-helm template platform ./platform -f platform/values.yaml > output.yaml
+**IMPORTANT FOR AI ASSISTANTS**: Always use unit tests to verify changes. DO NOT use `helm template`
+to test changes during development as it requires multiple values to be set. The unit test suite is
+comprehensive and faster.
 
-# Run unit tests
+```bash
+# PRIMARY: Run unit tests (USE THIS TO VERIFY CHANGES)
 make -C platform test
 
-# Debug specific test
-helm unittest -d -f tests/configmap_test.yaml .
+# Update snapshots after intentional changes
+helm unittest -u platform/
 
-# Lint chart
-helm lint platform/
+# Debug specific test (when a test fails)
+helm unittest -d -f tests/configmap_test.yaml platform/
+```
 
-# Package chart
-make -C platform build
+**For manual inspection only (not for testing):**
+```bash
+# Render templates to inspect output (for human review only, not for automated testing)
+helm template platform ./platform -f platform/values.yaml > output.yaml
 ```
 
 ### Version Bumping
