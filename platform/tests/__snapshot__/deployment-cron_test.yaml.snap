@@ -47,6 +47,36 @@ should render the cron deployment with the correct checksums, labels and annotat
         spec:
           containers:
             - env:
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: db-password-key
+                      name: unittest
+                - name: TOWER_LICENSE
+                  valueFrom:
+                    secretKeyRef:
+                      key: license-token-key
+                      name: unittest
+                - name: TOWER_JWT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_JWT_SECRET
+                      name: release-name-platform-backend
+                - name: TOWER_CRYPTO_SECRETKEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_CRYPTO_SECRETKEY
+                      name: release-name-platform-backend
+                - name: TOWER_REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_REDIS_PASSWORD
+                      name: release-name-platform-backend
+                - name: TOWER_SMTP_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_SMTP_PASSWORD
+                      name: release-name-platform-backend
                 - name: NXF_HOME
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR
@@ -56,8 +86,6 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-cron
                 - configMapRef:
                     name: release-name-platform-shared-backend-cron
-                - secretRef:
-                    name: release-name-platform-backend
               image: cr.seqera.io/private/nf-tower-enterprise/backend:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:

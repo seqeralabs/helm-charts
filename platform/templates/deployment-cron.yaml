@@ -113,9 +113,6 @@ spec:
                 name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
             - configMapRef:
                 name: {{ printf "%s-shared-backend-cron" (include "common.names.fullname" .) }}
-            - secretRef:
-                {{/* TODO: Common secrets should be probably split into a separate resource. */}}
-                name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
 {{- range .Values.cron.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "seqera.tplvalues.render" (dict "value" . "context" $) }}
@@ -126,6 +123,48 @@ spec:
 {{- end }}
 
           env:
+{{- if (include "platform.database.secretName" .) }}
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.database.secretName" . }}
+                  key: {{ include "platform.database.secretKey" . }}
+{{- end }}
+{{- if (include "platform.license.secretName" .) }}
+            - name: TOWER_LICENSE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.license.secretName" . }}
+                  key: {{ include "platform.license.secretKey" . }}
+{{- end }}
+{{- if (include "platform.jwt.secretName" .) }}
+            - name: TOWER_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.jwt.secretName" . }}
+                  key: {{ include "platform.jwt.secretKey" . }}
+{{- end }}
+{{- if (include "platform.crypto.secretName" .) }}
+            - name: TOWER_CRYPTO_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.crypto.secretName" . }}
+                  key: {{ include "platform.crypto.secretKey" . }}
+{{- end }}
+{{- if (include "platform.redis.secretName" .) }}
+            - name: TOWER_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.redis.secretName" . }}
+                  key: {{ include "platform.redis.secretKey" . }}
+{{- end }}
+{{- if (include "platform.smtp.secretName" .) }}
+            - name: TOWER_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.smtp.secretName" . }}
+                  key: {{ include "platform.smtp.secretKey" . }}
+{{- end }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
