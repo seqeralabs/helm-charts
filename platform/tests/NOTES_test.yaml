@@ -40,7 +40,7 @@ tests:
         host: ""
     asserts:
       - failedTemplate:
-          errorPattern: "Define the Redis hostname in 'redis' or 'global.redis' \\('redis' takes precedence over 'global.redis'\\)"
+          errorPattern: "Define the Redis hostname in 'redis.host' or 'global.redis.host' \\('redis' takes precedence over 'global.redis'\\)"
 
   - it: should fail when no license is defined
     set:

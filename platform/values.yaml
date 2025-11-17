@@ -61,7 +61,7 @@ global:
 
   # Global Redis configuration values. Values set here will be used by multiple seqera products
   # that require Redis, unless overridden in each product's own .redis section. See README.
-  # Note that Platform doesn't allow configuring a Redis database within a Redis instance.
+  # Note that Platform currently doesn't allow configuring a Redis database within a Redis instance.
   redis:
     # -- Redis hostname.
     host: ""
