@@ -361,4 +361,4 @@ For a list of available chart versions, visit the chart repository: https://publ
 | ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template. |
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template. |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class'). |
-| ingress.tls | list | `[]` | TLS configuration. Evaluated as a template. |
+| ingress.tls | list | `[]` | TLS configuration. Evaluated as a template.  tls:   - hosts:       - '{{ .Values.global.platformExternalDomain }}'       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'     secretName: my-tls |
