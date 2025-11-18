@@ -77,30 +77,13 @@ jobs:
 
             echo "Creating release for ${chart} version ${chart_version}.."
 
-            # Get the previous release tag for this chart
-            previous_tag=$(gh release list --repo ${{ github.repository }} --limit 100 | grep "^${chart}-" | head -n 1 | awk '{print $1}' || echo "")
-
-            # Generate PR list
-            if [ -n "$previous_tag" ]; then
-              echo "Generating PR list since ${previous_tag}..."
-              pr_list=$(gh pr list --repo ${{ github.repository }} --state merged --search "merged:>=$(gh release view $previous_tag --repo ${{ github.repository }} --json createdAt --jq .createdAt)" --json number,title,author --jq '.[] | "- #\(.number): \(.title) (@\(.author.login))"' || echo "")
-            else
-              echo "No previous release found for ${chart}, listing recent PRs..."
-              pr_list=$(gh pr list --repo ${{ github.repository }} --state merged --limit 20 --json number,title,author --jq '.[] | "- #\(.number): \(.title) (@\(.author.login))"' || echo "")
-            fi
-
-            # Create release notes
-            cat > /tmp/release-notes-${chart}.md << EOF
-          # ${chart} ${chart_version}
+            # Create additional chart installation instructions
+            cat > /tmp/release-notes-footer-${chart}.md << EOF
 
           ## Chart Information
 
           - **OCI Registry**: \`oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart}:${chart_version}\`
           - **Chart README**: [${chart}/README.md](https://github.com/${{ github.repository }}/blob/${release_tag}/${chart}/README.md)
-
-          ## Pull Requests Included
-
-          ${pr_list:-No PRs found or unable to fetch PR list.}
 
           ## Installation
 
@@ -109,11 +92,12 @@ jobs:
           \`\`\`
           EOF
 
-            # Create the release
+            # Create the release with auto-generated notes
             gh release create "${release_tag}" \
               --repo ${{ github.repository }} \
               --title "${chart} ${chart_version}" \
-              --notes-file /tmp/release-notes-${chart}.md
+              --generate-notes \
+              --notes-file /tmp/release-notes-footer-${chart}.md
 
             echo "Created release ${release_tag}"
           done
