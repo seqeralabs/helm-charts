@@ -7,7 +7,7 @@ Currently, it includes charts for:
 - [Platform](./platform/README.md): Seqera Labs Platform for workflow orchestration and management.
 
 > [!NOTE]
-> **Early Preview** - The platform chart is currently in early preview as we work toward a stable release by the end of 2025.
+> **Private Preview** - The platform chart is currently in early preview as we work toward a stable release by the end of 2025.
 >
 > We'd love your feedback! Please test the chart with your use cases and [report any
 > issues](https://github.com/seqeralabs/helm-charts/issues) you encounter. Your input
