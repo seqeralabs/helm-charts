@@ -26,3 +26,8 @@ repos:
     rev: v0.4.2
     hooks:
       - id: helmfmt
+
+#  - repo: https://github.com/emzeat/mz-lictools
+#    rev: v2.8.0
+#    hooks:
+#      - id: license-tools
