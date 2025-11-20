@@ -27,7 +27,23 @@ repos:
     hooks:
       - id: helmfmt
 
-#  - repo: https://github.com/emzeat/mz-lictools
-#    rev: v2.8.0
-#    hooks:
-#      - id: license-tools
+  # The seqeralabs fork comes with Go text/template support and a fix for relative config files
+  # https://github.com/emzeat/mz-lictools/pull/47
+  # https://github.com/emzeat/mz-lictools/pull/48
+  # Use separate calls to the same hook to first decorate helm template files with Go text/template
+  # style, then decorate remaining yaml and other files with standard style.
+  - repo: https://github.com/seqeralabs/mz-lictools
+    rev: f3b3f53
+    hooks:
+      - id: license-tools
+        name: Fix license header on Helm templates
+        args:
+          - --config=.license-tools-config-helm.json
+      - id: license-tools
+        name: Fix license header on Helm test files
+        args:
+          - --config=.license-tools-config-helm-tests.json
+      - id: license-tools
+        name: Fix license header on other test files in the repo
+        args:
+          - --config=.license-tools-config-other.json
