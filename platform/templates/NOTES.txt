@@ -94,7 +94,7 @@ To check the status of your release, try:
   $ helm --namespace {{ include "common.names.namespace" . }} status {{ .Release.Name }}
   $ helm --namespace {{ include "common.names.namespace" . }} get all {{ .Release.Name }}
 
-{{- if not .Values.platform.smtp.host -}}
+{{ if not .Values.platform.smtp.host -}}
 NOTE: SMTP hostname not configured, email notifications may not be sent. You can set it up by providing the SMTP host and other parameters in the 'platform.smtp' section of the values.
 If you're using AWS SES, refer to the documentation for the required settings: https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#aws-ses-integration
 {{- end }}
