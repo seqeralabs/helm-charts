@@ -1,11 +1,11 @@
 # Kustomize Integration Example for Seqera Platform Helm Chart
 
-This directory contains a complete example of how to use the Seqera Platform Helm chart with Kustomize's `helmCharts` feature.
+This directory contains a complete example of how to use the Seqera Platform Helm chart with [Kustomize's](https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/) `helmCharts` feature.
 
 ## Prerequisites
 
 1. **Kustomize** v5.0+ with Helm support
-2. **Helm** v3.19+ (required by Kustomize for chart rendering)
+2. **Helm** v3 (required by Kustomize for chart rendering)
 3. **kubectl** configured to access your cluster
 
 ## How It Works
