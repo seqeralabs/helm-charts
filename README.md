@@ -48,6 +48,8 @@ exact syntax and detailed examples.
 
 ## Licensing
 
+Seqera® and Nextflow® are registered trademarks of Seqera Labs.
+
 All charts in this repository are licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
 
 ## Development
