@@ -7,7 +7,7 @@ Currently, it includes charts for:
 - [Platform](./platform/README.md): Seqera Labs Platform for workflow orchestration and management.
 
 > [!NOTE]
-> **Early Preview** - The platform chart is currently in early preview as we work toward a stable release by the end of 2025.
+> **Private Preview** - The platform chart is currently in early preview as we work toward a stable release by the end of 2025.
 >
 > We'd love your feedback! Please test the chart with your use cases and [report any
 > issues](https://github.com/seqeralabs/helm-charts/issues) you encounter. Your input
@@ -47,6 +47,8 @@ docs](https://github.com/containers/skopeo/blob/v1.20.0/docs/skopeo-sync.1.md?pl
 exact syntax and detailed examples.
 
 ## Licensing
+
+Seqera® and Nextflow® are registered trademarks of Seqera Labs.
 
 All charts in this repository are licensed under the Apache License 2.0. See the [LICENSE](./LICENSE) file for details.
 

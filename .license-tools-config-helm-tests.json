@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "Seqera Labs"
+  },
+  "force_author": false,
+  "license": "Apache-2.0",
+  "force_license": true,
+  "title": false,
+  "custom_title": "yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json",
+  "include": [
+    "*/tests/*.yaml"
+  ]
+}
