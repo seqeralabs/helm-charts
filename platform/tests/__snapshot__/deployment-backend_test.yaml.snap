@@ -192,7 +192,7 @@ should render the backend deployment with the correct checksums, labels and anno
       annotations:
         common-annotation-key: common-annotation-value
       labels:
-        app: backend
+        app.kubernetes.io/component: backend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
@@ -207,7 +207,7 @@ should render the backend deployment with the correct checksums, labels and anno
       replicas: 3
       selector:
         matchLabels:
-          app: backend
+          app.kubernetes.io/component: backend
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/name: platform
       template:
@@ -219,7 +219,7 @@ should render the backend deployment with the correct checksums, labels and anno
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
           labels:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: platform

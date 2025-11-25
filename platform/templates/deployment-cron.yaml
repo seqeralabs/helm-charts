@@ -24,7 +24,7 @@ metadata:
   name: {{ printf "%s-cron" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    app: cron
+    app.kubernetes.io/component: cron
 {{- with .Values.commonAnnotations }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
 {{- end }}
@@ -33,7 +33,7 @@ spec:
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
-      app: cron
+      app.kubernetes.io/component: cron
 
   # The cron deployment MUST NOT be replicated, not even during a rolling deployment.
   replicas: 1
@@ -49,7 +49,7 @@ spec:
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
-        app: cron
+        app.kubernetes.io/component: cron
       annotations:
 {{- if or .Values.cron.podAnnotations .Values.commonAnnotations }}
   {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podAnnotations .Values.commonAnnotations) "context" $) }}

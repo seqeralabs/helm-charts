@@ -103,7 +103,7 @@ tests:
       - equal:
           path: spec.selector.matchLabels
           value:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 
@@ -127,7 +127,7 @@ tests:
       - equal:
           path: spec.selector.matchLabels
           value:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 

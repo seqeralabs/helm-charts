@@ -43,7 +43,7 @@ spec:
 
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
-    app: backend
+    app.kubernetes.io/component: backend
   ports:
     {{- /* The http service is required and the installation must fail if it's missing since it's
          referenced by the frontend, so don't use 'with' here. */}}
@@ -73,7 +73,7 @@ spec:
 {{- end }}
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.cron.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
-    app: cron
+    app.kubernetes.io/component: cron
   ports:
     - name: {{ .Values.cron.service.http.name | default "http" }}
       port: {{ .Values.cron.service.http.port }}
@@ -99,7 +99,7 @@ spec:
 {{- end }}
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.frontend.podLabels .Values.commonLabels) "context" .) }}
   selector: {{- include "common.labels.matchLabels" ( dict "customLabels" $podLabels "context" $ ) | nindent 4 }}
-    app: frontend
+    app.kubernetes.io/component: frontend
   ports:
     - name: {{ .Values.frontend.service.http.name | default "http" }}
       port: {{ .Values.frontend.service.http.port }}

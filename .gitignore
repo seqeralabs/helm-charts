@@ -13,3 +13,6 @@ values-*.y*ml
 .claude
 
 .helm_ls_cache/
+
+*.sh
+*.txt

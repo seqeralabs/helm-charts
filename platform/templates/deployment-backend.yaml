@@ -24,7 +24,7 @@ metadata:
   name: {{ printf "%s-backend" (include "common.names.fullname" .) }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    app: backend
+    app.kubernetes.io/component: backend
 {{- with .Values.commonAnnotations }}
   annotations: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
 {{- end }}
@@ -33,7 +33,7 @@ spec:
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
-      app: backend
+      app.kubernetes.io/component: backend
 
   # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
   # omitted (selector).
@@ -45,7 +45,7 @@ spec:
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
-        app: backend
+        app.kubernetes.io/component: backend
       annotations:
 {{- if or .Values.backend.podAnnotations .Values.commonAnnotations }}
   {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.backend.podAnnotations .Values.commonAnnotations) "context" $) }}

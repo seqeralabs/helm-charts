@@ -120,7 +120,7 @@ tests:
       - equal:
           path: spec.selector.matchLabels
           value:
-            app: cron
+            app.kubernetes.io/component: cron
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 
