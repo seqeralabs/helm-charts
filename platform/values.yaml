@@ -21,9 +21,9 @@ global:
   # -- Domain where Seqera Platform (formerly known as Tower) listens
   platformExternalDomain: example.com
 
-  # -- Domain where user-created Platform reports are exposed (evaluated as template), to avoid
-  # Cross-Site Scripting attacks. If unset, data is served through the main domain
-  # .global.platformExternalDomain. Evaluated as a template
+  # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
+  # attacks. If unset, data is served through the main domain .global.platformExternalDomain.
+  # Evaluated as a template
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
@@ -207,7 +207,7 @@ platform:
 
 # Redis configuration values: for more details, refer to .global.redis. These values take precedence
 # over values in .global.redis
-# Note that Platform doesn't support the configuration of a Redis database within a Redis instance
+# Note that Platform currently doesn't support specifying a Redis database within a Redis instance
 redis:
   # -- Redis hostname
   host: ""
@@ -261,7 +261,7 @@ backend:
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
-    # Secrets must already exist in the same namespace, for example, with the extraDeploy array above
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
     # pullSecrets:
@@ -356,7 +356,7 @@ backend:
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   # Empty map to disable Pod Security Context configuration.
   podSecurityContext:
-    # -- Enable backend pods Security Context.
+    # -- Enable pod Security Context.
     enabled: true
     # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
     # in the pod can share group-owned access.
@@ -365,10 +365,9 @@ backend:
   # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
-    # -- Enable backend containers Security Context
+    # -- Enable container Security Context
     enabled: true
-    # -- Specifies the numeric UID the container processes should run as (overrides container image
-    # default).
+    # -- UID the container processes run as (overrides container image default)
     runAsUser: 101
     # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0).
     runAsNonRoot: true
@@ -455,214 +454,6 @@ backend:
     # -- Typically 1 (usually ignored).
     successThreshold: 1
 
-# Options specific to the Platform frontend deployment.
-frontend:
-  image:
-    # -- Frontend container image registry.
-    registry: cr.seqera.io
-    # -- Frontend container image repository.
-    repository: private/nf-tower-enterprise/frontend
-    # -- Specify a tag to override the version defined in .Chart.appVersion.
-    # @default -- {{ .chart.AppVersion }}-unprivileged
-    tag: ""
-    # -- Frontend container image digest in the format 'sha256:1234abcdef'.
-    digest: ""
-
-    # -- imagePullPolicy for the frontend container.
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
-    pullPolicy: IfNotPresent
-
-    # -- Optional list of imagePullSecrets.
-    # Secrets must be manually created in the same namespace. See the extraDeploy array above.
-    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-    #
-    # pullSecrets:
-    #   - myRegistryKeySecretName
-    pullSecrets: []
-
-  service:
-    # -- Frontend Service type.
-    # Note: ingresses using AWS ALB require the service to be NodePort.
-    type: ClusterIP
-    http:
-      # -- Service name to use.
-      name: http
-      # -- Service port.
-      port: 80
-      # -- The port on the pod/container that the Service forwards traffic to (can be a number or
-      # named port, distinct from the Service's external port).
-      targetPort: 8083
-      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer.
-      # Choose port between 30000-32767, unless the cluster was configured differently than default.
-      nodePort: null
-    # -- Other services that should live in the Service object.
-    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-    #
-    # extraServices:
-    # - name: myspecialservice
-    #   port: 1234
-    #   targetPort: 5678
-    #   # nodePort is only used when service.type is Nodeport or LoadBalancer.
-    #   # To set explicitly, choose port between 30000-32767 (unless your cluster was configured differently).
-    #   nodePort: ""
-    extraServices: []
-    # -- Extra Service options to place under .spec (e.g. clusterIP, loadBalancerIP,
-    # externalTrafficPolicy, externalIPs, etc). Evaluated as a template.
-    extraOptions: {}
-
-  # -- Additional init containers for the frontend pod. Evaluated as a template.
-  initContainers: []
-
-  # -- Override default container command (useful when using custom images)
-  command: []
-  # -- Override default container args (useful when using custom images)
-  args: []
-
-  # -- Additional labels for the backend pod. Evaluated as a template
-  podLabels: {}
-  # -- Additional annotations to apply to the pods (for example, Prometheus). Evaluated as a template
-  podAnnotations: {}
-
-  # -- Extra options to place under .spec (for example, replicas, strategy, revisionHistoryLimit)
-  # Evaluated as a template
-  #
-  # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
-  #       maxSurge: y
-  extraOptionsSpec:
-    replicas: 1
-  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
-  # etc). Evaluated as a template.
-  #
-  # extraOptionsTemplateSpec:
-  #   nodeSelector:
-  #     service: myspecialnodegroup
-  extraOptionsTemplateSpec: {}
-
-  # -- Extra environment variables to set on the backend pod
-  #
-  # extraEnvVars:
-  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
-  #     value: "set-a-value-here"
-  extraEnvVars: []
-  # -- ConfigMap containing extra env vars
-  extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
-  extraEnvVarsSecrets: []
-  # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-  # extraVolumeMounts
-  extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # extraVolumes
-  extraVolumeMounts: []
-
-  # Configure Pods Security Context
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
-  # Empty map to disable Pod Security Context configuration
-  podSecurityContext:
-    # -- Enable backend pods Security Context
-    enabled: true
-    # -- GID that Kubernetes applies to mounted volumes and created files so processes
-    # in the pod can share group-owned access
-    fsGroup: 101
-
-  # Configure Container Security Context
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
-  containerSecurityContext:
-    # -- Enable backend containers Security Context
-    enabled: true
-    # -- Numeric UID the container processes run as (overrides container image
-    # default)
-    runAsUser: 101
-    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
-    runAsNonRoot: true
-    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
-    readOnlyRootFilesystem: true
-    # -- Fine-grained Linux kernel privileges to add or drop for the container
-    capabilities:
-      drop:
-        - ALL
-
-  # -- Container requests and limits for different resources like CPU or memory
-  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-  # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use
-  # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious
-  # choice for the user
-  #
-  # requests:
-  #   requests:
-  #     cpu: "1"
-  #     memory: "1000Mi"
-  #   limits:
-  #     memory: "3000Mi"
-  resources: {}
-
-  # Configure extra options for the startup probe
-  startupProbe:
-    # -- Enable startup probe
-    enabled: false
-    httpGet:
-      # -- HTTP GET path for startup probe
-      path: "/health"
-      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now
-      port: 8080
-    # -- Longer initial wait to accommodate slow-starting apps
-    initialDelaySeconds: 5
-    # -- Often set longer to avoid frequent checks while starting
-    periodSeconds: 10
-    # -- Can be longer to allow slow initialization responses
-    timeoutSeconds: 3
-    # -- Consecutive failures during startup before killing the container (instead of immediate restarts)
-    failureThreshold: 5
-    # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness
-    successThreshold: 1
-
-  # Configure extra options for the readiness probe
-  readinessProbe:
-    # -- Enable readiness probe
-    enabled: true
-    httpGet:
-      # -- HTTP GET path for readiness probe
-      path: "/health"
-      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now
-      port: 8080
-    # -- Delay before first check (normal start timing)
-    initialDelaySeconds: 5
-    # -- Regular check interval during normal operation
-    periodSeconds: 5
-    # -- Short timeout to detect unresponsive containers for readiness
-    timeoutSeconds: 3
-    # -- Consecutive failures before marking the container Unready (no restart)
-    failureThreshold: 5
-    # -- Number of consecutive successes required to mark the container Ready after failures
-    successThreshold: 1
-
-  # Configure extra options for the liveness probe
-  livenessProbe:
-    # -- Enable liveness probe
-    enabled: true
-    httpGet:
-      # -- HTTP GET path for liveness probe
-      path: "/health"
-      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now
-      port: 8080
-    # -- Delay before first check (normal start timing)
-    initialDelaySeconds: 5
-    # -- Regular check interval during normal operation
-    periodSeconds: 10
-    # -- Short timeout to detect hung containers quickly
-    timeoutSeconds: 3
-    # -- Consecutive failures before restarting the container
-    failureThreshold: 10
-    # -- Typically 1 (usually ignored)
-    successThreshold: 1
-
 # Options specific to the Platform frontend deployment
 frontend:
   image:
@@ -682,8 +473,8 @@ frontend:
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
-    # Secrets must be manually created in the same namespace. See the extraDeploy array above
-    # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
     # pullSecrets:
     #   - myRegistryKeySecretName
@@ -701,7 +492,7 @@ frontend:
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
       targetPort: 8083
-      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
       nodePort: null
     # -- Other services that should live in the Service object
@@ -771,7 +562,7 @@ frontend:
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
-    # -- Enable backend pods Security Context
+    # -- Enable pod Security Context
     enabled: true
     # -- GID that Kubernetes applies to mounted volumes and created files so processes
     # in the pod can share group-owned access
@@ -780,10 +571,9 @@ frontend:
   # Configure Container Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
-    # -- Enable backend containers Security Context
+    # -- Enable container Security Context
     enabled: true
-    # -- Numeric UID the container processes run as (overrides container image
-    # default)
+    # -- UID the container processes run as (overrides container image default)
     runAsUser: 101
     # -- Require the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
@@ -889,7 +679,7 @@ cron:
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
-    # Secrets must be manually created in the same namespace. See the extraDeploy array above
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
     # pullSecrets:
@@ -977,7 +767,7 @@ cron:
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
-    # -- Enable backend pods Security Context
+    # -- Enable pod Security Context
     enabled: true
     # -- GID that Kubernetes applies to mounted volumes and created files so processes
     # in the pod can share group-owned access
@@ -986,10 +776,9 @@ cron:
   # Configure Container Security Context
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
-    # -- Enable backend containers Security Context
+    # -- Enable container Security Context
     enabled: true
-    # -- Numeric UID the container processes run as (overrides container image
-    # default)
+    # -- UID the container processes run as (overrides container image default)
     runAsUser: 101
     # -- Require the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
@@ -1093,9 +882,9 @@ cron:
       # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
       pullPolicy: IfNotPresent
 
-      # -- List of imagePullSecrets
-      # Secrets must be manually created in the same namespace. See the extraDeploy array above
-      # ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # -- List of imagePullSecrets
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
       #
       # pullSecrets:
       #   - myRegistryKeySecretName
@@ -1126,10 +915,9 @@ cron:
     # Configure Init Container Security Context
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext:
-      # -- Enable backend containers Security Context
+      # -- Enable container Security Context
       enabled: true
-      # -- Numeric UID the container processes run as (overrides container image
-      # default)
+      # -- UID the container processes run as (overrides container image default)
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID 0)
       runAsNonRoot: true
@@ -1158,7 +946,8 @@ cron:
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies between Platform components
-  # (for example, wait for database readiness before cron starts, wait for cron before backend starts)
+  # (for example, wait for database readiness before cron starts, wait for cron before backend
+  # starts, etc)
   enabled: true
 
   waitForMySQL:
@@ -1174,8 +963,7 @@ initContainerDependencies:
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Numeric UID the container processes run as (overrides container
-      # image default)
+      # -- UID the container processes run as (overrides container image default)
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
@@ -1208,8 +996,7 @@ initContainerDependencies:
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Numeric UID the container processes run as (overrides container
-      # image default)
+      # -- UID the container processes run as (overrides container image default)
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
@@ -1242,8 +1029,7 @@ initContainerDependencies:
       pullPolicy: IfNotPresent
 
     securityContext:
-      # -- Numeric UID the container processes run as (overrides container
-      # image default)
+      # -- UID the container processes run as (overrides container image default)
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)

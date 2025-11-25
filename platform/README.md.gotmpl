@@ -27,14 +27,12 @@ consists of the following components:
   * The cron app is a backend service that executes regularly-occurring activities, such as sending email notifications and cleaning up stale data. The cron service also performs database migrations at startup.
 - Frontend pod
   * The frontend app is an Nginx web server for the Platform web UI.
-- MySQL database
-  * To persist the Platform data.
-- Redis cache
+- MySQL database to persist the Platform data.
+- Redis cache.
 
 ### Redis Cache details
 
-Multiple Seqera products require a Redis cache. Seqera strongly recommends using a managed Redis installation
-provided by an external provider, but local Redis installations are also supported.
+Multiple Seqera products require a Redis cache. Seqera strongly recommends using a [managed Redis installation](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#managed-redis-services) provided by an external provider, but [local Redis installations](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#deploy-a-redis-manifest-to-your-cluster) are also supported.
 Either specify the Redis host in the `.global.redis` section to share it between multiple charts, or specify it below in the `.redis` section. If mixing locations, you must define the database that Redis will need for each product to use in `.redis.prefix`.
 Values in the `.redis` section take precedence over values in the `.global.redis` section.
 
