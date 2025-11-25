@@ -4,6 +4,7 @@ should produce a Deployment resource with minimal values:
     kind: Deployment
     metadata:
       labels:
+        app.kubernetes.io/component: frontend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
@@ -15,12 +16,14 @@ should produce a Deployment resource with minimal values:
       replicas: 1
       selector:
         matchLabels:
+          app.kubernetes.io/component: frontend
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/name: platform
       template:
         metadata:
           annotations: null
           labels:
+            app.kubernetes.io/component: frontend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: platform
@@ -88,6 +91,7 @@ should render the frontend deployment with the correct labels and annotations:
       annotations:
         common-annotation-key: common-annotation-value
       labels:
+        app.kubernetes.io/component: frontend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
@@ -102,6 +106,7 @@ should render the frontend deployment with the correct labels and annotations:
       replicas: 1
       selector:
         matchLabels:
+          app.kubernetes.io/component: frontend
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/name: platform
       template:
@@ -111,6 +116,7 @@ should render the frontend deployment with the correct labels and annotations:
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
           labels:
+            app.kubernetes.io/component: frontend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: platform

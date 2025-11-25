@@ -18,6 +18,7 @@ should not render frontend service with custom nodePort when not using NodePort 
           port: 80
           targetPort: 8083
       selector:
+        app.kubernetes.io/component: frontend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -41,6 +42,7 @@ should render backend service correctly with custom ports and custom service nam
           port: 9123
           targetPort: 9090
       selector:
+        app.kubernetes.io/component: backend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -64,6 +66,7 @@ should render backend service correctly with default values:
           port: 8080
           targetPort: 8080
       selector:
+        app.kubernetes.io/component: backend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -87,6 +90,7 @@ should render cron service correctly with custom ports and custom service name:
           port: 9090
           targetPort: 9090
       selector:
+        app.kubernetes.io/component: cron
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -110,6 +114,7 @@ should render cron service correctly with default values:
           port: 8080
           targetPort: 8082
       selector:
+        app.kubernetes.io/component: cron
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -133,6 +138,7 @@ should render frontend service correctly with custom ports and custom service na
           port: 9090
           targetPort: 9090
       selector:
+        app.kubernetes.io/component: frontend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
@@ -156,6 +162,7 @@ should render frontend service correctly with default values:
           port: 80
           targetPort: 8083
       selector:
+        app.kubernetes.io/component: frontend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
       type: ClusterIP
