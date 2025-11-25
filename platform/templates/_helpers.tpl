@@ -1,4 +1,23 @@
 {{/*
+ Copyright (c) 2025 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+{{/*
 Let the user specify a ServiceAccount name, or default to the same Service Account name used
 by the Tower Terraform module.
 */}}
@@ -84,16 +103,66 @@ Build the cron micronaut envs list: add envs if features are requested in other 
 {{/*
 Return the name of the secret containing the Platform database password.
 */}}
+{{- define "platform.database.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) -}}
+{{- end -}}
 {{- define "platform.database.secretName" -}}
-  {{- /* When no external secret is passed, default to the secret name that will store the token.
-  On the first execution, the lookup function will not find the secret and will generate a
-  random token; on successive executions, the lookup function will find the secret and will
-  extract and re-save the token back in its original key. */ -}}
-  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+  {{- include "platform.database.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
   {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+{{- end -}}
+
+{{/*
+Return the JDBC URL for the database connection, including connection options.
+Constructs URL in format: jdbc:mysql://host:port/database?option1=value1&option2=value2
+
+For now this template is built around the only driver that can be set, 'mariadb'.
+*/}}
+{{- define "platform.database.url" -}}
+  {{- $baseUrl := printf "jdbc:mysql://%s:%d/%s"
+  .Values.global.platformDatabase.host
+  (.Values.global.platformDatabase.port | int)
+  .Values.global.platformDatabase.database -}}
+  {{- $options := list -}}
+  {{/* Evaluate mysql first, so if both are defined we pick mariadb options. */}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mysql -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mysql -}}
+  {{- end -}}
+  {{- if .Values.global.platformDatabase.connectionOptions.mariadb -}}
+    {{- $options = .Values.global.platformDatabase.connectionOptions.mariadb -}}
+  {{- end -}}
+
+  {{- if $options -}}
+    {{- printf "%s?%s" $baseUrl (join "&" $options) -}}
+  {{- else -}}
+    {{- $baseUrl -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the JDBC driver class name based on the selected database driver.
+*/}}
+{{- define "platform.database.driver" -}}
+  {{- if or (eq .Values.global.platformDatabase.driver "mariadb") (eq .Values.global.platformDatabase.driver "mysql") -}}
+org.mariadb.jdbc.Driver
+  {{- else -}}
+    {{- fail (printf "Unsupported database driver: '%s'. Supported drivers are: 'mariadb' (or its alias 'mysql')." .Values.global.platformDatabase.driver) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the Hibernate dialect based on the selected database dialect.
+*/}}
+{{- define "platform.database.dialect" -}}
+  {{- if eq .Values.global.platformDatabase.dialect "mysql-8" -}}
+io.seqera.util.MySQL8DialectCollateBin
+  {{- else if eq .Values.global.platformDatabase.dialect "mariadb-10" -}}
+io.seqera.util.MariaDB10DialectCollateBin
+  {{- else -}}
+    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-8', 'mariadb-10'." .Values.global.platformDatabase.dialect) -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -139,10 +208,12 @@ Return the Redis URI. */}}
 Return the name of the secret containing the Redis password.
 'redis' takes precedence over 'global.redis'.
 */}}
-{{- define "platform.redis.secretName" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.redis.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) -}}
 {{- end -}}
-
+{{- define "platform.redis.secretName" -}}
+  {{- include "platform.redis.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{/*
 Return the key of the secret containing the Redis password.
 'redis' takes precedence over 'global.redis'.
@@ -154,10 +225,12 @@ Return the key of the secret containing the Redis password.
 {{/*
 Return the name of the secret containing the JWT token.
 */}}
-{{- define "platform.jwt.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.jwt.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.jwt.secretName" -}}
+  {{- include "platform.jwt.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.jwt.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
 {{- end -}}
@@ -165,10 +238,12 @@ Return the name of the secret containing the JWT token.
 {{/*
 Return the name of the secret containing the crypto token.
 */}}
-{{- define "platform.crypto.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.crypto.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.crypto.secretName" -}}
+  {{- include "platform.crypto.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.crypto.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
 {{- end -}}
@@ -176,10 +251,12 @@ Return the name of the secret containing the crypto token.
 {{/*
 Return the name of the secret containing the Platform license token.
 */}}
-{{- define "platform.license.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.license.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.licenseSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.license.secretName" -}}
+  {{- include "platform.license.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.license.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
 {{- end -}}
@@ -187,10 +264,12 @@ Return the name of the secret containing the Platform license token.
 {{/*
 Return the name of the secret containing the SMTP password.
 */}}
-{{- define "platform.smtp.secretName" -}}
-  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- define "platform.smtp.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretName $) -}}
 {{- end -}}
-
+{{- define "platform.smtp.secretName" -}}
+  {{- include "platform.smtp.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
 {{- define "platform.smtp.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
 {{- end -}}
@@ -260,10 +339,6 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" $ | quote }}
-    # {{ $.Values.redis.password }}
-    # {{ $.Values.global.redis.password }}
-    # {{ $.Values.redis.existingSecretName }}
-    # {{ $.Values.global.redis.existingSecretName }}
     {{- if or $.Values.redis.password $.Values.global.redis.password $.Values.redis.existingSecretName $.Values.global.redis.existingSecretName }}
     - name: REDISCLI_AUTH
       valueFrom:

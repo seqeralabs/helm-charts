@@ -1,0 +1,74 @@
+# This file contains some example values for the Seqera Platform Helm chart
+# Additional values can be set in kustomization.yaml's valuesInline
+
+global:
+  platformExternalDomain: example.com
+
+  platformDatabase:
+    host: ""
+    database: "platform"
+    username: "platform"
+    # Passwords should be provided via existing secret
+    existingSecretName: "platform-db-credentials"
+
+  redis:
+    host: ""
+    existingSecretName: "testsecret"
+
+platform:
+  licenseSecretName: "platform-license"
+
+backend:
+  image:
+    registry: ""
+    repository: ""
+    tag: ""
+
+  extraOptionsSpec:
+    replicas: 3
+
+  resources:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      memory: "4Gi"
+
+cron:
+  image:
+    registry: ""
+    repository: ""
+    tag: ""
+
+  resources:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      memory: "4Gi"
+
+frontend:
+  image:
+    registry: ""
+    repository: ""
+    tag: ""
+
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "200Mi"
+    limits:
+      memory: "200Mi"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+
+  tls:
+    - hosts:
+        - '{{ .Values.global.platformExternalDomain }}'
+        - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+      secretName: my-tls

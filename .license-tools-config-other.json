@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "Seqera Labs"
+  },
+  "force_author": false,
+  "license": "Apache-2.0",
+  "force_license": true,
+  "title": false,
+  "include": [
+    "*/Chart.yaml",
+    "*/values.yaml"
+  ]
+}

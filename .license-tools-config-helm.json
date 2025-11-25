@@ -1,0 +1,18 @@
+{
+  "author": {
+    "name": "Seqera Labs"
+  },
+  "force_author": false,
+  "license": "Apache-2.0",
+  "force_license": true,
+  "title": false,
+  "style_override_for_suffix": {
+    ".yaml": "GO_TEXT_TEMPLATE_STYLE",
+    ".txt": "GO_TEXT_TEMPLATE_STYLE"
+  },
+  "include": [
+    "*/templates/*.tpl",
+    "*/templates/*.txt",
+    "*/templates/*.yaml"
+  ]
+}

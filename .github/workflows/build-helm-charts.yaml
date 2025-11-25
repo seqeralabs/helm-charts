@@ -66,3 +66,38 @@ jobs:
             helm push ${chart}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}'
             echo "Pushed chart ${chart}"
           done
+
+      - name: 'Create GitHub releases for packaged charts'
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        shell: bash
+        run: |
+          for chart in $charts_to_package; do
+            chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
+            release_tag="${chart}-${chart_version}"
+
+            echo "Creating release for ${chart} version ${chart_version}.."
+
+            # Create additional chart installation instructions
+            cat > /tmp/release-notes-footer-${chart}.md << EOF
+
+          ## Chart Information
+
+          - **OCI Registry**: \`oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart}:${chart_version}\`
+          - **Chart README**: [${chart}/README.md](https://github.com/${{ github.repository }}/blob/${release_tag}/${chart}/README.md)
+
+          ## Installation
+
+          \`\`\`bash
+          helm pull oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart} --version ${chart_version}
+          \`\`\`
+          EOF
+
+            # Create the release with auto-generated notes
+            gh release create "${release_tag}" \
+              --repo ${{ github.repository }} \
+              --title "${chart} ${chart_version}" \
+              --generate-notes \
+              --notes-file /tmp/release-notes-footer-${chart}.md
+
+            echo "Created release ${release_tag}"
+          done
