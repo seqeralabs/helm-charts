@@ -22,7 +22,7 @@ global:
   platformExternalDomain: example.com
 
   # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
-  # attacks. If unset, data is served through the main domain .global.platformExternalDomain.
+  # attacks. If unset, data is served through the main domain `.global.platformExternalDomain`
   # Evaluated as a template
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
@@ -278,7 +278,7 @@ backend:
     http:
       # -- Service name to use
       name: http
-      # The external port is defined as the global variable .global.platformServicePort, so it can
+      # The external port is defined as the global variable `.global.platformServicePort`, so it can
       # be used by subcharts too
 
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or

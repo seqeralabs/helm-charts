@@ -68,7 +68,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform (formerly known as Tower) listens |
-| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain .global.platformExternalDomain. Evaluated as a template |
+| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain `.global.platformExternalDomain` Evaluated as a template |
 | global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
 | global.platformDatabase.host | string | `""` | Platform MySQL database hostname |
