@@ -91,7 +91,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 | global.redis.existingSecretName | string | `""` | Name of an existing secret containing credentials for Redis, as an alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time |
 | global.redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing secret containing the password for Redis |
 | global.redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
-| global.imageCredentials | list | `[]` | Define credentials to log in and fetch images from a private registry  - registry: ""   username: ""   password: ""   email: someone@example.com  # Optional |
+| global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry  - registry: ""   username: ""   password: ""   email: someone@example.com  # Optional |
 | platform.YAMLConfigFileContent | string | `""` | Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview |
 | platform.contactEmail | string | `"support@example.com"` | Sender email address for user support |
 | platform.jwtSeedString | string | `""` | JWT seed, defined as string, used to sign authentication tokens Define the value as a String or a Secret, not both at the same time If neither is defined, Helm generates a random 35-character string |

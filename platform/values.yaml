@@ -97,7 +97,7 @@ global:
     # -- Enable TLS when connecting to Redis
     enableTls: false
 
-  # -- Define credentials to log in and fetch images from a private registry
+  # -- Optional credentials to log in and fetch images from a private registry
   #
   # - registry: ""
   #   username: ""
