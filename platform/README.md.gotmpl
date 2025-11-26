@@ -24,24 +24,19 @@ consists of the following components:
 - Backend
   * The backend app is a JVM-based web application based on the Micronaut framework, exposing the REST API and handling most of the business logic.
 - Cron pod
-  * The cron app is backend service that executes regularly-occurring activities, such as sending email notifications and cleaning up stale data. The cron service also performs database migrations at startup.
+  * The cron app is a backend service that executes regularly-occurring activities, such as sending email notifications and cleaning up stale data. The cron service also performs database migrations at startup.
 - Frontend pod
-  * The frontend app is a Nginx web server serving the web UI.
-- MySQL database
-  * The MySQL database is required to persist the Platform data.
-- Redis cache
-  * The Redis cache is required for caching.
+  * The frontend app is an Nginx web server for the Platform web UI.
+- MySQL database to persist the Platform data.
+- Redis cache.
 
 ### Redis Cache details
 
-Multiple Seqera products require a Redis cache. Seqera recommends using a managed Redis installation
-provided by an external provider, but a local Redis installation is supported.
-Either specify the Redis host in the `.global.redis` section to share it between multiple charts and
-other charts, or specify it below in the `.redis` section: if mixing locations, remember to define
-the database that Redis will need for each product to use in `.redis.prefix`.
+Multiple Seqera products require a Redis cache. Seqera strongly recommends using a [managed Redis installation](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#managed-redis-services) provided by an external provider, but [local Redis installations](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#deploy-a-redis-manifest-to-your-cluster) are also supported.
+Either specify the Redis host in the `.global.redis` section to share it between multiple charts, or specify it below in the `.redis` section. If mixing locations, you must define the database that Redis will need for each product to use in `.redis.prefix`.
 Values in the `.redis` section take precedence over values in the `.global.redis` section.
 
-## Installing the Chart
+## Installing the chart
 
 To install the chart with the release name `my-release`:
 
@@ -49,7 +44,11 @@ To install the chart with the release name `my-release`:
 helm install my-release oci://public.cr.seqera.io/charts/{{ template "chart.name" . }} --version {{ template "chart.version" . }} --namespace my-namespace --create-namespace
 ```
 
-For a list of available chart versions, visit the chart repository: https://public.cr.seqera.io/repo/charts/{{ template "chart.name" . }}
+For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/{{ template "chart.name" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSectionHtml" . }}
 
 ## Licensing
 
@@ -60,7 +59,3 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
-{{ template "chart.requirementsSection" . }}
-
-{{ template "chart.valuesSection" . }}
