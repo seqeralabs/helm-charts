@@ -49,7 +49,7 @@ global:
     # on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
     # -- Key in the existing secret containing the password for the Platform MySQL database
-    # @default -- TOWER_DB_PASSWORD
+    # @default -- `"TOWER_DB_PASSWORD"`
     existingSecretKey: ""
     # -- Database driver. Possible options: "mariadb" (or its alias "mysql").
     driver: "mariadb"
@@ -92,7 +92,7 @@ global:
     # on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
     # -- Key in the existing secret containing the password for Redis
-    # @default -- TOWER_REDIS_PASSWORD
+    # @default -- `"TOWER_REDIS_PASSWORD"`
     existingSecretKey: ""
     # -- Enable TLS when connecting to Redis
     enableTls: false
@@ -124,7 +124,7 @@ platform:
   # install/upgrade time
   jwtSeedSecretName: ""
   # -- Key in the existing secret containing the JWT seed
-  # @default -- TOWER_JWT_SECRET
+  # @default -- `"TOWER_JWT_SECRET"`
   jwtSeedSecretKey: ""
 
   # -- Crypto seed, defined as string, used to encrypt sensitive data in the database.
@@ -139,7 +139,7 @@ platform:
   # install/upgrade time
   cryptoSeedSecretName: ""
   # -- Key in the existing secret containing the crypto seed
-  # @default -- TOWER_CRYPTO_SECRETKEY
+  # @default -- `"TOWER_CRYPTO_SECRETKEY"`
   cryptoSeedSecretKey: ""
 
   # -- List of execution backends to enable. At least one is required. See
@@ -169,7 +169,7 @@ platform:
   # install/upgrade time
   licenseSecretName: ""
   # -- Key in the existing secret containing the Platform license key
-  # @default -- TOWER_LICENSE
+  # @default -- `"TOWER_LICENSE"`
   licenseSecretKey: ""
 
   smtp:
@@ -185,7 +185,7 @@ platform:
     # -- Name of an existing secret containing the SMTP password
     existingSecretName: ""
     # -- Key in the existing secret containing the SMTP password
-    # @default -- TOWER_SMTP_PASSWORD
+    # @default -- `"TOWER_SMTP_PASSWORD"`
     existingSecretKey: ""
 
   # -- URL of the Wave service Platform uses (evaluated as template)
@@ -221,7 +221,7 @@ redis:
   # on the Kubernetes API server at install/upgrade time
   existingSecretName: ""
   # -- Key in the existing secret containing the password for Redis
-  # @default -- TOWER_REDIS_PASSWORD
+  # @default -- `"TOWER_REDIS_PASSWORD"`
   existingSecretKey: ""
   # -- Enable TLS when connecting to Redis
   enableTls: false
@@ -250,7 +250,7 @@ backend:
     # -- Backend container image repository
     repository: private/nf-tower-enterprise/backend
     # -- Backend container image tag
-    # @default -- {{ .chart.AppVersion }}
+    # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
     # -- Backend container image digest in the format 'sha256:1234abcdef'
     digest: ""
@@ -462,7 +462,7 @@ frontend:
     # -- Frontend container image repository
     repository: private/nf-tower-enterprise/frontend
     # -- Specify a tag to override the version defined in .Chart.appVersion
-    # @default -- {{ .chart.AppVersion }}-unprivileged
+    # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
     tag: ""
     # -- Frontend container image digest in the format 'sha256:1234abcdef'
     digest: ""
@@ -668,7 +668,7 @@ cron:
     # -- Cron container image repository
     repository: private/nf-tower-enterprise/backend
     # -- Cron container image tag
-    # @default -- {{ .chart.AppVersion }}
+    # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
     # -- Cron container image digest in the format 'sha256:1234abcdef'
     digest: ""
@@ -872,7 +872,7 @@ cron:
       # -- Database migration container image repository
       repository: private/nf-tower-enterprise/migrate-db
       # -- Specify a tag to override the version defined in .Chart.appVersion
-      # @default -- {{ .chart.AppVersion }}
+      # @default -- `"{{ .chart.AppVersion }}"`
       tag: ""
       # -- Database migration container image digest in the format 'sha256:1234abcdef'
       digest: ""
