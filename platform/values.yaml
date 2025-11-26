@@ -394,16 +394,16 @@ backend:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
-  # the user
+  # Seqera recommends configuring resources to match the expected workload. The following are
+  # sensible defaults to start with
   #
   # <pre><code>
   # resources:<br>
   #   requests:<br>
   #     cpu: "1"<br>
-  #     memory: "1000Mi"<br>
+  #     memory: "4000Mi"<br>
   #   limits:<br>
-  #     memory: "3000Mi"
+  #     memory: "4000Mi"
   # </code></pre>
   resources: {}
 
@@ -613,16 +613,16 @@ frontend:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
-  # the user
+  # Seqera recommends configuring resources to match the expected workload. The following are
+  # sensible defaults to start with
   #
   # <pre><code>
   # resources:<br>
   #   requests:<br>
-  #     cpu: "1"<br>
-  #     memory: "1000Mi"<br>
+  #     cpu: "200m"<br>
+  #     memory: "200Mi"<br>
   #   limits:<br>
-  #     memory: "3000Mi"
+  #     memory: "200Mi"
   # </code></pre>
   resources: {}
 
@@ -831,16 +831,16 @@ cron:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
-  # the user
+  # Seqera recommends configuring resources to match the expected workload. The following are
+  # sensible defaults to start with
   #
   # <pre><code>
   # resources:<br>
   #   requests:<br>
   #     cpu: "1"<br>
-  #     memory: "1000Mi"<br>
+  #     memory: "4000Mi"<br>
   #   limits:<br>
-  #     memory: "3000Mi"
+  #     memory: "4000Mi"
   # </code></pre>
   resources: {}
 
@@ -975,16 +975,16 @@ cron:
     # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
     # maximum resources a container is allowed to use
     # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # Seqera recommends not to specify default resources and to leave this as a conscious choice for
-    # the user
+    # Seqera recommends configuring resources to match the expected workload. The following are
+    # sensible defaults to start with
     #
     # <pre><code>
     # resources:<br>
     #   requests:<br>
     #     cpu: "1"<br>
-    #     memory: "1000Mi"<br>
+    #     memory: "4000Mi"<br>
     #   limits:<br>
-    #     memory: "3000Mi"
+    #     memory: "4000Mi"
     # </code></pre>
     resources: {}
 
