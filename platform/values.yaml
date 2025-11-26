@@ -22,8 +22,8 @@ global:
   platformExternalDomain: example.com
 
   # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
-  # attacks. If unset, data is served through the main domain `.global.platformExternalDomain`
-  # Evaluated as a template
+  # attacks. If unset, data is served through the main domain
+  # <code>.global.platformExternalDomain</code>. Evaluated as a template
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
@@ -49,7 +49,7 @@ global:
     # on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
     # -- Key in the existing secret containing the password for the Platform MySQL database
-    # @default -- `"TOWER_DB_PASSWORD"`
+    # @default -- "TOWER_DB_PASSWORD"
     existingSecretKey: ""
     # -- Database driver. Possible options: "mariadb" (or its alias "mysql")
     driver: "mariadb"
@@ -92,22 +92,24 @@ global:
     # lookup on the Kubernetes API server at install/upgrade time
     existingSecretName: ""
     # -- Key in the existing secret containing the password for Redis
-    # @default -- `"TOWER_REDIS_PASSWORD"`
+    # @default -- "TOWER_REDIS_PASSWORD"
     existingSecretKey: ""
     # -- Enable TLS when connecting to Redis
     enableTls: false
 
   # -- Optional credentials to log in and fetch images from a private registry
   #
-  # - registry: ""
-  #   username: ""
-  #   password: ""
+  # <pre><code>
+  # - registry: ""</br>
+  #   username: ""</br>
+  #   password: ""</br>
   #   email: someone@example.com  # Optional
+  # </code></pre>
   imageCredentials: []
 
 platform:
   # TODO: rename variable?
-  # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See
+  # -- Content to insert into the tower.yml file (you can use <code>\|-</code> YAML multilines). See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
   YAMLConfigFileContent: ""
 
@@ -124,7 +126,7 @@ platform:
   # install/upgrade time
   jwtSeedSecretName: ""
   # -- Key in the existing secret containing the JWT seed
-  # @default -- `"TOWER_JWT_SECRET"`
+  # @default -- "TOWER_JWT_SECRET"
   jwtSeedSecretKey: ""
 
   # -- Crypto seed, defined as string, used to encrypt sensitive data in the database.
@@ -139,7 +141,7 @@ platform:
   # install/upgrade time
   cryptoSeedSecretName: ""
   # -- Key in the existing secret containing the crypto seed
-  # @default -- `"TOWER_CRYPTO_SECRETKEY"`
+  # @default -- "TOWER_CRYPTO_SECRETKEY"
   cryptoSeedSecretKey: ""
 
   # -- List of execution backends to enable. At least one is required. See
@@ -169,7 +171,7 @@ platform:
   # install/upgrade time
   licenseSecretName: ""
   # -- Key in the existing secret containing the Platform license key
-  # @default -- `"TOWER_LICENSE"`
+  # @default -- "TOWER_LICENSE"
   licenseSecretKey: ""
 
   smtp:
@@ -185,11 +187,11 @@ platform:
     # -- Name of an existing secret containing the SMTP password
     existingSecretName: ""
     # -- Key in the existing secret containing the SMTP password
-    # @default -- `"TOWER_SMTP_PASSWORD"`
+    # @default -- "TOWER_SMTP_PASSWORD"
     existingSecretKey: ""
 
-  # -- URL of the Wave service Platform uses (evaluated as template)
-  # The Wave service provided by Seqera is 'https://wave.seqera.io'
+  # -- URL of the Wave service Platform uses. Evaluated as a template.
+  # The Wave service provided by Seqera is <code>https://wave.seqera.io</code>
   waveServerUrl: "https://wave.seqera.io"
 
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
@@ -221,20 +223,22 @@ redis:
   # lookup on the Kubernetes API server at install/upgrade time
   existingSecretName: ""
   # -- Key in the existing secret containing the password for Redis
-  # @default -- `"TOWER_REDIS_PASSWORD"`
+  # @default -- "TOWER_REDIS_PASSWORD"
   existingSecretKey: ""
   # -- Enable TLS when connecting to Redis
   enableTls: false
 
 # -- Array of extra objects to deploy with the release
 #
-# extraDeploy:
-#   - apiVersion: v1
-#     kind: MyExtraObjectKind
+# <pre><code>
+# extraDeploy:<br>
+#   - apiVersion: v1<br>
+#     kind: MyExtraObjectKind<br>
+#     ...<br>
+#   - apiVersion: v1<br>
+#     kind: AnotherExtraObjectKind<br>
 #     ...
-#   - apiVersion: v1
-#     kind: AnotherExtraObjectKind
-#     ...
+# </code></pre>
 extraDeploy: []
 
 # -- Annotations to add to all deployed objects
@@ -250,13 +254,12 @@ backend:
     # -- Backend container image repository
     repository: private/nf-tower-enterprise/backend
     # -- Backend container image tag
-    # @default -- `"{{ .chart.AppVersion }}"`
+    # @default -- "{{ .chart.AppVersion }}"
     tag: ""
-    # -- Backend container image digest in the format 'sha256:1234abcdef'
+    # -- Backend container image digest in the format <code>sha256:1234abcdef</code>
     digest: ""
 
     # -- imagePullPolicy for the backend container
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
     pullPolicy: IfNotPresent
 
@@ -264,8 +267,10 @@ backend:
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
-    # pullSecrets:
+    # <pre><code>
+    # pullSecrets:<br>
     #   - myRegistryKeySecretName
+    # </code></pre>
     pullSecrets: []
 
   # -- List of Micronaut Environments to enable on the backend pod
@@ -278,8 +283,8 @@ backend:
     http:
       # -- Service name to use
       name: http
-      # The external port is defined as the global variable `.global.platformServicePort`, so it can
-      # be used by subcharts too
+      # The external port is defined as the global variable
+      # <code>.global.platformServicePort</code>, so it can be used by subcharts too
 
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
@@ -291,11 +296,13 @@ backend:
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     #
-    # extraServices:
-    # - name: myspecialservice
-    #   port: 1234
-    #   targetPort: 5678
+    # <pre><code>
+    # extraServices:<br>
+    # - name: myspecialservice<br>
+    #   port: 1234<br>
+    #   targetPort: 5678<br>
     #   nodePort: null
+    # </code></pre>
     extraServices: []
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
@@ -317,37 +324,43 @@ backend:
   # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
   # Evaluated as a template
   #
-  # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
+  # <pre><code>
+  # extraOptionsSpec:<br>
+  #   replicas: 2<br>
+  #   strategy:<br>
+  #     rollingUpdate:<br>
+  #       maxUnavailable: x<br>
   #       maxSurge: y
+  # </code></pre>
   extraOptionsSpec:
     replicas: 3
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template
   #
-  # extraOptionsTemplateSpec:
-  #   nodeSelector:
+  # <pre><code>
+  # extraOptionsTemplateSpec:<br>
+  #   nodeSelector:<br>
   #     service: myspecialnodegroup
+  # </code></pre>
   extraOptionsTemplateSpec: {}
 
   # -- Extra environment variables to set on the backend pod
   #
-  # extraEnvVars:
-  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  # <pre><code>
+  # extraEnvVars:<br>
+  #   - name: "CUSTOM_ENV_VAR"<br>
   #     value: "set-a-value-here"
+  # </code></pre>
   extraEnvVars: []
   # -- ConfigMap containing extra env vars
   extraEnvVarsCMs: []
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-  # `extraVolumeMounts`
+  # <code>extraVolumeMounts</code>
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # `extraVolumes`
+  # <code>extraVolumes</code>
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -376,20 +389,22 @@ backend:
       drop:
         - ALL
 
-  # -- Set container requests and limits for different resources like CPU or memory.
-  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-  # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use.
+  # -- Container requests and limits for different resources like CPU or memory
+  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious
-  # choice for the user
+  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
+  # the user
   #
-  # requests:
-  #   requests:
-  #     cpu: "1"
-  #     memory: "1000Mi"
-  #   limits:
+  # <pre><code>
+  # resources:<br>
+  #   requests:<br>
+  #     cpu: "1"<br>
+  #     memory: "1000Mi"<br>
+  #   limits:<br>
   #     memory: "3000Mi"
+  # </code></pre>
   resources: {}
 
   # Configure extra options for the startup probe
@@ -464,22 +479,23 @@ frontend:
     # -- Frontend container image repository
     repository: private/nf-tower-enterprise/frontend
     # -- Specify a tag to override the version defined in .Chart.appVersion
-    # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
+    # @default -- "{{ .chart.AppVersion }}-unprivileged"
     tag: ""
-    # -- Frontend container image digest in the format 'sha256:1234abcdef'
+    # -- Frontend container image digest in the format <code>sha256:1234abcdef</code>
     digest: ""
 
     # -- imagePullPolicy for the frontend container
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-    # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
-    # pullSecrets:
+    # <pre><code>
+    # pullSecrets:<br>
     #   - myRegistryKeySecretName
+    # </code></pre>
     pullSecrets: []
 
   service:
@@ -500,11 +516,13 @@ frontend:
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     #
-    # extraServices:
-    # - name: myspecialservice
-    #   port: 1234
-    #   targetPort: 5678
+    # <pre><code>
+    # extraServices:<br>
+    # - name: myspecialservice<br>
+    #   port: 1234<br>
+    #   targetPort: 5678<br>
     #   nodePort: null
+    # </code></pre>
     extraServices: []
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
@@ -526,39 +544,45 @@ frontend:
   # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
   # Note: the cron deployment can only run a single replica and use Recreate strategy
   #
-  # extraOptionsSpec:
-  #   replicas: 2
-  #   strategy:
-  #     rollingUpdate:
-  #       maxUnavailable: x
+  # <pre><code>
+  # extraOptionsSpec:<br>
+  #   replicas: 2<br>
+  #   strategy:<br>
+  #     rollingUpdate:<br>
+  #       maxUnavailable: x<br>
   #       maxSurge: y
+  # </code></pre>
   extraOptionsSpec: {}
   # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity,
   # restartPolicy). Evaluated as a template
   #
-  # extraOptionsTemplateSpec:
-  #   nodeSelector:
+  # <pre><code>
+  # extraOptionsTemplateSpec:<br>
+  #   nodeSelector:<br>
   #     service: myspecialnodegroup
+  # </code></pre>
   extraOptionsTemplateSpec: {}
 
   # -- Extra environment variables to set on the frontend pod
   #
-  # extraEnvVars:
-  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  # <pre><code>
+  # extraEnvVars:<br>
+  #   - name: "CUSTOM_ENV_VAR"<br>
   #     value: "set-a-value-here"
+  # </code></pre>
   extraEnvVars: []
   # -- ConfigMap containing extra env vars
   extraEnvVarsCMs: []
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-  # extraVolumeMounts
+  # <code>extraVolumeMounts</code>
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # extraVolumes
+  # <code>extraVolumes</code>
   extraVolumeMounts: []
 
-  # Configure Pods Security Context
+  # Configure Pods Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
@@ -568,7 +592,7 @@ frontend:
     # in the pod can share group-owned access
     fsGroup: 101
 
-  # Configure Container Security Context
+  # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable container Security Context
@@ -585,19 +609,21 @@ frontend:
         - ALL
 
   # -- Container requests and limits for different resources like CPU or memory
-  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-  # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use
+  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious
-  # choice for the user
+  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
+  # the user
   #
-  # requests:
-  #   requests:
-  #     cpu: "1"
-  #     memory: "1000Mi"
-  #   limits:
+  # <pre><code>
+  # resources:<br>
+  #   requests:<br>
+  #     cpu: "1"<br>
+  #     memory: "1000Mi"<br>
+  #   limits:<br>
   #     memory: "3000Mi"
+  # </code></pre>
   resources: {}
 
   # Configure extra options for the startup probe
@@ -672,13 +698,12 @@ cron:
     # -- Cron container image repository
     repository: private/nf-tower-enterprise/backend
     # -- Cron container image tag
-    # @default -- `"{{ .chart.AppVersion }}"`
+    # @default -- "{{ .chart.AppVersion }}"
     tag: ""
-    # -- Cron container image digest in the format 'sha256:1234abcdef'
+    # -- Cron container image digest in the format <code>sha256:1234abcdef</code>
     digest: ""
 
     # -- imagePullPolicy for the cron container
-    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
     pullPolicy: IfNotPresent
 
@@ -686,8 +711,10 @@ cron:
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
     #
-    # pullSecrets:
+    # <pre><code>
+    # pullSecrets:<br>
     #   - myRegistryKeySecretName
+    # </code></pre>
     pullSecrets: []
 
   # -- List of Micronaut Environments to enable on the cron pod
@@ -711,11 +738,13 @@ cron:
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
     #
-    # extraServices:
-    # - name: myspecialservice
-    #   port: 1234
-    #   targetPort: 5678
+    # <pre><code>
+    # extraServices:<br>
+    # - name: myspecialservice<br>
+    #   port: 1234<br>
+    #   targetPort: 5678<br>
     #   nodePort: null
+    # </code></pre>
     extraServices: []
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
@@ -737,35 +766,41 @@ cron:
   # -- Extra options to place under .spec (for example, revisionHistoryLimit). Evaluated as a template
   # Note that cron deployment needs to have a single replica with Recreate strategy
   #
-  # extraOptionsSpec:
+  # <pre><code>
+  # extraOptionsSpec:<br>
   #   revisionHistoryLimit: 4
+  # </code></pre>
   extraOptionsSpec: {}
   # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy)
   # Evaluated as a template
   #
-  # extraOptionsTemplateSpec:
-  #   nodeSelector:
+  # <pre><code>
+  # extraOptionsTemplateSpec:<br>
+  #   nodeSelector:<br>
   #     service: myspecialnodegroup
+  # </code></pre>
   extraOptionsTemplateSpec: {}
 
   # -- Extra environment variables to set on the cron pod
   #
-  # extraEnvVars:
-  #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+  # <pre><code>
+  # extraEnvVars:<br>
+  #   - name: "CUSTOM_ENV_VAR"<br>
   #     value: "set-a-value-here"
+  # </code></pre>
   extraEnvVars: []
   # -- ConfigMap containing extra env vars
   extraEnvVarsCMs: []
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-  # extraVolumeMounts
+  # <code>extraVolumeMounts</code>
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # extraVolumes
+  # <code>extraVolumes</code>
   extraVolumeMounts: []
 
-  # Configure Pods Security Context
+  # Configure Pods Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
@@ -775,7 +810,7 @@ cron:
     # in the pod can share group-owned access
     fsGroup: 101
 
-  # Configure Container Security Context
+  # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable container Security Context
@@ -792,19 +827,21 @@ cron:
         - ALL
 
   # -- Container requests and limits for different resources like CPU or memory
-  # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-  # then guarantees at least these resources to the pod. .limits are the maximum resources a
-  # container is allowed to use
+  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends not to specify default resources and to leave this as a conscious
-  # choice for the user
+  # Seqera recommends not to specify default resources and to leave this as a conscious choice for
+  # the user
   #
-  # requests:
-  #   requests:
-  #     cpu: "1"
-  #     memory: "1000Mi"
-  #   limits:
+  # <pre><code>
+  # resources:<br>
+  #   requests:<br>
+  #     cpu: "1"<br>
+  #     memory: "1000Mi"<br>
+  #   limits:<br>
   #     memory: "3000Mi"
+  # </code></pre>
   resources: {}
 
   # Configure extra options for the startup probe
@@ -874,22 +911,23 @@ cron:
       # -- Database migration container image repository
       repository: private/nf-tower-enterprise/migrate-db
       # -- Specify a tag to override the version defined in .Chart.appVersion
-      # @default -- `"{{ .chart.AppVersion }}"`
+      # @default -- "{{ .chart.AppVersion }}"
       tag: ""
-      # -- Database migration container image digest in the format 'sha256:1234abcdef'
+      # -- Database migration container image digest in the format <code>sha256:1234abcdef</code>
       digest: ""
 
       # -- imagePullPolicy for the database migration init container
-      # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
-      # ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+      # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
       pullPolicy: IfNotPresent
 
-    # -- List of imagePullSecrets
-    # Secrets must be created in the same namespace, for example using the .extraDeploy array
-    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      # -- List of imagePullSecrets
+      # Secrets must be created in the same namespace, for example using the .extraDeploy array
+      # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
       #
-      # pullSecrets:
+      # <pre><code>
+      # pullSecrets:<br>
       #   - myRegistryKeySecretName
+      # </code></pre>
       pullSecrets: []
 
     # -- Override default container command (useful when using custom images)
@@ -899,19 +937,21 @@ cron:
 
     # -- Extra environment variables to set on the cron pod
     #
-    # extraEnvVars:
-    #   - name: "MY_SPECIAL_ENVIRONMENT_VARIABLE"
+    # <pre><code>
+    # extraEnvVars:<br>
+    #   - name: "CUSTOM_ENV_VAR"<br>
     #     value: "set-a-value-here"
+    # </code></pre>
     extraEnvVars: []
     # -- ConfigMap containing extra env vars
     extraEnvVarsCMs: []
     # -- Secret containing extra env vars
     extraEnvVarsSecrets: []
     # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-    # extraVolumeMounts
+    # <code>extraVolumeMounts</code>
     extraVolumes: []
     # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-    # extraVolumes
+    # <code>extraVolumes</code>
     extraVolumeMounts: []
 
     # Configure Init Container Security Context
@@ -931,19 +971,21 @@ cron:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
-    # .requests are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet
-    # then guarantees at least these resources to the pod. .limits are the maximum resources a
-    # container is allowed to use
+    # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
+    # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+    # maximum resources a container is allowed to use
     # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # Seqera recommends not to specify default resources and to leave this as a conscious
-    # choice for the user
+    # Seqera recommends not to specify default resources and to leave this as a conscious choice for
+    # the user
     #
-    # requests:
-    #   requests:
-    #     cpu: "1"
-    #     memory: "1000Mi"
-    #   limits:
+    # <pre><code>
+    # resources:<br>
+    #   requests:<br>
+    #     cpu: "1"<br>
+    #     memory: "1000Mi"<br>
+    #   limits:<br>
     #     memory: "3000Mi"
+    # </code></pre>
     resources: {}
 
 initContainerDependencies:
@@ -960,7 +1002,7 @@ initContainerDependencies:
       registry: ""
       repository: "mysql"
       tag: "9"
-      # Digest must be in the format 'sha256:1234abcdef'
+      # Digest must be in the format <code>sha256:1234abcdef</code>
       digest: ""
       pullPolicy: IfNotPresent
 
@@ -993,7 +1035,7 @@ initContainerDependencies:
       registry: ""
       repository: "redis"
       tag: "7"
-      # Digest must be in the format 'sha256:1234abcdef'
+      # Digest must be in the format <code>sha256:1234abcdef</code>
       digest: ""
       pullPolicy: IfNotPresent
 
@@ -1026,7 +1068,7 @@ initContainerDependencies:
       registry: ""
       repository: "curlimages/curl"
       tag: "latest"
-      # Digest must be in the format 'sha256:1234abcdef'
+      # Digest must be in the format <code>sha256:1234abcdef</code>
       digest: ""
       pullPolicy: IfNotPresent
 
@@ -1080,28 +1122,32 @@ ingress:
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
   # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
   #
-  # defaultBackend:
-  #   service:
-  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
-  #     port:
+  # <pre><code>
+  # defaultBackend:<br>
+  #   service:<br>
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'<br>
+  #     port:<br>
   #       number: '{{ .Values.frontend.service.http.port }}'
+  # </code></pre>
   defaultBackend: {}
 
   # -- Additional hosts you want to include. Evaluated as a template
   #
-  # extraHosts:
-  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
-  #     paths:
-  #       - path: /*  # For ALB ingress controller
-  #         pathType: Prefix  # Optional, defaults to defaultPathType value
-  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
-  #         portNumber: '{{ .Values.global.platformServicePort }}'
-  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
-  #     paths:
-  #       - path: /*  # For ALB ingress controller
-  #         pathType: Prefix  # Optional, defaults to defaultPathType value
-  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  # <pre><code>
+  # extraHosts:<br>
+  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'<br>
+  #     paths:<br>
+  #       - path: /*<br>
+  #         pathType: Prefix  # Optional, defaults to defaultPathType<br>
+  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'<br>
+  #         portNumber: '{{ .Values.global.platformServicePort }}'<br>
+  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'<br>
+  #     paths:<br>
+  #       - path: /*<br>
+  #         pathType: Prefix  # Optional, defaults to defaultPathType<br>
+  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'<br>
   #         portNumber: '{{ .Values.frontend.service.http.port }}'
+  # </code></pre>
   extraHosts: []
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
   annotations: {}
@@ -1111,9 +1157,11 @@ ingress:
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
   #
-  # tls:
-  #   - hosts:
-  #       - '{{ .Values.global.platformExternalDomain }}'
-  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  # <pre><code>
+  # tls:<br>
+  #   - hosts:<br>
+  #       - '{{ .Values.global.platformExternalDomain }}'<br>
+  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'<br>
   #     secretName: my-tls
+  # </code></pre>
   tls: []
