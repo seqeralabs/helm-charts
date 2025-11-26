@@ -18,7 +18,7 @@
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
-  # -- Domain where Seqera Platform (formerly known as Tower) listens
+  # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
   # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
@@ -1052,7 +1052,7 @@ initContainerDependencies:
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated
   name: ""
-  # -- Additional annotations for the Tower ServiceAccount to generate
+  # -- Additional annotations for the Platform ServiceAccount to generate
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []

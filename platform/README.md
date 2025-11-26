@@ -67,7 +67,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform (formerly known as Tower) listens |
+| global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain `.global.platformExternalDomain` Evaluated as a template |
 | global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
@@ -352,7 +352,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 | initContainerDependencies.waitForCron.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForCron.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated |
-| serviceAccount.annotations | object | `{}` | Additional annotations for the Tower ServiceAccount to generate |
+| serviceAccount.annotations | object | `{}` | Additional annotations for the Platform ServiceAccount to generate |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the server service account is generated |
 | ingress.enabled | bool | `false` | Enable ingress for Platform |
