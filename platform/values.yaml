@@ -381,7 +381,7 @@ backend:
   # then guarantees at least these resources to the pod. .limits are the maximum resources a
   # container is allowed to use.
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # We usually recommend not to specify default resources and to leave this as a conscious
+  # Seqera recommends not to specify default resources and to leave this as a conscious
   # choice for the user
   #
   # requests:
