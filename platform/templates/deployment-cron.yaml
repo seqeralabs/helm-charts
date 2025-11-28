@@ -162,7 +162,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "platform.crypto.secretName" . }}
                   key: {{ include "platform.crypto.secretKey" . }}
-{{- if or .Values.redis.password .Values.global.redis.password .Values.redis.existingSecretName .Values.global.redis.existingSecretName }}
+{{- if or .Values.redis.password .Values.redis.existingSecretName }}
             - name: TOWER_REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:

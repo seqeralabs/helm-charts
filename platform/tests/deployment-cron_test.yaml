@@ -462,10 +462,10 @@ tests:
           username: "my-db-username"
           existingSecretName: "my-db-secret"
           existingSecretKey: "my-db-password-key"
-        redis:
-          host: "my-redis-host"
-          port: 6380
-          password: "my-redis-password123"
+      redis:
+        host: "my-redis-host"
+        port: 6380
+        password: "my-redis-password123"
       cron:
         dbMigrationInitContainer:
           extraEnvVars:
@@ -493,7 +493,7 @@ tests:
             - name: SLEEP_PERIOD_SECONDS
               value: "5"
             - name: REDIS_URI
-              value: redis://my-redis-host:6379
+              value: redis://my-redis-host:6380
             - name: REDISCLI_AUTH
               valueFrom:
                 secretKeyRef:
@@ -1067,11 +1067,11 @@ tests:
   - it: should mount the user-provided secrets on deployment with default secret keys
     template: deployment-cron.yaml
     set:
+      redis:
+        existingSecretName: "my-redis-secret"
       global:
         platformDatabase:
           existingSecretName: "my-db-secret"
-        redis:
-          existingSecretName: "my-redis-secret"
       platform:
         licenseSecretName: "my-license-secret"
         jwtSeedSecretName: "my-jwt-seed-secret"
@@ -1132,13 +1132,13 @@ tests:
   - it: should mount the user-provided secrets on deployment with custom secret keys
     template: deployment-cron.yaml
     set:
+      redis:
+        existingSecretName: "my-redis-secret"
+        existingSecretKey: "my-redis-secret-key"
       global:
         platformDatabase:
           existingSecretName: "my-db-secret"
           existingSecretKey: "my-db-secret-key"
-        redis:
-          existingSecretName: "my-redis-secret"
-          existingSecretKey: "my-redis-secret-key"
       platform:
         licenseSecretName: "my-license-secret"
         licenseSecretKey: "my-license-secret-key"

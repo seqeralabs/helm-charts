@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.18.0](https://img.shields.io/badge/Version-0.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.19.0](https://img.shields.io/badge/Version-0.19.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -17,12 +17,11 @@ A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
 For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
-Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
+Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry) and follow the instructions to fulfill the other prerequisites.
 
 ## Platform architecture
 
-The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview)
-consists of the following components:
+The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview) consists of the following components:
 
 - Backend
   * The backend app is a JVM-based web application based on the Micronaut framework, exposing the REST API and handling most of the business logic.
@@ -33,19 +32,13 @@ consists of the following components:
 - MySQL database to persist the Platform data.
 - Redis cache.
 
-### Redis Cache details
-
-Multiple Seqera products require a Redis cache. Seqera strongly recommends using a [managed Redis installation](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#managed-redis-services) provided by an external provider, but [local Redis installations](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#deploy-a-redis-manifest-to-your-cluster) are also supported.
-Either specify the Redis host in the `.global.redis` section to share it between multiple charts, or specify it below in the `.redis` section. If mixing locations, you must define the database that Redis will need for each product to use in `.redis.prefix`.
-Values in the `.redis` section take precedence over values in the `.global.redis` section.
-
 ## Installing the chart
 
 To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.18.0 \
+  --version 0.19.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -235,60 +228,6 @@ For a list of available chart versions, see the chart repository: https://public
 </pre>
 </td>
 			<td>Connection pool maximum lifetime</td>
-		</tr>
-		<tr>
-			<td>global.redis.host</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Redis hostname</td>
-		</tr>
-		<tr>
-			<td>global.redis.port</td>
-			<td>int</td>
-			<td><pre lang="json">
-6379
-</pre>
-</td>
-			<td>Redis port</td>
-		</tr>
-		<tr>
-			<td>global.redis.password</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Redis password if the installation requires it</td>
-		</tr>
-		<tr>
-			<td>global.redis.existingSecretName</td>
-			<td>string</td>
-			<td><pre lang="json">
-""
-</pre>
-</td>
-			<td>Name of an existing secret containing credentials for Redis, as an alternative to the password field. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time</td>
-		</tr>
-		<tr>
-			<td>global.redis.existingSecretKey</td>
-			<td>string</td>
-			<td><pre lang="">
-"TOWER_REDIS_PASSWORD"
-</pre>
-</td>
-			<td>Key in the existing secret containing the password for Redis</td>
-		</tr>
-		<tr>
-			<td>global.redis.enableTls</td>
-			<td>bool</td>
-			<td><pre lang="json">
-false
-</pre>
-</td>
-			<td>Enable TLS when connecting to Redis</td>
 		</tr>
 		<tr>
 			<td>global.imageCredentials</td>

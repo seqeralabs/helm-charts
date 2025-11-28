@@ -47,26 +47,24 @@ tests:
           # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
           errorPattern: "Define the MySQL database hostname at 'global.platformDatabase.host'\\."
 
-  - it: should fail when redis.host and global.redis.host are not defined
+  - it: should fail when redis.host is not defined
     set:
       global:
         platformDatabase:
           host: "whatever"
-        redis:
-          host: ""
       redis:
         host: ""
     asserts:
       - failedTemplate:
-          errorPattern: "Define the Redis hostname in 'redis.host' or 'global.redis.host' \\('redis' takes precedence over 'global.redis'\\)"
+          errorPattern: "Define the Redis hostname in 'redis.host'"
 
   - it: should fail when no license is defined
     set:
       global:
         platformDatabase:
           host: "whatever"
-        redis:
-          host: "whatever"
+      redis:
+        host: "whatever"
       platform:
         licenseString: ""
     asserts:
@@ -75,9 +73,9 @@ tests:
 
   - it: should fail when both platform.jwtSeedString and platform.jwtSeedSecretName are defined
     set:
+      redis:
+        host: "whatever"
       global:
-        redis:
-          host: "whatever"
         platformDatabase:
           host: "whatever"
       platform:
@@ -90,9 +88,9 @@ tests:
 
   - it: should fail when both platform.cryptoSeedString and platform.cryptoSeedSecretName are defined
     set:
+      redis:
+        host: "whatever"
       global:
-        redis:
-          host: "whatever"
         platformDatabase:
           host: "whatever"
       platform:
@@ -108,8 +106,8 @@ tests:
       global:
         platformDatabase:
           host: "whatever"
-        redis:
-          host: "whatever"
+      redis:
+        host: "whatever"
       platform:
         licenseString: "whatever"
       cron:
@@ -122,9 +120,9 @@ tests:
 
   - it: should fail when an empty list of execution backends is defined
     set:
+      redis:
+        host: "whatever"
       global:
-        redis:
-          host: "whatever"
         platformDatabase:
           host: "whatever"
       platform:
@@ -148,11 +146,9 @@ tests:
       - hasDocuments:
           count: 1
 
-  - it: should pass when both redis.host and global.redis.host are defined (we'll check in another test that the redis.host takes precedence over global.redis.host)
+  - it: should pass when redis.host is defined
     set:
       global:
-        redis:
-          host: "whatever"
         platformDatabase:
           host: "whatever"
       redis:

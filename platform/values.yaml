@@ -76,27 +76,6 @@ global:
     # -- Connection pool maximum lifetime
     maxLifetime: "180000"
 
-  # Global Redis configuration values. Values set here will be used by multiple seqera products
-  # that require Redis, unless overridden in each product's own .redis section. See README.
-  # Note that Platform currently doesn't allow configuring a Redis database within a Redis instance
-  redis:
-    # -- Redis hostname
-    host: ""
-    # -- Redis port
-    port: 6379
-    # -- Redis password if the installation requires it
-    password: ""
-    # -- Name of an existing secret containing credentials for Redis, as an alternative to the
-    # password field. Note: the secret must already exist in the same namespace at the time of
-    # deployment, it can't be created by this chart with extraDeploy, since this chart performs a
-    # lookup on the Kubernetes API server at install/upgrade time
-    existingSecretName: ""
-    # -- Key in the existing secret containing the password for Redis
-    # @default -- "TOWER_REDIS_PASSWORD"
-    existingSecretKey: ""
-    # -- Enable TLS when connecting to Redis
-    enableTls: false
-
   # -- Optional credentials to log in and fetch images from a private registry
   #
   # <pre><code>
@@ -207,8 +186,6 @@ platform:
   # -- Additional annotations for the Service objects. Evaluated as a template
   serviceAnnotations: {}
 
-# Redis configuration values: for more details, refer to .global.redis. These values take precedence
-# over values in .global.redis
 # Note that Platform currently doesn't support specifying a Redis database within a Redis instance
 redis:
   # -- Redis hostname
