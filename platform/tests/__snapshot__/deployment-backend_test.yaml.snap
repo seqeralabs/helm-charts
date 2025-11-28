@@ -31,7 +31,7 @@ should produce a Deployment resource with minimal values:
               name: release-name-platform-backend
           - configMapRef:
               name: release-name-platform-shared-backend-cron
-        image: cr.seqera.io/private/nf-tower-enterprise/backend:v9.9.9
+        image: private/nf-tower-enterprise/backend:v9.9.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 10
@@ -260,7 +260,7 @@ should render the backend deployment with the correct checksums, labels and anno
                     name: release-name-platform-backend
                 - configMapRef:
                     name: release-name-platform-shared-backend-cron
-              image: cr.seqera.io/private/nf-tower-enterprise/backend:9.9.9
+              image: private/nf-tower-enterprise/backend:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10

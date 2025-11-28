@@ -45,7 +45,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/backend:9.0.0"
+          value: "private/nf-tower-enterprise/backend:9.0.0"
 
   - it: should render the cron deployment with the specified digest, overriding the tag
     template: deployment-cron.yaml
@@ -57,7 +57,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/backend@sha256:1234abcdef"
+          value: "private/nf-tower-enterprise/backend@sha256:1234abcdef"
 
   - it: should render the cron deployment with the correct checksums, labels and annotations
     template: deployment-cron.yaml
@@ -405,7 +405,7 @@ tests:
           value: migrate-db
       - equal:
           path: spec.template.spec.initContainers[2].image
-          value: cr.seqera.io/private/nf-tower-enterprise/migrate-db:v9.9.9
+          value: private/nf-tower-enterprise/migrate-db:v9.9.9
       - equal:
           path: spec.template.spec.initContainers[0].env
           value:

@@ -36,7 +36,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/frontend:9.0.0"
+          value: "private/nf-tower-enterprise/frontend:9.0.0"
 
   - it: should render the frontend deployment with a tag version ending with -unprivileged depending on the chart appVersion
     chart:
@@ -45,7 +45,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/frontend:9.8.7-unprivileged"
+          value: "private/nf-tower-enterprise/frontend:9.8.7-unprivileged"
 
   - it: should render the frontend deployment with the specified digest, overriding the tag
     set:
@@ -56,7 +56,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "cr.seqera.io/private/nf-tower-enterprise/frontend@sha256:1234abcdef"
+          value: "private/nf-tower-enterprise/frontend@sha256:1234abcdef"
 
   - it: should render the frontend deployment with the correct labels and annotations
     # the chart version is included in the annotations, so it needs to be set

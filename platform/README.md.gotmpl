@@ -16,6 +16,8 @@
 
 For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
+Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
+
 ## Platform architecture
 
 The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview)
@@ -41,7 +43,10 @@ Values in the `.redis` section take precedence over values in the `.global.redis
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release oci://public.cr.seqera.io/charts/{{ template "chart.name" . }} --version {{ template "chart.version" . }} --namespace my-namespace --create-namespace
+helm install my-release oci://public.cr.seqera.io/charts/{{ template "chart.name" . }} \
+  --version {{ template "chart.version" . }} \
+  --namespace my-namespace \
+  --create-namespace
 ```
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/{{ template "chart.name" . }}
