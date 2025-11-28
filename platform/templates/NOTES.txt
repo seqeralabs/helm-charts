@@ -48,8 +48,8 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if and (not .Values.redis.host) (not .Values.global.redis.host) -}}
-{{- $message := "Define the Redis hostname in 'redis.host' or 'global.redis.host' ('redis' takes precedence over 'global.redis')" -}}
+{{- if not .Values.redis.host -}}
+{{- $message := "Define the Redis hostname in 'redis.host'" -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 

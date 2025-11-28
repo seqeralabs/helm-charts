@@ -170,8 +170,8 @@ Return the hostname of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.host" -}}
-  {{- /* Redis is a requirement, so no need to check whether it was defined or not. */}}
-  {{- printf "%s" (tpl .Values.redis.host $) | default (printf "%s" (tpl .Values.global.redis.host $)) -}}
+  {{- /* Redis is a requirement checked in NOTES, so no need to check whether it was defined or not. */}}
+  {{- printf "%s" (tpl .Values.redis.host $) -}}
 {{- end -}}
 
 {{/*
@@ -179,7 +179,7 @@ Return the port of the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.port" -}}
-  {{- printf "%s" (tpl (.Values.redis.port | toString) $) | default (printf "%s" (tpl (.Values.global.redis.port | toString) $)) -}}
+  {{- printf "%s" (tpl (.Values.redis.port | toString) $) -}}
 {{- end -}}
 
 {{/*
@@ -187,7 +187,7 @@ Return whether TLS is enabled for the redis server.
 Chart-specific values take precedence over global values.
 */}}
 {{- define "platform.redis.tlsEnabled" -}}
-  {{- if or .Values.redis.enableTls .Values.global.redis.enableTls -}}
+  {{- if or .Values.redis.enableTls -}}
 true
   {{- else -}}
 false
@@ -206,20 +206,18 @@ Return the Redis URI. */}}
 
 {{/*
 Return the name of the secret containing the Redis password.
-'redis' takes precedence over 'global.redis'.
 */}}
 {{- define "platform.redis.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretName $) | default (printf "%s" (tpl .Values.global.redis.existingSecretName $)) -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretName $) -}}
 {{- end -}}
 {{- define "platform.redis.secretName" -}}
   {{- include "platform.redis.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{/*
 Return the key of the secret containing the Redis password.
-'redis' takes precedence over 'global.redis'.
 */}}
 {{- define "platform.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default (printf "%s" (tpl .Values.global.redis.existingSecretKey $)) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "TOWER_REDIS_PASSWORD" -}}
 {{- end -}}
 
 {{/*
@@ -339,7 +337,7 @@ Common initContainer to wait for Redis to be ready.
       value: "5"
     - name: REDIS_URI
       value: {{ include "platform.redis.uri" $ | quote }}
-    {{- if or $.Values.redis.password $.Values.global.redis.password $.Values.redis.existingSecretName $.Values.global.redis.existingSecretName }}
+    {{- if or $.Values.redis.password $.Values.redis.existingSecretName }}
     - name: REDISCLI_AUTH
       valueFrom:
         secretKeyRef:
