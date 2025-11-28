@@ -1,3 +1,183 @@
+should produce a Deployment resource with minimal values:
+  1: |
+    containers:
+      - env:
+          - name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-platform-backend
+          - name: TOWER_LICENSE
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_LICENSE
+                name: release-name-platform-backend
+          - name: TOWER_JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_JWT_SECRET
+                name: release-name-platform-backend
+          - name: TOWER_CRYPTO_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_CRYPTO_SECRETKEY
+                name: release-name-platform-backend
+          - name: NXF_HOME
+            value: /var/cache/tower/
+          - name: NXF_PLUGINS_DIR
+            value: /var/cache/tower/plugins/
+        envFrom:
+          - configMapRef:
+              name: release-name-platform-cron
+          - configMapRef:
+              name: release-name-platform-shared-backend-cron
+        image: private/nf-tower-enterprise/backend:v9.9.9
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: cron
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /health
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+        volumeMounts:
+          - mountPath: /tower.yml
+            name: config-volume
+            subPath: tower.yml
+          - mountPath: /var/cache/tower/
+            name: plugin-volume
+          - mountPath: /.nextflow/
+            name: plugin-volume
+          - mountPath: /?/.nextflow/
+            name: plugin-volume
+    initContainers:
+      - command:
+          - sh
+          - -c
+          - |
+            echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+              echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+              sleep $SLEEP_PERIOD_SECONDS
+            done
+            echo "$(date): db server ready"
+        env:
+          - name: SLEEP_PERIOD_SECONDS
+            value: "5"
+          - name: DB_HOST
+            value: ""
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: null
+          - name: DB_USERNAME
+            value: ""
+        envFrom:
+          - secretRef:
+              name: release-name-platform-backend
+        image: mysql:9
+        imagePullPolicy: IfNotPresent
+        name: wait-for-db
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: "0.5"
+            memory: 50Mi
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+      - command:
+          - sh
+          - -c
+          - |
+            echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+            until redis-cli -u "$REDIS_URI" get hello; do
+              echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+              sleep $SLEEP_PERIOD_SECONDS
+            done
+            echo "$(date): redis server ready"
+        env:
+          - name: SLEEP_PERIOD_SECONDS
+            value: "5"
+          - name: REDIS_URI
+            value: redis://:6379
+        image: redis:7
+        imagePullPolicy: IfNotPresent
+        name: wait-for-redis
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: "0.5"
+            memory: 50Mi
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+      - args: []
+        command:
+          - /bin/sh
+          - -c
+          - /migrate-db.sh
+        env: null
+        envFrom:
+          - configMapRef:
+              name: release-name-platform-cron
+          - configMapRef:
+              name: release-name-platform-shared-backend-cron
+          - secretRef:
+              name: release-name-platform-backend
+        image: private/nf-tower-enterprise/migrate-db:v9.9.9
+        imagePullPolicy: IfNotPresent
+        name: migrate-db
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+        volumeMounts:
+          - mountPath: /tower.yml
+            name: config-volume
+            subPath: tower.yml
+    securityContext:
+      fsGroup: 101
+    serviceAccountName: release-name-platform-sa
+    volumes:
+      - configMap:
+          name: release-name-platform-tower-yml
+        name: config-volume
+      - emptyDir:
+          sizeLimit: 1Gi
+        name: plugin-volume
 should render the cron deployment with the correct checksums, labels and annotations:
   1: |
     apiVersion: apps/v1
@@ -6,7 +186,7 @@ should render the cron deployment with the correct checksums, labels and annotat
       annotations:
         common-annotation-key: common-annotation-value
       labels:
-        app: cron
+        app.kubernetes.io/component: cron
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
@@ -21,7 +201,7 @@ should render the cron deployment with the correct checksums, labels and annotat
       replicas: 1
       selector:
         matchLabels:
-          app: cron
+          app.kubernetes.io/component: cron
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/name: platform
       strategy:
@@ -30,12 +210,12 @@ should render the cron deployment with the correct checksums, labels and annotat
         metadata:
           annotations:
             checksum/configmap: 380b749392f400fe4829101e8a4fc5f15e4f13cfe8e24c4ba4bd8082b141b596
-            checksum/secret: cafb8de952eaf65cd0267d83b2273af42e7c0cb906df95abf490deb0dbb96a70
+            checksum/secret: 27e0ae5efe3beffdc19e0c47ecc973b5ecff8679033f1ea6ca92a640a4f46fdf
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
           labels:
-            app: cron
+            app.kubernetes.io/component: cron
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: platform
@@ -47,6 +227,26 @@ should render the cron deployment with the correct checksums, labels and annotat
         spec:
           containers:
             - env:
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: db-password-key
+                      name: unittest
+                - name: TOWER_LICENSE
+                  valueFrom:
+                    secretKeyRef:
+                      key: license-token-key
+                      name: unittest
+                - name: TOWER_JWT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_JWT_SECRET
+                      name: release-name-platform-backend
+                - name: TOWER_CRYPTO_SECRETKEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_CRYPTO_SECRETKEY
+                      name: release-name-platform-backend
                 - name: NXF_HOME
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR
@@ -56,8 +256,6 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-cron
                 - configMapRef:
                     name: release-name-platform-shared-backend-cron
-                - secretRef:
-                    name: release-name-platform-backend
               image: private/nf-tower-enterprise/backend:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:

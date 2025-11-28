@@ -1,0 +1,6 @@
+# JSON 6902 patch to modify backend container resources
+# Note that for most use cases, the helm chart already provides resource
+# configuration via values.yaml.
+- op: replace
+  path: /spec/template/spec/initContainers/0/resources/limits/memory
+  value: "200Mi"

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seqera-platform-backend
+spec:
+  template:
+    spec:
+      containers:
+          # Add a sidecar container for logging, just as an example
+        - name: log-forwarder
+          image: fluent/fluent-bit:2.1
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: log-config
+              mountPath: /fluent-bit/etc
+
+      volumes:
+        - name: log-config
+          configMap:
+            name: fluent-bit-config

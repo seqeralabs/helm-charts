@@ -1,4 +1,22 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 suite: test Platform service
 templates:
   - service.yaml
@@ -21,9 +39,9 @@ tests:
           value:
             type: ClusterIP
             selector:
+              app.kubernetes.io/component: backend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: backend
             ports:
               - name: http
                 port: 8080
@@ -39,9 +57,9 @@ tests:
           value:
             type: ClusterIP
             selector:
+              app.kubernetes.io/component: cron
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: cron
             ports:
               - name: http
                 port: 8080
@@ -57,9 +75,9 @@ tests:
           value:
             type: ClusterIP
             selector:
+              app.kubernetes.io/component: frontend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: frontend
             ports:
               - name: http
                 port: 80
@@ -209,9 +227,9 @@ tests:
           value:
             type: NodePort
             selector:
+              app.kubernetes.io/component: backend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: backend
             ports:
               - name: http
                 port: 8080
@@ -234,9 +252,9 @@ tests:
           value:
             type: NodePort
             selector:
+              app.kubernetes.io/component: cron
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: cron
             ports:
               - name: http
                 port: 8080
@@ -259,9 +277,9 @@ tests:
           value:
             type: NodePort
             selector:
+              app.kubernetes.io/component: frontend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: frontend
             ports:
               - name: http
                 port: 80
@@ -284,9 +302,9 @@ tests:
           value:
             type: LoadBalancer
             selector:
+              app.kubernetes.io/component: backend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: backend
             ports:
               - name: http
                 port: 8080
@@ -309,9 +327,9 @@ tests:
           value:
             type: LoadBalancer
             selector:
+              app.kubernetes.io/component: cron
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: cron
             ports:
               - name: http
                 port: 8080
@@ -334,9 +352,9 @@ tests:
           value:
             type: LoadBalancer
             selector:
+              app.kubernetes.io/component: frontend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: frontend
             ports:
               - name: http
                 port: 80
@@ -362,9 +380,9 @@ tests:
             type: ExternalName
             externalName: my-external-service.example.com
             selector:
+              app.kubernetes.io/component: backend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: backend
             ports:
               - name: http
                 port: 8080
@@ -389,9 +407,9 @@ tests:
             type: ExternalName
             externalName: my-external-service.example.com
             selector:
+              app.kubernetes.io/component: cron
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: cron
             ports:
               - name: http
                 port: 8080
@@ -416,9 +434,9 @@ tests:
             type: ExternalName
             externalName: my-external-service.example.com
             selector:
+              app.kubernetes.io/component: frontend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: frontend
             ports:
               - name: http
                 port: 80
@@ -440,9 +458,9 @@ tests:
           value:
             type: ClusterIP
             selector:
+              app.kubernetes.io/component: backend
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: backend
             ports:
               - name: http
                 port: 8080
@@ -464,9 +482,9 @@ tests:
           value:
             type: ClusterIP
             selector:
+              app.kubernetes.io/component: cron
               app.kubernetes.io/name: platform
               app.kubernetes.io/instance: RELEASE-NAME
-              app: cron
             ports:
               - name: http
                 port: 8080
@@ -657,7 +675,7 @@ tests:
       - equal:
           path: spec.selector
           value:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: customBackend
         documentSelector:
@@ -666,7 +684,7 @@ tests:
       - equal:
           path: spec.selector
           value:
-            app: cron
+            app.kubernetes.io/component: cron
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: customCron
         documentSelector:
@@ -675,7 +693,7 @@ tests:
       - equal:
           path: spec.selector
           value:
-            app: cron
+            app.kubernetes.io/component: cron
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: customCron
         documentSelector:
@@ -725,7 +743,7 @@ tests:
           type: ClusterIP
           extraOptions:
             selector:
-              app: test
+              app.kubernetes.io/component: test
             type: NodePort
             ports:
               - port: 80
@@ -736,7 +754,7 @@ tests:
           value:
             app.kubernetes.io/name: platform
             app.kubernetes.io/instance: RELEASE-NAME
-            app: backend
+            app.kubernetes.io/component: backend
       - equal:
           path: spec.type
           value: ClusterIP
@@ -904,7 +922,7 @@ tests:
           type: ClusterIP
           extraOptions:
             selector:
-              app: test
+              app.kubernetes.io/component: test
             type: NodePort
             ports:
               - port: 80
@@ -915,7 +933,7 @@ tests:
           value:
             app.kubernetes.io/name: platform
             app.kubernetes.io/instance: RELEASE-NAME
-            app: cron
+            app.kubernetes.io/component: cron
       - equal:
           path: spec.type
           value: ClusterIP
@@ -972,7 +990,7 @@ tests:
           type: ClusterIP
           extraOptions:
             selector:
-              app: test
+              app.kubernetes.io/component: test
             type: NodePort
             ports:
               - port: 80
@@ -983,7 +1001,7 @@ tests:
           value:
             app.kubernetes.io/name: platform
             app.kubernetes.io/instance: RELEASE-NAME
-            app: frontend
+            app.kubernetes.io/component: frontend
       - equal:
           path: spec.type
           value: ClusterIP

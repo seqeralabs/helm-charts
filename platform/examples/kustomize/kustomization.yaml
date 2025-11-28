@@ -1,0 +1,56 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Namespace where the Helm chart will be deployed
+namespace: albertoc-platform
+
+helmCharts:
+- name: platform
+  repo: oci://public.cr.seqera.io/charts
+  version: 0.16.1
+  releaseName: seqera-platform
+  # Basic values to provide to the Helm chart
+  valuesFile: values.yaml
+  # Inline values to override those in values.yaml
+  valuesInline:
+    global:
+      platformExternalDomain: platform.example.com
+      platformDatabase:
+        host: platform-db.example.com
+        database: platform
+        username: platform
+      redis:
+        host: redis.example.com
+    frontend:
+      extraOptionsSpec:
+        replicas: 2
+
+patches:
+- path: patches/backend-resources-patch.yaml
+  target:
+    group: apps
+    kind: Deployment
+    name: seqera-platform-backend  # The name of the resources depends on the release name chosen.
+    version: v1
+- path: patches/backend-deployment-patch.yaml
+
+# Add additional resources not provided by the chart
+resources:
+- additional-resources/network-policy.yaml
+
+# Common annotations applied to all resources. Note that the chart also provides .commonAnnotations.
+commonAnnotations:
+  deployed-by: kustomize
+  documentation: https://docs.seqera.io
+
+# Common labels applied to all resources. Note that the chart also provides .commonLabels.
+labels:
+- pairs:
+    environment: production
+    team: platform-engineering
+# Add/overwrite labels on Deployment selectors: try to keep them to a minimum and remember that they
+# are immutable after creation: avoid dynamic/changing values in selectors, like chart or app
+# version.
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/managed-by: kustomize

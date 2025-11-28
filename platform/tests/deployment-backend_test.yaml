@@ -1,4 +1,22 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 suite: test Platform backend deployment
 templates:
   - deployment-backend.yaml
@@ -13,186 +31,10 @@ tests:
     # to compute their checksums that are added to the deployment annotations to perform automatic
     # rollouts, but we aren't interested in testing those files here.
     template: deployment-backend.yaml
-    set:
-      redis:
-        host: "asdf"
     asserts:
-      - hasDocuments:
-          count: 1
-      - isKind:
-          of: Deployment
-      - equal:
-          path: metadata.name
-          value: release-name-platform-backend
-      - equal:
+      - matchSnapshot:
+          # Check only the spec.template.spec to avoid snapshot changes due to checksum annotations
           path: spec.template.spec
-          value:
-            containers:
-              - env:
-                  - name: NXF_HOME
-                    value: /var/cache/tower/
-                  - name: NXF_PLUGINS_DIR
-                    value: /var/cache/tower/plugins/
-                envFrom:
-                  - configMapRef:
-                      name: release-name-platform-backend
-                  - configMapRef:
-                      name: release-name-platform-shared-backend-cron
-                  - secretRef:
-                      name: release-name-platform-backend
-                image: private/nf-tower-enterprise/backend:v9.9.9
-                imagePullPolicy: IfNotPresent
-                livenessProbe:
-                  failureThreshold: 10
-                  httpGet:
-                    path: /health
-                    port: 8080
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  successThreshold: 1
-                  timeoutSeconds: 3
-                name: backend
-                readinessProbe:
-                  failureThreshold: 5
-                  httpGet:
-                    path: /health
-                    port: 8080
-                  initialDelaySeconds: 5
-                  periodSeconds: 5
-                  successThreshold: 1
-                  timeoutSeconds: 3
-                securityContext:
-                  capabilities:
-                    drop:
-                      - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  runAsUser: 101
-                volumeMounts:
-                  - mountPath: /tower.yml
-                    name: config-volume
-                    subPath: tower.yml
-                  - mountPath: /var/cache/tower/
-                    name: plugin-volume
-                  - mountPath: /.nextflow/
-                    name: plugin-volume
-                  - mountPath: /?/.nextflow/
-                    name: plugin-volume
-            initContainers:
-              - command:
-                  - sh
-                  - -c
-                  - |
-                    echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-                    until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
-                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-                      sleep $SLEEP_PERIOD_SECONDS
-                    done
-                    echo "$(date): db server ready"
-                env:
-                  - name: SLEEP_PERIOD_SECONDS
-                    value: "5"
-                  - name: DB_HOST
-                    value: ""
-                  - name: DB_PORT
-                    value: "3306"
-                  - name: DB_NAME
-                    value: null
-                  - name: DB_USERNAME
-                    value: ""
-                envFrom:
-                  - secretRef:
-                      name: release-name-platform-backend
-                image: mysql:9
-                imagePullPolicy: IfNotPresent
-                name: wait-for-db
-                resources:
-                  limits:
-                    memory: 100Mi
-                  requests:
-                    cpu: "0.5"
-                    memory: 50Mi
-                securityContext:
-                  capabilities:
-                    drop:
-                      - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  runAsUser: 101
-              - command:
-                  - sh
-                  - -c
-                  - |
-                    echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
-                    until redis-cli -u "$REDIS_URI" get hello; do
-                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-                      sleep $SLEEP_PERIOD_SECONDS
-                    done
-                    echo "$(date): redis server ready"
-                env:
-                  - name: SLEEP_PERIOD_SECONDS
-                    value: "5"
-                  - name: REDIS_URI
-                    value: redis://asdf:6379
-                image: redis:7
-                imagePullPolicy: IfNotPresent
-                name: wait-for-redis
-                resources:
-                  limits:
-                    memory: 100Mi
-                  requests:
-                    cpu: "0.5"
-                    memory: 50Mi
-                securityContext:
-                  capabilities:
-                    drop:
-                      - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  runAsUser: 101
-              - command:
-                  - sh
-                  - -c
-                  - |
-                    echo "$(date): starting check for cron to be ready at \"${CRON_HOST}:${CRON_PORT}/health\""
-                    until curl -s ${CRON_HOST}:${CRON_PORT}/health |grep -q \"UP\"; do
-                      echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-                      sleep $SLEEP_PERIOD_SECONDS
-                    done
-                    echo "$(date): cron ready"
-                env:
-                  - name: SLEEP_PERIOD_SECONDS
-                    value: "5"
-                  - name: CRON_HOST
-                    value: release-name-platform-cron
-                  - name: CRON_PORT
-                    value: "8080"
-                image: curlimages/curl:latest
-                imagePullPolicy: IfNotPresent
-                name: wait-for-cron
-                resources:
-                  limits:
-                    memory: 100Mi
-                  requests:
-                    cpu: "0.5"
-                    memory: 50Mi
-                securityContext:
-                  capabilities:
-                    drop:
-                      - ALL
-                  readOnlyRootFilesystem: true
-                  runAsNonRoot: true
-                  runAsUser: 101
-            securityContext:
-              fsGroup: 101
-            serviceAccountName: release-name-platform-sa
-            volumes:
-              - configMap:
-                  name: release-name-platform-tower-yml
-                name: config-volume
-              - emptyDir:
-                  sizeLimit: 1Gi
-                name: plugin-volume
 
   - it: should render the backend deployment with the specified tag version
     template: deployment-backend.yaml
@@ -223,23 +65,6 @@ tests:
     chart:
       version: "9.9.9+test"
       appVersion: "9.9.9"
-    kubernetesProvider:
-      scheme:
-        "v1/Secret":
-          gvr:
-            version:  "v1"
-            resource: "secrets"
-          namespaced: true
-      objects:
-        - apiVersion: v1
-          kind: Secret
-          type: Opaque
-          metadata:
-            name: unittest
-            namespace: NAMESPACE
-          data:
-            db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
-            license-token-key: "bXktcGxhdGZvcm0tbGljZW5zZTEyMw==" # my-platform-license123
     set:
       global:
         platformDatabase:
@@ -278,7 +103,7 @@ tests:
       - equal:
           path: spec.selector.matchLabels
           value:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 
@@ -302,7 +127,7 @@ tests:
       - equal:
           path: spec.selector.matchLabels
           value:
-            app: backend
+            app.kubernetes.io/component: backend
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/name: platform
 
@@ -466,6 +291,26 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env
           value:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_DB_PASSWORD
+                  name: release-name-platform-backend
+            - name: TOWER_LICENSE
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_LICENSE
+                  name: release-name-platform-backend
+            - name: TOWER_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_JWT_SECRET
+                  name: release-name-platform-backend
+            - name: TOWER_CRYPTO_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_CRYPTO_SECRETKEY
+                  name: release-name-platform-backend
             - name: NXF_HOME
               value: /var/cache/tower/
             - name: NXF_PLUGINS_DIR
@@ -479,8 +324,6 @@ tests:
                 name: release-name-platform-backend
             - configMapRef:
                 name: release-name-platform-shared-backend-cron
-            - secretRef:
-                name: release-name-platform-backend
             - configMapRef:
                 name: extra-env-vars-cm1
             - configMapRef:
@@ -989,3 +832,139 @@ tests:
       - equal:
           path: spec.template.spec.initContainers
           value: null
+
+  - it: should mount the user-provided secrets on deployment with default secret keys
+    template: deployment-backend.yaml
+    set:
+      global:
+        platformDatabase:
+          existingSecretName: "my-db-secret"
+        redis:
+          existingSecretName: "my-redis-secret"
+      platform:
+        licenseSecretName: "my-license-secret"
+        jwtSeedSecretName: "my-jwt-seed-secret"
+        cryptoSeedSecretName: "my-crypto-seed-secret"
+        smtp:
+          host: asdf
+          existingSecretName: "my-smtp-secret"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_DB_PASSWORD')]
+          value:
+            name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: TOWER_DB_PASSWORD
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_REDIS_PASSWORD')]
+          value:
+            name: TOWER_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: TOWER_REDIS_PASSWORD
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_LICENSE')]
+          value:
+            name: TOWER_LICENSE
+            valueFrom:
+              secretKeyRef:
+                name: my-license-secret
+                key: TOWER_LICENSE
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_JWT_SECRET')]
+          value:
+            name: TOWER_JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: my-jwt-seed-secret
+                key: TOWER_JWT_SECRET
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_CRYPTO_SECRETKEY')]
+          value:
+            name: TOWER_CRYPTO_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: my-crypto-seed-secret
+                key: TOWER_CRYPTO_SECRETKEY
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_SMTP_PASSWORD')]
+          value:
+            name: TOWER_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-smtp-secret
+                key: TOWER_SMTP_PASSWORD
+
+  - it: should mount the user-provided secrets on deployment with custom secret keys
+    template: deployment-backend.yaml
+    set:
+      global:
+        platformDatabase:
+          existingSecretName: "my-db-secret"
+          existingSecretKey: "my-db-secret-key"
+        redis:
+          existingSecretName: "my-redis-secret"
+          existingSecretKey: "my-redis-secret-key"
+      platform:
+        licenseSecretName: "my-license-secret"
+        licenseSecretKey: "my-license-secret-key"
+        jwtSeedSecretName: "my-jwt-seed-secret"
+        jwtSeedSecretKey: "my-jwt-seed-secret-key"
+        cryptoSeedSecretName: "my-crypto-seed-secret"
+        cryptoSeedSecretKey: "my-crypto-seed-secret-key"
+        smtp:
+          host: asdf
+          existingSecretName: "my-smtp-secret"
+          existingSecretKey: "my-smtp-secret-key"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_DB_PASSWORD')]
+          value:
+            name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: my-db-secret-key
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_REDIS_PASSWORD')]
+          value:
+            name: TOWER_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: my-redis-secret-key
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_LICENSE')]
+          value:
+            name: TOWER_LICENSE
+            valueFrom:
+              secretKeyRef:
+                name: my-license-secret
+                key: my-license-secret-key
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_JWT_SECRET')]
+          value:
+            name: TOWER_JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: my-jwt-seed-secret
+                key: my-jwt-seed-secret-key
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_CRYPTO_SECRETKEY')]
+          value:
+            name: TOWER_CRYPTO_SECRETKEY
+            valueFrom:
+              secretKeyRef:
+                name: my-crypto-seed-secret
+                key: my-crypto-seed-secret-key
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_SMTP_PASSWORD')]
+          value:
+            name: TOWER_SMTP_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-smtp-secret
+                key: my-smtp-secret-key
