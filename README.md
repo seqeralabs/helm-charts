@@ -21,7 +21,16 @@ Seqera Helm charts are published to the OCI registry `public.cr.seqera.io/charts
 availability or air-gapped deployments, we recommend vendoring (replicating) charts into your own
 internal OCI registry.
 
-### Recommended approach
+### Automatic replication via Container Registry feature - recommended approach
+
+Several container registries offer native replication features that can be used to automatically replicate images from registries like `public.cr.seqera.io` to your own registry. This is the recommended approach.
+
+As a reference, here are links to the documentation for setting up replication in some popular container registries:
+- [Amazon Elastic Container Registry (ECR) Replication](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html)
+- [Azure Container Registry (ACR) Artifact caching](https://learn.microsoft.com/en-us/azure/container-registry/artifact-cache-overview)
+- [Harbor Replication](https://goharbor.io/docs/latest/administration/configuring-replication/)
+
+### Manual replication with Skopeo
 
 Use [Skopeo](https://github.com/containers/skopeo) to automate and keep your internal registry in
 sync. For example to synchronize all releases of the `platform` chart from the public Seqera
