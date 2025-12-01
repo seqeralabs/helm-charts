@@ -16,12 +16,11 @@
 
 For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
-Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
+Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry) and follow the instructions to fulfill the other prerequisites.
 
 ## Platform architecture
 
-The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview)
-consists of the following components:
+The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview) consists of the following components:
 
 - Backend
   * The backend app is a JVM-based web application based on the Micronaut framework, exposing the REST API and handling most of the business logic.
@@ -31,12 +30,6 @@ consists of the following components:
   * The frontend app is an Nginx web server for the Platform web UI.
 - MySQL database to persist the Platform data.
 - Redis cache.
-
-### Redis Cache details
-
-Multiple Seqera products require a Redis cache. Seqera strongly recommends using a [managed Redis installation](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#managed-redis-services) provided by an external provider, but [local Redis installations](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#deploy-a-redis-manifest-to-your-cluster) are also supported.
-Either specify the Redis host in the `.global.redis` section to share it between multiple charts, or specify it below in the `.redis` section. If mixing locations, you must define the database that Redis will need for each product to use in `.redis.prefix`.
-Values in the `.redis` section take precedence over values in the `.global.redis` section.
 
 ## Installing the chart
 
