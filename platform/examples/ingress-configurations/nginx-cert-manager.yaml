@@ -1,0 +1,71 @@
+# NGINX Ingress with cert-manager for automatic TLS certificates
+#
+# Prerequisites:
+# - NGINX ingress controller installed
+# - cert-manager installed with a ClusterIssuer configured
+# - DNS records pointing to your ingress controller's external IP
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f nginx-cert-manager.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  # Separate domain for user-generated content (XSS protection)
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+ingress:
+  enabled: true
+
+  # NGINX ingress class
+  ingressClassName: nginx
+
+  annotations:
+    # cert-manager annotations for automatic TLS certificate provisioning
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    cert-manager.io/acme-challenge-type: http01
+
+    # NGINX-specific annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # Allow large file uploads (adjust as needed)
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+    # Increase timeouts for long-running operations
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # Enable WebSocket support
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-set-headers: "default/custom-headers"
+
+  # TLS configuration with separate certificates for each domain
+  # cert-manager will automatically provision these certificates
+  tls:
+    - hosts:
+        - platform.example.com
+      secretName: platform-tls
+    - hosts:
+        - user-data.example.com
+      secretName: platform-content-tls
+
+  # Default path type
+  defaultPathType: Prefix

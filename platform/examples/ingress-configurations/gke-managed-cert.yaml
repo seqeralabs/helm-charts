@@ -1,0 +1,129 @@
+# GKE with Google-Managed Certificates
+#
+# Use Google Kubernetes Engine with Google-managed SSL certificates
+# This provides automatic certificate provisioning and renewal via GKE
+#
+# Prerequisites:
+# - GKE cluster with HTTP(S) Load Balancing enabled
+# - Domain ownership verified in Google Cloud Console
+# - DNS records pointing to the GKE ingress IP
+#
+# Note: Google-managed certificates can take 10-60 minutes to provision
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f gke-managed-cert.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+ingress:
+  enabled: true
+
+  # Use gce ingress class for GKE
+  ingressClassName: gce
+
+  annotations:
+    # Google-managed certificate
+    # Certificate will be automatically provisioned for specified domains
+    networking.gke.io/managed-certificates: platform-managed-cert
+
+    # Use Google Cloud Armor for DDoS protection (optional)
+    # cloud.google.com/armor-config: '{"security-policy": "platform-security-policy"}'
+
+    # Global static IP (optional - must be created beforehand)
+    # kubernetes.io/ingress.global-static-ip-name: "platform-ip"
+
+    # Enable HTTP to HTTPS redirect
+    networking.gke.io/v1beta1.FrontendConfig: platform-frontend-config
+
+  # Don't specify tls section when using Google-managed certificates
+  # The annotation above handles TLS automatically
+  tls: []
+
+  defaultPathType: ImplementationSpecific
+
+# Create the ManagedCertificate resource via extraDeploy
+extraDeploy:
+  # Google-managed certificate resource
+  - apiVersion: networking.gke.io/v1
+    kind: ManagedCertificate
+    metadata:
+      name: platform-managed-cert
+    spec:
+      domains:
+        - platform.example.com
+        - user-data.example.com
+
+  # FrontendConfig for HTTPS redirect and other settings
+  - apiVersion: networking.gke.io/v1beta1
+    kind: FrontendConfig
+    metadata:
+      name: platform-frontend-config
+    spec:
+      redirectToHttps:
+        enabled: true
+        responseCodeName: MOVED_PERMANENTLY_DEFAULT
+      sslPolicy: platform-ssl-policy  # Optional: reference to custom SSL policy
+
+  # BackendConfig for backend service configuration (optional)
+  - apiVersion: cloud.google.com/v1
+    kind: BackendConfig
+    metadata:
+      name: platform-backend-config
+    spec:
+      timeoutSec: 3600
+      connectionDraining:
+        drainingTimeoutSec: 60
+      healthCheck:
+        checkIntervalSec: 30
+        timeoutSec: 5
+        healthyThreshold: 2
+        unhealthyThreshold: 2
+        type: HTTP
+        requestPath: /health
+        port: 8080
+      cdn:
+        enabled: false
+      iap:
+        enabled: false
+      # Session affinity (optional)
+      sessionAffinity:
+        affinityType: "CLIENT_IP"
+        affinityCookieTtlSec: 86400
+
+# To apply BackendConfig to services, you would typically add this annotation
+# to the service definition:
+#
+# backend:
+#   serviceAnnotations:
+#     cloud.google.com/backend-config: '{"default": "platform-backend-config"}'
+
+# Check certificate status with:
+#   kubectl describe managedcertificate platform-managed-cert -n seqera-platform
+#
+# Certificate provisioning status:
+#   - Provisioning: Certificate is being provisioned (can take 10-60 minutes)
+#   - Active: Certificate is ready and in use
+#   - FailedNotVisible: Domain ownership verification failed or DNS not pointing to ingress

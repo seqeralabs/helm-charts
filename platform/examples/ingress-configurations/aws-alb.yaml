@@ -1,0 +1,103 @@
+# AWS Application Load Balancer (ALB) Ingress
+#
+# Prerequisites:
+# - AWS Load Balancer Controller installed in the cluster
+# - Service account with appropriate IAM role (IRSA)
+# - ACM certificate ARN or cert-manager configured for AWS
+# - DNS records in Route53 or external DNS configured
+#
+# Important: ALB requires service type NodePort and path syntax "/*"
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f aws-alb.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+# ALB requires NodePort service type. Only the frontend is exposed by default via Ingress.
+frontend:
+  service:
+    type: NodePort
+
+ingress:
+  enabled: true
+
+  # AWS ALB ingress class
+  ingressClassName: alb
+
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  contentPath: "/*"
+
+  annotations:
+    # ALB configuration
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip  # Use 'instance' for instance mode
+
+    # SSL/TLS configuration - use ACM certificate ARN
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+
+    # Health check configuration
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "30"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+
+    # Load balancer attributes
+    alb.ingress.kubernetes.io/load-balancer-attributes: |
+      idle_timeout.timeout_seconds=3600,
+      access_logs.s3.enabled=true,
+      access_logs.s3.bucket=my-alb-logs-bucket,
+      access_logs.s3.prefix=platform
+
+    # Target group attributes
+    alb.ingress.kubernetes.io/target-group-attributes: |
+      deregistration_delay.timeout_seconds=30,
+      stickiness.enabled=true,
+      stickiness.type=lb_cookie,
+      stickiness.lb_cookie.duration_seconds=86400
+
+    # Security groups (optional)
+    # alb.ingress.kubernetes.io/security-groups: sg-xxxxx, sg-yyyyy
+
+    # Subnets (optional - will auto-discover if not specified)
+    # alb.ingress.kubernetes.io/subnets: subnet-xxxxx, subnet-yyyyy
+
+    # Tags for the ALB
+    alb.ingress.kubernetes.io/tags: |
+      Environment=production,
+      Team=platform,
+      ManagedBy=helm
+
+  # TLS handled by ACM certificate specified in annotations
+  # Don't specify tls section when using ACM certificates
+  tls: []
+
+  # Use Prefix path type (required for ALB with /*)
+  defaultPathType: Prefix
