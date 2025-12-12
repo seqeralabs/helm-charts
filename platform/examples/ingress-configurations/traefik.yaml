@@ -1,0 +1,83 @@
+# Traefik Ingress Configuration
+#
+# Prerequisites:
+# - Traefik ingress controller installed
+# - DNS records pointing to Traefik service
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f traefik.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+ingress:
+  enabled: true
+
+  # Traefik ingress class
+  ingressClassName: traefik
+
+  annotations:
+    # TLS with Let's Encrypt via Traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+
+    # Middleware for security headers
+    traefik.ingress.kubernetes.io/router.middlewares: default-security-headers@kubernetescrd
+
+    # Entry points (optional)
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+    # Redirect HTTP to HTTPS
+    traefik.ingress.kubernetes.io/redirect-entry-point: websecure
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+
+    # Rate limiting (optional)
+    # traefik.ingress.kubernetes.io/rate-limit: "100"
+
+  # TLS configuration
+  tls:
+    - hosts:
+        - platform.example.com
+      secretName: platform-tls
+    - hosts:
+        - user-data.example.com
+      secretName: platform-content-tls
+
+  defaultPathType: Prefix
+
+# Note: For advanced Traefik configurations, consider using IngressRoute CRD
+# and add it via extraDeploy. Example:
+#
+# extraDeploy:
+#   - apiVersion: traefik.containo.us/v1alpha1
+#     kind: Middleware
+#     metadata:
+#       name: security-headers
+#     spec:
+#       headers:
+#         customResponseHeaders:
+#           X-Frame-Options: "SAMEORIGIN"
+#           X-Content-Type-Options: "nosniff"
+#           X-XSS-Protection: "1; mode=block"

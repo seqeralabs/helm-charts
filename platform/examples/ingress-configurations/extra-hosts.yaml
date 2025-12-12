@@ -1,0 +1,92 @@
+# Multiple Hostnames / Extra Hosts Configuration
+#
+# Expose Platform on multiple custom hostnames:
+# - Main frontend at platform.example.com
+# - API/backend at api.platform.example.com
+# - Content domain at user-data.example.com
+#
+# Prerequisites:
+# - DNS records for all hostnames pointing to ingress
+# - TLS certificates for all domains
+#
+# DNS Setup:
+#   platform.example.com        A/CNAME -> Ingress IP/hostname
+#   api.platform.example.com    A/CNAME -> Ingress IP/hostname
+#   user-data.example.com       A/CNAME -> Ingress IP/hostname
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f extra-hosts.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  # Expose the backend service as a NodePort if you're using ALB. Other changes to prefix paths, etc
+  # may be needed; refer to the AWS ALB example for more details.
+  # service:
+  #   type: NodePort
+  extraOptionsSpec:
+    replicas: 3
+
+ingress:
+  enabled: true
+
+  ingressClassName: nginx
+
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+
+  # Additional custom hostnames beyond the default ones
+  extraHosts:
+    # API subdomain pointing to backend service
+    - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+          portNumber: '{{ .Values.global.platformServicePort }}'
+
+    # WWW subdomain (if you want www.platform.example.com)
+    - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+          portNumber: '{{ .Values.frontend.service.http.port }}'
+
+  # TLS certificates for all domains
+  tls:
+    - hosts:
+        - platform.example.com
+        - www.platform.example.com
+      secretName: platform-tls
+
+    - hosts:
+        - api.platform.example.com
+      secretName: platform-api-tls
+
+    - hosts:
+        - user-data.example.com
+      secretName: platform-content-tls
+
+  defaultPathType: Prefix

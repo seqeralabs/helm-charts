@@ -1,0 +1,80 @@
+# Wildcard TLS Certificate Configuration
+#
+# Use a single wildcard certificate for all Platform domains
+# This simplifies certificate management when you control the entire domain
+#
+# Prerequisites:
+# - Wildcard certificate for *.example.com
+# - Certificate stored as Kubernetes secret
+#
+# Create the secret:
+#   kubectl create secret tls wildcard-tls \
+#     --cert=wildcard.crt \
+#     --key=wildcard.key \
+#     -n seqera-platform
+#
+# Or with cert-manager:
+#   kubectl apply -f - <<EOF
+#   apiVersion: cert-manager.io/v1
+#   kind: Certificate
+#   metadata:
+#     name: wildcard-tls
+#     namespace: seqera-platform
+#   spec:
+#     secretName: wildcard-tls
+#     issuerRef:
+#       name: letsencrypt-prod
+#       kind: ClusterIssuer
+#     dnsNames:
+#     - '*.example.com'
+#     - example.com
+#   EOF
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f wildcard-tls.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  # Content domain also covered by wildcard cert
+  contentDomain: user-data.example.com
+
+  platformDatabase:
+    host: mysql.example.com
+    database: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+ingress:
+  enabled: true
+
+  ingressClassName: nginx
+
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+
+  # Single wildcard certificate covering all domains
+  tls:
+    - hosts:
+        - platform.example.com
+        - user-data.example.com
+      secretName: wildcard-tls  # Single wildcard certificate
+
+  defaultPathType: Prefix

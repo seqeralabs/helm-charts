@@ -1,0 +1,291 @@
+# High Availability Configuration for Seqera Platform
+#
+# This configuration provides production-ready high availability with:
+# - Multiple replicas for backend and frontend
+# - Pod Disruption Budgets (PDBs) to protect against simultaneous pod termination
+# - Pod anti-affinity to spread pods across availability zones and nodes
+# - Proper resource requests and limits
+# - Health checks for automatic recovery
+# - Rolling update strategy for zero-downtime deployments
+#
+# Prerequisites:
+# - Kubernetes cluster with at least 3 nodes across multiple availability zones
+# - External MySQL database with HA enabled (AWS RDS Multi-AZ, GCP Cloud SQL HA, etc.)
+# - External Redis cache with HA enabled (AWS ElastiCache, GCP Memorystore, etc.)
+# - Sufficient cluster resources for multiple replicas
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f high-availability.yaml \
+#     -n seqera-platform \
+#     --create-namespace
+#
+# Verification commands:
+#
+# Check pod distribution:
+#   kubectl get pods -n seqera-platform -o wide -l app.kubernetes.io/name=platform
+#
+# Check PDBs:
+#   kubectl get pdb -n seqera-platform
+#
+# Test node drain (dry-run):
+#   kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data --dry-run=client
+#
+# Monitor resource usage:
+#   kubectl top pods -n seqera-platform
+#
+# Simulate failure:
+#   kubectl delete pod -n seqera-platform -l app.kubernetes.io/component=backend | head -1
+
+# Several required options are not included here (e.g., external database, redis cache settings,
+# ingress, etc).
+
+backend:
+  extraOptionsSpec:
+    replicas: 3
+
+    # Rolling update strategy - ensures gradual rollout with minimal disruption
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1  # Only 1 pod can be unavailable during updates
+        maxSurge: 1        # Allow 1 extra pod during rollout
+
+  # Pod anti-affinity - spread pods across zones and nodes
+  extraOptionsTemplateSpec:
+    affinity:
+      podAntiAffinity:
+        # Prefer spreading across availability zones (primary)
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100  # Higher weight = stronger preference
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: platform
+                  app.kubernetes.io/component: backend
+              topologyKey: topology.kubernetes.io/zone  # Spread across availability zones
+
+          # Prefer spreading across nodes within zones (secondary)
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: platform
+                  app.kubernetes.io/component: backend
+              topologyKey: kubernetes.io/hostname  # Spread across nodes
+
+  # Resource requests and limits
+  resources:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      memory: "4Gi"
+
+  # Health checks for automatic recovery
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30  # Allow up to 5 minutes for startup
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 10  # Allow 100 seconds of failures before restart
+    successThreshold: 1
+
+frontend:
+  extraOptionsSpec:
+    replicas: 2  # At least 2 replicas, but the frontend doesn't perform heavy tasks
+
+    # Rolling update strategy
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 1
+
+  # Pod anti-affinity - spread pods across zones and nodes
+  extraOptionsTemplateSpec:
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: platform
+                  app.kubernetes.io/component: frontend
+              topologyKey: topology.kubernetes.io/zone
+
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: platform
+                  app.kubernetes.io/component: frontend
+              topologyKey: kubernetes.io/hostname
+
+  # Resource requests and limits
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "200Mi"
+    limits:
+      memory: "200Mi"
+
+  # Health checks
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 30
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 3
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 10
+
+cron:
+  extraOptionsSpec:
+    replicas: 1
+
+  # Resource requests for cron pod
+  resources:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      memory: "4Gi"
+
+  # Health checks
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 5
+
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 10
+
+  # Database migration init container settings
+  dbMigrationInitContainer:
+    resources:
+      requests:
+        cpu: "1"
+        memory: "4Gi"
+      limits:
+        memory: "4Gi"
+
+# Pod Disruption Budgets - Protect against simultaneous pod termination
+# These resources ensure availability during node drains, upgrades, and evictions
+extraDeploy:
+  # Backend PDB - Allow only 1 pod to be unavailable at a time
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: '{{ include "common.names.fullname" . }}-backend-pdb'
+      namespace: '{{ .Release.Namespace }}'
+      labels:
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/component: backend
+    spec:
+      maxUnavailable: 1  # Only 1 backend pod can be down during disruptions
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/component: backend
+
+  # Frontend PDB - Allow only 1 pod to be unavailable at a time
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: '{{ include "common.names.fullname" . }}-frontend-pdb'
+      namespace: '{{ .Release.Namespace }}'
+      labels:
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/component: frontend
+    spec:
+      maxUnavailable: 1  # Only 1 frontend pod can be down during disruptions
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/component: frontend
+
+  # Note: No PDB for cron - it runs as a single replica
+
+# Optional: Horizontal Pod Autoscaler (HPA)
+# Uncomment to enable automatic scaling based on CPU/memory usage
+# Requires metrics-server installed in your cluster
+#
+#   - apiVersion: autoscaling/v2
+#     kind: HorizontalPodAutoscaler
+#     metadata:
+#       name: '{{ include "common.names.fullname" . }}-backend-hpa'
+#       namespace: '{{ .Release.Namespace }}'
+#       labels: {{- include "common.labels.standard" . | nindent 8 }}
+#         app.kubernetes.io/component: backend
+#     spec:
+#       scaleTargetRef:
+#         apiVersion: apps/v1
+#         kind: Deployment
+#         name: '{{ include "common.names.fullname" . }}-backend'
+#       minReplicas: 3
+#       maxReplicas: 10
+#       metrics:
+#         - type: Resource
+#           resource:
+#             name: cpu
+#             target:
+#               type: Utilization
+#               averageUtilization: 70
+#         - type: Resource
+#           resource:
+#             name: memory
+#             target:
+#               type: Utilization
+#               averageUtilization: 80
+#
+#   - apiVersion: autoscaling/v2
+#     kind: HorizontalPodAutoscaler
+#     metadata:
+#       name: '{{ include "common.names.fullname" . }}-frontend-hpa'
+#       namespace: '{{ .Release.Namespace }}'
+#       labels: {{- include "common.labels.standard" . | nindent 8 }}
+#         app.kubernetes.io/component: frontend
+#     spec:
+#       scaleTargetRef:
+#         apiVersion: apps/v1
+#         kind: Deployment
+#         name: '{{ include "common.names.fullname" . }}-frontend'
+#       minReplicas: 3
+#       maxReplicas: 10
+#       metrics:
+#         - type: Resource
+#           resource:
+#             name: cpu
+#             target:
+#               type: Utilization
+#               averageUtilization: 70
