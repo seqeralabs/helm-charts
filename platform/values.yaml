@@ -130,6 +130,7 @@ platform:
     - awsbatch-platform
     - awscloud-platform
     - azbatch-platform
+    - azcloud-platform
     - eks-platform
     - gke-platform
     - googlebatch-platform

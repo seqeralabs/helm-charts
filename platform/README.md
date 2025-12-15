@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
 
-![Version: 0.19.1](https://img.shields.io/badge/Version-0.19.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.2.3](https://img.shields.io/badge/AppVersion-v25.2.3-informational?style=flat-square)
+![Version: 0.20.0](https://img.shields.io/badge/Version-0.20.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -38,7 +38,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.19.1 \
+  --version 0.20.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -319,6 +319,7 @@ For a list of available chart versions, see the chart repository: https://public
   "awsbatch-platform",
   "awscloud-platform",
   "azbatch-platform",
+  "azcloud-platform",
   "eks-platform",
   "gke-platform",
   "googlebatch-platform",
