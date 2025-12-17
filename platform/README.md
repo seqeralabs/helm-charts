@@ -1,8 +1,8 @@
 # platform
 
-A Helm chart to deploy Seqera Platform (formerly known as Tower) on Kubernetes.
+A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.20.0](https://img.shields.io/badge/Version-0.20.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.20.1](https://img.shields.io/badge/Version-0.20.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -38,7 +38,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.20.0 \
+  --version 0.20.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -1403,12 +1403,12 @@ false
 		</tr>
 		<tr>
 			<td>frontend.startupProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.frontend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for startup probe. Evaluated as a template</td>
 		</tr>
 		<tr>
 			<td>frontend.startupProbe.initialDelaySeconds</td>
@@ -1475,12 +1475,12 @@ true
 		</tr>
 		<tr>
 			<td>frontend.readinessProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.frontend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for readiness probe. Evaluated as a template</td>
 		</tr>
 		<tr>
 			<td>frontend.readinessProbe.initialDelaySeconds</td>
@@ -1547,12 +1547,12 @@ true
 		</tr>
 		<tr>
 			<td>frontend.livenessProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.frontend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for liveness probe. Evaluated as a template</td>
 		</tr>
 		<tr>
 			<td>frontend.livenessProbe.initialDelaySeconds</td>
