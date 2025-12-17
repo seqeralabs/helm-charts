@@ -44,7 +44,7 @@ should produce a Deployment resource with minimal values:
                 failureThreshold: 10
                 httpGet:
                   path: /health
-                  port: 8080
+                  port: 8083
                 initialDelaySeconds: 5
                 periodSeconds: 10
                 successThreshold: 1
@@ -54,7 +54,7 @@ should produce a Deployment resource with minimal values:
                 failureThreshold: 5
                 httpGet:
                   path: /health
-                  port: 8080
+                  port: 8083
                 initialDelaySeconds: 5
                 periodSeconds: 5
                 successThreshold: 1
@@ -139,7 +139,7 @@ should render the frontend deployment with the correct labels and annotations:
                 failureThreshold: 10
                 httpGet:
                   path: /health
-                  port: 8080
+                  port: 8083
                 initialDelaySeconds: 5
                 periodSeconds: 10
                 successThreshold: 1
@@ -149,7 +149,7 @@ should render the frontend deployment with the correct labels and annotations:
                 failureThreshold: 5
                 httpGet:
                   path: /health
-                  port: 8080
+                  port: 8083
                 initialDelaySeconds: 5
                 periodSeconds: 5
                 successThreshold: 1
