@@ -74,6 +74,31 @@ Only available in Platform v25.3+, in previous versions it was hardcoded to 8080
 {{- end -}}
 
 {{/*
+Filter backend probe port based on chart version.
+Only available in Platform v25.3+, in previous versions it was hardcoded to 8080.
+This helper takes the probe configuration, renders any templates, and returns a modified version with the correct port.
+Handles both httpGet and tcpSocket probe types (exec probes don't use ports).
+
+{{ include "platform.backend.filterProbe" (dict "probe" .Values.backend.livenessProbe "context" $) }}
+*/}}
+{{- define "platform.backend.filterProbe" -}}
+  {{- $probe := .probe -}}
+  {{- $context := .context -}}
+  {{- $probeToRender := $probe -}}
+  {{- if and (semverCompare "<25.3.0" $context.Chart.AppVersion) (or $probe.httpGet $probe.tcpSocket) -}}
+    {{- /* For versions before 25.3.0, override the port to 8080 for httpGet or tcpSocket */ -}}
+    {{- $probeToRender = merge (dict) $probe -}}
+    {{- if $probe.httpGet -}}
+      {{- $_ := set $probeToRender "httpGet" (merge (dict "port" 8080) $probe.httpGet) -}}
+    {{- end -}}
+    {{- if $probe.tcpSocket -}}
+      {{- $_ := set $probeToRender "tcpSocket" (merge (dict "port" 8080) $probe.tcpSocket) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- include "seqera.tplvalues.render" (dict "value" $probeToRender "context" $context) -}}
+{{- end -}}
+
+{{/*
 Build the backend micronaut envs list: add envs if features are requested in other values.
 */}}
 {{- define "platform.backend.micronautEnvs" -}}

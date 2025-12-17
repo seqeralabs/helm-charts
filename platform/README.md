@@ -886,12 +886,12 @@ false
 		</tr>
 		<tr>
 			<td>backend.startupProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.backend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for startup probe. Evaluated as a template. Note: before v25.3 this was hardcoded to 8080</td>
 		</tr>
 		<tr>
 			<td>backend.startupProbe.initialDelaySeconds</td>
@@ -958,12 +958,12 @@ true
 		</tr>
 		<tr>
 			<td>backend.readinessProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.backend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for readiness probe. Evaluated as a template. Note: before v25.3 this was hardcoded to 8080</td>
 		</tr>
 		<tr>
 			<td>backend.readinessProbe.initialDelaySeconds</td>
@@ -1030,12 +1030,12 @@ true
 		</tr>
 		<tr>
 			<td>backend.livenessProbe.httpGet.port</td>
-			<td>int</td>
+			<td>string</td>
 			<td><pre lang="json">
-8080
+"{{ .Values.backend.service.http.targetPort }}"
 </pre>
 </td>
-			<td>HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for now</td>
+			<td>HTTP GET port for liveness probe. Evaluated as a template. Note: before v25.3 this was hardcoded to 8080</td>
 		</tr>
 		<tr>
 			<td>backend.livenessProbe.initialDelaySeconds</td>

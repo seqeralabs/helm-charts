@@ -392,8 +392,9 @@ backend:
     httpGet:
       # -- HTTP GET path for startup probe
       path: "/health"
-      # -- HTTP GET port for startup probe. Evaluated as a template. Note: hardcoded to 8080 for now
-      port: 8080
+      # -- HTTP GET port for startup probe. Evaluated as a template. Note: before v25.3 this was
+      # hardcoded to 8080
+      port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Longer initial wait to accommodate slow-starting apps
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting
@@ -414,9 +415,9 @@ backend:
     httpGet:
       # -- HTTP GET path for readiness probe
       path: "/health"
-      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: hardcoded to 8080 for
-      # now
-      port: 8080
+      # -- HTTP GET port for readiness probe. Evaluated as a template. Note: before v25.3 this was
+      # hardcoded to 8080
+      port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
@@ -435,9 +436,9 @@ backend:
     httpGet:
       # -- HTTP GET path for liveness probe
       path: "/health"
-      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: hardcoded to 8080 for
-      # now
-      port: 8080
+      # -- HTTP GET port for liveness probe. Evaluated as a template. Note: before v25.3 this was
+      # hardcoded to 8080
+      port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Delay before first check (normal start timing)
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation

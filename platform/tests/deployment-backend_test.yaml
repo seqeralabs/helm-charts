@@ -676,8 +676,183 @@ tests:
             successThreshold: 1
             timeoutSeconds: 3
 
+  - it: should adapt the custom probe port for the backend container for v25.3
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.3.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort:  "8089"
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 8089
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 8089
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: 8089
+
+  - it: should not adapt the custom probe port for the backend container for v25.2
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.2.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort:  "8089"
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: 8080
+
+  - it: should not adapt the custom probe port for v24.8 (pre-25.3)
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v24.8"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9000"
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 8080
+
+  - it: should not adapt the custom probe port for v25.2.0+asdf (pre-25.3 with metadata)
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.2.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9000"
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 8080
+
+  - it: should adapt the custom probe port for v25.4.0 (post-25.3)
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.4.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9000"
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+        startupProbe:
+          enabled: true
+          httpGet:
+            port: 9002
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 9000
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 9001
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 9002
+
+  - it: should adapt the custom probe port for v25.4.0+asdf (post-25.3 with metadata)
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.4.0+asdf"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9000"
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+        startupProbe:
+          enabled: true
+          httpGet:
+            port: 9002
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 9000
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 9001
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 9002
+
+  - it: should adapt the custom probe port for v26.1.0 (future version)
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v26.1.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9000"
+        readinessProbe:
+          tcpSocket:
+            port: 9001
+        startupProbe:
+          enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+          value: 9000
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 9001
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.httpGet.port
+          value: 9000
+
   - it: should use custom probe settings for the backend container with ports as templates
     template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.3.0"
     set:
       backend:
         service:
@@ -690,7 +865,6 @@ tests:
           initialDelaySeconds: 10
           periodSeconds: 20
         readinessProbe:
-          enabled: true
           httpGet:
             path: /health
             port: "{{ .Values.backend.service.port }}"
@@ -740,6 +914,8 @@ tests:
 
   - it: should use custom probe settings for the backend container with some ports as templates, some string, some integer
     template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.3.0"
     set:
       backend:
         service:
@@ -750,7 +926,6 @@ tests:
             path: /health
             port: "{{ .Values.backend.service.port }}"
         readinessProbe:
-          enabled: true
           httpGet:
             path: /health
             port: "8088"
@@ -793,6 +968,68 @@ tests:
             periodSeconds: 5
             successThreshold: 1
             timeoutSeconds: 3
+
+  - it: should adapt the custom tcpSocket probe port for the backend container for v25.3
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.3.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9090"
+        livenessProbe:
+          enabled: true
+          tcpSocket:
+            port: "{{ .Values.backend.service.http.targetPort }}"
+        readinessProbe:
+          tcpSocket:
+            port: "9091"
+        startupProbe:
+          enabled: true
+          tcpSocket:
+            port: 9092
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
+          value: 9090
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 9091
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
+          value: 9092
+
+  - it: should not adapt the custom tcpSocket probe port for the backend container for v25.2
+    template: deployment-backend.yaml
+    chart:
+      appVersion: "v25.2.0"
+    set:
+      backend:
+        service:
+          http:
+            targetPort: "9090"
+        livenessProbe:
+          enabled: true
+          tcpSocket:
+            port: "{{ .Values.backend.service.http.targetPort }}"
+        readinessProbe:
+          tcpSocket:
+            port: "9091"
+        startupProbe:
+          enabled: true
+          tcpSocket:
+            port: 9092
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 8080
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
+          value: 8080
 
   - it: should add image pull secrets to the backend deployment
     template: deployment-backend.yaml
