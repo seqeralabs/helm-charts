@@ -1,0 +1,425 @@
+# Values in the .global section can be accessed by both parent and child subcharts as
+# .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
+global:
+  # -- External domain name where the Pipeline Optimization service will be exposed. This value will
+  # be used by the main Platform parent chart and to configure the ingress hostname, if enabled
+  pipelineOptimizationExternalDomain: ""
+
+  # -- Optional credentials to log in and fetch images from a private registry
+  #
+  # <pre><code>
+  # - registry: ""</br>
+  #   username: ""</br>
+  #   password: ""</br>
+  #   email: someone@example.com  # Optional
+  # </code></pre>
+  imageCredentials: []
+
+# MySQL database configuration storing the Platform Optimization service data.
+database:
+  # -- Pipeline Optimization MySQL database hostname
+  host: ""
+  # -- Pipeline Optimization MySQL database port
+  port: 3306
+  # -- Pipeline Optimization MySQL database name
+  name: ""
+  # -- Pipeline Optimization MySQL database username
+  username: ""
+  # -- Pipeline Optimization MySQL database password
+  password: ""
+  # -- Name of an existing secret containing credentials for the Pipeline Optimization MySQL
+  # database
+  # Note: the secret must already exist in the same namespace at the time of deployment, it
+  # can't be created by this chart with extraDeploy, since this chart performs a lookup
+  # on the Kubernetes API server at install/upgrade time
+  existingSecretName: ""
+  # -- Key in the existing secret containing the password for the Pipeline Optimization MySQL
+  # database
+  # @default -- "SWELL_DB_PASSWORD"
+  existingSecretKey: ""
+  # -- Pipeline Optimization database dialect. Currently only 'mysql' is supported
+  dialect: mysql
+
+# Platform Optimization communicates with the main Platform database to read pipeline and job
+# details to optimize. Only read-only access is required.
+platformDatabase:
+  # -- Platform MySQL database hostname
+  host: ""
+  # -- Platform MySQL database port
+  port: 3306
+  # -- Platform MySQL database name
+  name: ""
+  # -- Platform MySQL database username. Can be a read-only user, since Platform Optimization does
+  # not perform write operations on the Platform database
+  username: ""
+  # -- Platform MySQL database password
+  password: ""
+  # -- Name of an existing secret containing credentials for the Platform MySQL database
+  # Note: the secret must already exist in the same namespace at the time of deployment, it
+  # can't be created by this chart with extraDeploy, since this chart performs a lookup
+  # on the Kubernetes API server at install/upgrade time
+  existingSecretName: ""
+  # -- Key in the existing secret containing the password for the Platform MySQL database
+  # @default -- "TOWER_DB_PASSWORD"
+  existingSecretKey: ""
+
+image:
+  # -- Pipeline Optimization container image registry
+  registry: ""
+  # -- Pipeline Optimization container image repository
+  repository: private/nf-tower-enterprise/groundswell
+  # -- Pipeline Optimization container image tag
+  # @default -- "{{ .chart.AppVersion }}"
+  tag: ""
+  # -- Pipeline Optimization container image digest in the format <code>sha256:1234abcdef</code>
+  digest: ""
+
+  # -- imagePullPolicy for the Pipeline Optimization container
+  # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  pullPolicy: IfNotPresent
+
+  # -- List of imagePullSecrets
+  # Secrets must be created in the same namespace, for example using the .extraDeploy array
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #
+  # <pre><code>
+  # pullSecrets:<br>
+  #   - myRegistryKeySecretName
+  # </code></pre>
+  pullSecrets: []
+
+dbMigrationInitContainer:
+  image:
+    # -- Migrate DB init container image registry
+    registry: ""
+    # -- Migrate DB init container image repository
+    repository: private/nf-tower-enterprise/groundswell
+    # -- Migrate DB init container image tag
+    # @default -- "{{ .chart.AppVersion }}"
+    tag: ""
+    # -- Migrate DB init container image digest in the format <code>sha256:1234abcdef</code>
+    digest: ""
+
+    # -- imagePullPolicy for the Migrate DB init container
+    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+  # -- Command to run to migrate the database schema
+  command: ['/opt/groundswell/bin/migrate-db.sh']
+  args: []
+
+service:
+  # -- Pipeline Optimization Service type
+  # Note: ingresses using AWS ALB require the service to be NodePort
+  type: ClusterIP
+  http:
+    # -- Service name to use
+    name: http
+    # -- Service port number
+    port: 8090
+
+    # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+    # named port, distinct from the Service's external port).
+    targetPort: 8090
+    # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+    # Choose port between 30000-32767, unless the cluster was configured differently than default
+    nodePort: null
+  # -- Other services that should live in the Service object
+  # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  #
+  # <pre><code>
+  # extraServices:<br>
+  # - name: myspecialservice<br>
+  #   port: 1234<br>
+  #   targetPort: 5678<br>
+  #   nodePort: null
+  # </code></pre>
+  extraServices: []
+  # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+  # externalTrafficPolicy, externalIPs). Evaluated as a template
+  extraOptions: {}
+
+# -- Additional init containers for the pipeline optimization pod. Evaluated as a template
+initContainers: []
+
+# -- Override default container command (useful when using custom images)
+command: []
+# -- Override default container args (useful when using custom images)
+args: []
+
+# -- Additional labels for the pipeline optimization pod. Evaluated as a template
+podLabels: {}
+# -- Additional annotations for the pipeline optimization pod. Evaluated as a template
+podAnnotations: {}
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
+
+# -- Annotations to add specifically to the ConfigMap
+configMapAnnotations: {}
+# -- Labels to add specifically to the ConfigMap
+configMapLabels: {}
+
+# -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+# Evaluated as a template
+#
+# <pre><code>
+# extraOptionsSpec:<br>
+#   replicas: 2<br>
+#   strategy:<br>
+#     rollingUpdate:<br>
+#       maxUnavailable: x<br>
+#       maxSurge: y
+# </code></pre>
+extraOptionsSpec: {}
+# -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
+# etc). Evaluated as a template
+#
+# <pre><code>
+# extraOptionsTemplateSpec:<br>
+#   nodeSelector:<br>
+#     service: myspecialnodegroup
+# </code></pre>
+extraOptionsTemplateSpec: {}
+
+# -- Extra environment variables to set on the pipeline optimization pod
+#
+# <pre><code>
+# extraEnvVars:<br>
+#   - name: "CUSTOM_ENV_VAR"<br>
+#     value: "set-a-value-here"
+# </code></pre>
+extraEnvVars: []
+# -- ConfigMap containing extra env vars
+extraEnvVarsCMs: []
+# -- Secret containing extra env vars
+extraEnvVarsSecrets: []
+# -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
+# <code>extraVolumeMounts</code>
+extraVolumes: []
+# -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+# <code>extraVolumes</code>
+extraVolumeMounts: []
+
+# Configure Pods Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# Empty map to disable Pod Security Context configuration
+podSecurityContext:
+  # -- Enable pod Security Context
+  enabled: true
+  # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+  # in the pod can share group-owned access
+  fsGroup: 101
+
+# Configure Container Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+containerSecurityContext:
+  # -- Enable container Security Context
+  enabled: true
+  # -- UID the container processes run as (overrides container image default)
+  runAsUser: 101
+  # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  runAsNonRoot: true
+  # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  readOnlyRootFilesystem: true
+  # -- Fine-grained Linux kernel privileges to add or drop for the container
+  capabilities:
+    drop:
+      - ALL
+
+# -- Container requests and limits for different resources like CPU or memory
+# <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
+# the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+# maximum resources a container is allowed to use
+# Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+# Seqera recommends configuring resources to match the expected workload. The following are
+# sensible defaults to start with
+#
+# <pre><code>
+# resources:<br>
+#   requests:<br>
+#     cpu: "1"<br>
+#     memory: "1000Mi"<br>
+#   limits:<br>
+#     memory: "1000Mi"
+# </code></pre>
+resources: {}
+
+# Configure extra options for the startup probe
+startupProbe:
+  # -- Enable startup probe
+  enabled: false
+  httpGet:
+    # -- HTTP GET path for startup probe
+    path: "/api/v1/health"
+    # -- HTTP GET port for startup probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Longer initial wait to accommodate slow-starting apps
+  initialDelaySeconds: 5
+  # -- Often set longer to avoid frequent checks while starting
+  periodSeconds: 10
+  # -- Can be longer to allow slow initialization responses
+  timeoutSeconds: 3
+  # -- Consecutive failures during startup before killing the container (instead of immediate
+  # restarts)
+  failureThreshold: 5
+  # -- Number of consecutive successes required to consider startup complete and enable
+  # liveness/readiness
+  successThreshold: 1
+
+# Configure extra options for the readiness probe
+readinessProbe:
+  # -- Enable readiness probe
+  enabled: true
+  httpGet:
+    # -- HTTP GET path for readiness probe
+    path: "/api/v1/health"
+    # -- HTTP GET port for readiness probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Delay before first check (normal start timing)
+  initialDelaySeconds: 5
+  # -- Regular check interval during normal operation
+  periodSeconds: 5
+  # -- Short timeout to detect unresponsive containers for readiness
+  timeoutSeconds: 3
+  # -- Consecutive failures before marking the container Unready (no restart)
+  failureThreshold: 5
+  # -- Number of consecutive successes required to mark the container Ready after failures
+  successThreshold: 1
+
+# Configure extra options for the liveness probe
+livenessProbe:
+  # -- Enable liveness probe
+  enabled: true
+  httpGet:
+    # -- HTTP GET path for liveness probe
+    path: "/api/v1/health"
+    # -- HTTP GET port for liveness probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Delay before first check (normal start timing)
+  initialDelaySeconds: 5
+  # -- Regular check interval during normal operation
+  periodSeconds: 10
+  # -- Short timeout to detect hung containers quickly
+  timeoutSeconds: 3
+  # -- Consecutive failures before restarting the container
+  failureThreshold: 10
+  # -- Typically 1 (usually ignored)
+  successThreshold: 1
+
+
+
+
+
+
+
+
+
+initContainerDependencies:
+  # -- Enable init containers that coordinate startup dependencies (for example, wait for database
+  # readiness before starting, etc)
+  enabled: true
+
+  waitForMySQL:
+    # -- Enable wait for MySQL init container before starting pipeline optimization and cron
+    enabled: true
+    image:
+      # -- Override default wait for MySQL init container image
+      registry: ""
+      repository: "mysql"
+      tag: "9"
+      # Digest must be in the format <code>sha256:1234abcdef</code>
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- UID the container processes run as (overrides container image default)
+      runAsUser: 101
+      # -- Require the container to run as a non-root UID (prevents starting if UID
+      # 0)
+      runAsNonRoot: true
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Container requests and limits for different resources like CPU or memory
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+serviceAccount:
+  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
+  # the release name
+  name: ""
+  # -- Additional annotations for the Platform ServiceAccount to generate
+  annotations: {}
+  # -- Names of Secrets containing credentials to pull images from registries
+  imagePullSecretNames: []
+  # -- Automount service account token when the server service account is generated
+  automountServiceAccountToken: false
+
+ingress:
+  # -- Enable ingress for the Pipeline Optimization frontend service
+  enabled: false
+
+  # -- Ingress path
+  path: "/"
+
+  # -- Content path for content domain ingress
+  contentPath: "/"
+
+  # -- Default path type for the Ingress
+  defaultPathType: "ImplementationSpecific"
+
+  # -- Configure the default service for the ingress (evaluated as template)
+  # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  #
+  # <pre><code>
+  # defaultBackend:<br>
+  #   service:<br>
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'<br>
+  #     port:<br>
+  #       number: '{{ .Values.frontend.service.http.port }}'
+  # </code></pre>
+  defaultBackend: {}
+
+  # -- Additional hosts you want to include. Evaluated as a template
+  #
+  # <pre><code>
+  # extraHosts:<br>
+  #   - host: '{{ printf "api.%s" .Values.global.pipelineOptimizationExternalDomain }}'<br>
+  #     paths:<br>
+  #       - path: /*<br>
+  #         pathType: Prefix  # Optional, defaults to defaultPathType<br>
+  #         serviceName: '{{ include "common.names.fullname" . }}'<br>
+  #         portNumber: '{{ .Values.service.http.port }}'
+  # </code></pre>
+  extraHosts: []
+
+  # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  annotations: {}
+
+  # -- Additional labels for the ingress object. Evaluated as a template
+  extraLabels: {}
+
+  # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class')
+  ingressClassName: ""
+
+  # -- TLS configuration. Evaluated as a template
+  #
+  # <pre><code>
+  # tls:<br>
+  #   - hosts:<br>
+  #       - '{{ .Values.global.pipelineOptimizationExternalDomain }}'<br>
+  #     secretName: my-tls
+  # </code></pre>
+  tls: []

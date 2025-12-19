@@ -1,0 +1,459 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Pipeline Optimization configmaps
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render 1 CM document by default
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should render cm with default values
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should setup swell db values in addition to the mandatory ones
+    set:
+      database:
+        host: swellhost
+        port: 3456
+        name: name
+        username: asdf
+        password: not-used
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: mysql://swellhost:3456/name
+      - equal:
+          path: data.SWELL_DB_USER
+          value: asdf
+      - matchSnapshot: {}
+
+  - it: should setup platform db values in addition to the mandatory ones
+    set:
+      platformDatabase:
+        host: platformhost
+        port: 2345
+        name: name
+        username: asdf
+        password: not-used
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: jdbc:mysql://platformhost:2345/name
+      - equal:
+          path: data.TOWER_DB_USER
+          value: asdf
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in platformDatabase.host
+    set:
+      platformDatabase:
+        host: "{{ .Release.Name }}-platform-mysql"
+        port: 3306
+        name: platformdb
+        username: platformuser
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://RELEASE-NAME-platform-mysql:3306/platformdb"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in platformDatabase.port
+    set:
+      platformDatabase:
+        host: platformhost
+        port: "{{ add 3000 308 }}"
+        name: platformdb
+        username: platformuser
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://platformhost:3308/platformdb"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in platformDatabase.name
+    set:
+      platformDatabase:
+        host: platformhost
+        port: 3306
+        name: "{{ .Chart.Name }}-platform-db"
+        username: platformuser
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://platformhost:3306/pipeline-optimization-platform-db"
+      - matchSnapshot: {}
+
+  - it: should evaluate multiple template expressions in platformDatabase config
+    set:
+      platformDatabase:
+        host: "{{ .Release.Name }}-platform-host"
+        port: "{{ mul 1000 3 | add 306 }}"
+        name: "{{ .Chart.Name }}-platform-database"
+        username: "{{ .Release.Name }}-platform-user"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://RELEASE-NAME-platform-host:3306/pipeline-optimization-platform-database"
+      - equal:
+          path: data.TOWER_DB_USER
+          value: "RELEASE-NAME-platform-user"
+      - matchSnapshot: {}
+
+  - it: should update server listening port according to service.http.targetPort
+    set:
+      service:
+        http:
+          targetPort: 5678
+    asserts:
+      - equal:
+          path: data.SWELL_SERVER_PORT
+          value: "5678"
+
+  - it: should evaluate template expressions in service.http.targetPort
+    set:
+      service:
+        http:
+          targetPort: "{{ add 8000 90 }}"
+    asserts:
+      - equal:
+          path: data.SWELL_SERVER_PORT
+          value: "8090"
+      - matchSnapshot: {}
+
+  - it: should use custom namespace when specified
+    set:
+      namespaceOverride: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should apply commonLabels to ConfigMap metadata
+    set:
+      commonLabels:
+        team: platform
+        environment: production
+    asserts:
+      - equal:
+          path: metadata.labels.team
+          value: platform
+      - equal:
+          path: metadata.labels.environment
+          value: production
+
+  - it: should apply commonAnnotations to ConfigMap metadata
+    set:
+      commonAnnotations:
+        example.com/annotation: "value"
+    asserts:
+      - equal:
+          path: metadata.annotations["example.com/annotation"]
+          value: "value"
+
+  - it: should apply configMapLabels to ConfigMap metadata
+    set:
+      configMapLabels:
+        app.kubernetes.io/component: configmap
+        custom-label: custom-value
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: configmap
+      - equal:
+          path: metadata.labels["custom-label"]
+          value: custom-value
+
+  - it: should apply configMapAnnotations to ConfigMap metadata
+    set:
+      configMapAnnotations:
+        configmap.example.com/annotation: "configmap-specific"
+    asserts:
+      - equal:
+          path: metadata.annotations["configmap.example.com/annotation"]
+          value: "configmap-specific"
+
+  - it: should merge commonLabels and configMapLabels
+    set:
+      commonLabels:
+        team: platform
+        environment: production
+      configMapLabels:
+        app.kubernetes.io/component: configmap
+        custom-label: custom-value
+    asserts:
+      - equal:
+          path: metadata.labels.team
+          value: platform
+      - equal:
+          path: metadata.labels.environment
+          value: production
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: configmap
+      - equal:
+          path: metadata.labels["custom-label"]
+          value: custom-value
+      - matchSnapshot: {}
+
+  - it: should merge commonAnnotations and configMapAnnotations
+    set:
+      commonAnnotations:
+        example.com/annotation: "common-value"
+      configMapAnnotations:
+        configmap.example.com/annotation: "configmap-specific"
+    asserts:
+      - equal:
+          path: metadata.annotations["example.com/annotation"]
+          value: "common-value"
+      - equal:
+          path: metadata.annotations["configmap.example.com/annotation"]
+          value: "configmap-specific"
+      - matchSnapshot: {}
+
+  - it: should allow configMapLabels to override commonLabels
+    set:
+      commonLabels:
+        app.kubernetes.io/component: common
+      configMapLabels:
+        app.kubernetes.io/component: configmap
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: configmap
+
+  - it: should evaluate template expressions in configMapLabels
+    set:
+      configMapLabels:
+        release: "{{ .Release.Name }}"
+        chart: "{{ .Chart.Name }}"
+    asserts:
+      - equal:
+          path: metadata.labels.release
+          value: "RELEASE-NAME"
+      - equal:
+          path: metadata.labels.chart
+          value: "pipeline-optimization"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in configMapAnnotations
+    set:
+      configMapAnnotations:
+        release-name: "{{ .Release.Name }}"
+        app-version: "{{ .Chart.AppVersion }}"
+    asserts:
+      - equal:
+          path: metadata.annotations["release-name"]
+          value: "RELEASE-NAME"
+      - equal:
+          path: metadata.annotations["app-version"]
+          value: "v9.9.9"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in database.username
+    set:
+      database:
+        host: testhost
+        username: "{{ .Release.Name }}-user"
+    asserts:
+      - equal:
+          path: data.SWELL_DB_USER
+          value: "RELEASE-NAME-user"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in platformDatabase.username
+    set:
+      platformDatabase:
+        host: testhost
+        username: "{{ .Chart.Name }}-user"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_USER
+          value: "pipeline-optimization-user"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in database.host
+    set:
+      database:
+        host: "{{ .Release.Name }}-mysql"
+        port: 3306
+        name: mydb
+        username: user
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://RELEASE-NAME-mysql:3306/mydb"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in database.port
+    set:
+      database:
+        host: testhost
+        port: "{{ .Values.service.http.targetPort }}"
+        name: mydb
+        username: user
+      service:
+        http:
+          targetPort: 3307
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://testhost:3307/mydb"
+      - matchSnapshot: {}
+
+  - it: should evaluate template expressions in database.name
+    set:
+      database:
+        host: testhost
+        port: 3306
+        name: "{{ .Chart.Name }}-db"
+        username: user
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://testhost:3306/pipeline-optimization-db"
+      - matchSnapshot: {}
+
+  - it: should evaluate multiple template expressions in database config
+    set:
+      database:
+        host: "{{ .Release.Name }}-host"
+        port: "{{ add 3000 306 }}"
+        name: "{{ .Chart.Name }}-database"
+        username: "{{ .Release.Name }}-user"
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://RELEASE-NAME-host:3306/pipeline-optimization-database"
+      - equal:
+          path: data.SWELL_DB_USER
+          value: "RELEASE-NAME-user"
+      - matchSnapshot: {}
+
+  - it: should always set SWELL_DB_DIALECT to mysql
+    asserts:
+      - equal:
+          path: data.SWELL_DB_DIALECT
+          value: mysql
+
+  - it: should always set SWELL_SERVER_HOST to 0.0.0.0
+    asserts:
+      - equal:
+          path: data.SWELL_SERVER_HOST
+          value: "0.0.0.0"
+
+  - it: should handle empty database host gracefully
+    set:
+      database:
+        host: ""
+        port: 3306
+        name: ""
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://:3306/"
+
+  - it: should handle zero port number
+    set:
+      database:
+        port: 0
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://:0/"
+
+  - it: should render complete configuration with all values set
+    set:
+      database:
+        host: swelldb.example.com
+        port: 3307
+        name: swelldb
+        username: swelluser
+      platformDatabase:
+        host: platformdb.example.com
+        port: 3308
+        name: platformdb
+        username: platformuser
+      service:
+        http:
+          targetPort: 9090
+    asserts:
+      - equal:
+          path: data.SWELL_DB_URL
+          value: "mysql://swelldb.example.com:3307/swelldb"
+      - equal:
+          path: data.SWELL_DB_USER
+          value: "swelluser"
+      - equal:
+          path: data.SWELL_SERVER_PORT
+          value: "9090"
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://platformdb.example.com:3308/platformdb"
+      - equal:
+          path: data.TOWER_DB_USER
+          value: "platformuser"
+      - matchSnapshot: {}
+
+  - it: should use correct naming convention for ConfigMap
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-pipeline-optimization
+      - matchRegex:
+          path: metadata.name
+          pattern: ^release-name-pipeline-optimization$
+
+  - it: should have correct apiVersion and kind
+    asserts:
+      - equal:
+          path: apiVersion
+          value: v1
+      - isKind:
+          of: ConfigMap
+
+  - it: should contain all required data keys
+    set:
+      database:
+        host: testhost
+        username: testuser
+      platformDatabase:
+        host: platformhost
+        username: platformuser
+    asserts:
+      - isNotEmpty:
+          path: data.SWELL_DB_URL
+      - isNotEmpty:
+          path: data.SWELL_DB_USER
+      - isNotEmpty:
+          path: data.SWELL_DB_DIALECT
+      - isNotEmpty:
+          path: data.SWELL_SERVER_HOST
+      - isNotEmpty:
+          path: data.SWELL_SERVER_PORT
+      - isNotEmpty:
+          path: data.TOWER_DB_URL
+      - isNotEmpty:
+          path: data.TOWER_DB_USER

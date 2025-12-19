@@ -1,0 +1,23 @@
+{{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.configMapLabels $commonLabels) "context" .) -}}
+{{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
+data:
+  SWELL_DB_URL: {{ printf "mysql://%s:%s/%s" (tpl .Values.database.host .) (tpl (.Values.database.port | toString) .) (tpl .Values.database.name .) | quote }}
+  SWELL_DB_USER: {{ tpl .Values.database.username . | quote }}
+  SWELL_DB_DIALECT: mysql
+
+  SWELL_SERVER_HOST: "0.0.0.0"
+  SWELL_SERVER_PORT: {{ tpl (.Values.service.http.targetPort | toString) . | quote }}
+
+  TOWER_DB_URL: {{ include "pipeline-optimization.platformDatabase.url" . | quote }}
+  TOWER_DB_USER: {{ tpl .Values.platformDatabase.username . | quote }}

@@ -1,0 +1,1226 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Pipeline Optimization deployment
+templates:
+  - deployment.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should produce a Deployment resource with minimal values
+    # We need to set the template name because we needed to include the secret and configmap files
+    # to compute their checksums that are added to the deployment annotations to perform automatic
+    # rollouts, but we aren't interested in testing those files here.
+    template: deployment.yaml
+    asserts:
+      - matchSnapshot:
+          # Check only the spec.template.spec to avoid snapshot changes due to checksum annotations
+          path: spec.template.spec
+
+  - it: should render the deployment with the specified tag version
+    template: deployment.yaml
+    set:
+      image:
+        tag: "9.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "private/nf-tower-enterprise/groundswell:9.0.0"
+
+  - it: should render the deployment with the specified digest, overriding the tag
+    template: deployment.yaml
+    set:
+      image:
+        tag: "this will be ignored"
+        digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "private/nf-tower-enterprise/groundswell@sha256:1234abcdef"
+
+  - it: should render the deployment with the correct checksums, labels and annotations
+    template: deployment.yaml
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      database:
+        host: swell-db-host
+        port: 3306
+        name: swell-db-name
+        username: swell-db-user
+        password: swell-db-password
+      platformDatabase:
+        host: platform-db-host
+        port: 3306
+        name: platform-db-name
+        username: platform-db-user
+        password: platform-db-password
+      commonLabels:
+        key123: this-should-be-overridden-in-pod-labels
+        key456: this-should-not-be-overridden
+        key789: "{{ .Values.global.platformServicePort | default 8443 }}"
+      commonAnnotations:
+        common-annotation-key: common-annotation-value
+      podLabels:
+        key123: this-overrides-the-commonLabels
+      podAnnotations:
+        pod-annotation-key: pod-annotation-value
+        pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
+    asserts:
+      - matchSnapshot: {}
+
+  - it: shouldn't obey custom selector requests
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: pipeline-optimization
+
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: something-else
+        revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: pipeline-optimization
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          disktype: ssd
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - whatever
+                topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-pipeline-optimization-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        serviceAccountName: "some-other-sa"
+        dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-pipeline-optimization-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render default podsecurityContext
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should update podsecurityContext
+    template: deployment.yaml
+    set:
+      podSecurityContext:
+        enabled: true
+        fsGroup: 102
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 102
+
+  - it: should disable podSecurityContext when 'enabled' is false
+    template: deployment.yaml
+    set:
+      podSecurityContext:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
+    template: deployment.yaml
+    set:
+      podSecurityContext:
+        enabled: false
+      extraOptionsTemplateSpec:
+        securityContext:
+          fsGroup: 2000
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should omit the 'enabled' field from podSecurityContext
+    template: deployment.yaml
+    set:
+      podSecurityContext:
+        enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.enabled
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should render whatever podsecurityContext is set
+    template: deployment.yaml
+    set:
+      podSecurityContext:
+        enabled: true
+        fsGroup: 2000
+        asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            asdf: 123
+
+  - it: should render custom container securityContext
+    template: deployment.yaml
+    set:
+      containerSecurityContext:
+        capabilities:
+          add:
+            - NET_ADMIN
+        runAsUser: 2000
+        runAsNonRoot: false
+        readOnlyRootFilesystem: false
+        asdf: 123
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 2000
+            asdf: 123
+
+  - it: should render container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
+    template: deployment.yaml
+    set:
+      extraEnvVars:
+        - name: CUSTOM_ENV_VAR
+          value: custom-value
+      extraEnvVarsCMs: [extra-env-vars-cm1, extra-env-vars-cm2]
+      extraEnvVarsSecrets: [extra-env-vars-secret1, extra-env-vars-secret2]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MPLCONFIGDIR
+              value: /tmp
+            - name: SWELL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SWELL_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+            - name: CUSTOM_ENV_VAR
+              value: custom-value
+      - equal:
+          path: spec.template.spec.containers[0].envFrom
+          value:
+            - configMapRef:
+                name: release-name-pipeline-optimization
+            - configMapRef:
+                name: extra-env-vars-cm1
+            - configMapRef:
+                name: extra-env-vars-cm2
+            - secretRef:
+                name: extra-env-vars-secret1
+            - secretRef:
+                name: extra-env-vars-secret2
+
+  - it: should render initContainers that wait for required services to be ready
+    template: deployment.yaml
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 3
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-pipeline-optimization-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-platform-db
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: migrate-db
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: mysql:9
+      - equal:
+          path: spec.template.spec.initContainers[1].image
+          value: mysql:9
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: private/nf-tower-enterprise/groundswell:v9.9.9
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: ""
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: ""
+            - name: DB_USERNAME
+              value: ""
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SWELL_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: ""
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: ""
+            - name: DB_USERNAME
+              value: ""
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value:
+            - name: SWELL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SWELL_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: TOWER_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+
+  - it: should render initContainer with appropriate env vars
+    template: deployment.yaml
+    kubernetesProvider:
+      scheme:
+        "v1/Secret":
+          gvr:
+            version:  "v1"
+            resource: "secrets"
+          namespaced: true
+      objects:
+        - apiVersion: v1
+          kind: Secret
+          type: Opaque
+          metadata:
+            name: my-db-secret
+            namespace: NAMESPACE
+          data:
+            my-db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
+    set:
+      database:
+        host: my-swell-db
+        name: asdf
+        port: 6380
+        username: username123
+        password: my-swell-password123
+      platformDatabase:
+        host: my-platform-db
+        port: 3307
+        name: my-db-name
+        username: my-db-username
+        existingSecretName: my-db-secret
+        existingSecretKey: my-db-password-key
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: "my-swell-db"
+            - name: DB_PORT
+              value: "6380"
+            - name: DB_NAME
+              value: "asdf"
+            - name: DB_USERNAME
+              value: "username123"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SWELL_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: "my-platform-db"
+            - name: DB_PORT
+              value: "3307"
+            - name: DB_NAME
+              value: "my-db-name"
+            - name: DB_USERNAME
+              value: "my-db-username"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: my-db-password-key
+                  name: my-db-secret
+      - equal:
+          path: spec.template.spec.initContainers[2].env
+          value:
+            - name: SWELL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: SWELL_DB_PASSWORD
+                  name: release-name-pipeline-optimization
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: my-db-password-key
+                  name: my-db-secret
+      - notExists:
+          path: spec.template.spec.initContainers[0].envFrom
+      - notExists:
+          path: spec.template.spec.initContainers[1].envFrom
+
+  - it: should render extra initContainer
+    template: deployment.yaml
+    set:
+      initContainers:
+        - name: extra-init-container
+          image: busybox:latest
+          command: ["sh", "-c", "echo Hello from extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 4
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+
+  - it: should render multiple extra initContainers
+    template: deployment.yaml
+    set:
+      initContainers:
+        - name: extra-init-container1
+          image: busybox:latest
+          command: ["sh", "-c", "echo Hello from extra init container"]
+        - name: extra-init-container2
+          image: alpine:latest
+          command: ["sh", "-c", "echo Hello from another extra init container"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 5
+      - equal:
+          path: spec.template.spec.initContainers[3]
+          value:
+            name: extra-init-container1
+            image: busybox:latest
+            command: ["sh", "-c", "echo Hello from extra init container"]
+      - equal:
+          path: spec.template.spec.initContainers[4]
+          value:
+            name: extra-init-container2
+            image: alpine:latest
+            command: ["sh", "-c", "echo Hello from another extra init container"]
+
+  - it: should include extra volumeMounts
+    template: deployment.yaml
+    set:
+      extraVolumeMounts:
+        - name: extra-volume
+          mountPath: /extra/path
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].volumeMounts
+          value:
+            - mountPath: /tmp/
+              name: tmp-volume
+            - mountPath: /extra/path
+              name: extra-volume
+
+  - it: should include extra Volumes in the pod spec
+    template: deployment.yaml
+    set:
+      extraVolumes:
+        - name: extra-volume
+          emptyDir: {}
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes
+          value:
+            - emptyDir:
+                sizeLimit: 1Gi
+              name: tmp-volume
+            - emptyDir: {}
+              name: extra-volume
+
+  - it: should use custom image
+    template: deployment.yaml
+    set:
+      image:
+        registry: my-custom-registry.io
+        repository: my-custom-repo/my-backend-image
+        tag: "2.0.0"
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-backend-image:2.0.0"
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: should use custom image digest
+    template: deployment.yaml
+    set:
+      image:
+        registry: my-custom-registry.io
+        repository: my-custom-repo/my-backend-image
+        tag: "this-will-be-ignored"
+        digest: "sha256:whatever"
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-custom-registry.io/my-custom-repo/my-backend-image@sha256:whatever"
+
+  - it: should use custom command and args
+    template: deployment.yaml
+    set:
+      command: ["/bin/custom-backend-start"]
+      args: ["--custom-arg1", "value1"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: ["/bin/custom-backend-start"]
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value: ["--custom-arg1", "value1"]
+
+  - it: should render custom resources
+    template: deployment.yaml
+    set:
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: "1"
+          memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+  - it: should disable probes
+    template: deployment.yaml
+    set:
+      livenessProbe:
+        enabled: false
+      readinessProbe:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe
+      - notExists:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: should use custom probe settings
+    template: deployment.yaml
+    set:
+      livenessProbe:
+        initialDelaySeconds: 10
+        periodSeconds: 20
+      readinessProbe:
+        initialDelaySeconds: 15
+        periodSeconds: 25
+      startupProbe:
+        enabled: true
+        initialDelaySeconds: 20
+        periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8090
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /api/v1/health
+              port: 8090
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8090
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should use custom probe settings with ports as templates
+    template: deployment.yaml
+    set:
+      service:
+        port: "8089"
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /api/v1/health
+          port: "{{ .Values.service.port }}"
+        initialDelaySeconds: 10
+        periodSeconds: 20
+      readinessProbe:
+        httpGet:
+          path: /api/v1/health
+          port: "{{ .Values.service.port }}"
+        initialDelaySeconds: 15
+        periodSeconds: 25
+      startupProbe:
+        enabled: true
+        httpGet:
+          path: /api/v1/health
+          port: "{{ .Values.service.port }}"
+        initialDelaySeconds: 20
+        periodSeconds: 30
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8089
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /api/v1/health
+              port: 8089
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8089
+            initialDelaySeconds: 15
+            periodSeconds: 25
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should use custom probe settings with some ports as templates, some string, some integer
+    template: deployment.yaml
+    set:
+      service:
+        port:  "8089"
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /api/v1/health
+          port: "{{ .Values.service.port }}"
+      readinessProbe:
+        httpGet:
+          path: /api/v1/health
+          port: "8088"
+      startupProbe:
+        enabled: true
+        httpGet:
+          path: /api/v1/health
+          port: 8087
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8087
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe
+          value:
+            failureThreshold: 10
+            httpGet:
+              path: /api/v1/health
+              port: 8089
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            failureThreshold: 5
+            httpGet:
+              path: /api/v1/health
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+
+  - it: should adapt the custom tcpSocket probe ports
+    template: deployment.yaml
+    set:
+      service:
+        http:
+          targetPort: "9090"
+      livenessProbe:
+        enabled: true
+        tcpSocket:
+          port: "{{ .Values.service.http.targetPort }}"
+      readinessProbe:
+        tcpSocket:
+          port: "9091"
+      startupProbe:
+        enabled: true
+        tcpSocket:
+          port: 9092
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
+          value: 9090
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 9091
+      - equal:
+          path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
+          value: 9092
+
+  - it: should add image pull secrets to the deployment
+    template: deployment.yaml
+    set:
+      image:
+        pullSecrets:
+          - my-custom-pull-secret
+          - my-custom-pull-secret2
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: my-custom-pull-secret
+            - name: my-custom-pull-secret2
+
+  - it: should render a templated integer value as integer
+    template: deployment.yaml
+    set:
+      service:
+        port: "8444"
+      extraOptionsSpec:
+        replicas: '{{ .Values.service.port }}'  # this doesn't make much sense, but it's just for testing
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 8444
+
+  - it: should disable initContainers that wait for required services to be ready
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        enabled: false
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers
+          value:
+            - name: migrate-db
+              image: private/nf-tower-enterprise/groundswell:v9.9.9
+              imagePullPolicy: IfNotPresent
+              args: []
+              command:
+                - /opt/groundswell/bin/migrate-db.sh
+              env:
+                - name: SWELL_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              envFrom:
+                - configMapRef:
+                    name: release-name-pipeline-optimization
+
+  - it: should mount the user-provided secrets on deployment with default secret keys
+    template: deployment.yaml
+    set:
+      database:
+        existingSecretName: "my-db-secret1"
+      platformDatabase:
+        existingSecretName: "my-db-secret2"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MPLCONFIGDIR
+              value: "/tmp"
+            - name: SWELL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret1
+                  key: SWELL_DB_PASSWORD
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret2
+                  key: TOWER_DB_PASSWORD
+
+  - it: should mount the user-provided secrets on deployment with custom secret keys
+    template: deployment.yaml
+    set:
+      database:
+        existingSecretName: "my-db-secret1"
+        existingSecretKey: "my-db-secret-key1"
+      platformDatabase:
+        existingSecretName: "my-db-secret2"
+        existingSecretKey: "my-db-secret-key2"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: MPLCONFIGDIR
+              value: "/tmp"
+            - name: SWELL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret1
+                  key: my-db-secret-key1
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret2
+                  key: my-db-secret-key2
+
+  - it: should create a Deployment with correct apiVersion and kind
+    template: deployment.yaml
+    asserts:
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
+      - equal:
+          path: metadata.name
+          value: release-name-pipeline-optimization
+
+  - it: should handle empty resources gracefully
+    template: deployment.yaml
+    set:
+      resources: {}
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].resources
+
+  - it: should not render command when empty
+    template: deployment.yaml
+    set:
+      command: []
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].command
+
+  - it: should not render args when empty
+    template: deployment.yaml
+    set:
+      args: []
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].args
+
+  - it: should use custom namespace
+    template: deployment.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should use custom DB migration image
+    template: deployment.yaml
+    set:
+      dbMigrationInitContainer:
+        image:
+          registry: my-registry.io
+          repository: my-custom/migration-image
+          tag: "1.0.0"
+          pullPolicy: Always
+      image:
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: migrate-db
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: my-registry.io/my-custom/migration-image:1.0.0
+      - equal:
+          path: spec.template.spec.initContainers[2].imagePullPolicy
+          value: Always
+
+  - it: should use custom DB migration image with digest
+    template: deployment.yaml
+    set:
+      dbMigrationInitContainer:
+        image:
+          registry: my-registry.io
+          repository: my-custom/migration-image
+          tag: "this-will-be-ignored"
+          digest: "sha256:abcdef123456"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: my-registry.io/my-custom/migration-image@sha256:abcdef123456
+
+  - it: should use custom DB migration command and args
+    template: deployment.yaml
+    set:
+      dbMigrationInitContainer:
+        command: ["/custom/migrate.sh"]
+        args: ["--verbose", "--force"]
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: migrate-db
+      - equal:
+          path: spec.template.spec.initContainers[2].command
+          value: ["/custom/migrate.sh"]
+      - equal:
+          path: spec.template.spec.initContainers[2].args
+          value: ["--verbose", "--force"]
+
+  - it: should not render extraOptionsSpec when empty
+    template: deployment.yaml
+    set:
+      extraOptionsSpec: {}
+    asserts:
+      - notExists:
+          path: spec.replicas
+      - notExists:
+          path: spec.strategy
+
+  - it: should not render extraOptionsTemplateSpec when empty
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec: {}
+    asserts:
+      - exists:
+          path: spec.template.spec.serviceAccountName
+      - notExists:
+          path: spec.template.spec.nodeSelector
+      - notExists:
+          path: spec.template.spec.affinity
+
+  - it: should disable container security context when enabled is false
+    template: deployment.yaml
+    set:
+      containerSecurityContext:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext
+
+  - it: should omit enabled field from container security context
+    template: deployment.yaml
+    set:
+      containerSecurityContext:
+        enabled: true
+        runAsUser: 101
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.enabled
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 101
+
+  - it: should render custom serviceAccount name
+    template: deployment.yaml
+    set:
+      serviceAccount:
+        name: my-custom-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: my-custom-sa
+
+  - it: should handle multiple extraVolumes and extraVolumeMounts
+    template: deployment.yaml
+    set:
+      extraVolumes:
+        - name: extra-volume-1
+          emptyDir: {}
+        - name: extra-volume-2
+          configMap:
+            name: my-config
+      extraVolumeMounts:
+        - name: extra-volume-1
+          mountPath: /extra/path1
+        - name: extra-volume-2
+          mountPath: /extra/path2
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 3
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 3
+      - equal:
+          path: spec.template.spec.volumes[1]
+          value:
+            name: extra-volume-1
+            emptyDir: {}
+      - equal:
+          path: spec.template.spec.volumes[2]
+          value:
+            name: extra-volume-2
+            configMap:
+              name: my-config
+
+  - it: should render extraEnvVars with template evaluation
+    template: deployment.yaml
+    set:
+      service:
+        http:
+          targetPort: 8090
+      extraEnvVars:
+        - name: CUSTOM_PORT
+          value: "{{ .Values.service.http.targetPort }}"
+        - name: STATIC_VAR
+          value: "static-value"
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CUSTOM_PORT
+            value: 8090
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: STATIC_VAR
+            value: "static-value"
+
+  - it: should apply custom wait init container resources
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForMySQL:
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: "25Mi"
+            limits:
+              memory: "50Mi"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].resources
+          value:
+            requests:
+              cpu: "0.1"
+              memory: "25Mi"
+            limits:
+              memory: "50Mi"
+
+  - it: should apply custom wait init container security context
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForMySQL:
+          securityContext:
+            runAsUser: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.readOnlyRootFilesystem
+          value: false
+
+  - it: should use custom wait init container image
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForMySQL:
+          image:
+            registry: my-registry.io
+            repository: custom-mysql
+            tag: "8"
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-registry.io/custom-mysql:8
+      - equal:
+          path: spec.template.spec.initContainers[0].imagePullPolicy
+          value: Always
+
+  - it: should apply podLabels to pod template but not selector
+    template: deployment.yaml
+    set:
+      podLabels:
+        custom-pod-label: custom-value
+        another-label: another-value
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: pipeline-optimization
+      - equal:
+          path: spec.template.metadata.labels.custom-pod-label
+          value: custom-value
+      - equal:
+          path: spec.template.metadata.labels.another-label
+          value: another-value
+
+  - it: should render tmp volume with correct size limit
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.volumes[0].name
+          value: tmp-volume
+      - equal:
+          path: spec.template.spec.volumes[0].emptyDir.sizeLimit
+          value: 1Gi

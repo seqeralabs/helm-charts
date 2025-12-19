@@ -1,0 +1,366 @@
+should produce a Deployment resource with minimal values:
+  1: |
+    containers:
+      - env:
+          - name: MPLCONFIGDIR
+            value: /tmp
+          - name: SWELL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
+          - name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-pipeline-optimization
+        envFrom:
+          - configMapRef:
+              name: release-name-pipeline-optimization
+        image: private/nf-tower-enterprise/groundswell:v9.9.9
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 10
+          httpGet:
+            path: /api/v1/health
+            port: 8090
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 3
+        name: pipeline-optimization
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /api/v1/health
+            port: 8090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+        volumeMounts:
+          - mountPath: /tmp/
+            name: tmp-volume
+    initContainers:
+      - command:
+          - sh
+          - -c
+          - |
+            echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+              echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+              sleep $SLEEP_PERIOD_SECONDS
+            done
+            echo "$(date): db server ready"
+        env:
+          - name: SLEEP_PERIOD_SECONDS
+            value: "5"
+          - name: DB_HOST
+            value: ""
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: ""
+          - name: DB_USERNAME
+            value: ""
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
+        image: mysql:9
+        imagePullPolicy: IfNotPresent
+        name: wait-for-pipeline-optimization-db
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: "0.5"
+            memory: 50Mi
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+      - command:
+          - sh
+          - -c
+          - |
+            echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+              echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+              sleep $SLEEP_PERIOD_SECONDS
+            done
+            echo "$(date): db server ready"
+        env:
+          - name: SLEEP_PERIOD_SECONDS
+            value: "5"
+          - name: DB_HOST
+            value: ""
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: ""
+          - name: DB_USERNAME
+            value: ""
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-pipeline-optimization
+        image: mysql:9
+        imagePullPolicy: IfNotPresent
+        name: wait-for-platform-db
+        resources:
+          limits:
+            memory: 100Mi
+          requests:
+            cpu: "0.5"
+            memory: 50Mi
+        securityContext:
+          capabilities:
+            drop:
+              - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 101
+      - args: []
+        command:
+          - /opt/groundswell/bin/migrate-db.sh
+        env:
+          - name: SWELL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
+          - name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-pipeline-optimization
+        envFrom:
+          - configMapRef:
+              name: release-name-pipeline-optimization
+        image: private/nf-tower-enterprise/groundswell:v9.9.9
+        imagePullPolicy: IfNotPresent
+        name: migrate-db
+    securityContext:
+      fsGroup: 101
+    serviceAccountName: release-name-pipeline-optimization-sa
+    volumes:
+      - emptyDir:
+          sizeLimit: 1Gi
+        name: tmp-volume
+should render the deployment with the correct checksums, labels and annotations:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        common-annotation-key: common-annotation-value
+      labels:
+        app.kubernetes.io/component: pipeline-optimization
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: pipeline-optimization
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: pipeline-optimization-9.9.9_test
+        key123: this-should-be-overridden-in-pod-labels
+        key456: this-should-not-be-overridden
+        key789: "8080"
+      name: release-name-pipeline-optimization
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: pipeline-optimization
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: pipeline-optimization
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: 14783ca340d4e3d299784e3eda36c48ff104b722cca92fa2984f7ffaf3314f85
+            checksum/secret: f59a1d0d289e868d0798b3208847cb1baec2a550ec01d1fc04be946b6903b8ab
+            common-annotation-key: common-annotation-value
+            pod-annotation-key: pod-annotation-value
+            pod-annotation-key2: "8080"
+          labels:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: pipeline-optimization
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: pipeline-optimization-9.9.9_test
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
+            key789: "8080"
+        spec:
+          containers:
+            - env:
+                - name: MPLCONFIGDIR
+                  value: /tmp
+                - name: SWELL_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              envFrom:
+                - configMapRef:
+                    name: release-name-pipeline-optimization
+              image: private/nf-tower-enterprise/groundswell:9.9.9
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 10
+                httpGet:
+                  path: /api/v1/health
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              name: pipeline-optimization
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /api/v1/health
+                  port: 8090
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /tmp/
+                  name: tmp-volume
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): db server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: DB_HOST
+                  value: swell-db-host
+                - name: DB_PORT
+                  value: "3306"
+                - name: DB_NAME
+                  value: swell-db-name
+                - name: DB_USERNAME
+                  value: swell-db-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              image: mysql:9
+              imagePullPolicy: IfNotPresent
+              name: wait-for-pipeline-optimization-db
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): db server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: DB_HOST
+                  value: platform-db-host
+                - name: DB_PORT
+                  value: "3306"
+                - name: DB_NAME
+                  value: platform-db-name
+                - name: DB_USERNAME
+                  value: platform-db-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              image: mysql:9
+              imagePullPolicy: IfNotPresent
+              name: wait-for-platform-db
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - args: []
+              command:
+                - /opt/groundswell/bin/migrate-db.sh
+              env:
+                - name: SWELL_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              envFrom:
+                - configMapRef:
+                    name: release-name-pipeline-optimization
+              image: private/nf-tower-enterprise/groundswell:9.9.9
+              imagePullPolicy: IfNotPresent
+              name: migrate-db
+          securityContext:
+            fsGroup: 101
+          serviceAccountName: release-name-pipeline-optimization-sa
+          volumes:
+            - emptyDir:
+                sizeLimit: 1Gi
+              name: tmp-volume
