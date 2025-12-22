@@ -1,4 +1,43 @@
 #!/usr/bin/env python3
+"""
+Check Chart Versions in OCI Registry Script
+
+PURPOSE:
+  Verifies that chart versions don't already exist in the OCI registry before packaging.
+  Prevents accidentally overwriting existing chart versions.
+
+USAGE:
+  REPO_HOSTNAME=<hostname> \\
+  REPO_PROJECT=<project> \\
+  REPO_USERNAME=<username> \\
+  REPO_PASSWORD=<password> \\
+  charts_to_package="platform platform/charts/subchart" \\
+  python3 check_chart_versions.py
+
+REQUIRED ENVIRONMENT VARIABLES:
+  - charts_to_package: Space-separated list of chart paths to check
+  - REPO_HOSTNAME: OCI registry hostname (e.g., public.cr.stage-seqera.io)
+  - REPO_PROJECT: OCI registry project path (e.g., charts/)
+  - REPO_USERNAME: Registry authentication username
+  - REPO_PASSWORD: Registry authentication password
+
+OUTPUTS:
+  - Exit code 0: All chart versions are available (don't exist in registry)
+  - Exit code 1: One or more chart versions already exist
+  - GitHub Actions annotations for version conflicts
+  - GitHub step summary with error details
+
+BEHAVIOR:
+  - Reads chart name and version from each chart's Chart.yaml
+  - Queries OCI registry API for existing tags
+  - For subcharts (e.g., platform/charts/subchart), uses the chart name from Chart.yaml
+  - Fails build if any version already exists to prevent overwrites
+
+EXAMPLE:
+  Chart path: platform/charts/pipeline-optimization
+  Chart.yaml contains: name: pipeline-optimization, version: 0.1.0
+  Queries: https://{REPO_HOSTNAME}/v2/{REPO_PROJECT}/pipeline-optimization/tags/list
+"""
 import os
 import sys
 import yaml

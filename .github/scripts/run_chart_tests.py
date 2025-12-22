@@ -1,4 +1,44 @@
 #!/usr/bin/env python3
+"""
+Run Helm Chart Unit Tests Script
+
+PURPOSE:
+  Executes helm-unittest tests for all root-level Helm charts in the repository.
+  Ensures helm-unittest plugin is installed before running tests.
+
+USAGE:
+  python3 run_chart_tests.py
+
+INPUTS:
+  - Scans repository root directory for Chart.yaml files
+  - Only tests root-level charts (e.g., platform/)
+  - Does NOT test subcharts (e.g., platform/charts/subchart/)
+
+OUTPUTS:
+  - Exit code 0: All chart tests pass
+  - Exit code 1: One or more chart tests fail or plugin installation fails
+  - Prints test results for each chart
+
+BEHAVIOR:
+  - Checks if helm-unittest plugin is installed
+  - If not installed, runs: make -C platform install-unittest-plugin
+  - Finds all root-level directories containing Chart.yaml
+  - For each chart directory, runs: make -C <chart_dir> tests
+  - Subcharts are tested through their parent chart's test suite
+
+REQUIREMENTS:
+  - helm CLI must be installed
+  - Each root chart must have a Makefile with a 'tests' target
+  - helm-unittest plugin v1.0.1 (installed automatically if missing)
+
+EXAMPLES:
+  Found charts: platform
+  Runs: make -C platform tests
+
+NOTE:
+  Subcharts (e.g., platform/charts/pipeline-optimization/) are NOT tested
+  independently. They should be tested as part of the parent chart's tests.
+"""
 import subprocess
 import sys
 import os
