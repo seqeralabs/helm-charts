@@ -62,6 +62,10 @@ jobs:
             echo "Packaged chart ${chart}"
           done
 
+      - name: Check subchart version coverage in parent dependencies
+        if: env.charts_to_package != ''
+        run: python3 .github/scripts/check_subchart_version_coverage.py
+
       - name: 'Push Helm charts only if we are on master'
         if: github.ref_name == 'master' && env.charts_to_package != ''
         shell: bash
