@@ -24,32 +24,80 @@ chart:
   version: 1.2.3
   appVersion: "v9.9.9"
 tests:
-  - it: should fail when pipelineOptimizationExternalDomain is not defined
+  - it: should fail when database host is not defined
     set:
-      global:
-        pipelineOptimizationExternalDomain: ""
       database:
+        host: ""
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         password: "test-password"
     asserts:
       - failedTemplate:
-          errorPattern: "Define the external domain for the Pipeline Optimization service at 'global.pipelineOptimizationExternalDomain'\\."
+          errorPattern: "Define the Pipeline Optimization database host at 'database.host'\\."
 
-  - it: should fail when pipelineOptimizationExternalDomain is missing
+  - it: should fail when database host is missing
     set:
       database:
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         password: "test-password"
     asserts:
       - failedTemplate:
-          errorPattern: "Define the external domain for the Pipeline Optimization service at 'global.pipelineOptimizationExternalDomain'\\."
+          errorPattern: "Define the Pipeline Optimization database host at 'database.host'\\."
+
+  - it: should fail when platformDatabase host is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: ""
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database host at 'platformDatabase.host'\\."
+
+  - it: should fail when platformDatabase host is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database host at 'platformDatabase.host'\\."
 
   - it: should fail when database password is not defined and no existing secret
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         password: ""
         existingSecretName: ""
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         password: "test-password"
     asserts:
       - failedTemplate:
@@ -57,11 +105,15 @@ tests:
 
   - it: should fail when platformDatabase password is not defined and no existing secret
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         password: "test-password"
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         password: ""
         existingSecretName: ""
     asserts:
@@ -70,11 +122,15 @@ tests:
 
   - it: should pass when all required passwords are defined
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         password: "test-password"
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         password: "platform-password"
     asserts:
       - hasDocuments:
@@ -82,11 +138,15 @@ tests:
 
   - it: should pass when existingSecretName is provided for both databases
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         existingSecretName: "my-secret"
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         existingSecretName: "platform-secret"
     asserts:
       - hasDocuments:
@@ -94,11 +154,15 @@ tests:
 
   - it: should pass when passwords are defined for one and existingSecretName for other
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         password: "test-password"
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         existingSecretName: "platform-secret"
     asserts:
       - hasDocuments:
@@ -106,12 +170,140 @@ tests:
 
   - it: should pass when all credentials are provided via existingSecretName
     set:
-      global:
-        pipelineOptimizationExternalDomain: "optimization.example.com"
       database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
         existingSecretName: "my-secret"
       platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
         existingSecretName: "platform-secret"
     asserts:
       - hasDocuments:
           count: 1
+
+  - it: should fail when database name is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: ""
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Pipeline Optimization database name at 'database.name'\\."
+
+  - it: should fail when database name is missing
+    set:
+      database:
+        host: "database.example.com"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Pipeline Optimization database name at 'database.name'\\."
+
+  - it: should fail when platformDatabase name is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: ""
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database name at 'platformDatabase.name'\\."
+
+  - it: should fail when platformDatabase name is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database name at 'platformDatabase.name'\\."
+
+  - it: should fail when database username is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: ""
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Pipeline Optimization database username at 'database.username'\\."
+
+  - it: should fail when database username is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Pipeline Optimization database username at 'database.username'\\."
+
+  - it: should fail when platformDatabase username is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        username: ""
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database username at 'platformDatabase.username'\\."
+
+  - it: should fail when platformDatabase username is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "groundswell"
+        username: "groundswell"
+        password: "test-password"
+      platformDatabase:
+        host: "platform-database.example.com"
+        name: "tower"
+        password: "test-password"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Platform database username at 'platformDatabase.username'\\."

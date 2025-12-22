@@ -209,7 +209,7 @@ should render the cron deployment with the correct checksums, labels and annotat
       template:
         metadata:
           annotations:
-            checksum/configmap: 695dbdaccc61f5324175f174694376f76d991ebe1f00c4c2167056e3207460c7
+            checksum/configmap: b1d2bb154753f45071e6a9769e1227f5b11322528676daa53408e8b60055ba49
             checksum/secret: 27e0ae5efe3beffdc19e0c47ecc973b5ecff8679033f1ea6ca92a640a4f46fdf
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value

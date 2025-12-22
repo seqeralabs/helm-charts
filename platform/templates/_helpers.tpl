@@ -19,7 +19,7 @@
 
 {{/*
 Let the user specify a ServiceAccount name, or default to the same Service Account name used
-by the Tower Terraform module.
+by the Platform Terraform provider.
 */}}
 {{- define "platform.serviceAccountName" -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
@@ -109,7 +109,11 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 {{- $list = append $list "ha" -}}
   {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
   {{- if not (empty .Values.platform.waveServerUrl) -}}
-  {{- $list = append $list "wave" -}}
+{{- $list = append $list "wave" -}}
+  {{- end -}}
+  {{- /* Add groundswell to the list of microenvs if pipeline-optimization is enabled. */}}
+  {{- if (index .Values "pipeline-optimization" "enabled") -}}
+{{- $list = append $list "groundswell" -}}
   {{- end -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}

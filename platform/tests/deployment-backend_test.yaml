@@ -513,8 +513,6 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].volumeMounts
           value:
-            - name: extra-volume
-              mountPath: /extra/path
             - mountPath: /tower.yml
               name: config-volume
               subPath: tower.yml
@@ -524,6 +522,8 @@ tests:
               name: plugin-volume
             - mountPath: /?/.nextflow/
               name: plugin-volume
+            - name: extra-volume
+              mountPath: /extra/path
 
   - it: should include extra Volumes in the backend pod spec
     template: deployment-backend.yaml
@@ -536,14 +536,14 @@ tests:
       - equal:
           path: spec.template.spec.volumes
           value:
-            - emptyDir: {}
-              name: extra-volume
             - configMap:
                 name: release-name-platform-tower-yml
               name: config-volume
             - emptyDir:
                 sizeLimit: 1Gi
               name: plugin-volume
+            - emptyDir: {}
+              name: extra-volume
 
   - it: should use custom image for the backend deployment
     template: deployment-backend.yaml

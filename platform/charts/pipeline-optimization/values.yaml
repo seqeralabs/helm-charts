@@ -1,10 +1,6 @@
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
-  # -- External domain name where the Pipeline Optimization service will be exposed. This value will
-  # be used by the main Platform parent chart and to configure the ingress hostname, if enabled
-  pipelineOptimizationExternalDomain: ""
-
   # -- Optional credentials to log in and fetch images from a private registry
   #
   # <pre><code>
@@ -117,7 +113,6 @@ service:
     name: http
     # -- Service port number
     port: 8090
-
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port).
     targetPort: 8090
@@ -365,61 +360,3 @@ serviceAccount:
   imagePullSecretNames: []
   # -- Automount service account token when the server service account is generated
   automountServiceAccountToken: false
-
-ingress:
-  # -- Enable ingress for the Pipeline Optimization frontend service
-  enabled: false
-
-  # -- Ingress path
-  path: "/"
-
-  # -- Content path for content domain ingress
-  contentPath: "/"
-
-  # -- Default path type for the Ingress
-  defaultPathType: "ImplementationSpecific"
-
-  # -- Configure the default service for the ingress (evaluated as template)
-  # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
-  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
-  #
-  # <pre><code>
-  # defaultBackend:<br>
-  #   service:<br>
-  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'<br>
-  #     port:<br>
-  #       number: '{{ .Values.frontend.service.http.port }}'
-  # </code></pre>
-  defaultBackend: {}
-
-  # -- Additional hosts you want to include. Evaluated as a template
-  #
-  # <pre><code>
-  # extraHosts:<br>
-  #   - host: '{{ printf "api.%s" .Values.global.pipelineOptimizationExternalDomain }}'<br>
-  #     paths:<br>
-  #       - path: /*<br>
-  #         pathType: Prefix  # Optional, defaults to defaultPathType<br>
-  #         serviceName: '{{ include "common.names.fullname" . }}'<br>
-  #         portNumber: '{{ .Values.service.http.port }}'
-  # </code></pre>
-  extraHosts: []
-
-  # -- Ingress annotations specific to your load balancer. Evaluated as a template
-  annotations: {}
-
-  # -- Additional labels for the ingress object. Evaluated as a template
-  extraLabels: {}
-
-  # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class')
-  ingressClassName: ""
-
-  # -- TLS configuration. Evaluated as a template
-  #
-  # <pre><code>
-  # tls:<br>
-  #   - hosts:<br>
-  #       - '{{ .Values.global.pipelineOptimizationExternalDomain }}'<br>
-  #     secretName: my-tls
-  # </code></pre>
-  tls: []
