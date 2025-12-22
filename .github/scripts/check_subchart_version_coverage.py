@@ -104,6 +104,7 @@ def main():
         return
 
     errors = []
+    successes = []
 
     for chart_path in charts_to_package:
         # Check if this is a subchart (contains /charts/ in path)
@@ -159,6 +160,19 @@ def main():
             errors.append(
                 f"   💡 Update the version constraint in {parent_dir}/Chart.yaml to cover this version, or bump the parent chart version"
             )
+        else:
+            successes.append(
+                f"✅ Subchart '{subchart_name}' version {subchart_version} is covered by parent chart '{parent_dir}' dependency constraint '{parent_version_constraint}'"
+            )
+
+    # Print successful checks
+    if successes:
+        print("\n" + "="*80)
+        print("✅  SUBCHART VERSION COVERAGE CHECKS")
+        print("="*80)
+        for success in successes:
+            print(success)
+        print("="*80)
 
     if errors:
         print("\n" + "="*80)
@@ -181,6 +195,10 @@ def main():
 
         # Exit with failure
         sys.exit(1)
+
+    # Print summary if only successes
+    if successes and not errors:
+        print("\n✅ All subchart version coverage checks passed!\n")
 
 
 if __name__ == "__main__":
