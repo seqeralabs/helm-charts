@@ -13,6 +13,9 @@
   "include": [
     "*/templates/*.tpl",
     "*/templates/*.txt",
-    "*/templates/*.yaml"
+    "*/templates/*.yaml",
+    "*/charts/*/templates/*.tpl",
+    "*/charts/*/templates/*.txt",
+    "*/charts/*/templates/*.yaml"
   ]
 }
