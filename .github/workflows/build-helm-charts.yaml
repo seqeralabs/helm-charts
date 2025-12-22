@@ -52,6 +52,12 @@ jobs:
             echo "Packaging chart ${chart}.."
             # Fetch the dependencies for the helm chart, stored in the charts/ subdir, if needed.
             helm dependency update ${chart}/
+
+            # Extract chart name from path for package naming
+            # For subcharts like platform/charts/pipeline-optimization, use the last component
+            chart_name=$(basename ${chart})
+
+            # Package the chart
             helm package ${chart}/
             echo "Packaged chart ${chart}"
           done
@@ -61,10 +67,11 @@ jobs:
         shell: bash
         run: |
           for chart in $charts_to_package; do
+            chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
-            echo "Pushing chart ${chart}, version ${chart_version}.."
-            helm push ${chart}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}'
-            echo "Pushed chart ${chart}"
+            echo "Pushing chart ${chart} (${chart_name}), version ${chart_version}.."
+            helm push ${chart_name}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}'
+            echo "Pushed chart ${chart_name}"
           done
 
       - name: 'Create GitHub releases for packaged charts'
@@ -72,32 +79,35 @@ jobs:
         shell: bash
         run: |
           for chart in $charts_to_package; do
+            chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
-            release_tag="${chart}-${chart_version}"
+            release_tag="${chart_name}-${chart_version}"
 
-            echo "Creating release for ${chart} version ${chart_version}.."
+            echo "Creating release for ${chart} (${chart_name}) version ${chart_version}.."
 
             # Create additional chart installation instructions
-            cat > /tmp/release-notes-footer-${chart}.md << EOF
+            # Use a unique temp file name to avoid collisions
+            temp_file="/tmp/release-notes-footer-${chart_name}-${chart_version}.md"
+            cat > ${temp_file} << EOF
 
           ## Chart Information
 
-          - **OCI Registry**: \`oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart}:${chart_version}\`
+          - **OCI Registry**: \`oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart_name}:${chart_version}\`
           - **Chart README**: [${chart}/README.md](https://github.com/${{ github.repository }}/blob/${release_tag}/${chart}/README.md)
 
           ## Installation
 
           \`\`\`bash
-          helm pull oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart} --version ${chart_version}
+          helm pull oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/${chart_name} --version ${chart_version}
           \`\`\`
           EOF
 
             # Create the release with auto-generated notes
             gh release create "${release_tag}" \
               --repo ${{ github.repository }} \
-              --title "${chart} ${chart_version}" \
+              --title "${chart_name} ${chart_version}" \
               --generate-notes \
-              --notes-file /tmp/release-notes-footer-${chart}.md
+              --notes-file ${temp_file}
 
             echo "Created release ${release_tag}"
           done
