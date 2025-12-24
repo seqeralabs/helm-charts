@@ -45,6 +45,10 @@ helm install my-release oci://public.cr.seqera.io/charts/platform \
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/platform
 
+## Upgrading the chart
+
+When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md) for breaking changes and migration instructions.
+
 ## Requirements
 
 | Repository | Name | Version |

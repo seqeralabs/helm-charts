@@ -44,6 +44,10 @@ helm install my-release oci://public.cr.seqera.io/charts/{{ template "chart.name
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/{{ template "chart.name" . }}
 
+## Upgrading the chart
+
+When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md) for breaking changes and migration instructions.
+
 {{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSectionHtml" . }}
