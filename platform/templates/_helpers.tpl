@@ -133,14 +133,14 @@ Build the cron micronaut envs list: add envs if features are requested in other 
 Return the name of the secret containing the Platform database password.
 */}}
 {{- define "platform.database.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretName $) -}}
+  {{- printf "%s" (tpl .Values.platformDatabase.existingSecretName $) -}}
 {{- end -}}
 {{- define "platform.database.secretName" -}}
   {{- include "platform.database.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
-  {{- printf "%s" (tpl .Values.global.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
 {{- end -}}
 
 {{/*
@@ -151,16 +151,16 @@ For now this template is built around the only driver that can be set, 'mariadb'
 */}}
 {{- define "platform.database.url" -}}
   {{- $baseUrl := printf "jdbc:mysql://%s:%d/%s"
-  .Values.global.platformDatabase.host
-  (.Values.global.platformDatabase.port | int)
-  .Values.global.platformDatabase.database -}}
+  .Values.platformDatabase.host
+  (.Values.platformDatabase.port | int)
+  .Values.platformDatabase.name -}}
   {{- $options := list -}}
   {{/* Evaluate mysql first, so if both are defined we pick mariadb options. */}}
-  {{- if .Values.global.platformDatabase.connectionOptions.mysql -}}
-    {{- $options = .Values.global.platformDatabase.connectionOptions.mysql -}}
+  {{- if .Values.platformDatabase.connectionOptions.mysql -}}
+    {{- $options = .Values.platformDatabase.connectionOptions.mysql -}}
   {{- end -}}
-  {{- if .Values.global.platformDatabase.connectionOptions.mariadb -}}
-    {{- $options = .Values.global.platformDatabase.connectionOptions.mariadb -}}
+  {{- if .Values.platformDatabase.connectionOptions.mariadb -}}
+    {{- $options = .Values.platformDatabase.connectionOptions.mariadb -}}
   {{- end -}}
 
   {{- if $options -}}
@@ -174,10 +174,10 @@ For now this template is built around the only driver that can be set, 'mariadb'
 Return the JDBC driver class name based on the selected database driver.
 */}}
 {{- define "platform.database.driver" -}}
-  {{- if or (eq .Values.global.platformDatabase.driver "mariadb") (eq .Values.global.platformDatabase.driver "mysql") -}}
+  {{- if or (eq .Values.platformDatabase.driver "mariadb") (eq .Values.platformDatabase.driver "mysql") -}}
 org.mariadb.jdbc.Driver
   {{- else -}}
-    {{- fail (printf "Unsupported database driver: '%s'. Supported drivers are: 'mariadb' (or its alias 'mysql')." .Values.global.platformDatabase.driver) -}}
+    {{- fail (printf "Unsupported database driver: '%s'. Supported drivers are: 'mariadb' (or its alias 'mysql')." .Values.platformDatabase.driver) -}}
   {{- end -}}
 {{- end -}}
 
@@ -185,12 +185,12 @@ org.mariadb.jdbc.Driver
 Return the Hibernate dialect based on the selected database dialect.
 */}}
 {{- define "platform.database.dialect" -}}
-  {{- if eq .Values.global.platformDatabase.dialect "mysql-8" -}}
+  {{- if eq .Values.platformDatabase.dialect "mysql-8" -}}
 io.seqera.util.MySQL8DialectCollateBin
-  {{- else if eq .Values.global.platformDatabase.dialect "mariadb-10" -}}
+  {{- else if eq .Values.platformDatabase.dialect "mariadb-10" -}}
 io.seqera.util.MariaDB10DialectCollateBin
   {{- else -}}
-    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-8', 'mariadb-10'." .Values.global.platformDatabase.dialect) -}}
+    {{- fail (printf "Unsupported database dialect: '%s'. Supported dialects are: 'mysql-8', 'mariadb-10'." .Values.platformDatabase.dialect) -}}
   {{- end -}}
 {{- end -}}
 
@@ -325,13 +325,13 @@ Common initContainer to wait for MySQL database to be ready.
     - name: SLEEP_PERIOD_SECONDS
       value: "5"
     - name: DB_HOST
-      value: {{ $.Values.global.platformDatabase.host | quote }}
+      value: {{ $.Values.platformDatabase.host | quote }}
     - name: DB_PORT
-      value: {{ $.Values.global.platformDatabase.port | quote }}
+      value: {{ $.Values.platformDatabase.port | quote }}
     - name: DB_NAME
-      value: {{ $.Values.global.platformDatabase.name | quote }}
+      value: {{ $.Values.platformDatabase.name | quote }}
     - name: DB_USERNAME
-      value: {{ $.Values.global.platformDatabase.username | quote }}
+      value: {{ $.Values.platformDatabase.username | quote }}
   envFrom:
     - secretRef:
         name: {{ printf "%s-backend" (include "common.names.fullname" $) }}

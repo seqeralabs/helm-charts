@@ -37,21 +37,19 @@ tests:
       - failedTemplate:
           errorPattern: "must be an integer between 1 and 65535"
 
-  - it: should fail when global.platformDatabase.host is not defined
+  - it: should fail when platformDatabase.host is not defined
     set:
-      global:
-        platformDatabase:
-          host: ""
+      platformDatabase:
+        host: ""
     asserts:
       - failedTemplate:
           # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
-          errorPattern: "Define the MySQL database hostname at 'global.platformDatabase.host'\\."
+          errorPattern: "Define the MySQL database hostname at 'platformDatabase.host'\\."
 
   - it: should fail when redis.host is not defined
     set:
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       redis:
         host: ""
     asserts:
@@ -60,9 +58,8 @@ tests:
 
   - it: should fail when no license is defined
     set:
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       redis:
         host: "whatever"
       platform:
@@ -75,9 +72,8 @@ tests:
     set:
       redis:
         host: "whatever"
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       platform:
         licenseString: "whatever"
         jwtSeedString: "whatever"
@@ -90,9 +86,8 @@ tests:
     set:
       redis:
         host: "whatever"
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       platform:
         licenseString: "whatever"
         cryptoSeedString: "whatever"
@@ -103,9 +98,8 @@ tests:
 
   - it: should fail if migrate-db args are set but command is not
     set:
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       redis:
         host: "whatever"
       platform:
@@ -122,9 +116,8 @@ tests:
     set:
       redis:
         host: "whatever"
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       platform:
         licenseString: "whatever"
         executionBackends: []
@@ -132,11 +125,10 @@ tests:
       - failedTemplate:
           errorPattern: "At least one execution backend must be defined in 'platform.executionBackends'"
 
-  - it: should pass when redis.host and global.platformDatabase.host are defined
+  - it: should pass when redis.host and platformDatabase.host are defined
     set:
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       redis:
         host: "whatever"
       platform:
@@ -148,9 +140,8 @@ tests:
 
   - it: should pass when redis.host is defined
     set:
-      global:
-        platformDatabase:
-          host: "whatever"
+      platformDatabase:
+        host: "whatever"
       redis:
         host: "whatever"
       platform:

@@ -77,6 +77,7 @@ helm-charts/
 │   ├── values.yaml                   # Default values
 │   ├── README.md                     # Auto-generated documentation
 │   ├── README.md.gotmpl              # Documentation template used by helm-docs
+│   ├── CHANGELOG.md                  # Version changelog
 │   ├── Makefile                      # Build and test commands
 │   │
 │   ├── charts/                       # Location where subcharts will be created
@@ -237,8 +238,22 @@ helm template platform ./platform -f platform/values.yaml > output.yaml
 
 ### Version Bumping
 
-1. Update `version` in [Chart.yaml](platform/Chart.yaml) (chart version)
-2. Update `appVersion` in [Chart.yaml](platform/Chart.yaml) (app version)
+When bumping versions, follow these steps:
+
+1. Update `version` in the appropriate `Chart.yaml` file (chart version)
+   - For platform chart: [Chart.yaml](platform/Chart.yaml)
+   - For subcharts: `platform/charts/<subchart-name>/Chart.yaml`
+2. Update `appVersion` in the `Chart.yaml` file (app version, if applicable)
+3. **MUST**: Update the corresponding `CHANGELOG.md` file with the new version and changes:
+   - For platform chart: [CHANGELOG.md](platform/CHANGELOG.md)
+   - For subcharts: `platform/charts/<subchart-name>/CHANGELOG.md`
+   - Add a new version section following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
+   - Document all changes under appropriate categories (Added, Changed, Deprecated, Removed, Fixed, Security)
+   - Mark breaking changes with **BREAKING** prefix
+   - Include migration instructions for breaking changes with before/after examples
+   - Use the date format YYYY-MM-DD
+
+**Note**: Both the main platform chart and any subcharts should maintain their own CHANGELOG.md files to track version-specific changes independently.
 
 ## Git & CI/CD Context
 

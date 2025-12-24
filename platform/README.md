@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.21.0](https://img.shields.io/badge/Version-0.21.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.22.0](https://img.shields.io/badge/Version-0.22.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -38,12 +38,16 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.21.0 \
+  --version 0.22.0 \
   --namespace my-namespace \
   --create-namespace
 ```
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/platform
+
+## Upgrading the chart
+
+When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md) for breaking changes and migration instructions.
 
 ## Requirements
 
@@ -99,7 +103,16 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Seqera Platform Service port</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.host</td>
+			<td>global.imageCredentials</td>
+			<td>list</td>
+			<td><pre lang="json">
+[]
+</pre>
+</td>
+			<td>Optional credentials to log in and fetch images from a private registry  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
+		</tr>
+		<tr>
+			<td>platformDatabase.host</td>
 			<td>string</td>
 			<td><pre lang="json">
 ""
@@ -108,7 +121,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Platform MySQL database hostname</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.port</td>
+			<td>platformDatabase.port</td>
 			<td>int</td>
 			<td><pre lang="json">
 3306
@@ -117,7 +130,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Platform MySQL database port</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.database</td>
+			<td>platformDatabase.name</td>
 			<td>string</td>
 			<td><pre lang="json">
 ""
@@ -126,7 +139,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Platform MySQL database name</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.username</td>
+			<td>platformDatabase.username</td>
 			<td>string</td>
 			<td><pre lang="json">
 ""
@@ -135,7 +148,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Platform MySQL database username</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.password</td>
+			<td>platformDatabase.password</td>
 			<td>string</td>
 			<td><pre lang="json">
 ""
@@ -144,7 +157,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Platform MySQL database password</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.existingSecretName</td>
+			<td>platformDatabase.existingSecretName</td>
 			<td>string</td>
 			<td><pre lang="json">
 ""
@@ -153,7 +166,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Name of an existing secret containing credentials for the Platform MySQL database Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.existingSecretKey</td>
+			<td>platformDatabase.existingSecretKey</td>
 			<td>string</td>
 			<td><pre lang="">
 "TOWER_DB_PASSWORD"
@@ -162,7 +175,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Key in the existing secret containing the password for the Platform MySQL database</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.driver</td>
+			<td>platformDatabase.driver</td>
 			<td>string</td>
 			<td><pre lang="json">
 "mariadb"
@@ -171,7 +184,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Database driver. Possible options: "mariadb" (or its alias "mysql")</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.connectionOptions</td>
+			<td>platformDatabase.connectionOptions</td>
 			<td>object</td>
 			<td><pre lang="json">
 {
@@ -184,7 +197,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Connection options to compose in the driver URL according to the driver used. The only driver that can be set is 'mariadb'</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.connectionOptions.mariadb</td>
+			<td>platformDatabase.connectionOptions.mariadb</td>
 			<td>list</td>
 			<td><pre lang="json">
 [
@@ -195,7 +208,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Connection options to use with the MariaDB driver. For the full list of supported options see: https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.dialect</td>
+			<td>platformDatabase.dialect</td>
 			<td>string</td>
 			<td><pre lang="json">
 "mysql-8"
@@ -204,7 +217,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Hibernate dialect to use, depending on the database version. Possible options: mysql-8 (default), mariadb-10</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.minPoolSize</td>
+			<td>platformDatabase.minPoolSize</td>
 			<td>string</td>
 			<td><pre lang="json">
 "2"
@@ -213,7 +226,7 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Connection pool minimum size</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.maxPoolSize</td>
+			<td>platformDatabase.maxPoolSize</td>
 			<td>string</td>
 			<td><pre lang="json">
 "10"
@@ -222,22 +235,13 @@ For a list of available chart versions, see the chart repository: https://public
 			<td>Connection pool maximum size</td>
 		</tr>
 		<tr>
-			<td>global.platformDatabase.maxLifetime</td>
+			<td>platformDatabase.maxLifetime</td>
 			<td>string</td>
 			<td><pre lang="json">
 "180000"
 </pre>
 </td>
 			<td>Connection pool maximum lifetime</td>
-		</tr>
-		<tr>
-			<td>global.imageCredentials</td>
-			<td>list</td>
-			<td><pre lang="json">
-[]
-</pre>
-</td>
-			<td>Optional credentials to log in and fetch images from a private registry  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
 		</tr>
 		<tr>
 			<td>platform.YAMLConfigFileContent</td>

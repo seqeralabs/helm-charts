@@ -43,8 +43,8 @@
 {{- end -}}
 {{- end -}}
 
-{{- if not .Values.global.platformDatabase.host -}}
-{{- $message := "Define the MySQL database hostname at 'global.platformDatabase.host'." -}}
+{{- if not .Values.platformDatabase.host -}}
+{{- $message := "Define the MySQL database hostname at 'platformDatabase.host'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 

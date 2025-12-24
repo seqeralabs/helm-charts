@@ -32,50 +32,6 @@ global:
   # -- Seqera Platform Service port
   platformServicePort: 8080
 
-  platformDatabase:
-    # -- Platform MySQL database hostname
-    host: ""
-    # -- Platform MySQL database port
-    port: 3306
-    # -- Platform MySQL database name
-    database: ""
-    # -- Platform MySQL database username
-    username: ""
-    # -- Platform MySQL database password
-    password: ""
-    # -- Name of an existing secret containing credentials for the Platform MySQL database
-    # Note: the secret must already exist in the same namespace at the time of deployment, it
-    # can't be created by this chart with extraDeploy, since this chart performs a lookup
-    # on the Kubernetes API server at install/upgrade time
-    existingSecretName: ""
-    # -- Key in the existing secret containing the password for the Platform MySQL database
-    # @default -- "TOWER_DB_PASSWORD"
-    existingSecretKey: ""
-    # -- Database driver. Possible options: "mariadb" (or its alias "mysql")
-    driver: "mariadb"
-    # -- Connection options to compose in the driver URL according to the driver used. The only
-    # driver that can be set is 'mariadb'
-    connectionOptions:
-      # -- Connection options to use with the MariaDB driver. For the full list of supported
-      # options see:
-      # https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j
-      mariadb:
-        # permitMysqlScheme=true allows the MariaDB driver to communicate with MySQL databases.
-        - permitMysqlScheme=true
-        # sslMode enables TLS encryption with varying levels of certificate acceptance criteria.
-        # Other options allow the enabling or disabling of specific TLS ciphers, the path to the
-        # server's CA certificate, etc.
-        # - sslMode=verify-ca
-    # -- Hibernate dialect to use, depending on the database version. Possible options: mysql-8
-    # (default), mariadb-10
-    dialect: "mysql-8"
-    # -- Connection pool minimum size
-    minPoolSize: "2"
-    # -- Connection pool maximum size
-    maxPoolSize: "10"
-    # -- Connection pool maximum lifetime
-    maxLifetime: "180000"
-
   # -- Optional credentials to log in and fetch images from a private registry
   #
   # <pre><code>
@@ -85,6 +41,50 @@ global:
   #   email: someone@example.com  # Optional
   # </code></pre>
   imageCredentials: []
+
+platformDatabase:
+  # -- Platform MySQL database hostname
+  host: ""
+  # -- Platform MySQL database port
+  port: 3306
+  # -- Platform MySQL database name
+  name: ""
+  # -- Platform MySQL database username
+  username: ""
+  # -- Platform MySQL database password
+  password: ""
+  # -- Name of an existing secret containing credentials for the Platform MySQL database
+  # Note: the secret must already exist in the same namespace at the time of deployment, it
+  # can't be created by this chart with extraDeploy, since this chart performs a lookup
+  # on the Kubernetes API server at install/upgrade time
+  existingSecretName: ""
+  # -- Key in the existing secret containing the password for the Platform MySQL database
+  # @default -- "TOWER_DB_PASSWORD"
+  existingSecretKey: ""
+  # -- Database driver. Possible options: "mariadb" (or its alias "mysql")
+  driver: "mariadb"
+  # -- Connection options to compose in the driver URL according to the driver used. The only
+  # driver that can be set is 'mariadb'
+  connectionOptions:
+    # -- Connection options to use with the MariaDB driver. For the full list of supported
+    # options see:
+    # https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j
+    mariadb:
+      # permitMysqlScheme=true allows the MariaDB driver to communicate with MySQL databases.
+      - permitMysqlScheme=true
+      # sslMode enables TLS encryption with varying levels of certificate acceptance criteria.
+      # Other options allow the enabling or disabling of specific TLS ciphers, the path to the
+      # server's CA certificate, etc.
+      # - sslMode=verify-ca
+  # -- Hibernate dialect to use, depending on the database version. Possible options: mysql-8
+  # (default), mariadb-10
+  dialect: "mysql-8"
+  # -- Connection pool minimum size
+  minPoolSize: "2"
+  # -- Connection pool maximum size
+  maxPoolSize: "10"
+  # -- Connection pool maximum lifetime
+  maxLifetime: "180000"
 
 platform:
   # TODO: rename variable?

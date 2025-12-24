@@ -88,7 +88,7 @@ should produce a Deployment resource with minimal values:
           - name: DB_PORT
             value: "3306"
           - name: DB_NAME
-            value: null
+            value: ""
           - name: DB_USERNAME
             value: ""
         envFrom:
@@ -317,7 +317,7 @@ should render the backend deployment with the correct checksums, labels and anno
                 - name: DB_PORT
                   value: "3306"
                 - name: DB_NAME
-                  value: null
+                  value: ""
                 - name: DB_USERNAME
                   value: ""
               envFrom:
