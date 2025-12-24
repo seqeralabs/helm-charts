@@ -64,10 +64,9 @@ tests:
       version: "9.9.9+test"
       appVersion: "9.9.9"
     set:
-      global:
-        platformDatabase:
-          existingSecretName: "unittest"
-          existingSecretKey: "db-password-key"
+      platformDatabase:
+        existingSecretName: "unittest"
+        existingSecretKey: "db-password-key"
       commonLabels:
         key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden

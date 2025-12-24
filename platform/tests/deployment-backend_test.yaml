@@ -66,10 +66,9 @@ tests:
       version: "9.9.9+test"
       appVersion: "9.9.9"
     set:
-      global:
-        platformDatabase:
-          existingSecretName: "unittest"
-          existingSecretKey: "db-password-key"
+      platformDatabase:
+        existingSecretName: "unittest"
+        existingSecretKey: "db-password-key"
       commonLabels:
         key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
@@ -361,7 +360,7 @@ tests:
             - name: DB_PORT
               value: "3306"
             - name: DB_NAME
-              value: null
+              value: ""
             - name: DB_USERNAME
               value: ""
       - equal:
@@ -405,14 +404,13 @@ tests:
           data:
             my-db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
     set:
-      global:
-        platformDatabase:
-          host: "my-db-host"
-          port: 3307
-          name: "my-db-name"
-          username: "my-db-username"
-          existingSecretName: "my-db-secret"
-          existingSecretKey: "my-db-password-key"
+      platformDatabase:
+        host: "my-db-host"
+        port: 3307
+        name: "my-db-name"
+        username: "my-db-username"
+        existingSecretName: "my-db-secret"
+        existingSecretKey: "my-db-password-key"
       redis:
         host: "my-redis-host"
         port: 6380
@@ -1075,9 +1073,8 @@ tests:
     set:
       redis:
         existingSecretName: "my-redis-secret"
-      global:
-        platformDatabase:
-          existingSecretName: "my-db-secret"
+      platformDatabase:
+        existingSecretName: "my-db-secret"
       platform:
         licenseSecretName: "my-license-secret"
         jwtSeedSecretName: "my-jwt-seed-secret"
@@ -1141,10 +1138,9 @@ tests:
       redis:
         existingSecretName: "my-redis-secret"
         existingSecretKey: "my-redis-secret-key"
-      global:
-        platformDatabase:
-          existingSecretName: "my-db-secret"
-          existingSecretKey: "my-db-secret-key"
+      platformDatabase:
+        existingSecretName: "my-db-secret"
+        existingSecretKey: "my-db-secret-key"
       platform:
         licenseSecretName: "my-license-secret"
         licenseSecretKey: "my-license-secret-key"

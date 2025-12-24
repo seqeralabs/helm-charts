@@ -355,9 +355,8 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          driver: "mysql"
+      platformDatabase:
+        driver: "mysql"
     asserts:
       - equal:
           path: data.TOWER_DB_DRIVER
@@ -365,18 +364,16 @@ tests:
 
   - it: should fail when database driver is unsupported
     set:
-      global:
-        platformDatabase:
-          driver: "unsupported"
+      platformDatabase:
+        driver: "unsupported"
     asserts:
       - failedTemplate:
           errorMessage: "Unsupported database driver: 'unsupported'. Supported drivers are: 'mariadb' (or its alias 'mysql')."
 
   - it: should fail when empty database driver is provided
     set:
-      global:
-        platformDatabase:
-          driver: ""
+      platformDatabase:
+        driver: ""
     asserts:
       - failedTemplate:
           errorMessage: "Unsupported database driver: ''. Supported drivers are: 'mariadb' (or its alias 'mysql')."
@@ -395,9 +392,8 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          dialect: "mysql-8"
+      platformDatabase:
+        dialect: "mysql-8"
     asserts:
       - equal:
           path: data.TOWER_DB_DIALECT
@@ -408,9 +404,8 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          dialect: "mariadb-10"
+      platformDatabase:
+        dialect: "mariadb-10"
     asserts:
       - equal:
           path: data.TOWER_DB_DIALECT
@@ -418,18 +413,16 @@ tests:
 
   - it: should fail when database dialect is unsupported
     set:
-      global:
-        platformDatabase:
-          dialect: "unsupported-dialect"
+      platformDatabase:
+        dialect: "unsupported-dialect"
     asserts:
       - failedTemplate:
           errorMessage: "Unsupported database dialect: 'unsupported-dialect'. Supported dialects are: 'mysql-8', 'mariadb-10'."
 
   - it: should fail when empty database dialect is provided
     set:
-      global:
-        platformDatabase:
-          dialect: ""
+      platformDatabase:
+        dialect: ""
     asserts:
       - failedTemplate:
           errorMessage: "Unsupported database dialect: ''. Supported dialects are: 'mysql-8', 'mariadb-10'."
@@ -448,12 +441,11 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          connectionOptions:
-            mariadb:
-              - "param1=value1"
-              - "param2=value2"
+      platformDatabase:
+        connectionOptions:
+          mariadb:
+            - "param1=value1"
+            - "param2=value2"
     asserts:
       - equal:
           path: data.TOWER_DB_URL
@@ -464,13 +456,12 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          connectionOptions:
-            mariadb: []
-            mysql:
-              - "param1=value1"
-              - "param2=value2"
+      platformDatabase:
+        connectionOptions:
+          mariadb: []
+          mysql:
+            - "param1=value1"
+            - "param2=value2"
     asserts:
       - equal:
           path: data.TOWER_DB_URL
@@ -481,15 +472,14 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          connectionOptions:
-            mariadb:
-              - "param1=value1"
-              - "param2=value2"
-            mysql:
-              - "paramA=value1"
-              - "paramB=value2"
+      platformDatabase:
+        connectionOptions:
+          mariadb:
+            - "param1=value1"
+            - "param2=value2"
+          mysql:
+            - "paramA=value1"
+            - "paramB=value2"
     asserts:
       - equal:
           path: data.TOWER_DB_URL
@@ -500,13 +490,12 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          connectionOptions:
-            mariadb:
-              - "param1=value1"
-              - "param2=value2"
-            mysql: []
+      platformDatabase:
+        connectionOptions:
+          mariadb:
+            - "param1=value1"
+            - "param2=value2"
+          mysql: []
     asserts:
       - equal:
           path: data.TOWER_DB_URL
@@ -517,11 +506,70 @@ tests:
       path: metadata.name
       value: release-name-platform-shared-backend-cron
     set:
-      global:
-        platformDatabase:
-          connectionOptions:
-            mariadb: []
+      platformDatabase:
+        connectionOptions:
+          mariadb: []
     asserts:
       - equal:
           path: data.TOWER_DB_URL
           value: "jdbc:mysql://:3306/"
+
+  - it: should render database url with custom database name
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      platformDatabase:
+        host: "db.example.com"
+        port: 3306
+        name: "tower_db"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://db.example.com:3306/tower_db?permitMysqlScheme=true"
+
+  - it: should render database url with custom host, port, and database name
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      platformDatabase:
+        host: "my-db-host.internal"
+        port: 3307
+        name: "my_database"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://my-db-host.internal:3307/my_database?permitMysqlScheme=true"
+
+  - it: should render database url with custom name and connection options
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      platformDatabase:
+        host: "prod-db.example.com"
+        port: 3306
+        name: "production_db"
+        connectionOptions:
+          mariadb:
+            - "useSSL=true"
+            - "serverTimezone=UTC"
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://prod-db.example.com:3306/production_db?useSSL=true&serverTimezone=UTC"
+
+  - it: should render database url with empty database name
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-shared-backend-cron
+    set:
+      platformDatabase:
+        host: "db.example.com"
+        port: 3306
+        name: ""
+    asserts:
+      - equal:
+          path: data.TOWER_DB_URL
+          value: "jdbc:mysql://db.example.com:3306/?permitMysqlScheme=true"
