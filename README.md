@@ -5,11 +5,13 @@ Kubernetes clusters.
 
 Currently, it includes charts for:
 - [Platform](./platform/README.md): Seqera Labs Platform for workflow orchestration and management.
+- [Pipeline Optimization](./platform/charts/pipeline-optimization/README.md): A service to optimize
+  Nextflow pipelines running on Platform - internally referred to as Groundswell.
 
 > [!NOTE]
-> **Private Preview** - The platform chart is currently in early preview as we work toward a stable release by the end of 2025.
+> **Private Preview** - The Seqera charts are currently in early preview as we work toward a stable release by the end of 2025.
 >
-> We'd love your feedback! Please test the chart with your use cases and [report any
+> We'd love your feedback! Please test the charts with your use cases and [report any
 > issues](https://github.com/seqeralabs/helm-charts/issues) you encounter. Your input
 > will help us build a better release.
 

@@ -1,4 +1,41 @@
 #!/usr/bin/env python3
+"""
+Helm Unit Tests Coverage Validator Script
+
+PURPOSE:
+  Ensures all Helm chart templates have corresponding unit test files.
+  Enforces 100% test coverage policy for chart templates.
+
+USAGE:
+  python3 helm_unittests_files_exist.py
+
+INPUTS:
+  - Scans repository for all Chart.yaml files (parent charts and subcharts)
+  - Checks templates/ directory in each chart
+
+OUTPUTS:
+  - Exit code 0: All templates have corresponding test files
+  - Exit code 1: One or more templates are missing test files
+  - Prints list of missing test files
+
+BEHAVIOR:
+  - Recursively finds all charts (by locating Chart.yaml files)
+  - Skips .git directories
+  - For each chart with a templates/ directory:
+    - Checks that every .yaml, .yml, or .txt file has a matching test file
+    - Expected test file format: tests/<template-name>_test.yaml
+  - Handles subcharts independently (doesn't recurse into charts/ subdirectories)
+
+EXAMPLES:
+  Template: platform/templates/deployment-backend.yaml
+  Expected test: platform/tests/deployment-backend_test.yaml
+
+  Template: platform/charts/pipeline-optimization/templates/deployment.yaml
+  Expected test: platform/charts/pipeline-optimization/tests/deployment_test.yaml
+
+  Template: platform/templates/NOTES.txt
+  Expected test: platform/tests/NOTES_test.yaml
+"""
 import os
 import sys
 

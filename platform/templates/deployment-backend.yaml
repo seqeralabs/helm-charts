@@ -147,9 +147,6 @@ spec:
 {{- end }}
 
           volumeMounts:
-{{- with .Values.backend.extraVolumeMounts }}
-            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-{{- end }}
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
@@ -160,6 +157,9 @@ spec:
               mountPath: /.nextflow/
             - name: plugin-volume
               mountPath: /?/.nextflow/
+{{- with .Values.backend.extraVolumeMounts }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
 
 {{- if .Values.backend.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.backend.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -176,14 +176,14 @@ spec:
 {{- end }}
 
       volumes:
-{{- with .Values.backend.extraVolumes }}
-        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-{{- end }}
         - name: config-volume
           configMap:
             name: {{ printf "%s-tower-yml" (include "common.names.fullname" .) }}
         - name: plugin-volume
           emptyDir:
             sizeLimit: "1Gi"
+{{- with .Values.backend.extraVolumes }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
 
       {{ include "common.images.renderPullSecrets" ( dict "images" (list .Values.backend.image) "context" $) | nindent 6 }}

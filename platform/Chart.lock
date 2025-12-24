@@ -2,5 +2,8 @@ dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 2.31.4
-digest: sha256:fc442e77200e1914dd46fe26490dcf62f44caa51db673c2f8e67d5319cd4c163
-generated: "2025-10-10T17:28:34.287098843+02:00"
+- name: pipeline-optimization
+  repository: file://charts/pipeline-optimization
+  version: 0.1.0
+digest: sha256:b1844fa2ed8a7db58d093ea95eae9724bd50ec0a0227883743c850d822b8ce03
+generated: "2025-12-16T15:34:14.240214875+01:00"

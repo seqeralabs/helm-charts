@@ -1,0 +1,485 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Pipeline Optimization service
+templates:
+  - service.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render 1 service by default
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should render service correctly by default
+    asserts:
+      - isKind:
+          of: Service
+      - equal:
+          path: metadata.name
+          value: release-name-pipeline-optimization
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 8090
+              targetPort: 8090
+
+  - it: should set type field to ClusterIP by default
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+
+  - it: should use correct naming convention for service
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-pipeline-optimization
+      - matchRegex:
+          path: metadata.name
+          pattern: ^release-name-pipeline-optimization$
+
+  - it: should have correct apiVersion and kind
+    asserts:
+      - equal:
+          path: apiVersion
+          value: v1
+      - isKind:
+          of: Service
+
+  - it: should use custom namespace when specified
+    set:
+      namespaceOverride: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  - it: should have hardcoded component label in metadata
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: pipeline-optimization
+
+  - it: should have correct selector for pipeline-optimization component
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+
+  - it: should render service port as 8090 by default
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8090
+
+  - it: should render service targetPort as 8090 by default
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8090
+
+  - it: should render service with http port name
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: http
+
+  - it: should have only one port defined by default
+    asserts:
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 8090
+              targetPort: 8090
+
+  - it: should render service correctly with default values
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should include standard component label
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: pipeline-optimization
+
+  - it: should use release name in service name
+    release:
+      name: my-custom-release
+    asserts:
+      - equal:
+          path: metadata.name
+          value: my-custom-release-pipeline-optimization
+
+  - it: should use default namespace if not overridden
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: NAMESPACE
+
+  - it: should render service with custom port
+    set:
+      service:
+        http:
+          port: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 9090
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8090
+
+  - it: should render service with custom targetPort
+    set:
+      service:
+        http:
+          targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8090
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9090
+
+  - it: should render service with both custom port and targetPort
+    set:
+      service:
+        http:
+          port: 9090
+          targetPort: 9091
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 9090
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9091
+
+  - it: should render service with custom port name
+    set:
+      service:
+        http:
+          name: custom-http
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: custom-http
+
+  - it: should evaluate template expressions in port name
+    set:
+      service:
+        http:
+          name: "{{ .Release.Name }}-http"
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: RELEASE-NAME-http
+
+  - it: should evaluate template expressions in port number
+    set:
+      service:
+        http:
+          port: "{{ .Values.service.http.targetPort }}"
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8090
+
+  - it: should render service with numeric string ports
+    set:
+      service:
+        http:
+          port: "8443"
+          targetPort: "8443"
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8443
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8443
+
+  - it: should render service with named targetPort
+    set:
+      service:
+        http:
+          targetPort: http-port
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http-port
+
+  - it: should set service type to NodePort
+    set:
+      service:
+        type: NodePort
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: should set service type to LoadBalancer
+    set:
+      service:
+        type: LoadBalancer
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+
+  - it: should include nodePort when service type is NodePort
+    set:
+      service:
+        type: NodePort
+        http:
+          nodePort: 30080
+    asserts:
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30080
+
+  - it: should include nodePort when service type is LoadBalancer
+    set:
+      service:
+        type: LoadBalancer
+        http:
+          nodePort: 30443
+    asserts:
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30443
+
+  - it: should not include nodePort when service type is ClusterIP
+    set:
+      service:
+        type: ClusterIP
+        http:
+          nodePort: 30080
+    asserts:
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should not include nodePort when nodePort is null
+    set:
+      service:
+        type: NodePort
+        http:
+          nodePort: null
+    asserts:
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should render extraServices with single service
+    set:
+      service:
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: 9090
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 2
+      - equal:
+          path: spec.ports[1].name
+          value: metrics
+      - equal:
+          path: spec.ports[1].port
+          value: 9090
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 9090
+
+  - it: should render extraServices with multiple services
+    set:
+      service:
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: 9090
+          - name: admin
+            port: 8888
+            targetPort: 8888
+    asserts:
+      - lengthEqual:
+          path: spec.ports
+          count: 3
+      - equal:
+          path: spec.ports[1].name
+          value: metrics
+      - equal:
+          path: spec.ports[2].name
+          value: admin
+
+  - it: should render extraServices with named targetPort
+    set:
+      service:
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: metrics-port
+    asserts:
+      - equal:
+          path: spec.ports[1].targetPort
+          value: metrics-port
+
+  - it: should render extraServices with nodePort when type is NodePort
+    set:
+      service:
+        type: NodePort
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: 9090
+            nodePort: 30090
+    asserts:
+      - equal:
+          path: spec.ports[1].nodePort
+          value: 30090
+
+  - it: should not render extraServices nodePort when type is ClusterIP
+    set:
+      service:
+        type: ClusterIP
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: 9090
+            nodePort: 30090
+    asserts:
+      - notExists:
+          path: spec.ports[1].nodePort
+
+  - it: should evaluate template expressions in extraServices
+    set:
+      service:
+        extraServices:
+          - name: "{{ .Release.Name }}-metrics"
+            port: "{{ .Values.service.http.port }}"
+            targetPort: "{{ .Values.service.http.targetPort }}"
+    asserts:
+      - equal:
+          path: spec.ports[1].name
+          value: RELEASE-NAME-metrics
+      - equal:
+          path: spec.ports[1].port
+          value: 8090
+
+  - it: should render extraOptions with clusterIP
+    set:
+      service:
+        extraOptions:
+          clusterIP: 10.96.0.100
+    asserts:
+      - equal:
+          path: spec.clusterIP
+          value: 10.96.0.100
+
+  - it: should render extraOptions with loadBalancerIP
+    set:
+      service:
+        type: LoadBalancer
+        extraOptions:
+          loadBalancerIP: 203.0.113.10
+    asserts:
+      - equal:
+          path: spec.loadBalancerIP
+          value: 203.0.113.10
+
+  - it: should render extraOptions with externalTrafficPolicy
+    set:
+      service:
+        type: LoadBalancer
+        extraOptions:
+          externalTrafficPolicy: Local
+    asserts:
+      - equal:
+          path: spec.externalTrafficPolicy
+          value: Local
+
+  - it: should render extraOptions with sessionAffinity
+    set:
+      service:
+        extraOptions:
+          sessionAffinity: ClientIP
+          sessionAffinityConfig:
+            clientIP:
+              timeoutSeconds: 10800
+    asserts:
+      - equal:
+          path: spec.sessionAffinity
+          value: ClientIP
+      - equal:
+          path: spec.sessionAffinityConfig.clientIP.timeoutSeconds
+          value: 10800
+
+  - it: should render extraOptions with externalIPs
+    set:
+      service:
+        extraOptions:
+          externalIPs:
+            - 192.0.2.1
+            - 192.0.2.2
+    asserts:
+      - equal:
+          path: spec.externalIPs[0]
+          value: 192.0.2.1
+      - equal:
+          path: spec.externalIPs[1]
+          value: 192.0.2.2
+
+  - it: should evaluate template expressions in extraOptions
+    set:
+      service:
+        extraOptions:
+          externalName: "{{ .Release.Name }}.example.com"
+    asserts:
+      - equal:
+          path: spec.externalName
+          value: RELEASE-NAME.example.com
+
+  - it: should render complete service with all options
+    set:
+      service:
+        type: NodePort
+        http:
+          name: custom-http
+          port: 9090
+          targetPort: 9091
+          nodePort: 30080
+        extraServices:
+          - name: metrics
+            port: 9092
+            targetPort: 9092
+            nodePort: 30092
+        extraOptions:
+          externalTrafficPolicy: Local
+    asserts:
+      - matchSnapshot: {}

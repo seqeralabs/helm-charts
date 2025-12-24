@@ -8,6 +8,8 @@
   "title": false,
   "include": [
     "*/Chart.yaml",
-    "*/values.yaml"
+    "*/values.yaml",
+    "*/charts/*/Chart.yaml",
+    "*/charts/*/values.yaml"
   ]
 }

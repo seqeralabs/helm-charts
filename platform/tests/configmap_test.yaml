@@ -39,7 +39,8 @@ tests:
       - equal:
           path: data
           value:
-            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave
+            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
+            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
 
   - it: should render cron cm with default values
     documentSelector:
@@ -66,7 +67,7 @@ tests:
           of: ConfigMap
       - equal:
           path: data.MICRONAUT_ENVIRONMENTS
-          value: prod,whatever1,whatever2,redis,ha,wave
+          value: prod,whatever1,whatever2,redis,ha,wave,groundswell
 
   - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
     documentSelector:

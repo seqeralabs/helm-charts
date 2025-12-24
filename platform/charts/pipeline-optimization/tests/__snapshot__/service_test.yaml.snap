@@ -1,0 +1,40 @@
+should render complete service with all options:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/component: pipeline-optimization
+      name: release-name-pipeline-optimization
+      namespace: NAMESPACE
+    spec:
+      externalTrafficPolicy: Local
+      ports:
+        - name: custom-http
+          nodePort: 30080
+          port: 9090
+          targetPort: 9091
+        - name: metrics
+          nodePort: 30092
+          port: 9092
+          targetPort: 9092
+      selector:
+        app.kubernetes.io/component: pipeline-optimization
+      type: NodePort
+should render service correctly with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/component: pipeline-optimization
+      name: release-name-pipeline-optimization
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 8090
+          targetPort: 8090
+      selector:
+        app.kubernetes.io/component: pipeline-optimization
+      type: ClusterIP

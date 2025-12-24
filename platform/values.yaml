@@ -1071,7 +1071,8 @@ initContainerDependencies:
         memory: "100Mi"
 
 serviceAccount:
-  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated
+  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
+  # the release name
   name: ""
   # -- Additional annotations for the Platform ServiceAccount to generate
   annotations: {}
@@ -1142,3 +1143,6 @@ ingress:
   #     secretName: my-tls
   # </code></pre>
   tls: []
+
+pipeline-optimization:
+  enabled: true

@@ -2,52 +2,38 @@ should produce a Deployment resource with minimal values:
   1: |
     containers:
       - env:
+          - name: MPLCONFIGDIR
+            value: /tmp
+          - name: SWELL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
           - name: TOWER_DB_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: TOWER_DB_PASSWORD
-                name: release-name-platform-backend
-          - name: TOWER_LICENSE
-            valueFrom:
-              secretKeyRef:
-                key: TOWER_LICENSE
-                name: release-name-platform-backend
-          - name: TOWER_JWT_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: TOWER_JWT_SECRET
-                name: release-name-platform-backend
-          - name: TOWER_CRYPTO_SECRETKEY
-            valueFrom:
-              secretKeyRef:
-                key: TOWER_CRYPTO_SECRETKEY
-                name: release-name-platform-backend
-          - name: NXF_HOME
-            value: /var/cache/tower/
-          - name: NXF_PLUGINS_DIR
-            value: /var/cache/tower/plugins/
+                name: release-name-pipeline-optimization
         envFrom:
           - configMapRef:
-              name: release-name-platform-cron
-          - configMapRef:
-              name: release-name-platform-shared-backend-cron
-        image: private/nf-tower-enterprise/backend:v9.9.9
+              name: release-name-pipeline-optimization
+        image: private/nf-tower-enterprise/groundswell:v9.9.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 10
           httpGet:
-            path: /health
-            port: 8082
+            path: /api/v1/health
+            port: 8090
           initialDelaySeconds: 5
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 3
-        name: cron
+        name: pipeline-optimization
         readinessProbe:
           failureThreshold: 5
           httpGet:
-            path: /health
-            port: 8082
+            path: /api/v1/health
+            port: 8090
           initialDelaySeconds: 5
           periodSeconds: 5
           successThreshold: 1
@@ -60,22 +46,15 @@ should produce a Deployment resource with minimal values:
           runAsNonRoot: true
           runAsUser: 101
         volumeMounts:
-          - mountPath: /tower.yml
-            name: config-volume
-            subPath: tower.yml
-          - mountPath: /var/cache/tower/
-            name: plugin-volume
-          - mountPath: /.nextflow/
-            name: plugin-volume
-          - mountPath: /?/.nextflow/
-            name: plugin-volume
+          - mountPath: /tmp/
+            name: tmp-volume
     initContainers:
       - command:
           - sh
           - -c
           - |
             echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
             done
@@ -88,15 +67,17 @@ should produce a Deployment resource with minimal values:
           - name: DB_PORT
             value: "3306"
           - name: DB_NAME
-            value: null
+            value: ""
           - name: DB_USERNAME
             value: ""
-        envFrom:
-          - secretRef:
-              name: release-name-platform-backend
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
         image: mysql:9
         imagePullPolicy: IfNotPresent
-        name: wait-for-db
+        name: wait-for-pipeline-optimization-db
         resources:
           limits:
             memory: 100Mi
@@ -114,20 +95,31 @@ should produce a Deployment resource with minimal values:
           - sh
           - -c
           - |
-            echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
-            until redis-cli -u "$REDIS_URI" get hello; do
+            echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
             done
-            echo "$(date): redis server ready"
+            echo "$(date): db server ready"
         env:
           - name: SLEEP_PERIOD_SECONDS
             value: "5"
-          - name: REDIS_URI
-            value: redis://:6379
-        image: redis:7
+          - name: DB_HOST
+            value: ""
+          - name: DB_PORT
+            value: "3306"
+          - name: DB_NAME
+            value: ""
+          - name: DB_USERNAME
+            value: ""
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-pipeline-optimization
+        image: mysql:9
         imagePullPolicy: IfNotPresent
-        name: wait-for-redis
+        name: wait-for-platform-db
         resources:
           limits:
             memory: 100Mi
@@ -143,42 +135,32 @@ should produce a Deployment resource with minimal values:
           runAsUser: 101
       - args: []
         command:
-          - /bin/sh
-          - -c
-          - /migrate-db.sh
-        env: null
+          - /opt/groundswell/bin/migrate-db.sh
+        env:
+          - name: SWELL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: SWELL_DB_PASSWORD
+                name: release-name-pipeline-optimization
+          - name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-pipeline-optimization
         envFrom:
           - configMapRef:
-              name: release-name-platform-cron
-          - configMapRef:
-              name: release-name-platform-shared-backend-cron
-          - secretRef:
-              name: release-name-platform-backend
-        image: private/nf-tower-enterprise/migrate-db:v9.9.9
+              name: release-name-pipeline-optimization
+        image: private/nf-tower-enterprise/groundswell:v9.9.9
         imagePullPolicy: IfNotPresent
         name: migrate-db
-        securityContext:
-          capabilities:
-            drop:
-              - ALL
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 101
-        volumeMounts:
-          - mountPath: /tower.yml
-            name: config-volume
-            subPath: tower.yml
     securityContext:
       fsGroup: 101
-    serviceAccountName: release-name-platform-sa
+    serviceAccountName: release-name-pipeline-optimization-sa
     volumes:
-      - configMap:
-          name: release-name-platform-tower-yml
-        name: config-volume
       - emptyDir:
           sizeLimit: 1Gi
-        name: plugin-volume
-should render the cron deployment with the correct checksums, labels and annotations:
+        name: tmp-volume
+should render the deployment with the correct checksums, labels and annotations:
   1: |
     apiVersion: apps/v1
     kind: Deployment
@@ -186,93 +168,76 @@ should render the cron deployment with the correct checksums, labels and annotat
       annotations:
         common-annotation-key: common-annotation-value
       labels:
-        app.kubernetes.io/component: cron
+        app.kubernetes.io/component: pipeline-optimization
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: platform
+        app.kubernetes.io/name: pipeline-optimization
         app.kubernetes.io/version: 9.9.9
-        helm.sh/chart: platform-9.9.9_test
+        helm.sh/chart: pipeline-optimization-9.9.9_test
         key123: this-should-be-overridden-in-pod-labels
         key456: this-should-not-be-overridden
         key789: "8080"
-      name: release-name-platform-cron
+      name: release-name-pipeline-optimization
       namespace: NAMESPACE
     spec:
-      replicas: 1
       selector:
         matchLabels:
-          app.kubernetes.io/component: cron
+          app.kubernetes.io/component: pipeline-optimization
           app.kubernetes.io/instance: RELEASE-NAME
-          app.kubernetes.io/name: platform
-      strategy:
-        type: Recreate
+          app.kubernetes.io/name: pipeline-optimization
       template:
         metadata:
           annotations:
-            checksum/configmap: b1d2bb154753f45071e6a9769e1227f5b11322528676daa53408e8b60055ba49
-            checksum/secret: 27e0ae5efe3beffdc19e0c47ecc973b5ecff8679033f1ea6ca92a640a4f46fdf
+            checksum/configmap: 14783ca340d4e3d299784e3eda36c48ff104b722cca92fa2984f7ffaf3314f85
+            checksum/secret: f59a1d0d289e868d0798b3208847cb1baec2a550ec01d1fc04be946b6903b8ab
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
           labels:
-            app.kubernetes.io/component: cron
+            app.kubernetes.io/component: pipeline-optimization
             app.kubernetes.io/instance: RELEASE-NAME
             app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
+            app.kubernetes.io/name: pipeline-optimization
             app.kubernetes.io/version: 9.9.9
-            helm.sh/chart: platform-9.9.9_test
+            helm.sh/chart: pipeline-optimization-9.9.9_test
             key123: this-overrides-the-commonLabels
             key456: this-should-not-be-overridden
             key789: "8080"
         spec:
           containers:
             - env:
+                - name: MPLCONFIGDIR
+                  value: /tmp
+                - name: SWELL_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
                 - name: TOWER_DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      key: db-password-key
-                      name: unittest
-                - name: TOWER_LICENSE
-                  valueFrom:
-                    secretKeyRef:
-                      key: license-token-key
-                      name: unittest
-                - name: TOWER_JWT_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      key: TOWER_JWT_SECRET
-                      name: release-name-platform-backend
-                - name: TOWER_CRYPTO_SECRETKEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: TOWER_CRYPTO_SECRETKEY
-                      name: release-name-platform-backend
-                - name: NXF_HOME
-                  value: /var/cache/tower/
-                - name: NXF_PLUGINS_DIR
-                  value: /var/cache/tower/plugins/
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
               envFrom:
                 - configMapRef:
-                    name: release-name-platform-cron
-                - configMapRef:
-                    name: release-name-platform-shared-backend-cron
-              image: private/nf-tower-enterprise/backend:9.9.9
+                    name: release-name-pipeline-optimization
+              image: private/nf-tower-enterprise/groundswell:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
                 httpGet:
-                  path: /health
-                  port: 8082
+                  path: /api/v1/health
+                  port: 8090
                 initialDelaySeconds: 5
                 periodSeconds: 10
                 successThreshold: 1
                 timeoutSeconds: 3
-              name: cron
+              name: pipeline-optimization
               readinessProbe:
                 failureThreshold: 5
                 httpGet:
-                  path: /health
-                  port: 8082
+                  path: /api/v1/health
+                  port: 8090
                 initialDelaySeconds: 5
                 periodSeconds: 5
                 successThreshold: 1
@@ -285,22 +250,15 @@ should render the cron deployment with the correct checksums, labels and annotat
                 runAsNonRoot: true
                 runAsUser: 101
               volumeMounts:
-                - mountPath: /tower.yml
-                  name: config-volume
-                  subPath: tower.yml
-                - mountPath: /var/cache/tower/
-                  name: plugin-volume
-                - mountPath: /.nextflow/
-                  name: plugin-volume
-                - mountPath: /?/.nextflow/
-                  name: plugin-volume
+                - mountPath: /tmp/
+                  name: tmp-volume
           initContainers:
             - command:
                 - sh
                 - -c
                 - |
                   echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
                   done
@@ -309,19 +267,21 @@ should render the cron deployment with the correct checksums, labels and annotat
                 - name: SLEEP_PERIOD_SECONDS
                   value: "5"
                 - name: DB_HOST
-                  value: ""
+                  value: swell-db-host
                 - name: DB_PORT
                   value: "3306"
                 - name: DB_NAME
-                  value: null
+                  value: swell-db-name
                 - name: DB_USERNAME
-                  value: ""
-              envFrom:
-                - secretRef:
-                    name: release-name-platform-backend
+                  value: swell-db-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
               image: mysql:9
               imagePullPolicy: IfNotPresent
-              name: wait-for-db
+              name: wait-for-pipeline-optimization-db
               resources:
                 limits:
                   memory: 100Mi
@@ -339,20 +299,31 @@ should render the cron deployment with the correct checksums, labels and annotat
                 - sh
                 - -c
                 - |
-                  echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
-                  until redis-cli -u "$REDIS_URI" get hello; do
+                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
                   done
-                  echo "$(date): redis server ready"
+                  echo "$(date): db server ready"
               env:
                 - name: SLEEP_PERIOD_SECONDS
                   value: "5"
-                - name: REDIS_URI
-                  value: redis://:6379
-              image: redis:7
+                - name: DB_HOST
+                  value: platform-db-host
+                - name: DB_PORT
+                  value: "3306"
+                - name: DB_NAME
+                  value: platform-db-name
+                - name: DB_USERNAME
+                  value: platform-db-user
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+              image: mysql:9
               imagePullPolicy: IfNotPresent
-              name: wait-for-redis
+              name: wait-for-platform-db
               resources:
                 limits:
                   memory: 100Mi
@@ -368,38 +339,28 @@ should render the cron deployment with the correct checksums, labels and annotat
                 runAsUser: 101
             - args: []
               command:
-                - /bin/sh
-                - -c
-                - /migrate-db.sh
-              env: null
+                - /opt/groundswell/bin/migrate-db.sh
+              env:
+                - name: SWELL_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: SWELL_DB_PASSWORD
+                      name: release-name-pipeline-optimization
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: TOWER_DB_PASSWORD
+                      name: release-name-pipeline-optimization
               envFrom:
                 - configMapRef:
-                    name: release-name-platform-cron
-                - configMapRef:
-                    name: release-name-platform-shared-backend-cron
-                - secretRef:
-                    name: release-name-platform-backend
-              image: private/nf-tower-enterprise/migrate-db:9.9.9
+                    name: release-name-pipeline-optimization
+              image: private/nf-tower-enterprise/groundswell:9.9.9
               imagePullPolicy: IfNotPresent
               name: migrate-db
-              securityContext:
-                capabilities:
-                  drop:
-                    - ALL
-                readOnlyRootFilesystem: true
-                runAsNonRoot: true
-                runAsUser: 101
-              volumeMounts:
-                - mountPath: /tower.yml
-                  name: config-volume
-                  subPath: tower.yml
           securityContext:
             fsGroup: 101
-          serviceAccountName: release-name-platform-sa
+          serviceAccountName: release-name-pipeline-optimization-sa
           volumes:
-            - configMap:
-                name: release-name-platform-tower-yml
-              name: config-volume
             - emptyDir:
                 sizeLimit: 1Gi
-              name: plugin-volume
+              name: tmp-volume
