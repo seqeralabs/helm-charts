@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -15,10 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# This values.yaml file contains the default values for the Seqera Pipeline Optimization Helm chart.
+# Users can override these values by providing their own values.yaml file or by using --set flags
+# during Helm installation or upgrade. Refer to the README.md file for more instructions on the most
+# important values to set and more details on the product. The README.md file also contains a table
+# view of all the available configuration options detailed in this values.yaml file. We recommend
+# copying the content of this values.yaml file to an empty file, remove the values you don't need to
+# change, and set the desired values for your deployment.
+
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
-  # -- Optional credentials to log in and fetch images from a private registry
+  # -- Optional credentials to log in and fetch images from a private registry. These credentials
+  # are shared with all the subcharts automatically.
   #
   # <pre><code>
   # - registry: ""</br>
