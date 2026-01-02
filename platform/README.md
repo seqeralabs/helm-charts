@@ -878,7 +878,7 @@ true
 {}
 </pre>
 </td>
-			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends configuring resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
+			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends tuning resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
 		</tr>
 		<tr>
 			<td>backend.startupProbe.enabled</td>
@@ -1395,7 +1395,7 @@ true
 {}
 </pre>
 </td>
-			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends configuring resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "200m"<br>     memory: "200Mi"<br>   limits:<br>     memory: "200Mi" </code></pre></td>
+			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends tuning resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "200m"<br>     memory: "200Mi"<br>   limits:<br>     memory: "200Mi" </code></pre></td>
 		</tr>
 		<tr>
 			<td>frontend.startupProbe.enabled</td>
@@ -1925,7 +1925,7 @@ true
 {}
 </pre>
 </td>
-			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends configuring resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
+			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends tuning resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
 		</tr>
 		<tr>
 			<td>cron.startupProbe.enabled</td>
@@ -2320,7 +2320,7 @@ true
 {}
 </pre>
 </td>
-			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends configuring resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
+			<td>Container requests and limits for different resources like CPU or memory <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends tuning resources to match the expected workload. The following are sensible defaults to start with  <pre><code> resources:<br>   requests:<br>     cpu: "1"<br>     memory: "4000Mi"<br>   limits:<br>     memory: "4000Mi" </code></pre></td>
 		</tr>
 		<tr>
 			<td>initContainerDependencies.enabled</td>

@@ -387,7 +387,7 @@ backend:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends configuring resources to match the expected workload. The following are
+  # Seqera recommends tuning resources to match the expected workload. The following are
   # sensible defaults to start with
   #
   # <pre><code>
@@ -607,7 +607,7 @@ frontend:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends configuring resources to match the expected workload. The following are
+  # Seqera recommends tuning resources to match the expected workload. The following are
   # sensible defaults to start with
   #
   # <pre><code>
@@ -823,7 +823,7 @@ cron:
   # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-  # Seqera recommends configuring resources to match the expected workload. The following are
+  # Seqera recommends tuning resources to match the expected workload. The following are
   # sensible defaults to start with
   #
   # <pre><code>
@@ -967,7 +967,7 @@ cron:
     # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
     # maximum resources a container is allowed to use
     # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-    # Seqera recommends configuring resources to match the expected workload. The following are
+    # Seqera recommends tuning resources to match the expected workload. The following are
     # sensible defaults to start with
     #
     # <pre><code>

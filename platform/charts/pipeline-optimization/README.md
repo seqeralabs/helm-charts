@@ -71,7 +71,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.username | string | `""` | Pipeline Optimization MySQL database username |
 | database.password | string | `""` | Pipeline Optimization MySQL database password |
 | database.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Pipeline Optimization MySQL database. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time |
-| database.existingSecretKey | string | "SWELL_DB_PASSWORD" | Key in the existing secret containing the password for the Pipeline Optimization MySQL database |
+| database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing secret containing the password for the Pipeline Optimization MySQL database |
 | database.dialect | string | `"mysql"` | Pipeline Optimization database dialect. Currently only 'mysql' is supported |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
 | platformDatabase.port | int | `3306` | Platform MySQL database port |
@@ -123,7 +123,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
-| resources | object | `{}` | Container requests and limits for different resources like CPU or memory `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod; the kubelet then guarantees at least these resources to the pod. `.limits` are the maximum resources a container is allowed to use Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ Seqera recommends configuring resources to match the expected workload. The following are sensible defaults to start with |
+| resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | startupProbe.enabled | bool | `false` | Enable startup probe |
 | startupProbe.httpGet.path | string | `"/api/v1/health"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |

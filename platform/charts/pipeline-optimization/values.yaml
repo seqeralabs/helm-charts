@@ -54,7 +54,7 @@ database:
   existingSecretName: ""
   # -- Key in the existing secret containing the password for the Pipeline Optimization MySQL
   # database
-  # @default -- "SWELL_DB_PASSWORD"
+  # @default -- `"SWELL_DB_PASSWORD"`
   existingSecretKey: ""
   # -- Pipeline Optimization database dialect. Currently only 'mysql' is supported
   dialect: mysql
@@ -236,13 +236,14 @@ containerSecurityContext:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
+resources: {}
 # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
 # the kubelet then guarantees at least these resources to the pod. `.limits` are the
 # maximum resources a container is allowed to use
 # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-# Seqera recommends configuring resources to match the expected workload. The following are
-# sensible defaults to start with
-resources: {}
+# Seqera recommends tuning resources to match the expected workload. The following are
+# sensible defaults to start with:
+#
 # resources:
 #   requests:
 #     cpu: "1"
