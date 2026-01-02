@@ -29,7 +29,7 @@ The Helm chart comes with several requirement checks that will validate the prov
 By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `0.4.7`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
-Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is referenced, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
+Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
 
 ## Installing the chart
 
@@ -70,16 +70,16 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.name | string | `""` | Pipeline Optimization MySQL database name |
 | database.username | string | `""` | Pipeline Optimization MySQL database username |
 | database.password | string | `""` | Pipeline Optimization MySQL database password |
-| database.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Pipeline Optimization MySQL database. Note: the secret must already exist in the same namespace at the time of deployment |
-| database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing secret containing the password for the Pipeline Optimization MySQL database |
+| database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the Pipeline Optimization MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing Secret containing the password for the Pipeline Optimization MySQL database |
 | database.dialect | string | `"mysql"` | Pipeline Optimization database dialect. Currently only 'mysql' is supported |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
 | platformDatabase.port | int | `3306` | Platform MySQL database port |
 | platformDatabase.name | string | `""` | Platform MySQL database name |
 | platformDatabase.username | string | `""` | Platform MySQL database username. Can be a read-only user, since Platform Optimization does not perform write operations on the Platform database |
 | platformDatabase.password | string | `""` | Platform MySQL database password |
-| platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL database. Note: the secret must already exist in the same namespace at the time of deployment |
-| platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL database |
+| platformDatabase.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the Platform MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing Secret containing the password for the Platform MySQL database |
 | image.registry | string | `""` | Pipeline Optimization container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/groundswell"` | Pipeline Optimization container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag |

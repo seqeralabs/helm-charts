@@ -47,10 +47,11 @@ database:
   username: ""
   # -- Pipeline Optimization MySQL database password
   password: ""
-  # -- Name of an existing secret containing credentials for the Pipeline Optimization MySQL
-  # database. Note: the secret must already exist in the same namespace at the time of deployment
+  # -- Name of an existing Secret containing credentials for the Pipeline Optimization MySQL
+  # database, as an alternative to the password field. Note: the Secret must already exist in the
+  # same namespace at the time of deployment
   existingSecretName: ""
-  # -- Key in the existing secret containing the password for the Pipeline Optimization MySQL
+  # -- Key in the existing Secret containing the password for the Pipeline Optimization MySQL
   # database
   # @default -- `"SWELL_DB_PASSWORD"`
   existingSecretKey: ""
@@ -71,10 +72,11 @@ platformDatabase:
   username: ""
   # -- Platform MySQL database password
   password: ""
-  # -- Name of an existing secret containing credentials for the Platform MySQL database.
-  # Note: the secret must already exist in the same namespace at the time of deployment
+  # -- Name of an existing Secret containing credentials for the Platform MySQL database, as an
+  # alternative to the password field. Note: the Secret must already exist in the same namespace at
+  # the time of deployment
   existingSecretName: ""
-  # -- Key in the existing secret containing the password for the Platform MySQL database
+  # -- Key in the existing Secret containing the password for the Platform MySQL database
   # @default -- `"TOWER_DB_PASSWORD"`
   existingSecretKey: ""
 
