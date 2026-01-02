@@ -118,7 +118,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 []
 </pre>
 </td>
-			<td>Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically.  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
+			<td>Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
 		</tr>
 		<tr>
 			<td>platformDatabase.host</td>
@@ -172,7 +172,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 ""
 </pre>
 </td>
-			<td>Name of an existing secret containing credentials for the Platform MySQL database Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time</td>
+			<td>Name of an existing secret containing credentials for the Platform MySQL database. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time</td>
 		</tr>
 		<tr>
 			<td>platformDatabase.existingSecretKey</td>
@@ -647,7 +647,7 @@ false
 "ClusterIP"
 </pre>
 </td>
-			<td>Backend Service type Note: ingresses using AWS ALB require the service to be NodePort</td>
+			<td>Backend Service type. Note: ingresses using AWS ALB require the service to be NodePort</td>
 		</tr>
 		<tr>
 			<td>backend.service.http.name</td>
@@ -1157,7 +1157,7 @@ true
 "ClusterIP"
 </pre>
 </td>
-			<td>Frontend Service type Note: ingresses using AWS ALB require the service to be NodePort</td>
+			<td>Frontend Service type. Note: ingresses using AWS ALB require the service to be NodePort</td>
 		</tr>
 		<tr>
 			<td>frontend.service.http.name</td>
@@ -1687,7 +1687,7 @@ true
 "ClusterIP"
 </pre>
 </td>
-			<td>Cron Service type Note: ingresses using AWS ALB require the service to be NodePort</td>
+			<td>Cron Service type. Note: ingresses using AWS ALB require the service to be NodePort</td>
 		</tr>
 		<tr>
 			<td>cron.service.http.name</td>

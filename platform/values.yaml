@@ -47,7 +47,7 @@ global:
   platformServicePort: 8080
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
-  # are shared with all the subcharts automatically.
+  # are shared with all the subcharts automatically
   #
   # <pre><code>
   # - registry: ""</br>
@@ -68,7 +68,7 @@ platformDatabase:
   username: ""
   # -- Platform MySQL database password
   password: ""
-  # -- Name of an existing secret containing credentials for the Platform MySQL database
+  # -- Name of an existing secret containing credentials for the Platform MySQL database.
   # Note: the secret must already exist in the same namespace at the time of deployment, it
   # can't be created by this chart with extraDeploy, since this chart performs a lookup
   # on the Kubernetes API server at install/upgrade time
@@ -270,7 +270,7 @@ backend:
   micronautEnvironments: [prod, redis, ha]
 
   service:
-    # -- Backend Service type
+    # -- Backend Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
     type: ClusterIP
     http:
@@ -493,7 +493,7 @@ frontend:
     pullSecrets: []
 
   service:
-    # -- Frontend Service type
+    # -- Frontend Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
     type: ClusterIP
     http:
@@ -713,7 +713,7 @@ cron:
   micronautEnvironments: [prod, redis, cron]
 
   service:
-    # -- Cron Service type
+    # -- Cron Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
     type: ClusterIP
     http:

@@ -27,15 +27,13 @@
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
-  # are shared with all the subcharts automatically.
-  #
-  # <pre><code>
-  # - registry: ""</br>
-  #   username: ""</br>
-  #   password: ""</br>
-  #   email: someone@example.com  # Optional
-  # </code></pre>
+  # are shared with all the subcharts automatically
   imageCredentials: []
+  # imagegCredentials:
+  # - registry: ""
+  #   username: ""
+  #   password: ""
+  #   email: someone@example.com  # Optional
 
 # MySQL database configuration storing the Platform Optimization service data.
 database:
@@ -50,9 +48,8 @@ database:
   # -- Pipeline Optimization MySQL database password
   password: ""
   # -- Name of an existing secret containing credentials for the Pipeline Optimization MySQL
-  # database
-  # Note: the secret must already exist in the same namespace at the time of deployment, it
-  # can't be created by this chart with extraDeploy, since this chart performs a lookup
+  # database. Note: the secret must already exist in the same namespace at the time of deployment,
+  # it can't be created by this chart with extraDeploy, since this chart performs a lookup
   # on the Kubernetes API server at install/upgrade time
   existingSecretName: ""
   # -- Key in the existing secret containing the password for the Pipeline Optimization MySQL
@@ -76,7 +73,7 @@ platformDatabase:
   username: ""
   # -- Platform MySQL database password
   password: ""
-  # -- Name of an existing secret containing credentials for the Platform MySQL database
+  # -- Name of an existing secret containing credentials for the Platform MySQL database.
   # Note: the secret must already exist in the same namespace at the time of deployment, it
   # can't be created by this chart with extraDeploy, since this chart performs a lookup
   # on the Kubernetes API server at install/upgrade time
@@ -93,7 +90,7 @@ image:
   # -- Pipeline Optimization container image tag
   # @default -- "{{ .chart.AppVersion }}"
   tag: ""
-  # -- Pipeline Optimization container image digest in the format <code>sha256:1234abcdef</code>
+  # -- Pipeline Optimization container image digest in the format `sha256:1234abcdef`
   digest: ""
 
   # -- imagePullPolicy for the Pipeline Optimization container
@@ -103,12 +100,9 @@ image:
   # -- List of imagePullSecrets
   # Secrets must be created in the same namespace, for example using the .extraDeploy array
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  #
-  # <pre><code>
-  # pullSecrets:<br>
-  #   - myRegistryKeySecretName
-  # </code></pre>
   pullSecrets: []
+  # pullSecrets:
+  #   - myRegistryKeySecretName
 
 dbMigrationInitContainer:
   image:
@@ -119,7 +113,7 @@ dbMigrationInitContainer:
     # -- Migrate DB init container image tag
     # @default -- "{{ .chart.AppVersion }}"
     tag: ""
-    # -- Migrate DB init container image digest in the format <code>sha256:1234abcdef</code>
+    # -- Migrate DB init container image digest in the format `sha256:1234abcdef`
     digest: ""
 
     # -- imagePullPolicy for the Migrate DB init container
@@ -131,7 +125,7 @@ dbMigrationInitContainer:
   args: []
 
 service:
-  # -- Pipeline Optimization Service type
+  # -- Pipeline Optimization Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort
   type: ClusterIP
   http:
@@ -147,15 +141,13 @@ service:
     nodePort: null
   # -- Other services that should live in the Service object
   # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
-  #
-  # <pre><code>
-  # extraServices:<br>
-  # - name: myspecialservice<br>
-  #   port: 1234<br>
-  #   targetPort: 5678<br>
-  #   nodePort: null
-  # </code></pre>
   extraServices: []
+  # extraServices:
+  # - name: myspecialservice
+  #   port: 1234
+  #   targetPort: 5678
+  #   nodePort: null
+
   # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
   # externalTrafficPolicy, externalIPs). Evaluated as a template
   extraOptions: {}
@@ -185,43 +177,36 @@ configMapLabels: {}
 
 # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
 # Evaluated as a template
-#
-# <pre><code>
-# extraOptionsSpec:<br>
-#   replicas: 2<br>
-#   strategy:<br>
-#     rollingUpdate:<br>
-#       maxUnavailable: x<br>
-#       maxSurge: y
-# </code></pre>
 extraOptionsSpec: {}
+# extraOptionsSpec:
+#   replicas: 2
+#   strategy:
+#     rollingUpdate:
+#       maxUnavailable: x
+#       maxSurge: y
+
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template
-#
-# <pre><code>
-# extraOptionsTemplateSpec:<br>
-#   nodeSelector:<br>
-#     service: myspecialnodegroup
-# </code></pre>
 extraOptionsTemplateSpec: {}
+# extraOptionsTemplateSpec:
+#   nodeSelector:
+#     service: myspecialnodegroup
 
 # -- Extra environment variables to set on the pipeline optimization pod
-#
-# <pre><code>
-# extraEnvVars:<br>
-#   - name: "CUSTOM_ENV_VAR"<br>
-#     value: "set-a-value-here"
-# </code></pre>
 extraEnvVars: []
+# extraEnvVars:
+#   - name: "CUSTOM_ENV_VAR"
+#     value: "set-a-value-here"
+
 # -- ConfigMap containing extra env vars
 extraEnvVarsCMs: []
 # -- Secret containing extra env vars
 extraEnvVarsSecrets: []
 # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-# <code>extraVolumeMounts</code>
+# `extraVolumeMounts`
 extraVolumes: []
 # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-# <code>extraVolumes</code>
+# `extraVolumes`
 extraVolumeMounts: []
 
 # Configure Pods Security Context.
@@ -251,22 +236,19 @@ containerSecurityContext:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
-# <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
-# the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+# `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+# the kubelet then guarantees at least these resources to the pod. `.limits` are the
 # maximum resources a container is allowed to use
 # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 # Seqera recommends configuring resources to match the expected workload. The following are
 # sensible defaults to start with
-#
-# <pre><code>
-# resources:<br>
-#   requests:<br>
-#     cpu: "1"<br>
-#     memory: "1000Mi"<br>
-#   limits:<br>
-#     memory: "1000Mi"
-# </code></pre>
 resources: {}
+# resources:
+#   requests:
+#     cpu: "1"
+#     memory: "1000Mi"
+#   limits:
+#     memory: "1000Mi"
 
 # Configure extra options for the startup probe
 startupProbe:
@@ -330,14 +312,6 @@ livenessProbe:
   # -- Typically 1 (usually ignored)
   successThreshold: 1
 
-
-
-
-
-
-
-
-
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies (for example, wait for database
   # readiness before starting, etc)
@@ -351,7 +325,7 @@ initContainerDependencies:
       registry: ""
       repository: "mysql"
       tag: "9"
-      # Digest must be in the format <code>sha256:1234abcdef</code>
+      # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
 
