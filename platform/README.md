@@ -70,7 +70,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
-| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain <code>.global.platformExternalDomain</code>. Evaluated as a template |
+| global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain `.global.platformExternalDomain`. Evaluated as a template |
 | global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
@@ -88,7 +88,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platformDatabase.minPoolSize | string | `"2"` | Connection pool minimum size |
 | platformDatabase.maxPoolSize | string | `"10"` | Connection pool maximum size |
 | platformDatabase.maxLifetime | string | `"180000"` | Connection pool maximum lifetime |
-| platform.YAMLConfigFileContent | string | `""` | Content to insert into the tower.yml file (you can use <code>\|-</code> YAML multilines). See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview |
+| platform.YAMLConfigFileContent | string | `""` | Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview |
 | platform.contactEmail | string | `"support@example.com"` | Sender email address for user support |
 | platform.jwtSeedString | string | `""` | JWT seed, defined as string, used to sign authentication tokens Define the value as a String or a Secret, not both at the same time If neither is defined, Helm generates a random 35-character string |
 | platform.jwtSeedSecretName | string | `""` | Name of an existing Secret containing the JWT seed. Note: the secret must already exist in the same namespace at the time of deployment |
@@ -106,7 +106,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.smtp.password | string | `""` | SMTP server password |
 | platform.smtp.existingSecretName | string | `""` | Name of an existing secret containing the SMTP password |
 | platform.smtp.existingSecretKey | string | `"TOWER_SMTP_PASSWORD"` | Key in the existing secret containing the SMTP password |
-| platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is <code>https://wave.seqera.io</code> |
+| platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is `https://wave.seqera.io` |
 | platform.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
 | platform.secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
 | platform.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
@@ -125,7 +125,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.image.registry | string | `""` | Backend container image registry |
 | backend.image.repository | string | `"private/nf-tower-enterprise/backend"` | Backend container image repository |
 | backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |
-| backend.image.digest | string | `""` | Backend container image digest in the format <code>sha256:1234abcdef</code> |
+| backend.image.digest | string | `""` | Backend container image digest in the format `sha256:1234abcdef` |
 | backend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the backend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | backend.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | backend.micronautEnvironments | list | `["prod","redis","ha"]` | List of Micronaut Environments to enable on the backend pod |
@@ -145,8 +145,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.extraEnvVars | list | `[]` | Extra environment variables to set on the backend pod |
 | backend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
 | backend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| backend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting <code>extraVolumeMounts</code> |
-| backend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with <code>extraVolumes</code> |
+| backend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| backend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | backend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | backend.podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | backend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -182,7 +182,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.image.registry | string | `""` | Frontend container image registry |
 | frontend.image.repository | string | `"private/nf-tower-enterprise/frontend"` | Frontend container image repository |
 | frontend.image.tag | string | `"{{ .chart.AppVersion }}-unprivileged"` | Specify a tag to override the version defined in .Chart.appVersion |
-| frontend.image.digest | string | `""` | Frontend container image digest in the format <code>sha256:1234abcdef</code> |
+| frontend.image.digest | string | `""` | Frontend container image digest in the format `sha256:1234abcdef` |
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the frontend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | frontend.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | frontend.service.type | string | `"ClusterIP"` | Frontend Service type. Note: ingresses using AWS ALB require the service to be NodePort |
@@ -202,8 +202,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod |
 | frontend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
 | frontend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| frontend.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting <code>extraVolumeMounts</code> |
-| frontend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with <code>extraVolumes</code> |
+| frontend.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| frontend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | frontend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | frontend.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | frontend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -239,7 +239,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.image.registry | string | `""` | Cron container image registry |
 | cron.image.repository | string | `"private/nf-tower-enterprise/backend"` | Cron container image repository |
 | cron.image.tag | string | `"{{ .chart.AppVersion }}"` | Cron container image tag |
-| cron.image.digest | string | `""` | Cron container image digest in the format <code>sha256:1234abcdef</code> |
+| cron.image.digest | string | `""` | Cron container image digest in the format `sha256:1234abcdef` |
 | cron.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the cron container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | cron.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | cron.micronautEnvironments | list | `["prod","redis","cron"]` | List of Micronaut Environments to enable on the cron pod |
@@ -260,8 +260,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
 | cron.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
 | cron.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| cron.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting <code>extraVolumeMounts</code> |
-| cron.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with <code>extraVolumes</code> |
+| cron.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| cron.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | cron.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | cron.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -297,7 +297,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.dbMigrationInitContainer.image.registry | string | `""` | Database migration container image registry |
 | cron.dbMigrationInitContainer.image.repository | string | `"private/nf-tower-enterprise/migrate-db"` | Database migration container image repository |
 | cron.dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Specify a tag to override the version defined in .Chart.appVersion |
-| cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format <code>sha256:1234abcdef</code> |
+| cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format `sha256:1234abcdef` |
 | cron.dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the database migration init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | cron.dbMigrationInitContainer.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | cron.dbMigrationInitContainer.command | list | `["/bin/sh","-c","/migrate-db.sh"]` | Override default container command (useful when using custom images) |
@@ -305,8 +305,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
 | cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
 | cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting <code>extraVolumeMounts</code> |
-| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with <code>extraVolumes</code> |
+| cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.dbMigrationInitContainer.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |

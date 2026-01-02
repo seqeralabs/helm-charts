@@ -37,7 +37,7 @@ global:
 
   # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
   # attacks. If unset, data is served through the main domain
-  # <code>.global.platformExternalDomain</code>. Evaluated as a template
+  # `.global.platformExternalDomain`. Evaluated as a template
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
@@ -99,7 +99,7 @@ platformDatabase:
 
 platform:
   # TODO: rename variable?
-  # -- Content to insert into the tower.yml file (you can use <code>\|-</code> YAML multilines). See
+  # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
   YAMLConfigFileContent: ""
 
@@ -176,7 +176,7 @@ platform:
     existingSecretKey: ""
 
   # -- URL of the Wave service Platform uses. Evaluated as a template.
-  # The Wave service provided by Seqera is <code>https://wave.seqera.io</code>
+  # The Wave service provided by Seqera is `https://wave.seqera.io`
   waveServerUrl: "https://wave.seqera.io"
 
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
@@ -236,7 +236,7 @@ backend:
     # -- Backend container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
-    # -- Backend container image digest in the format <code>sha256:1234abcdef</code>
+    # -- Backend container image digest in the format `sha256:1234abcdef`
     digest: ""
 
     # -- imagePullPolicy for the backend container
@@ -261,7 +261,7 @@ backend:
       # -- Service name to use
       name: http
       # The external port is defined as the global variable
-      # <code>.global.platformServicePort</code>, so it can be used by subcharts too
+      # `.global.platformServicePort`, so it can be used by subcharts too
 
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
@@ -326,10 +326,10 @@ backend:
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
-  # <code>extraVolumeMounts</code>
+  # `extraVolumeMounts`
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # <code>extraVolumes</code>
+  # `extraVolumes`
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -360,8 +360,8 @@ backend:
 
   # -- Container requests and limits for different resources like CPU or memory
   resources: {}
-  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
-  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. `.limits` are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # Seqera recommends tuning resources to match the expected workload. The following are
@@ -448,7 +448,7 @@ frontend:
     # -- Specify a tag to override the version defined in .Chart.appVersion
     # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
     tag: ""
-    # -- Frontend container image digest in the format <code>sha256:1234abcdef</code>
+    # -- Frontend container image digest in the format `sha256:1234abcdef`
     digest: ""
 
     # -- imagePullPolicy for the frontend container
@@ -532,10 +532,10 @@ frontend:
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-  # <code>extraVolumeMounts</code>
+  # `extraVolumeMounts`
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # <code>extraVolumes</code>
+  # `extraVolumes`
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -566,8 +566,8 @@ frontend:
 
   # -- Container requests and limits for different resources like CPU or memory
   resources: {}
-  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
-  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. `.limits` are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # Seqera recommends tuning resources to match the expected workload. The following are
@@ -652,7 +652,7 @@ cron:
     # -- Cron container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
-    # -- Cron container image digest in the format <code>sha256:1234abcdef</code>
+    # -- Cron container image digest in the format `sha256:1234abcdef`
     digest: ""
 
     # -- imagePullPolicy for the cron container
@@ -735,10 +735,10 @@ cron:
   # -- Secret containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-  # <code>extraVolumeMounts</code>
+  # `extraVolumeMounts`
   extraVolumes: []
   # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-  # <code>extraVolumes</code>
+  # `extraVolumes`
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -769,8 +769,8 @@ cron:
 
   # -- Container requests and limits for different resources like CPU or memory
   resources: {}
-  # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
-  # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+  # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. `.limits` are the
   # maximum resources a container is allowed to use
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # Seqera recommends tuning resources to match the expected workload. The following are
@@ -852,7 +852,7 @@ cron:
       # -- Specify a tag to override the version defined in .Chart.appVersion
       # @default -- `"{{ .chart.AppVersion }}"`
       tag: ""
-      # -- Database migration container image digest in the format <code>sha256:1234abcdef</code>
+      # -- Database migration container image digest in the format `sha256:1234abcdef`
       digest: ""
 
       # -- imagePullPolicy for the database migration init container
@@ -882,10 +882,10 @@ cron:
     # -- Secret containing extra env vars
     extraEnvVarsSecrets: []
     # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
-    # <code>extraVolumeMounts</code>
+    # `extraVolumeMounts`
     extraVolumes: []
     # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
-    # <code>extraVolumes</code>
+    # `extraVolumes`
     extraVolumeMounts: []
 
     # Configure Init Container Security Context
@@ -906,8 +906,8 @@ cron:
 
     # -- Container requests and limits for different resources like CPU or memory
     resources: {}
-    # <code>.requests</code> are the minimum CPU/memory resources the scheduler uses to place a pod;
-    # the kubelet then guarantees at least these resources to the pod. <code>.limits</code> are the
+    # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+    # the kubelet then guarantees at least these resources to the pod. `.limits` are the
     # maximum resources a container is allowed to use
     # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
     # Seqera recommends tuning resources to match the expected workload. The following are
@@ -934,7 +934,7 @@ initContainerDependencies:
       registry: ""
       repository: "mysql"
       tag: "9"
-      # Digest must be in the format <code>sha256:1234abcdef</code>
+      # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
 
@@ -967,7 +967,7 @@ initContainerDependencies:
       registry: ""
       repository: "redis"
       tag: "7"
-      # Digest must be in the format <code>sha256:1234abcdef</code>
+      # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
 
@@ -1000,7 +1000,7 @@ initContainerDependencies:
       registry: ""
       repository: "curlimages/curl"
       tag: "latest"
-      # Digest must be in the format <code>sha256:1234abcdef</code>
+      # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
 
