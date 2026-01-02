@@ -70,7 +70,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.name | string | `""` | Pipeline Optimization MySQL database name |
 | database.username | string | `""` | Pipeline Optimization MySQL database username |
 | database.password | string | `""` | Pipeline Optimization MySQL database password |
-| database.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Pipeline Optimization MySQL database. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time |
+| database.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Pipeline Optimization MySQL database. Note: the secret must already exist in the same namespace at the time of deployment |
 | database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing secret containing the password for the Pipeline Optimization MySQL database |
 | database.dialect | string | `"mysql"` | Pipeline Optimization database dialect. Currently only 'mysql' is supported |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
@@ -78,17 +78,17 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platformDatabase.name | string | `""` | Platform MySQL database name |
 | platformDatabase.username | string | `""` | Platform MySQL database username. Can be a read-only user, since Platform Optimization does not perform write operations on the Platform database |
 | platformDatabase.password | string | `""` | Platform MySQL database password |
-| platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL database. Note: the secret must already exist in the same namespace at the time of deployment, it can't be created by this chart with extraDeploy, since this chart performs a lookup on the Kubernetes API server at install/upgrade time |
-| platformDatabase.existingSecretKey | string | "TOWER_DB_PASSWORD" | Key in the existing secret containing the password for the Platform MySQL database |
+| platformDatabase.existingSecretName | string | `""` | Name of an existing secret containing credentials for the Platform MySQL database. Note: the secret must already exist in the same namespace at the time of deployment |
+| platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing secret containing the password for the Platform MySQL database |
 | image.registry | string | `""` | Pipeline Optimization container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/groundswell"` | Pipeline Optimization container image repository |
-| image.tag | string | "{{ .chart.AppVersion }}" | Pipeline Optimization container image tag |
+| image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag |
 | image.digest | string | `""` | Pipeline Optimization container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Pipeline Optimization container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | dbMigrationInitContainer.image.registry | string | `""` | Migrate DB init container image registry |
 | dbMigrationInitContainer.image.repository | string | `"private/nf-tower-enterprise/groundswell"` | Migrate DB init container image repository |
-| dbMigrationInitContainer.image.tag | string | "{{ .chart.AppVersion }}" | Migrate DB init container image tag |
+| dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Migrate DB init container image tag |
 | dbMigrationInitContainer.image.digest | string | `""` | Migrate DB init container image digest in the format `sha256:1234abcdef` |
 | dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Migrate DB init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | dbMigrationInitContainer.command | list | `["/opt/groundswell/bin/migrate-db.sh"]` | Command to run to migrate the database schema |

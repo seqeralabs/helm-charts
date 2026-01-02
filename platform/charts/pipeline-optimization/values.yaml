@@ -48,9 +48,7 @@ database:
   # -- Pipeline Optimization MySQL database password
   password: ""
   # -- Name of an existing secret containing credentials for the Pipeline Optimization MySQL
-  # database. Note: the secret must already exist in the same namespace at the time of deployment,
-  # it can't be created by this chart with extraDeploy, since this chart performs a lookup
-  # on the Kubernetes API server at install/upgrade time
+  # database. Note: the secret must already exist in the same namespace at the time of deployment
   existingSecretName: ""
   # -- Key in the existing secret containing the password for the Pipeline Optimization MySQL
   # database
@@ -74,12 +72,10 @@ platformDatabase:
   # -- Platform MySQL database password
   password: ""
   # -- Name of an existing secret containing credentials for the Platform MySQL database.
-  # Note: the secret must already exist in the same namespace at the time of deployment, it
-  # can't be created by this chart with extraDeploy, since this chart performs a lookup
-  # on the Kubernetes API server at install/upgrade time
+  # Note: the secret must already exist in the same namespace at the time of deployment
   existingSecretName: ""
   # -- Key in the existing secret containing the password for the Platform MySQL database
-  # @default -- "TOWER_DB_PASSWORD"
+  # @default -- `"TOWER_DB_PASSWORD"`
   existingSecretKey: ""
 
 image:
@@ -88,7 +84,7 @@ image:
   # -- Pipeline Optimization container image repository
   repository: private/nf-tower-enterprise/groundswell
   # -- Pipeline Optimization container image tag
-  # @default -- "{{ .chart.AppVersion }}"
+  # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""
   # -- Pipeline Optimization container image digest in the format `sha256:1234abcdef`
   digest: ""
@@ -111,7 +107,7 @@ dbMigrationInitContainer:
     # -- Migrate DB init container image repository
     repository: private/nf-tower-enterprise/groundswell
     # -- Migrate DB init container image tag
-    # @default -- "{{ .chart.AppVersion }}"
+    # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
     # -- Migrate DB init container image digest in the format `sha256:1234abcdef`
     digest: ""
