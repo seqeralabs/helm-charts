@@ -359,9 +359,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
 | ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
-| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class') |
+| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
-| pipeline-optimization.enabled | bool | `true` |  |
+| pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing
 

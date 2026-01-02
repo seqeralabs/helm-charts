@@ -1082,7 +1082,7 @@ ingress:
   annotations: {}
   # -- Additional labels for the ingress object. Evaluated as a template
   extraLabels: {}
-  # -- Name of the ingress class (replaces deprecated annotation 'kubernetes.io/ingress.class')
+  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`)
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
   tls: []
@@ -1093,4 +1093,6 @@ ingress:
   #     secretName: my-tls
 
 pipeline-optimization:
+  # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the
+  # full list of configuration options
   enabled: true
