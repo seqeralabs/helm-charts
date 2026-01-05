@@ -1,61 +1,24 @@
 # Seqera Helm charts library
 
-This repository contains Helm charts for deploying Seqera Labs products and related software on
-Kubernetes clusters.
+This repository contains Helm charts for deploying Seqera products on Kubernetes clusters.
 
 Currently, it includes charts for:
-- [Platform](./platform/README.md): Seqera Labs Platform for workflow orchestration and management.
+- [Platform](./platform/README.md): Seqera Platform for workflow orchestration and management.
 - [Pipeline Optimization](./platform/charts/pipeline-optimization/README.md): A service to optimize
   Nextflow pipelines running on Platform - internally referred to as Groundswell.
 
-> [!NOTE]
-> **Private Preview** - The Seqera charts are currently in early preview as we work toward a stable release by the end of 2025.
->
-> We'd love your feedback! Please test the charts with your use cases and [report any
-> issues](https://github.com/seqeralabs/helm-charts/issues) you encounter. Your input
-> will help us build a better release.
+The Platform chart is the main chart, and other charts can be deployed as sub-charts of Platform.
+However, the sub-charts are also designed to be deployed independently from the Platform chart, if
+desired.
 
-More products will be added in the future.
+Each chart comes with its own README file containing specific instructions and details. Some example
+scenarios are also provided in the `examples/` directory to help you configure and deploy the
+charts in different environments.
 
-## Vendor charts to an internal registry
+## Vendoring Seqera container images and charts
 
-Seqera Helm charts are published to the OCI registry `public.cr.seqera.io/charts`. For high
-availability or air-gapped deployments, we recommend vendoring (replicating) charts into your own
-internal OCI registry.
-
-### Automatic replication via Container Registry feature - recommended approach
-
-Several container registries offer native replication features that can be used to automatically replicate images from registries like `public.cr.seqera.io` to your own registry. This is the recommended approach.
-
-As a reference, here are links to the documentation for setting up replication in some popular container registries:
-- [Amazon Elastic Container Registry (ECR) Replication](https://docs.aws.amazon.com/AmazonECR/latest/userguide/replication.html)
-- [Azure Container Registry (ACR) Artifact caching](https://learn.microsoft.com/en-us/azure/container-registry/artifact-cache-overview)
-- [Harbor Replication](https://goharbor.io/docs/latest/administration/configuring-replication/)
-
-### Manual replication with Skopeo
-
-Use [Skopeo](https://github.com/containers/skopeo) to automate and keep your internal registry in
-sync. For example to synchronize all releases of the `platform` chart from the public Seqera
-registry to your internal registry:
-
-```console
-skopeo login [...] internal-registry.example.com
-skopeo sync --scoped --src docker --dest docker public.cr.seqera.io/charts/platform internal-registry.example.com
-```
-
-This will copy every version of `public.cr.seqera.io/charts/platform` into the repository
-`internal-registry.example.com/public.cr.seqera.io/charts/platform`.
-
-Note that charts may include dependencies to other charts in the same registry, so make sure to
-vendor all charts you plan to use: refer to the "Requirements" section in each chart's README file.
-
-### Limit versions with SemVer (Skopeo ≥ 1.15)
-
-Starting with Skopeo 1.15+, you can use an yaml sync configuration and the `images-by-semver` option
-to filter which chart versions are copied based on SemVer rules (for example, only keep >=1.2.0
-<2.0.0). See the [Skopeo
-docs](https://github.com/containers/skopeo/blob/v1.20.0/docs/skopeo-sync.1.md?plain=1#L235) for the
-exact syntax and detailed examples.
+Refer to the [vendoring documentation](./VENDORING.md) for instructions on how to vendor Seqera
+container images and charts to your private registry.
 
 ## Licensing
 
@@ -65,5 +28,9 @@ All charts in this repository are licensed under the Apache License 2.0. See the
 
 ## Development
 
-If contributing to this repository, please follow the contribution guidelines outlined in the
-[CONTRIBUTING](./CONTRIBUTING.md) file.
+If interested in contributing to this repository, please follow the contribution guidelines and the
+recommendations outlined in [CONTRIBUTING](./CONTRIBUTING.md).
+
+> We'd love your feedback! Please test the charts with your use cases and [report any
+> issues](https://github.com/seqeralabs/helm-charts/issues) you encounter. Your input
+> will help us build a better product.

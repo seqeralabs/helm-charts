@@ -2,35 +2,38 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.22.0](https://img.shields.io/badge/Version-0.22.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.22.1](https://img.shields.io/badge/Version-0.22.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
 > The public API SHOULD NOT be considered stable.
 
-## Requirements
+## Requirements and configuration
 
-- Kubernetes 1.33+
-- Helm 3.19+
-- MySQL 8+ database
-- Redis v7-compatible cache
+For an overview of the Seqera Platform architecture and its requirements, refer to the [Seqera documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
 
-For a full list of requirements, refer to the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview).
+The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
-Make sure to vendor the Seqera container images to your private registry as described in the [documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry) and follow the instructions to fulfill the other prerequisites.
+The required values to set in order to have a working installation are:
+- The `.image` section under the `.backend`, `.frontend`, `.cron` and `.cron.dbMigrationInitContainer` components to point to your container registry.
+- Container registry credentials under the `.global.imageCredentials` section (can be the credentials for `cr.seqera.io` or your private registry where you vendored the images to).
+  * These credentials will be used by all the subcharts unless overridden in the specific subchart.
+  * Multiple credentials can be specified to cover different registries.
+  * Specific pull secrets can be defined in each `.image` section to extend the global credentials.
+  * Image pull secrets defined in the specific `.image` section will be added to the global ones, not replacing them.
+- The database connection details for the Platform MySQL database under the `.platformDatabase` section.
+- The redis connection details under the `.redis` section.
+- The Seqera license key under the `.platform.licenseString` value, or the name of an existing Secret containing the license key under the `.platform.licenseSecretName` value.
 
-## Platform architecture
+The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-The [Seqera Platform architecture](https://docs.seqera.io/platform-enterprise/enterprise/overview) consists of the following components:
+By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v25.3.0`.
 
-- Backend
-  * The backend app is a JVM-based web application based on the Micronaut framework, exposing the REST API and handling most of the business logic.
-- Cron pod
-  * The cron app is a backend service that executes regularly-occurring activities, such as sending email notifications and cleaning up stale data. The cron service also performs database migrations at startup.
-- Frontend pod
-  * The frontend app is an Nginx web server for the Platform web UI.
-- MySQL database to persist the Platform data.
-- Redis cache.
+> [!NOTE]
+> The Platform chart requires the [unprivileged version](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#seqera-frontend-unprivileged) of the Seqera Platform frontend image (shipped with `-unprivileged` suffix until Platform v25.3, without any suffix starting from v26.1).
+
+When a sensitive value is required (e.g. the database password, the Seqera license key), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
+Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is referenced, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
 
 ## Installing the chart
 
@@ -38,12 +41,18 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.22.0 \
+  --version 0.22.1 \
   --namespace my-namespace \
   --create-namespace
 ```
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/platform
+
+## Examples
+
+Refer to the [examples directory](./examples) for different scenarios of installing the Platform chart.
+The examples provided are showcasing possible configurations of the Helm chart, and are not representative of a full installation.
+Please refer to the [Seqera Platform documentation](https://docs.seqera.io/platform-enterprise/enterprise/overview) for complete installation instructions.
 
 ## Upgrading the chart
 
@@ -109,7 +118,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 []
 </pre>
 </td>
-			<td>Optional credentials to log in and fetch images from a private registry  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
+			<td>Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically.  <pre><code> - registry: ""</br>   username: ""</br>   password: ""</br>   email: someone@example.com  # Optional </code></pre></td>
 		</tr>
 		<tr>
 			<td>platformDatabase.host</td>

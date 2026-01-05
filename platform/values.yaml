@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -14,6 +14,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# This values.yaml file contains the default values for the Seqera Platform Helm chart.
+# Users can override these values by providing their own values.yaml file or by using --set flags
+# during Helm installation or upgrade. Refer to the README.md file for more instructions on the most
+# important values to set and more details on the product. The README.md file also contains a table
+# view of all the available configuration options detailed in this values.yaml file. We recommend
+# copying the content of this values.yaml file to an empty file, remove the values you don't need to
+# change, and set the desired values for your deployment.
+#
+# More charts are stored under the charts/ directory and each of them comes with its own values.yaml
+# file. The subcharts are designed to be used alongside this main Platform chart, but they can also
+# be used independently if desired. To configure the subcharts as part of the Platform deployment,
+# refer to the respective values.yaml files and check the condition field in the Chart.yaml file to
+# see how to enable/disable them and how to nest their values.
 
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
@@ -32,7 +46,8 @@ global:
   # -- Seqera Platform Service port
   platformServicePort: 8080
 
-  # -- Optional credentials to log in and fetch images from a private registry
+  # -- Optional credentials to log in and fetch images from a private registry. These credentials
+  # are shared with all the subcharts automatically.
   #
   # <pre><code>
   # - registry: ""</br>
