@@ -1,0 +1,72 @@
+# Example Pipeline Optimization subchart configuration
+#
+# This configuration enables the Pipeline Optimization service (internally referred to as
+# Groundswell) as a subchart within the Seqera Platform Helm chart. The service analyzes pipeline
+# execution data to provide intelligent resource recommendations for Nextflow workflows.
+# Refer to the README in this directory and the main Platform and Pipeline Optimization chart
+# READMEs for more details.
+#
+# Several required Platform options are not included here (e.g., Platform database,
+# redis cache, ingress, external domain, etc). This example focuses specifically on
+# Pipeline Optimization configuration.
+
+# Global values that apply to all charts and subcharts
+global:
+  # Container registry credentials shared with all subcharts
+  # These credentials will be used to create ImagePullSecrets
+  imageCredentials:
+    - registry: "cr.seqera.io"
+      username: "your-username-here"
+      password: "your-password-here"
+      # email: "your-email@example.com"  # Optional
+
+# Other Platform configuration options would go here (database, redis, ingress, etc)
+
+pipeline-optimization:
+  # Set to false to disable Pipeline Optimization without removing the Platform installation
+  enabled: true
+
+  image:
+    # Container registry where Pipeline Optimization images are stored
+    # Options: cr.seqera.io or your private registry
+    registry: "cr.seqera.io"
+    repository: "private/nf-tower-enterprise/groundswell"
+    tag: "" # An empty tag string uses Chart.yaml appVersion
+
+  # Database migration init container configuration
+  # This container runs database migrations before the main application starts
+  dbMigrationInitContainer:
+    image:
+      registry: "cr.seqera.io"
+      repository: "private/nf-tower-enterprise/groundswell"
+      tag: "" # An empty tag string uses Chart.yaml appVersion
+
+  database:
+    host: "pipeline-optimization.example.com"
+    name: "pipeline_opt_db"
+    username: "pipeline_opt_user"
+    password: "your-secure-password-here"
+
+    # Alternative: Use existing Kubernetes Secret for password
+    # The Secret must exist in the same namespace before deployment
+    # existingSecretName: "pipeline-opt-db-secret"
+    # existingSecretKey: "SWELL_DB_PASSWORD" # Key within the Secret
+
+  platformDatabase:
+    host: "platform.example.com"
+    name: "platform_db"
+    username: "pipeline_opt_reader"
+    password: "your-secure-password-here"
+
+    # Alternative: Use existing Kubernetes Secret for password
+    # existingSecretName: "platform-db-ro-secret"
+    # existingSecretKey: "TOWER_DB_PASSWORD" # Key within the Secret
+
+  # Resource requests and limits
+  # Adjust based on expected workload and cluster capacity
+  resources:
+    requests:
+      cpu: "1"
+      memory: "1000Mi"
+    limits:
+      memory: "1000Mi"

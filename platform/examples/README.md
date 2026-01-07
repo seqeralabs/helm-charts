@@ -12,6 +12,13 @@ This directory contains practical examples demonstrating different deployment co
 | [passwords-from-secrets/](passwords-from-secrets/) | Managing sensitive credentials using Kubernetes secrets |
 | [pod-allocation-strategies/](pod-allocation-strategies/) | Node selectors, affinity rules, anti-affinity, and topology spread constraints |
 
+The following examples demonstrate possible configurations for enabling and customizing specific subcharts within the Platform Helm chart:
+
+| Example | Description |
+|---------|-------------|
+| [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline
+Optimization service subchart with database setup and registry access |
+
 ## Additional Resources
 
 - [Seqera Platform Documentation](https://docs.seqera.io/)
