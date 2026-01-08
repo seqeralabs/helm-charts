@@ -75,7 +75,7 @@ should produce a Deployment resource with minimal values:
           - -c
           - |
             echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
             done
@@ -91,12 +91,14 @@ should produce a Deployment resource with minimal values:
             value: ""
           - name: DB_USERNAME
             value: ""
-        envFrom:
-          - secretRef:
-              name: release-name-platform-backend
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-platform-backend
         image: mysql:9
         imagePullPolicy: IfNotPresent
-        name: wait-for-db
+        name: wait-for-platform-db
         resources:
           limits:
             memory: 100Mi
@@ -114,7 +116,7 @@ should produce a Deployment resource with minimal values:
           - sh
           - -c
           - |
-            echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+            echo "$(date): starting check redis '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
             until redis-cli -u "$REDIS_URI" get hello; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
@@ -304,7 +306,7 @@ should render the backend deployment with the correct checksums, labels and anno
                 - -c
                 - |
                   echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
                   done
@@ -320,12 +322,14 @@ should render the backend deployment with the correct checksums, labels and anno
                   value: ""
                 - name: DB_USERNAME
                   value: ""
-              envFrom:
-                - secretRef:
-                    name: release-name-platform-backend
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: db-password-key
+                      name: unittest
               image: mysql:9
               imagePullPolicy: IfNotPresent
-              name: wait-for-db
+              name: wait-for-platform-db
               resources:
                 limits:
                   memory: 100Mi
@@ -343,7 +347,7 @@ should render the backend deployment with the correct checksums, labels and anno
                 - sh
                 - -c
                 - |
-                  echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                  echo "$(date): starting check redis '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
                   until redis-cli -u "$REDIS_URI" get hello; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
