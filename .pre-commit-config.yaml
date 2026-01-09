@@ -15,6 +15,14 @@ repos:
 
   - repo: local
     hooks:
+      - id: check-changelog-updated
+        name: Check CHANGELOG.md Updated
+        entry: .github/scripts/check_changelog_updated.py
+        language: python
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+
       - id: helm-chart-tests
         name: Helm Chart Tests
         entry: .github/scripts/run_chart_tests.py

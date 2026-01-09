@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -70,8 +70,8 @@ spec:
 
       initContainers:
 {{- if .Values.initContainerDependencies.enabled }}
-        {{- include "platform.initContainerWaitForDB" . | nindent 8 }}
-        {{- include "platform.initContainerWaitForRedis" . | nindent 8 }}
+        {{- include "seqera.initContainerWaitForMySQL" (dict "name" "platform-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "platform.database.secretName" "secretKeyTemplate" "platform.database.secretKey" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainerWaitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "context" $) | nindent 8 }}
 {{- end }}
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.cron.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}

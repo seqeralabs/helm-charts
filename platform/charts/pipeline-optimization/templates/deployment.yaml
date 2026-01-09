@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -60,8 +60,8 @@ spec:
 
       initContainers:
 {{- if .Values.initContainerDependencies.enabled }}
-        {{- include "pipeline-optimization.initContainerWaitForMySQL" (dict "name" "pipeline-optimization-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database         "secretNameTemplate" "pipeline-optimization.database.secretName"         "secretNameKey" "pipeline-optimization.database.secretKey"         "context" $) | nindent 8 }}
-        {{- include "pipeline-optimization.initContainerWaitForMySQL" (dict "name" "platform-db"              "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "pipeline-optimization.platformDatabase.secretName" "secretNameKey" "pipeline-optimization.platformDatabase.secretKey" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainerWaitForMySQL" (dict "name" "pipeline-optimization-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database         "secretNameTemplate" "pipeline-optimization.database.secretName"         "secretKeyTemplate" "pipeline-optimization.database.secretKey"         "context" $) | nindent 8 }}
+        {{- include "seqera.initContainerWaitForMySQL" (dict "name" "platform-db"              "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "pipeline-optimization.platformDatabase.secretName" "secretKeyTemplate" "pipeline-optimization.platformDatabase.secretKey" "context" $) | nindent 8 }}
 {{- end }}
         - name: migrate-db
           image: {{ include "common.images.image" (dict "imageRoot" .Values.dbMigrationInitContainer.image "global" .Values.global "chart" .Chart) }}
