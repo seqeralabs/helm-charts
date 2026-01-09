@@ -63,7 +63,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 1.x.x |
-| file://charts/pipeline-optimization | pipeline-optimization | 0.1.x |
+| file://charts/pipeline-optimization | pipeline-optimization | 0.2.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values

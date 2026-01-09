@@ -59,7 +59,7 @@ dependencies:
   tags:
     - seqera-common
 - name: pipeline-optimization
-  version: "0.1.x"
+  version: "0.2.x"
   repository: "file://charts/pipeline-optimization"
   tags:
     - pipeline-optimization

@@ -7,6 +7,6 @@ dependencies:
   version: 1.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 0.1.1
-digest: sha256:1e5cbc6119793a9d495d49feb5307e5096fa95f4be726b4f9d27270876f4572e
-generated: "2026-01-05T17:48:32.460522783+01:00"
+  version: 0.2.0
+digest: sha256:fc2a9e8e0921bbde695decb1f665d96fda9c4578f3879bef23e53d83d56e9fcf
+generated: "2026-01-09T11:16:16.451529093+01:00"

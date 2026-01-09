@@ -36,7 +36,7 @@ clean-deps:
 # Rebuild all local dependencies from source
 rebuild-deps: clean-deps
 	@echo "Rebuilding all local dependencies..."
-	@helm dependency build 2>&1 | grep -v "walk.go" || true
+	@helm dependency update 2>&1 | grep -v "walk.go" || true
 	@echo "✓ All dependencies rebuilt successfully"
 
 unittests-no-build:
