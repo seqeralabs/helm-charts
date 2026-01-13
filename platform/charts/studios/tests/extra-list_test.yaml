@@ -1,0 +1,269 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios extra resources
+templates:
+  - extra-list.yaml
+tests:
+  - it: should not create extra resources by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should handle explicitly empty extraDeploy list
+    set:
+      extraDeploy: []
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should create extra resources as requested by the user
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-service
+          spec:
+            type: ClusterIP
+            ports:
+              - name: testport
+                port: 1234
+                targetPort: 5678
+            selector:
+              app.kubernetes.io/component: whatever
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Service
+      - matchSnapshot: {}
+
+  - it: should create multiple extra resources as requested by the user
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: Service
+          metadata:
+            name: test-service
+          spec:
+            type: ClusterIP
+            ports:
+              - name: testport
+                port: 1234
+                targetPort: 5678
+            selector:
+              app.kubernetes.io/component: whatever
+
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: myConfigMap
+          data:
+            key: somevalue
+    asserts:
+      - hasDocuments:
+          count: 2
+      - equal:
+          path: metadata.name
+          value: test-service
+        documentSelector:
+          path: kind
+          value: Service
+      - matchSnapshot: {}
+        documentSelector:
+          path: kind
+          value: Service
+      - equal:
+          path: metadata.name
+          value: myConfigMap
+        documentSelector:
+          path: kind
+          value: ConfigMap
+      - matchSnapshot: {}
+        documentSelector:
+          path: kind
+          value: ConfigMap
+
+  - it: should evaluate template strings in extraDeploy resources
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: "{{ .Release.Name }}-dynamic-config"
+            labels:
+              app: "{{ .Chart.Name }}"
+          data:
+            release: "{{ .Release.Name }}"
+            namespace: "{{ .Release.Namespace }}"
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - matchSnapshot: {}
+
+  - it: should create three or more extra resources
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: Service
+          metadata:
+            name: service-1
+          spec:
+            type: ClusterIP
+            ports:
+              - port: 80
+
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: config-1
+          data:
+            key: value
+
+        - apiVersion: v1
+          kind: Secret
+          metadata:
+            name: secret-1
+          stringData:
+            key: value
+    asserts:
+      - hasDocuments:
+          count: 3
+      - isKind:
+          of: Service
+        documentIndex: 0
+      - equal:
+          path: metadata.name
+          value: service-1
+        documentIndex: 0
+      - equal:
+          path: spec
+          value:
+            type: ClusterIP
+            ports:
+              - port: 80
+        documentIndex: 0
+      - isKind:
+          of: ConfigMap
+        documentIndex: 1
+      - equal:
+          path: metadata.name
+          value: config-1
+        documentIndex: 1
+      - equal:
+          path: data
+          value:
+            key: value
+        documentIndex: 1
+      - isKind:
+          of: Secret
+        documentIndex: 2
+      - equal:
+          path: metadata.name
+          value: secret-1
+        documentIndex: 2
+      - equal:
+          path: stringData
+          value:
+            key: value
+        documentIndex: 2
+
+  - it: should create complex resource types like Deployments
+    set:
+      extraDeploy:
+        - apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: extra-deployment
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: extra
+            template:
+              metadata:
+                labels:
+                  app: extra
+              spec:
+                containers:
+                  - name: nginx
+                    image: nginx:latest
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: extra-deployment
+      - equal:
+          path: spec.replicas
+          value: 2
+      - equal:
+          path: spec.selector
+          value:
+            matchLabels:
+              app: extra
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app: extra
+      - equal:
+          path: spec.template.spec.containers
+          value:
+            - name: nginx
+              image: nginx:latest
+
+  - it: should preserve complex nested structures
+    set:
+      extraDeploy:
+        - apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: complex-config
+            annotations:
+              key1: value1
+              key2: value2
+          data:
+            config.yaml: |
+              nested:
+                level1:
+                  level2:
+                    key: value
+    asserts:
+      - hasDocuments:
+          count: 1
+      - equal:
+          path: metadata.name
+          value: complex-config
+      - equal:
+          path: metadata.annotations
+          value:
+            key1: value1
+            key2: value2
+      - equal:
+          path: data["config.yaml"]
+          value: |
+            nested:
+              level1:
+                level2:
+                  key: value

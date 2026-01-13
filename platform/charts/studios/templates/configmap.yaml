@@ -1,0 +1,65 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+{{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.configMapLabels $commonLabels) "context" .) -}}
+{{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-common" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
+data:
+  CONNECT_REDIS_ADDRESS: {{ printf "%s:%d" (include "studios.redis.host" .) (include "studios.redis.port" . | int ) | quote }}
+  CONNECT_REDIS_TLS_ENABLE: {{ include "studios.redis.tlsEnabled" . | quote }}
+  CONNECT_REDIS_PREFIX: {{ include "studios.redis.prefix" . | quote }}
+  CONNECT_REDIS_DB: {{ .Values.redis.database | quote }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-proxy" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
+data:
+  CONNECT_HTTP_PORT: {{ .Values.proxy.service.http.targetPort | quote }}
+  CONNECT_PROXY_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
+  CONNECT_TUNNEL_URL: {{ printf "%s-server:%d" (include "common.names.fullname" .) (.Values.server.tunnelPort | int) | quote }}
+  # TODO: Should the platform URL automatically be converted to https if the port is 443?
+  PLATFORM_URL: {{ printf "http://%s:%d" (tpl .Values.global.platformServiceAddress .) (.Values.global.platformServicePort | int) | quote }}
+  LOCAL_CACHE_TTL: {{ .Values.proxy.localCacheTTL | quote }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ printf "%s-server" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
+data:
+  CONNECT_HOST_DOMAIN: {{ printf "%s-server" (include "common.names.fullname" .) | quote }}
+  CONNECT_TUNNEL_PORT: {{ .Values.server.tunnelPort | quote }}
+  CONNECT_LISTENER_PORT: {{ .Values.server.listenerPort | quote }}
+  CONNECT_SERVER_LOG_LEVEL: {{ .Values.server.logLevel | quote }}

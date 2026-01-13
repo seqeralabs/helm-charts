@@ -1,0 +1,208 @@
+should run using config requested by the user:
+  1: |
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: proxy
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: studios
+    template:
+      metadata:
+        annotations:
+          checksum/secret: 48e65cc5087ad4333dbc45d8967e94a018fd2b63c9a7de38c1e86738a8534f78
+        labels:
+          app.kubernetes.io/component: proxy
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: studios
+          app.kubernetes.io/version: 0.8.0
+          helm.sh/chart: studios-1.0.0
+      spec:
+        containers:
+          - args:
+              - arg0
+              - arg1
+            command:
+              - customCommand
+            env:
+              - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
+                value: set-a-value-here
+            envFrom:
+              - configMapRef:
+                  name: release-name-studios-common
+              - configMapRef:
+                  name: release-name-studios-proxy
+              - secretRef:
+                  name: release-name-studios-connect-client-registration-token
+              - configMapRef:
+                  name: CMContainingExtraEnvVars
+              - secretRef:
+                  name: SecretContainingExtraEnvVars
+            image: private/nf-tower-enterprise/data-studio/tower-connect-proxy:0.8.0
+            imagePullPolicy: Always
+            name: proxy
+            ports:
+              - containerPort: 8081
+                name: http
+            securityContext:
+              capabilities:
+                add:
+                  - NET_BIND_SERVICE
+                  - NET_ADMIN
+                drop: []
+              readOnlyRootFilesystem: true
+              runAsGroup: 9999
+              runAsNonRoot: true
+              runAsUser: 9998
+            volumeMounts:
+              - mountPath: /data
+                name: caddy-temp-data-volume
+              - mountPath: /mymntpoint
+                name: extraVolumeName
+        imagePullSecrets:
+          - name: aCustomImageRepositorySecretName
+        initContainers:
+          - command:
+              - sh
+              - -c
+              - |
+                echo "$(date): starting check for platform to be ready at \"${PLATFORM_HOST}:${PLATFORM_PORT}/health\""
+                until curl -s ${PLATFORM_HOST}:${PLATFORM_PORT}/health |grep -q \"UP\"; do
+                  echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                  sleep $SLEEP_PERIOD_SECONDS
+                done
+                echo "$(date): platform ready"
+            env:
+              - name: SLEEP_PERIOD_SECONDS
+                value: "5"
+              - name: PLATFORM_HOST
+                value: platform-backend
+              - name: PLATFORM_PORT
+                value: "8080"
+            image: curlimages/curl:latest
+            imagePullPolicy: IfNotPresent
+            name: wait-for-platform
+            resources:
+              limits:
+                memory: 100Mi
+              requests:
+                cpu: "0.1"
+                memory: 50Mi
+            securityContext:
+              capabilities:
+                drop:
+                  - ALL
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              runAsUser: 101
+        securityContext:
+          fsGroup: 9999
+        serviceAccountName: user-provided-sa
+        volumes:
+          - emptyDir:
+              sizeLimit: 100Mi
+            name: caddy-temp-data-volume
+          - emptyDir:
+              sizeLimit: 1Mi
+            name: extraVolumeName
+should set the proxy deployment image using the chart version and use sane defaults:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: proxy
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: studios-9.9.9_test
+      name: release-name-studios-proxy
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: proxy
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: studios
+      template:
+        metadata:
+          annotations:
+            checksum/secret: 9070109ee8297c2e2a96e796e188be651141f35cd2360ad8e4edfc30d465cce5
+          labels:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: studios-9.9.9_test
+        spec:
+          containers:
+            - env: null
+              envFrom:
+                - configMapRef:
+                    name: release-name-studios-common
+                - configMapRef:
+                    name: release-name-studios-proxy
+                - secretRef:
+                    name: release-name-studios-connect-client-registration-token
+              image: private/nf-tower-enterprise/data-studio/tower-connect-proxy:9.9.9
+              imagePullPolicy: IfNotPresent
+              name: proxy
+              ports:
+                - containerPort: 8081
+                  name: http
+              securityContext:
+                capabilities:
+                  add:
+                    - NET_BIND_SERVICE
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: false
+                runAsGroup: 65532
+                runAsNonRoot: true
+                runAsUser: 65532
+              volumeMounts:
+                - mountPath: /data
+                  name: caddy-temp-data-volume
+          imagePullSecrets: null
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for platform to be ready at \"${PLATFORM_HOST}:${PLATFORM_PORT}/health\""
+                  until curl -s ${PLATFORM_HOST}:${PLATFORM_PORT}/health |grep -q \"UP\"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): platform ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: PLATFORM_HOST
+                  value: platform-backend
+                - name: PLATFORM_PORT
+                  value: "8080"
+              image: curlimages/curl:latest
+              imagePullPolicy: IfNotPresent
+              name: wait-for-platform
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.1"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+          securityContext:
+            fsGroup: 65532
+          serviceAccountName: release-name-studios-sa
+          volumes:
+            - emptyDir:
+                sizeLimit: 100Mi
+              name: caddy-temp-data-volume

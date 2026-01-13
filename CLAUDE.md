@@ -187,6 +187,99 @@ tests:
 5. **Conditional Logic**: Test feature flags and conditionals
 6. **Integration**: Verify cross-component references
 
+### Best Practices for Assertions
+
+**Prefer `equal` for Map/Object Assertions**
+
+When testing maps or objects (like labels, annotations, env vars, etc.), use `equal` to assert on the entire block rather than asserting each individual field or using `isSubset`.
+
+```yaml
+# ✅ GOOD: Assert on the entire map
+- equal:
+    path: metadata.labels
+    value:
+      app: my-app
+      version: v1.0.0
+      environment: production
+
+# ❌ AVOID: Individual field assertions
+- equal:
+    path: metadata.labels.app
+    value: my-app
+- equal:
+    path: metadata.labels.version
+    value: v1.0.0
+- equal:
+    path: metadata.labels.environment
+    value: production
+
+# ❌ AVOID: Using isSubset (less precise)
+- isSubset:
+    path: metadata.labels
+    content:
+      app: my-app
+```
+
+**Why prefer `equal` for maps?**
+- More concise and readable
+- Validates exact structure (no unexpected extra fields)
+- Easier to maintain and update
+- Better test failures (shows complete diff)
+
+### Prefer `matchSnapshot` for Full Object Rendering
+
+When testing the full rendering of a Kubernetes resource (complete deployment, service, etc.), use `matchSnapshot` instead of listing out all fields with `equal` assertions.
+
+```yaml
+# ✅ GOOD: Use matchSnapshot for full object validation
+- it: should render the deployment correctly with all features enabled
+  set:
+    image:
+      tag: v1.2.3
+    replicas: 3
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+  asserts:
+    - matchSnapshot: {}
+
+# ✅ GOOD: Use equal for punctual/targeted testing
+- it: should set correct image tag
+  set:
+    image:
+      tag: v1.2.3
+  asserts:
+    - equal:
+        path: spec.template.spec.containers[0].image
+        value: my-registry/my-app:v1.2.3
+
+# ❌ AVOID: Listing all fields with equal assertions for full object validation
+- it: should render the deployment correctly
+  asserts:
+    - equal:
+        path: metadata.name
+        value: my-app
+    - equal:
+        path: metadata.labels.app
+        value: my-app
+    - equal:
+        path: spec.replicas
+        value: 1
+    # ... 50 more assertions ...
+```
+
+**When to use each approach:**
+- **`matchSnapshot`**: Full object validation, integration tests, verifying complete resource structure
+- **`equal`**: Punctual tests for specific fields, testing conditional logic, verifying computed values
+
+**Benefits of `matchSnapshot` for full objects:**
+- Captures complete resource structure automatically
+- Much more maintainable (update with `helm unittest -u`)
+- Easier to review changes in snapshot diffs
+- Tests don't become brittle with minor template changes
+- Better for catching unintended side effects
+
 ### Snapshot Testing
 
 Snapshots stored in `tests/__snapshot__/` directory. Regenerate with:
@@ -284,6 +377,65 @@ Templates are evaluated at render time, not at runtime. Be careful with:
 - `lookup` function (queries live cluster)
 - Random value generation (happens at each render)
 - Secret persistence patterns (use lookup to preserve existing secrets)
+
+### ⚠️ External Secrets Pattern
+
+**CRITICAL**: When users provide an external secret (via `existingSecretName` fields), the chart MUST NOT store or generate that secret value in the chart-managed Secret resource.
+
+**Why?**
+- External secrets are mounted directly on pods from the user-provided Secret
+- Duplicating values in the chart's Secret creates security risks and confusion
+- Users expect only ONE source of truth for sensitive values
+
+**Implementation Pattern:**
+
+```yaml
+# ❌ WRONG: Always includes the secret value
+data:
+  MY_SECRET: {{ include "common.secrets.passwords.manage" ... }}
+
+# ✅ CORRECT: Only includes when NOT using external secret
+data:
+  {{- if not .Values.myComponent.existingSecretName }}
+  MY_SECRET: {{ include "common.secrets.passwords.manage" ... }}
+  {{- end }}
+```
+
+**Examples from the codebase:**
+
+1. **Platform chart** ([secret.yaml](platform/templates/secret.yaml)):
+   ```yaml
+   {{- if not (include "platform.database.existingSecret" .) }}
+     TOWER_DB_PASSWORD: {{ include "common.secrets.passwords.manage" ... }}
+   {{- end }}
+   ```
+
+2. **Studios chart** ([secret.yaml](platform/charts/studios/templates/secret.yaml)):
+   ```yaml
+   {{- if not .Values.proxy.oidcClientRegistrationTokenSecretName }}
+     OIDC_CLIENT_REGISTRATION_TOKEN: {{ include "common.secrets.passwords.manage" ... }}
+   {{- end }}
+   ```
+
+**Testing Requirements:**
+
+When implementing external secret support, MUST include these test cases:
+
+1. Secret value is included when provided inline
+2. Secret value is NOT included when using `existingSecretName`
+3. Data block is `null` when ALL secrets come from external sources
+
+Example test:
+```yaml
+- it: should not fetch the password from existing secret because we mount the user-provided secret on the pod directly
+  set:
+    myComponent:
+      password: ""
+      existingSecretName: "user-secret"
+  asserts:
+    - notExists:
+        path: data.MY_SECRET
+```
 
 ## Documentation Standards
 

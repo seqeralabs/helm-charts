@@ -1,0 +1,122 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ printf "%s-server" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app.kubernetes.io/component: server
+{{- with .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+{{- end }}
+
+spec:
+{{- $serverLabels := include "common.tplvalues.merge" (dict "values" (list .Values.server.podLabels .Values.commonLabels) "context" .) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $serverLabels "context" $) | nindent 6 }}
+      app.kubernetes.io/component: server
+
+{{- with .Values.server.extraOptionsSpec -}}
+  {{- include "common.tplvalues.render" (dict "value" (omit . "selector" "serviceName") "context" $) | nindent 2 -}}
+{{- end }}
+
+  serviceName: {{ printf "%s-server" (include "common.names.fullname" .) }}
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" (dict "customLabels" $serverLabels "context" $) | nindent 8 }}
+        app.kubernetes.io/component: server
+      annotations:
+{{- with .Values.server.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+        # Automatically roll deployment on changes to the k8s CM and Secret objects:
+        # https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "studios.serviceAccountName" . }}
+{{- if .Values.server.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.server.podSecurityContext "enabled" | toYaml | nindent 8 }}
+{{- end }}
+{{- with .Values.server.extraOptionsTemplateSpec }}
+      {{- include "common.tplvalues.render" (dict "value" (omit . "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets") "context" $) | nindent 6 }}
+{{- end }}
+
+      initContainers:
+{{- with .Values.server.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+
+      containers:
+        - name: server
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+{{- with .Values.server.command }}
+          command: {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.server.args }}
+          args: {{- toYaml . | nindent 12 }}
+{{- end }}
+
+          env:
+{{- with .Values.server.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-common" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-server" (include "common.names.fullname" .) }}
+{{- if include "studios.redis.isAuthEnabled" . }}
+            - secretRef:
+                name: {{ printf "%s-redis-password" (include "common.names.fullname" .) }}
+{{- end }}
+{{- with .Values.server.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
+{{- with .Values.server.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
+
+          volumeMounts:
+{{- with .Values.server.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 10 }}
+{{- end }}
+
+{{- with .Values.server.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+{{- end }}
+
+{{- if .Values.server.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.server.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+{{- end }}
+
+      volumes:
+{{- with .Values.server.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+
+      imagePullSecrets:
+{{- range .Values.server.image.pullSecrets }}
+        - name: {{ . | quote }}
+{{- end }}

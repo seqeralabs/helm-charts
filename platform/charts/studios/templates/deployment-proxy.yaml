@@ -1,0 +1,144 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-proxy" (include "common.names.fullname" .) }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app.kubernetes.io/component: proxy
+{{- with .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+{{- end }}
+
+spec:
+{{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.proxy.podLabels .Values.commonLabels) "context" .) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
+      app.kubernetes.io/component: proxy
+
+  # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
+  # omitted (selector).
+{{- $extraOptionsSpec := omit .Values.proxy.extraOptionsSpec "selector" }}
+{{- if $extraOptionsSpec }}
+  {{- include "common.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
+{{- end }}
+
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+        app.kubernetes.io/component: proxy
+      annotations:
+{{- with .Values.proxy.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+        # Automatically roll deployment on changes to the k8s CM and Secret objects:
+        # https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+
+    spec:
+      serviceAccountName: {{ include "studios.serviceAccountName" . }}
+{{- if .Values.proxy.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.proxy.podSecurityContext "enabled" | toYaml | nindent 8 }}
+{{- end }}
+      # This prevents an empty dict {} to be rendered when extraOptionsTemplateSpec only contains keys
+      # that are omitted (serviceAccountName, serviceAccount, securityContext, etc).
+{{- $extraOptionsTemplateSpec := omit .Values.proxy.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
+{{- if $extraOptionsTemplateSpec }}
+      {{- include "common.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
+{{- end }}
+
+      initContainers:
+{{- if .Values.initContainerDependencies.enabled }}
+        {{- include "seqera.initContainerWaitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $) | nindent 8 }}
+{{- end }}
+{{- with .Values.proxy.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+
+      containers:
+        - name: proxy
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.proxy.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.proxy.service.http.targetPort }}
+              name: {{ .Values.proxy.service.http.name }}
+{{- with .Values.proxy.command }}
+          command: {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.proxy.args }}
+          args: {{- toYaml . | nindent 12 }}
+{{- end }}
+
+          env:
+{{- if include "studios.redis.isAuthEnabled" . }}
+            - name: CONNECT_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "studios.redis.secretName" . }}
+                  key: {{ include "studios.redis.secretKey" . }}
+{{- end }}
+{{- with .Values.proxy.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ printf "%s-common" (include "common.names.fullname" .) }}
+            - configMapRef:
+                name: {{ printf "%s-proxy" (include "common.names.fullname" .) }}
+            - secretRef:
+                name: {{ printf "%s-connect-client-registration-token" (include "common.names.fullname" .) }}
+{{- range .Values.proxy.extraEnvVarsCMs }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
+{{- range .Values.proxy.extraEnvVarsSecrets }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}
+{{- end }}
+
+          volumeMounts:
+            - mountPath: /data
+              name: caddy-temp-data-volume
+{{- with .Values.proxy.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+
+{{- with .Values.proxy.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+{{- end }}
+
+{{- if .Values.proxy.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.proxy.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+{{- end }}
+
+      volumes:
+        - name: caddy-temp-data-volume
+          emptyDir:
+            sizeLimit: "100Mi"
+{{- with .Values.proxy.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+
+      imagePullSecrets:
+{{- range .Values.proxy.image.pullSecrets }}
+        - name: {{ . | quote }}
+{{- end }}

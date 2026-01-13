@@ -94,3 +94,34 @@ include "seqera.initContainerWaitForRedis" (dict "name" "redis" "waitValues" .Va
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
 {{- end -}}
+
+{{/*
+Common initContainer to wait for Seqera Platform to be ready.
+
+Usage example:
+include "seqera.initContainerWaitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $)
+*/}}
+{{- define "seqera.initContainerWaitForPlatform" -}}
+- name: wait-for-{{ .name }}
+  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
+  imagePullPolicy: {{ .waitValues.image.pullPolicy }}
+  command:
+    - 'sh'
+    - '-c'
+    - |
+      echo "$(date): starting check for platform to be ready at \"${PLATFORM_HOST}:${PLATFORM_PORT}/health\""
+      until curl -s ${PLATFORM_HOST}:${PLATFORM_PORT}/health |grep -q \"UP\"; do
+        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+        sleep $SLEEP_PERIOD_SECONDS
+      done
+      echo "$(date): platform ready"
+  env:
+    - name: SLEEP_PERIOD_SECONDS
+      value: "5"
+    - name: PLATFORM_HOST
+      value: {{ tpl .platformHost .context | quote }}
+    - name: PLATFORM_PORT
+      value: {{ .platformPort | int | quote }}
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
+{{- end -}}

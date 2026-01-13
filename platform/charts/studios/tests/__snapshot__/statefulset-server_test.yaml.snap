@@ -1,0 +1,124 @@
+should run using config requested by the user:
+  1: |
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: studios
+    serviceName: release-name-studios-server
+    template:
+      metadata:
+        annotations:
+          checksum/secret: 48e65cc5087ad4333dbc45d8967e94a018fd2b63c9a7de38c1e86738a8534f78
+        labels:
+          app.kubernetes.io/component: server
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: studios
+          app.kubernetes.io/version: 0.8.0
+          helm.sh/chart: studios-1.0.0
+      spec:
+        containers:
+          - args:
+              - arg0
+              - arg1
+            command:
+              - customCommand
+            env:
+              - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
+                value: set-a-value-here
+            envFrom:
+              - configMapRef:
+                  name: release-name-studios-common
+              - configMapRef:
+                  name: release-name-studios-server
+              - configMapRef:
+                  name: CMContainingExtraEnvVars
+              - secretRef:
+                  name: SecretContainingExtraEnvVars
+            image: private/nf-tower-enterprise/data-studio/tower-connect-server:0.8.0
+            imagePullPolicy: Always
+            name: server
+            securityContext:
+              capabilities:
+                add:
+                  - NET_BIND_SERVICE
+                  - NET_ADMIN
+                drop: []
+              readOnlyRootFilesystem: true
+              runAsGroup: 9999
+              runAsNonRoot: true
+              runAsUser: 9998
+            volumeMounts:
+              - mountPath: /mymntpoint
+                name: extraVolumeName
+        imagePullSecrets:
+          - name: aCustomImageRepositorySecretName
+        initContainers: null
+        securityContext:
+          fsGroup: 9999
+        serviceAccountName: user-provided-sa
+        volumes:
+          - emptyDir:
+              sizeLimit: 1Mi
+            name: extraVolumeName
+should set the statefulset server image using the chart version and use sane defaults:
+  1: |
+    apiVersion: apps/v1
+    kind: StatefulSet
+    metadata:
+      labels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: studios-8.7.6_test
+      name: release-name-studios-server
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: server
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: studios
+      serviceName: release-name-studios-server
+      template:
+        metadata:
+          annotations:
+            checksum/secret: a2a9db8e7d920de0bd2bcace78448c0b8a9339e79c0572b1493bb00ec6020e87
+          labels:
+            app.kubernetes.io/component: server
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: 9.9.9
+            helm.sh/chart: studios-8.7.6_test
+        spec:
+          containers:
+            - env: null
+              envFrom:
+                - configMapRef:
+                    name: release-name-studios-common
+                - configMapRef:
+                    name: release-name-studios-server
+              image: private/nf-tower-enterprise/data-studio/tower-connect-server:9.9.9
+              imagePullPolicy: IfNotPresent
+              name: server
+              securityContext:
+                capabilities:
+                  add:
+                    - NET_BIND_SERVICE
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: false
+                runAsGroup: 65532
+                runAsNonRoot: true
+                runAsUser: 65532
+              volumeMounts: null
+          imagePullSecrets: null
+          initContainers: null
+          securityContext:
+            fsGroup: 65532
+          serviceAccountName: release-name-studios-sa
+          volumes: null

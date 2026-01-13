@@ -212,21 +212,6 @@ redis:
   # -- Enable TLS when connecting to Redis
   enableTls: false
 
-# -- Array of extra objects to deploy with the release
-extraDeploy: []
-# extraDeploy:
-#   - apiVersion: v1
-#     kind: MyExtraObjectKind
-#     ...
-#   - apiVersion: v1
-#     kind: AnotherExtraObjectKind
-#     ..
-
-# -- Annotations to add to all deployed objects
-commonAnnotations: {}
-# -- Labels to add to all deployed objects
-commonLabels: {}
-
 # Options specific to the Platform backend deployment
 backend:
   image:
@@ -1091,6 +1076,26 @@ ingress:
   #       - '{{ .Values.global.platformExternalDomain }}'
   #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
   #     secretName: my-tls
+
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
+
+studios:
+  # -- Enable Studios feature. Refer to the subchart README for more details and the full list of
+  # configuration options
+  enabled: true
 
 pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the

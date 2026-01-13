@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.23.0](https://img.shields.io/badge/Version-0.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.23.0 \
+  --version 0.24.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -64,6 +64,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 1.x.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 0.2.x |
+| file://charts/studios | studios | 1.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
@@ -120,9 +121,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing Secret containing the password for Redis |
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
-| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
-| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
-| commonLabels | object | `{}` | Labels to add to all deployed objects |
 | backend.image.registry | string | `""` | Backend container image registry |
 | backend.image.repository | string | `"private/nf-tower-enterprise/backend"` | Backend container image repository |
 | backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |
@@ -362,6 +360,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
+| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
+| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing

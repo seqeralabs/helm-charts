@@ -5,6 +5,28 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-01-13
+
+### Added
+
+- Added Studios subchart as a new dependency
+  - Studios provides interactive analysis capabilities for Seqera Platform
+  - Chart version 1.0.0, application version 0.8.0
+  - Integrated as a conditional subchart (enabled via `studios.enabled`)
+  - Deploys Studios server (StatefulSet) and proxy (Deployment) components
+  - Includes init container to wait for Platform readiness
+- Added platform URL integration test ([tests/studios_platform_url_test.yaml](platform/tests/studios_platform_url_test.yaml))
+  - Validates Platform URL configuration is accessible by Studios subchart
+
+### Changed
+
+- Reorganized values.yaml structure
+  - Moved `extraDeploy`, `commonAnnotations`, and `commonLabels` after ingress section
+  - Improved logical grouping of configuration sections
+- Updated dependencies to include Studios chart (version 1.x.x)
+  - Repository: `file://charts/studios`
+  - Condition: `studios.enabled`
+
 ## [0.23.0] - 2026-01-09
 
 ### Added
