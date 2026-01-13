@@ -2,8 +2,11 @@ dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 2.31.4
+- name: seqera-common
+  repository: file://../seqera-common
+  version: 1.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 0.1.0
-digest: sha256:b1844fa2ed8a7db58d093ea95eae9724bd50ec0a0227883743c850d822b8ce03
-generated: "2025-12-16T15:34:14.240214875+01:00"
+  version: 0.2.0
+digest: sha256:fc2a9e8e0921bbde695decb1f665d96fda9c4578f3879bef23e53d83d56e9fcf
+generated: "2026-01-09T11:16:16.451529093+01:00"

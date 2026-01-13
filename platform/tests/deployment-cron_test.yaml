@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -395,7 +395,7 @@ tests:
           count: 3
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: wait-for-db
+          value: wait-for-platform-db
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: wait-for-redis
@@ -418,11 +418,11 @@ tests:
               value: ""
             - name: DB_USERNAME
               value: ""
-      - equal:
-          path: spec.template.spec.initContainers[0].envFrom
-          value:
-            - secretRef:
-                name: release-name-platform-backend
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-platform-backend
+                  key: TOWER_DB_PASSWORD
       - equal:
           path: spec.template.spec.initContainers[1].env
           value:
@@ -485,6 +485,11 @@ tests:
               value: my-db-name
             - name: DB_USERNAME
               value: my-db-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: my-db-password-key
       - equal:
           path: spec.template.spec.initContainers[1].env
           value:

@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -299,84 +299,6 @@ Return the name of the secret containing the SMTP password.
 {{- end -}}
 {{- define "platform.smtp.secretKey" -}}
   {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
-{{- end -}}
-
-{{/*
-Common initContainer to wait for MySQL database to be ready.
-
-{{ include "platform.initContainerWaitForDB" $ }}
-*/}}
-{{- define "platform.initContainerWaitForDB" -}}
-  {{- with .Values.initContainerDependencies.waitForMySQL -}}
-- name: wait-for-db
-  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
-  imagePullPolicy: {{ .image.pullPolicy }}
-  command:
-    - 'sh'
-    - '-c'
-    - |
-      echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-      until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$TOWER_DB_PASSWORD" -e "SELECT VERSION()"; do
-        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-        sleep $SLEEP_PERIOD_SECONDS
-      done
-      echo "$(date): db server ready"
-  env:
-    - name: SLEEP_PERIOD_SECONDS
-      value: "5"
-    - name: DB_HOST
-      value: {{ $.Values.platformDatabase.host | quote }}
-    - name: DB_PORT
-      value: {{ $.Values.platformDatabase.port | quote }}
-    - name: DB_NAME
-      value: {{ $.Values.platformDatabase.name | quote }}
-    - name: DB_USERNAME
-      value: {{ $.Values.platformDatabase.username | quote }}
-  envFrom:
-    - secretRef:
-        name: {{ printf "%s-backend" (include "common.names.fullname" $) }}
-
-  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
-  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Common initContainer to wait for Redis to be ready.
-
-{{ include "platform.initContainerWaitForRedis" $ }}
-*/}}
-{{- define "platform.initContainerWaitForRedis" -}}
-  {{- with .Values.initContainerDependencies.waitForRedis -}}
-- name: wait-for-redis
-  image: {{ include "common.images.image" (dict "imageRoot" .image "global" $.Values.global) }}
-  imagePullPolicy: {{ .image.pullPolicy }}
-  command:
-    - 'sh'
-    - '-c'
-    - |
-      echo "$(date): starting check redis host '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
-      until redis-cli -u "$REDIS_URI" get hello; do
-        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
-        sleep $SLEEP_PERIOD_SECONDS
-      done
-      echo "$(date): redis server ready"
-  env:
-    - name: SLEEP_PERIOD_SECONDS
-      value: "5"
-    - name: REDIS_URI
-      value: {{ include "platform.redis.uri" $ | quote }}
-    {{- if or $.Values.redis.password $.Values.redis.existingSecretName }}
-    - name: REDISCLI_AUTH
-      valueFrom:
-        secretKeyRef:
-          name: {{ include "platform.redis.secretName" $ }}
-          key: {{ include "platform.redis.secretKey" $ }}
-    {{- end }}
-
-  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
-  resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
-  {{- end -}}
 {{- end -}}
 
 {{/* Common initContainer to wait for Cron service to be ready.
