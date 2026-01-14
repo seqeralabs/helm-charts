@@ -90,7 +90,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | proxy.oidcClientRegistrationToken | string | `""` |  |
 | proxy.oidcClientRegistrationTokenSecretName | string | `""` |  |
-| proxy.oidcClientRegistrationTokenSecretKey | string | `"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"` |  |
+| proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 | proxy.localCacheTTL | string | `"2m"` |  |
 | proxy.service.type | string | `"ClusterIP"` | Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | proxy.service.http.name | string | `"http"` | Service name to use |

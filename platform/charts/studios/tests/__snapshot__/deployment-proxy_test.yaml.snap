@@ -24,6 +24,11 @@ should run using config requested by the user:
             command:
               - customCommand
             env:
+              - name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: OIDC_CLIENT_REGISTRATION_TOKEN
+                    name: release-name-studios
               - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
                 value: set-a-value-here
             envFrom:
@@ -31,8 +36,6 @@ should run using config requested by the user:
                   name: release-name-studios-common
               - configMapRef:
                   name: release-name-studios-proxy
-              - secretRef:
-                  name: release-name-studios-connect-client-registration-token
               - configMapRef:
                   name: CMContainingExtraEnvVars
               - secretRef:
@@ -137,14 +140,17 @@ should set the proxy deployment image using the chart version and use sane defau
             helm.sh/chart: studios-9.9.9_test
         spec:
           containers:
-            - env: null
+            - env:
+                - name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: OIDC_CLIENT_REGISTRATION_TOKEN
+                      name: release-name-studios
               envFrom:
                 - configMapRef:
                     name: release-name-studios-common
                 - configMapRef:
                     name: release-name-studios-proxy
-                - secretRef:
-                    name: release-name-studios-connect-client-registration-token
               image: private/nf-tower-enterprise/data-studio/tower-connect-proxy:9.9.9
               imagePullPolicy: IfNotPresent
               name: proxy

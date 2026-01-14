@@ -101,7 +101,9 @@ proxy:
   # All fields are evaluated as a template
   oidcClientRegistrationToken: ""
   oidcClientRegistrationTokenSecretName: ""
-  oidcClientRegistrationTokenSecretKey: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+  # -- Key in the existing Secret containing the OIDC client registration token
+  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  oidcClientRegistrationTokenSecretKey: ""
   # TODO: add details
   localCacheTTL: "2m"
 

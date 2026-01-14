@@ -89,6 +89,11 @@ spec:
 {{- end }}
 
           env:
+            - name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "studios.oidcToken.secretName" . }}
+                  key: {{ include "studios.oidcToken.secretKey" . }}
 {{- if include "studios.redis.isAuthEnabled" . }}
             - name: CONNECT_REDIS_PASSWORD
               valueFrom:
@@ -104,8 +109,6 @@ spec:
                 name: {{ printf "%s-common" (include "common.names.fullname" .) }}
             - configMapRef:
                 name: {{ printf "%s-proxy" (include "common.names.fullname" .) }}
-            - secretRef:
-                name: {{ printf "%s-connect-client-registration-token" (include "common.names.fullname" .) }}
 {{- range .Values.proxy.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}

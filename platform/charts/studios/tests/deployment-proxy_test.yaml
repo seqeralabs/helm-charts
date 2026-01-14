@@ -157,7 +157,7 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 3
+          count: 2
       - notContains:
           path: spec.template.spec.containers[0].envFrom
           content:
@@ -603,7 +603,7 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: release-name-studios
-                key: SWELL_DB_PASSWORD
+                key: CONNECT_REDIS_PASSWORD
 
   - it: should include CONNECT_REDIS_PASSWORD env var when redis auth is enabled with existingSecret
     template: deployment-proxy.yaml
@@ -662,14 +662,17 @@ tests:
             configMapRef:
               name: release-name-studios-proxy
 
-  - it: should include secretRef for OIDC registration token
+  - it: should include OIDC registration token as env var
     template: deployment-proxy.yaml
     asserts:
       - contains:
-          path: spec.template.spec.containers[0].envFrom
+          path: spec.template.spec.containers[0].env
           content:
-            secretRef:
-              name: release-name-studios-connect-client-registration-token
+            name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
 
   - it: should render extraEnvVarsCMs
     template: deployment-proxy.yaml
@@ -1070,7 +1073,7 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 3
+          count: 2
       - equal:
           path: spec.template.spec.containers[0].envFrom[0]
           value:
@@ -1081,11 +1084,6 @@ tests:
           value:
             configMapRef:
               name: release-name-studios-proxy
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[2]
-          value:
-              secretRef:
-                name: release-name-studios-connect-client-registration-token
 
   - it: should render multiple extraEnvVarsCMs and extraEnvVarsSecrets in correct order
     template: deployment-proxy.yaml
@@ -1101,7 +1099,7 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 8
+          count: 7
       - contains:
           path: spec.template.spec.containers[0].envFrom
           content:

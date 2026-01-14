@@ -57,6 +57,13 @@ false
   {{- end -}}
 {{- end -}}
 
+{{- define "studios.redis.isAuthEnabled" -}}
+  {{- if or (tpl .Values.redis.password $) (include "studios.redis.existingSecret" $) -}}
+true
+  {{- end -}}
+{{- end -}}
+
+{{/* Redis authentication helpers */}}
 {{- define "studios.redis.existingSecret" -}}
   {{- printf "%s" (tpl .Values.redis.existingSecretName $) -}}
 {{- end -}}
@@ -65,11 +72,17 @@ false
 {{- end -}}
 
 {{- define "studios.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "SWELL_DB_PASSWORD" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "CONNECT_REDIS_PASSWORD" -}}
 {{- end -}}
 
-{{- define "studios.redis.isAuthEnabled" -}}
-  {{- if or (tpl .Values.redis.password $) (include "studios.redis.existingSecret" $) -}}
-true
-  {{- end -}}
+{{/* OIDC client registration token secret helpers */}}
+{{- define "studios.oidcToken.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretName $) -}}
+{{- end -}}
+{{- define "studios.oidcToken.secretName" -}}
+  {{- include "studios.oidcToken.existingSecret" $ | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "studios.oidcToken.secretKey" -}}
+  {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretKey $) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
 {{- end -}}
