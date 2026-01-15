@@ -36,7 +36,7 @@ should run using config requested by the user:
                   name: CMContainingExtraEnvVars
               - secretRef:
                   name: SecretContainingExtraEnvVars
-            image: private/nf-tower-enterprise/data-studio/tower-connect-server:9.9.9
+            image: private/nf-tower-enterprise/data-studio/connect-server:9.9.9
             imagePullPolicy: Always
             name: server
             securityContext:
@@ -102,7 +102,7 @@ should set the statefulset server image using the chart version and use sane def
                     name: release-name-studios-common
                 - configMapRef:
                     name: release-name-studios-server
-              image: private/nf-tower-enterprise/data-studio/tower-connect-server:9.9.9
+              image: private/nf-tower-enterprise/data-studio/connect-server:9.9.9
               imagePullPolicy: IfNotPresent
               name: server
               securityContext:

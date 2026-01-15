@@ -83,7 +83,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
 | redis.prefix | string | `"connect:session"` | Key prefix to use when storing Studios sessions in Redis |
 | proxy.image.registry | string | `""` | Proxy container image registry |
-| proxy.image.repository | string | `"private/nf-tower-enterprise/data-studio/tower-connect-proxy"` | Proxy container image repository |
+| proxy.image.repository | string | `"private/nf-tower-enterprise/data-studio/connect-proxy"` | Proxy container image repository |
 | proxy.image.tag | string | `"{{ .chart.AppVersion }}"` | Proxy container image tag |
 | proxy.image.digest | string | `""` | Proxy container image digest in the format `sha256:1234abcdef` |
 | proxy.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -126,7 +126,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.containerSecurityContext.capabilities.add[0] | string | `"NET_BIND_SERVICE"` |  |
 | proxy.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | server.image.registry | string | `""` | Server container image registry |
-| server.image.repository | string | `"private/nf-tower-enterprise/data-studio/tower-connect-server"` | Server container image repository |
+| server.image.repository | string | `"private/nf-tower-enterprise/data-studio/connect-server"` | Server container image repository |
 | server.image.tag | string | `"{{ .chart.AppVersion }}"` | Server container image tag |
 | server.image.digest | string | `""` | Server container image digest in the format `sha256:1234abcdef` |
 | server.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

@@ -49,7 +49,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-server:1.2.3"
+          value: "private/nf-tower-enterprise/data-studio/connect-server:1.2.3"
 
   - it: should render the server deployment with the specified digest
     template: statefulset-server.yaml
@@ -60,7 +60,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-server@sha256:1234abcdef"
+          value: "private/nf-tower-enterprise/data-studio/connect-server@sha256:1234abcdef"
 
   - it: should render the server deployment with the correct checksums
     template: statefulset-server.yaml
@@ -704,7 +704,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-server:2.3.4"
+          value: "private/nf-tower-enterprise/data-studio/connect-server:2.3.4"
 
   - it: should render image with custom registry
     template: statefulset-server.yaml
@@ -716,7 +716,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/tower-connect-server:1.0.0"
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-server:1.0.0"
 
   - it: should render image with registry and digest
     template: statefulset-server.yaml
@@ -728,7 +728,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/tower-connect-server@sha256:abcd1234"
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-server@sha256:abcd1234"
 
   - it: should render container with correct imagePullPolicy
     template: statefulset-server.yaml

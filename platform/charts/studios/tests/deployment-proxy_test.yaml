@@ -52,7 +52,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-proxy:1.2.3"
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy:1.2.3"
 
   - it: should render the proxy deployment with the specified digest
     template: deployment-proxy.yaml
@@ -63,7 +63,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-proxy@sha256:1234abcdef"
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef"
 
   - it: should render the proxy deployment with the correct checksums
     template: deployment-proxy.yaml
@@ -723,7 +723,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/tower-connect-proxy:1.0.0"
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy:1.0.0"
 
   - it: should render image with custom registry
     template: deployment-proxy.yaml
@@ -735,7 +735,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/tower-connect-proxy:1.2.3"
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-proxy:1.2.3"
 
   - it: should render image with registry and digest
     template: deployment-proxy.yaml
@@ -747,7 +747,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/tower-connect-proxy@sha256:1234abcdef"
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef"
 
   - it: should render container with correct imagePullPolicy
     template: deployment-proxy.yaml
@@ -1448,7 +1448,7 @@ tests:
           value: custom-sa
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "my-registry.com/private/nf-tower-enterprise/data-studio/tower-connect-proxy:2.0.0"
+          value: "my-registry.com/private/nf-tower-enterprise/data-studio/connect-proxy:2.0.0"
       - lengthEqual:
           path: spec.template.spec.initContainers
           count: 2

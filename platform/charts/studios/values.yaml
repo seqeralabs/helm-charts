@@ -75,7 +75,7 @@ proxy:
     # -- Proxy container image registry
     registry: ""
     # -- Proxy container image repository
-    repository: private/nf-tower-enterprise/data-studio/tower-connect-proxy
+    repository: private/nf-tower-enterprise/data-studio/connect-proxy
     # -- Proxy container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
@@ -233,7 +233,7 @@ server:
     # -- Server container image registry
     registry: ""
     # -- Server container image repository
-    repository: private/nf-tower-enterprise/data-studio/tower-connect-server
+    repository: private/nf-tower-enterprise/data-studio/connect-server
     # -- Server container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
