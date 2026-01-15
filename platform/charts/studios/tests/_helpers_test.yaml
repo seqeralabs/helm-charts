@@ -211,11 +211,12 @@ tests:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
           value: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
-  - it: should use custom secret key when oidcClientRegistrationTokenSecretKey is provided
+  - it: should use custom secret key when oidcClientRegistrationTokenSecretKey is provided with external secret
     template: deployment-proxy.yaml
     set:
       proxy:
-        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "external-secret"
         oidcClientRegistrationTokenSecretKey: "CUSTOM_OIDC_KEY"
     asserts:
       - equal:
@@ -232,3 +233,62 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
           value: "RELEASE-NAME_OIDC_TOKEN"
+
+  # Test context parameter is properly used for tpl evaluation
+  - it: should use context parameter for tpl evaluation in existingSecretName
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "RELEASE-NAME-studios-oidc"
+
+  - it: should always use OIDC_CLIENT_REGISTRATION_TOKEN key when using chart-managed secret even if secretKey is customized
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
+        oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_TOKEN"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+
+  - it: should use custom secret key with tpl evaluation when using external secret
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "external-secret"
+        oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_TOKEN"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "STUDIOS_TOKEN"
+
+  # Test that empty string values properly trigger defaults
+  - it: should use default secret name when existingSecretName is empty string
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "release-name-studios"
+
+  - it: should use default secret key when existingSecretKey is empty string
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "OIDC_CLIENT_REGISTRATION_TOKEN"

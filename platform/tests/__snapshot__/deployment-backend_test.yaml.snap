@@ -22,6 +22,11 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: TOWER_CRYPTO_SECRETKEY
                 name: release-name-platform-backend
+          - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+                name: release-name-studios
           - name: NXF_HOME
             value: /var/cache/tower/
           - name: NXF_PLUGINS_DIR
@@ -253,6 +258,11 @@ should render the backend deployment with the correct checksums, labels and anno
                     secretKeyRef:
                       key: TOWER_CRYPTO_SECRETKEY
                       name: release-name-platform-backend
+                - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: OIDC_CLIENT_REGISTRATION_TOKEN
+                      name: release-name-studios
                 - name: NXF_HOME
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR

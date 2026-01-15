@@ -310,6 +310,11 @@ tests:
                 secretKeyRef:
                   key: TOWER_CRYPTO_SECRETKEY
                   name: release-name-platform-backend
+            - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: OIDC_CLIENT_REGISTRATION_TOKEN
+                  name: release-name-studios
             - name: NXF_HOME
               value: /var/cache/tower/
             - name: NXF_PLUGINS_DIR
@@ -1206,3 +1211,154 @@ tests:
               secretKeyRef:
                 name: my-smtp-secret
                 key: my-smtp-secret-key
+
+  - it: should mount the OIDC registration token when studios is enabled with inline token
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: "my-inline-token"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
+          value:
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+
+  - it: should mount the OIDC registration token when studios is enabled with external secret and default key
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
+          value:
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-oidc-secret
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+
+  - it: should mount the OIDC registration token when studios is enabled with external secret and custom key
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
+          oidcClientRegistrationTokenSecretKey: "my-custom-key"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
+          value:
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-oidc-secret
+                key: my-custom-key
+
+  - it: should not mount the OIDC registration token when studios is disabled
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: false
+        proxy:
+          oidcClientRegistrationToken: "my-inline-token"
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
+
+  - it: should still mount the OIDC registration token when studios is enabled but no token is provided, because the chart creates a random one in that case
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: ""
+          oidcClientRegistrationTokenSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef
+          value:
+            name: "release-name-studios"
+            key: "OIDC_CLIENT_REGISTRATION_TOKEN"
+
+  # Test that studios.oidcToken helpers work correctly when called from platform chart with subchart context
+  - it: should use studios subchart fullname (release-name-studios) when called from platform chart with inline token
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: "my-token"
+          oidcClientRegistrationTokenSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
+          value: "release-name-studios"
+
+  - it: should evaluate template expressions using subchart context when called from platform chart
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: ""
+          oidcClientRegistrationTokenSecretName: "{{ .Release.Name }}-{{ .Chart.Name }}"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
+          value: "RELEASE-NAME-studios"
+
+  - it: should use custom secret key with template expressions when called from platform chart
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
+          oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_OIDC_KEY"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.key
+          value: "STUDIOS_OIDC_KEY"
+
+  - it: should correctly pass Values and context to studios.oidcToken helpers from platform chart
+    template: deployment-backend.yaml
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: "test-token"
+          oidcClientRegistrationTokenSecretName: ""
+          oidcClientRegistrationTokenSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
+          value:
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+
+  - it: should work when platform chart passes a different release name to studios context
+    template: deployment-backend.yaml
+    release:
+      name: my-custom-release
+    set:
+      studios:
+        enabled: true
+        proxy:
+          oidcClientRegistrationToken: "test-token"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
+          value: "my-custom-release-studios"

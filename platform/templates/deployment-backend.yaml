@@ -134,6 +134,14 @@ spec:
                   name: {{ include "platform.smtp.secretName" . }}
                   key: {{ include "platform.smtp.secretKey" . }}
 {{- end }}
+{{- if .Values.studios.enabled }}
+  {{- $studiosContext := dict "Chart" (dict "Name" "studios") "Release" .Release "Values" .Values.studios }}
+            - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "studios.oidcToken.secretName" $studiosContext }}
+                  key: {{ include "studios.oidcToken.secretKey" $studiosContext }}
+{{- end }}
             - name: NXF_HOME
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR

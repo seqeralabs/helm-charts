@@ -75,14 +75,28 @@ true
   {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "CONNECT_REDIS_PASSWORD" -}}
 {{- end -}}
 
-{{/* OIDC client registration token secret helpers */}}
+{{/* OIDC client registration token secret helpers
+
+Example usage from within studios chart:
+name: {{ include "studios.oidcToken.secretName" . }}
+key: {{ include "studios.oidcToken.secretKey" . }}
+
+Example usage from parent platform chart:
+{{- $studiosContext := dict "Chart" (dict "Name" "studios") "Release" .Release "Values" .Values.studios -}}
+name: {{ include "studios.oidcToken.secretName" $studiosContext }}
+key: {{ include "studios.oidcToken.secretKey" $studiosContext }}
+*/}}
 {{- define "studios.oidcToken.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretName $) -}}
+  {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretName .) -}}
 {{- end -}}
 {{- define "studios.oidcToken.secretName" -}}
-  {{- include "studios.oidcToken.existingSecret" $ | default (include "common.names.fullname" .) -}}
+  {{- include "studios.oidcToken.existingSecret" . | default (include "common.names.fullname" .) -}}
 {{- end -}}
 
 {{- define "studios.oidcToken.secretKey" -}}
-  {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretKey $) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- if (include "studios.oidcToken.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretKey .) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- else -}}
+    {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- end -}}
 {{- end -}}
