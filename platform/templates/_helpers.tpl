@@ -140,7 +140,11 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- if (include "platform.database.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_DB_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -246,7 +250,11 @@ Return the name of the secret containing the Redis password.
 Return the key of the secret containing the Redis password.
 */}}
 {{- define "platform.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- if (include "platform.redis.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_REDIS_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -259,7 +267,11 @@ Return the name of the secret containing the JWT token.
   {{- include "platform.jwt.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.jwt.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- if (include "platform.jwt.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- else -}}
+    {{- printf "TOWER_JWT_SECRET" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -272,7 +284,11 @@ Return the name of the secret containing the crypto token.
   {{- include "platform.crypto.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.crypto.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- if (include "platform.crypto.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- else -}}
+    {{- printf "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -285,7 +301,11 @@ Return the name of the secret containing the Platform license token.
   {{- include "platform.license.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.license.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- if (include "platform.license.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- else -}}
+    {{- printf "TOWER_LICENSE" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -298,7 +318,11 @@ Return the name of the secret containing the SMTP password.
   {{- include "platform.smtp.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.smtp.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- if (include "platform.smtp.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_SMTP_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* Common initContainer to wait for Cron service to be ready.

@@ -9,14 +9,14 @@ should run using config requested by the user:
     template:
       metadata:
         annotations:
-          checksum/secret: 48e65cc5087ad4333dbc45d8967e94a018fd2b63c9a7de38c1e86738a8534f78
+          checksum/secret: a2a9db8e7d920de0bd2bcace78448c0b8a9339e79c0572b1493bb00ec6020e87
         labels:
           app.kubernetes.io/component: server
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/managed-by: Helm
           app.kubernetes.io/name: studios
-          app.kubernetes.io/version: 0.8.0
-          helm.sh/chart: studios-1.0.0
+          app.kubernetes.io/version: 9.9.9
+          helm.sh/chart: studios-8.7.6_test
       spec:
         containers:
           - args:
@@ -36,7 +36,7 @@ should run using config requested by the user:
                   name: CMContainingExtraEnvVars
               - secretRef:
                   name: SecretContainingExtraEnvVars
-            image: private/nf-tower-enterprise/data-studio/tower-connect-server:0.8.0
+            image: private/nf-tower-enterprise/data-studio/tower-connect-server:9.9.9
             imagePullPolicy: Always
             name: server
             securityContext:

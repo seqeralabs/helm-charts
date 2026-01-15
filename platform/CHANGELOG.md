@@ -5,6 +5,18 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-01-15
+
+### Fixed
+
+- Fixed `secretKey` helper functions to ignore custom `existingSecretKey` when using chart-managed secrets, ensuring consistency with external secret handling pattern
+  - Fixed `platform.database.secretKey` helper
+  - Fixed `platform.redis.secretKey` helper
+  - Fixed `platform.jwt.secretKey` helper
+  - Fixed `platform.crypto.secretKey` helper
+  - Fixed `platform.license.secretKey` helper
+  - Fixed `platform.smtp.secretKey` helper
+
 ## [0.24.0] - 2026-01-13
 
 ### Added

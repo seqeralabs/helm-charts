@@ -8,14 +8,14 @@ should run using config requested by the user:
     template:
       metadata:
         annotations:
-          checksum/secret: 48e65cc5087ad4333dbc45d8967e94a018fd2b63c9a7de38c1e86738a8534f78
+          checksum/secret: 9070109ee8297c2e2a96e796e188be651141f35cd2360ad8e4edfc30d465cce5
         labels:
           app.kubernetes.io/component: proxy
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/managed-by: Helm
           app.kubernetes.io/name: studios
-          app.kubernetes.io/version: 0.8.0
-          helm.sh/chart: studios-1.0.0
+          app.kubernetes.io/version: 9.9.9
+          helm.sh/chart: studios-9.9.9_test
       spec:
         containers:
           - args:
@@ -40,7 +40,7 @@ should run using config requested by the user:
                   name: CMContainingExtraEnvVars
               - secretRef:
                   name: SecretContainingExtraEnvVars
-            image: private/nf-tower-enterprise/data-studio/tower-connect-proxy:0.8.0
+            image: private/nf-tower-enterprise/data-studio/tower-connect-proxy:9.9.9
             imagePullPolicy: Always
             name: proxy
             ports:

@@ -146,27 +146,41 @@ tests:
           path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
           value: "CONNECT_REDIS_PASSWORD"
 
-  - it: should use custom secret key when existingSecretKey is provided
+  - it: should use custom secret key when existingSecretKey is provided with external secret
     template: deployment-proxy.yaml
     set:
       redis:
-        password: "test-password"
+        password: ""
+        existingSecretName: "external-redis-secret"
         existingSecretKey: "CUSTOM_REDIS_KEY"
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
           value: "CUSTOM_REDIS_KEY"
 
-  - it: should evaluate template expressions in redis existingSecretKey
+  - it: should evaluate template expressions in redis existingSecretKey with external secret
     template: deployment-proxy.yaml
     set:
       redis:
-        password: "test-password"
+        password: ""
+        existingSecretName: "external-redis-secret"
         existingSecretKey: "{{ .Release.Name }}_REDIS_PASSWORD"
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
           value: "RELEASE-NAME_REDIS_PASSWORD"
+
+  - it: should always use CONNECT_REDIS_PASSWORD key when using chart-managed secret even if secretKey is customized
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        password: "test-password"
+        existingSecretName: ""
+        existingSecretKey: "{{ .Chart.Name | upper }}_REDIS_KEY"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: "CONNECT_REDIS_PASSWORD"
 
   # studios.oidcToken.secretName helper tests
   - it: should return chart fullname for oidc secret when no existing secret specified

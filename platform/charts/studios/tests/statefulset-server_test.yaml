@@ -98,6 +98,9 @@ tests:
 
   - it: should run using config requested by the user
     template: statefulset-server.yaml
+    chart:
+      version: "8.7.6+test"
+      appVersion: "9.9.9"
     set:
       proxy:
         # required otherwise the charts generates a random value which changes the secret checksum

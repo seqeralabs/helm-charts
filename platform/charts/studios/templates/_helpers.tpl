@@ -72,7 +72,11 @@ true
 {{- end -}}
 
 {{- define "studios.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "CONNECT_REDIS_PASSWORD" -}}
+  {{- if (include "studios.redis.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.redis.existingSecretKey .) | default "CONNECT_REDIS_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "CONNECT_REDIS_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* OIDC client registration token secret helpers
