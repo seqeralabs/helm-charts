@@ -20,11 +20,12 @@
 global:
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template
-  platformServiceAddress: "platform-backend"
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
   # -- Seqera Platform Service port
   platformServicePort: 8080
 
-  # -- Domain where the Studios service listens. Evaluated as a template
+  # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
+  # wildcard subdomains. Evaluated as a template
   studiosDomain: studios.example.com
   # -- Base URL for Studios connections: can be any value, since each session will use a unique
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template

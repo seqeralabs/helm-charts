@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -41,6 +41,7 @@ tests:
           value:
             GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
             MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+            TOWER_DATA_STUDIO_CONNECT_URL: "https://connect.studios.example.com"
 
   - it: should render cron cm with default values
     documentSelector:
@@ -82,6 +83,31 @@ tests:
       - equal:
           path: data.MICRONAUT_ENVIRONMENTS
           value: prod,whatever1,whatever2,redis,cron
+
+  - it: should evaluate template expressions in global.studiosConnectionUrl for backend configmap
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      global:
+        platformExternalDomain: "my-platform.example.com"
+        studiosDomain: "studios.example.net"
+        studiosConnectionUrl: '{{ printf "https://mycustomconnect.%s" .Values.global.studiosDomain }}'
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_STUDIO_CONNECT_URL
+          value: "https://mycustomconnect.studios.example.net"
+
+  - it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: false
+    asserts:
+      - notExists:
+          path: data.TOWER_DATA_STUDIO_CONNECT_URL
 
   - it: should include SMTP configuration when configured
     documentSelector:

@@ -42,9 +42,16 @@ global:
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template
-  platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
   # -- Seqera Platform Service port
   platformServicePort: 8080
+
+  # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
+  # wildcard subdomains. Evaluated as a template
+  studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
+  # -- Base URL for Studios connections: can be any value, since each session will use a unique
+  # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
+  studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically

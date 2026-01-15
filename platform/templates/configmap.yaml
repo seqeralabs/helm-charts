@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -34,6 +34,9 @@ data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
 {{- if (index .Values "pipeline-optimization" "enabled") }}
   GROUNDSWELL_SERVER_URL: {{ printf "http://%s:%s" (include "common.names.dependency.fullname" (dict "chartName" "pipeline-optimization" "chartValues" (index .Values "pipeline-optimization") "context" $)) (tpl (index .Values "pipeline-optimization" "service" "http" "port" | toString) .) | quote }}
+{{- end }}
+{{- if .Values.studios.enabled }}
+  TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
 {{- end }}
 ---
 kind: ConfigMap
