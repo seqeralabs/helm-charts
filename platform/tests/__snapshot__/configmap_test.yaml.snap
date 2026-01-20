@@ -1,3 +1,22 @@
+should render backend cm with default values:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
 should render shared cm with default values:
   1: |
     apiVersion: v1

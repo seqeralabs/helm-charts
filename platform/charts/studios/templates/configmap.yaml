@@ -47,8 +47,7 @@ data:
   CONNECT_HTTP_PORT: {{ .Values.proxy.service.http.targetPort | quote }}
   CONNECT_PROXY_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
   CONNECT_TUNNEL_URL: {{ printf "%s-server:%d" (include "common.names.fullname" .) (.Values.server.tunnelPort | int) | quote }}
-  # TODO: Should the platform URL automatically be converted to https if the port is 443?
-  PLATFORM_URL: {{ printf "http://%s:%d" (tpl .Values.global.platformServiceAddress .) (.Values.global.platformServicePort | int) | quote }}
+  PLATFORM_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain .)  | quote }}
   LOCAL_CACHE_TTL: {{ .Values.proxy.localCacheTTL | quote }}
 ---
 kind: ConfigMap

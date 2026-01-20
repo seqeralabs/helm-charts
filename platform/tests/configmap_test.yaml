@@ -36,13 +36,7 @@ tests:
     asserts:
       - isKind:
           of: ConfigMap
-      - equal:
-          path: data
-          value:
-            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
-            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-            TOWER_DATA_STUDIO_CONNECT_URL: "https://connect.studios.example.com"
-            TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+      - matchSnapshot: {}
 
   - it: should render cron cm with default values
     documentSelector:
