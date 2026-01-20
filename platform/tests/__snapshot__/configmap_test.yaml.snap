@@ -1,3 +1,89 @@
+should handle empty Studios tools map:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+should render Studios tools environment variables when studios is enabled with default tools:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
 should render backend cm with default values:
   1: |
     apiVersion: v1
@@ -5,6 +91,183 @@ should render backend cm with default values:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+should render custom Studios tool when provided:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_REPOSITORY: registry.example.com/custom-tool:v1.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+should render custom Studios tool with deprecated and experimental versions when provided:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_REPOSITORY: registry.example.com/custom-tool:v1.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_EXPERIMENTAL_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_EXPERIMENTAL_REPOSITORY: registry.example.com/custom-tool:v3.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_EXPERIMENTAL_STATUS: experimental
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_EXPERIMENTAL_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_REPOSITORY: registry.example.com/custom-tool:v2.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-backend
+      namespace: NAMESPACE
+should render custom Studios tool with deprecated version when provided:
+  1: |
+    apiVersion: v1
+    data:
+      GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+      MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_REPOSITORY: registry.example.com/custom-tool:v1.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_ICON: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_REPOSITORY: registry.example.com/custom-tool:v2.0.0
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_TOOL: customtool
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_ICON: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_JUPYTER_TOOL: jupyter
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_ICON: ride
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_REPOSITORY: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_RIDE_TOOL: ride
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_STATUS: deprecated
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE-OLD_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_ICON: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_REPOSITORY: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_VSCODE_TOOL: vscode
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_ICON: xpra
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
+      TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:

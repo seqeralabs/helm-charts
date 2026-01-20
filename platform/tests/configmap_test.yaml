@@ -603,3 +603,80 @@ tests:
       - equal:
           path: data.TOWER_DB_URL
           value: "jdbc:mysql://db.example.com:3306/?permitMysqlScheme=true"
+
+  - it: should render Studios tools environment variables when studios is enabled with default tools
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should not render Studios tools environment variables when studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: false
+    asserts:
+      - equal:
+          path: data
+          value:
+            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
+            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+
+  - it: should render custom Studios tool when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v1.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render custom Studios tool with deprecated version when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v2.0.0
+              deprecated: registry.example.com/custom-tool:v1.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render custom Studios tool with deprecated and experimental versions when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v2.0.0
+              deprecated: registry.example.com/custom-tool:v1.0.0
+              experimental: registry.example.com/custom-tool:v3.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should handle empty Studios tools map
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools: {}
+    asserts:
+      - matchSnapshot: {}

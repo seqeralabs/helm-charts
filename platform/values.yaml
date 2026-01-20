@@ -198,6 +198,37 @@ platform:
   # The Wave service provided by Seqera is `https://wave.seqera.io`
   waveServerUrl: "https://wave.seqera.io"
 
+  # Seqera Studios configuration
+  studios:
+    # tools[*] can be any name ..
+    # adding a deprecated and recommended version for each tool to allow upgrading versions
+
+    # -- Map of tools to make available in Studios. Recommended and deprecated versions can be
+    # specified for each tool to allow upgrading from an older version. Refer to the documentation
+    # for more details:
+    # https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template
+    tools:
+      jupyter:
+        tool: jupyter
+        recommended: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+        deprecated: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+
+      vscode:
+        tool: vscode
+        recommended: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+        deprecated: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+
+      ride:
+        tool: ride
+        recommended: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+
+      xpra:
+        tool: xpra
+        recommended: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+    # .platform.studios.tools expects a map: the key can be any name, the only required field is the
+    # recommended.
+    # TODO: tool field, icon, experimental. add full example
+
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
   configMapLabels: {}
   # -- Additional labels for the Secret objects. Evaluated as a template

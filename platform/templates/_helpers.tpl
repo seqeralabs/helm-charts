@@ -374,6 +374,31 @@ Return the name of the secret containing the OIDC private key.
   {{- end -}}
 {{- end -}}
 
+{{/* Generate list of Seqera Studios tool images to provide to the user in the UI
+
+{{ include "platform.studios.toolsEnvVars" $ }}
+*/}}
+{{- define "platform.studios.toolsEnvVars" -}}
+  {{- range $key, $value := .Values.platform.studios.tools }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_STATUS: 'recommended'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_REPOSITORY: '{{ $value.recommended }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- if $value.deprecated }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_STATUS: 'deprecated'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_REPOSITORY: '{{ $value.deprecated }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- end }}
+    {{- if $value.experimental }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_STATUS: 'experimental'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_REPOSITORY: '{{ $value.experimental }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- end }}
+  {{- end -}}
+{{- end -}}
+
 {{/*
 Validate a string value against DNS label naming conventions.
 
