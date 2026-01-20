@@ -325,6 +325,23 @@ Return the name of the secret containing the SMTP password.
   {{- end -}}
 {{- end -}}
 
+{{/*
+Return the name of the secret containing the OIDC private key.
+*/}}
+{{- define "platform.oidc.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.oidcPrivateKeySecretName $) -}}
+{{- end -}}
+{{- define "studios.oidcPrivateKeySecretName" -}}
+  {{- include "platform.oidc.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
+{{- define "platform.oidc.secretKey" -}}
+  {{- if (include "platform.oidc.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.oidcPrivateKeySecretKey $) | default "oidc.pem" -}}
+  {{- else -}}
+    {{- printf "oidc.pem" -}}
+  {{- end -}}
+{{- end -}}
+
 {{/* Common initContainer to wait for Cron service to be ready.
 
 {{ include "platform.initContainerWaitForCron" $ }}

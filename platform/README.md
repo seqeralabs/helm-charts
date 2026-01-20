@@ -104,6 +104,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.licenseString | string | `""` | Platform license key. A license key is a long alphanumeric string provided by your Seqera account manager Define the value as a String or a Secret, not both at the same time |
 | platform.licenseSecretName | string | `""` | Name of an existing Secret containing the Platform license key, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | platform.licenseSecretKey | string | `"TOWER_LICENSE"` | Key in the existing Secret containing the Platform license key |
+| platform.oidcPrivateKeyBase64 | string | `""` | OIDC private key in PEM format, base64-encoded. |
+| platform.oidcPrivateKeySecretName | string | `""` | Name of an existing Secret containing the OIDC private key in PEM format, as an alternative to the base64-encoded string field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| platform.oidcPrivateKeySecretKey | string | `"oidc.pem"` | Key in the existing Secret containing the OIDC private key in PEM format |
 | platform.smtp.host | string | `""` | SMTP server hostname to let users authenticate through email, and to send email notifications for events |
 | platform.smtp.port | string | `""` | SMTP server port |
 | platform.smtp.user | string | `""` | SMTP server username |

@@ -168,6 +168,16 @@ platform:
   # @default -- `"TOWER_LICENSE"`
   licenseSecretKey: ""
 
+  # -- OIDC private key in PEM format, base64-encoded.
+  oidcPrivateKeyBase64: ""
+  # -- Name of an existing Secret containing the OIDC private key in PEM format, as an alternative
+  # to the base64-encoded string field. Note: the Secret must already exist in the same namespace at
+  # the time of deployment
+  oidcPrivateKeySecretName: ""
+  # -- Key in the existing Secret containing the OIDC private key in PEM format
+  # @default -- `"oidc.pem"`
+  oidcPrivateKeySecretKey: ""
+
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
     # notifications for events

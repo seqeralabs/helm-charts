@@ -42,6 +42,7 @@ tests:
             GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
             MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
             TOWER_DATA_STUDIO_CONNECT_URL: "https://connect.studios.example.com"
+            TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
 
   - it: should render cron cm with default values
     documentSelector:
@@ -188,7 +189,10 @@ tests:
       - equal:
           path: data
           value:
-            tower.yml: ""
+            tower.yml: |-
+              tower:
+                data-studio:
+                  allowed-workspaces: null
 
   - it: should render tower-yml cm with provided data
     documentSelector:
@@ -205,6 +209,9 @@ tests:
           path: data
           value:
             tower.yml: |-
+              tower:
+                data-studio:
+                  allowed-workspaces: null
               someKey: someValue
               anotherKey:
                 nestedKey: nestedValue
@@ -228,6 +235,9 @@ tests:
           path: data
           value:
             tower.yml: |-
+              tower:
+                data-studio:
+                  allowed-workspaces: null
               templatedKey:
                 url: https://my-platform.example.com
                 url2: https://my-platform.example.com

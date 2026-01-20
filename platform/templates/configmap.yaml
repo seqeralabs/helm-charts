@@ -37,6 +37,7 @@ data:
 {{- end }}
 {{- if .Values.studios.enabled }}
   TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
+  TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
 {{- end }}
 ---
 kind: ConfigMap
@@ -91,4 +92,9 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   tower.yml: |-
+{{- if .Values.studios.enabled }}
+    tower:
+      data-studio:
+        allowed-workspaces: null
+{{- end }}
     {{- include "seqera.tplvalues.render" (dict "value" .Values.platform.YAMLConfigFileContent "context" $) | nindent 4 }}

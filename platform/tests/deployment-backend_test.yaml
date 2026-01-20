@@ -25,6 +25,11 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+# To avoid expensive RSA key generation in tests, we set a default oidcPrivateKeyBase64 value.
+# Tests can override this if they need to test key generation specifically.
+set:
+  platform:
+    oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
 tests:
   - it: should produce a Deployment resource with minimal values
     # We need to set the template name because we needed to include the secret and configmap files
@@ -530,6 +535,8 @@ tests:
               name: plugin-volume
             - mountPath: /?/.nextflow/
               name: plugin-volume
+            - mountPath: /data/certs
+              name: connect-cert-volume
             - name: extra-volume
               mountPath: /extra/path
 
@@ -550,6 +557,9 @@ tests:
             - emptyDir:
                 sizeLimit: 1Gi
               name: plugin-volume
+            - name: connect-cert-volume
+              secret:
+                secretName: release-name-platform-backend
             - emptyDir: {}
               name: extra-volume
 
