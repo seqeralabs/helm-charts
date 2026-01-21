@@ -77,6 +77,13 @@ spec:
 {{- end }}
 
           env:
+{{- if include "studios.redis.isAuthEnabled" . }}
+            - name: CONNECT_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "studios.redis.secretName" . }}
+                  key: {{ include "studios.redis.secretKey" . }}
+{{- end }}
 {{- with .Values.server.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -85,10 +92,6 @@ spec:
                 name: {{ printf "%s-common" (include "common.names.fullname" .) }}
             - configMapRef:
                 name: {{ printf "%s-server" (include "common.names.fullname" .) }}
-{{- if include "studios.redis.isAuthEnabled" . }}
-            - secretRef:
-                name: {{ printf "%s-redis-password" (include "common.names.fullname" .) }}
-{{- end }}
 {{- with .Values.server.extraEnvVarsCM }}
             - configMapRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}

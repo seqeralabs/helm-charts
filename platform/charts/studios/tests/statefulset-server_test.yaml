@@ -148,18 +148,15 @@ tests:
     template: statefulset-server.yaml
     set:
       redis:
-        auth:
-          enabled: false
-          password: this should not get set
+        password: ""
+        existingSecretName: ""
     asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value: null
       - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
           count: 2
-      - notContains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: release-name-studios-redis-password
 
   # Resources configuration tests
   - it: should not render resources when not specified
@@ -429,13 +426,19 @@ tests:
         password: "my-secret-password"
     asserts:
       - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 1
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: CONNECT_REDIS_PASSWORD
+      - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 3
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: release-name-studios-redis-password
+          count: 2
 
   - it: should enable redis auth when existingSecretName is set
     template: statefulset-server.yaml
@@ -444,13 +447,19 @@ tests:
         existingSecretName: "external-redis-secret"
     asserts:
       - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 1
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: external-redis-secret
+                key: CONNECT_REDIS_PASSWORD
+      - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 3
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: release-name-studios-redis-password
+          count: 2
 
   # Common annotations tests
   - it: should render common annotations on StatefulSet metadata
@@ -485,15 +494,40 @@ tests:
           of: StatefulSet
 
   # Edge cases
-  - it: should handle empty extraEnvVars array gracefully
+  - it: should handle empty extraEnvVars array gracefully without redis auth
     template: statefulset-server.yaml
     set:
+      redis:
+        password: ""
+        existingSecretName: ""
       server:
         extraEnvVars: []
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env
           value: null
+
+  - it: should render redis auth and extraEnvVars together
+    template: statefulset-server.yaml
+    set:
+      redis:
+        password: "my-secret"
+      server:
+        extraEnvVars:
+          - name: CUSTOM_VAR
+            value: custom-value
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 2
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: CONNECT_REDIS_PASSWORD
+      - equal:
+          path: spec.template.spec.containers[0].env[1]
+          value:
+            name: CUSTOM_VAR
+            value: custom-value
 
   - it: should handle empty volumes and volumeMounts
     template: statefulset-server.yaml
@@ -661,7 +695,7 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.containers[0].envFrom
-          count: 5
+          count: 4
       - equal:
           path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
           value: release-name-studios-common
@@ -669,14 +703,18 @@ tests:
           path: spec.template.spec.containers[0].envFrom[1].configMapRef.name
           value: release-name-studios-server
       - equal:
-          path: spec.template.spec.containers[0].envFrom[2].secretRef.name
-          value: release-name-studios-redis-password
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[3].configMapRef.name
+          path: spec.template.spec.containers[0].envFrom[2].configMapRef.name
           value: extra-cm
       - equal:
-          path: spec.template.spec.containers[0].envFrom[4].secretRef.name
+          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
           value: extra-secret
+      # Redis password should be in env, not envFrom
+      - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 1
+      - equal:
+          path: spec.template.spec.containers[0].env[0].name
+          value: CONNECT_REDIS_PASSWORD
 
   - it: should include configMapRef for studios-common
     template: statefulset-server.yaml
