@@ -225,7 +225,7 @@ should render the backend deployment with the correct checksums, labels and anno
       template:
         metadata:
           annotations:
-            checksum/configmap: cac34ecfe2cd691b231e89f15fbed33c915b2560c7129cbd5cfa915c4b4f676b
+            checksum/configmap: d2d09ebac80cadc51976354a52124e9124d524c9229bdcda3e96a085ca161dd5
             checksum/secret: 89b9d79cbae4413992a225994a5e0998097e75457539b51534c0455a1bf91988
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value

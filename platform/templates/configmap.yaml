@@ -98,4 +98,5 @@ data:
       data-studio:
         allowed-workspaces: null
 {{- end }}
+    ---
     {{- include "seqera.tplvalues.render" (dict "value" .Values.platform.YAMLConfigFileContent "context" $) | nindent 4 }}
