@@ -114,7 +114,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
 | proxy.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
 | proxy.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
-| proxy.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| proxy.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | proxy.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | proxy.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | proxy.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
@@ -151,7 +151,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
 | server.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
 | server.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
-| server.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| server.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | server.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | server.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | server.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |

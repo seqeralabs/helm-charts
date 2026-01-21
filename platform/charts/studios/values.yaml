@@ -182,9 +182,9 @@ proxy:
 
   # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
   # Evaluated as a template
-  extraOptionsSpec: {}
+  extraOptionsSpec:
+    replicas: 2
   # extraOptionsSpec:
-  #   replicas: 2
   #   strategy:
   #     rollingUpdate:
   #       maxUnavailable: x
@@ -338,9 +338,9 @@ server:
 
   # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
   # Evaluated as a template
-  extraOptionsSpec: {}
+  extraOptionsSpec:
+    replicas: 2
   # extraOptionsSpec:
-  #   replicas: 2
   #   strategy:
   #     rollingUpdate:
   #       maxUnavailable: x

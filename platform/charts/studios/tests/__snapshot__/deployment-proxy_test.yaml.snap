@@ -1,5 +1,6 @@
 should run using config requested by the user:
   1: |
+    replicas: 2
     selector:
       matchLabels:
         app.kubernetes.io/component: proxy
@@ -122,6 +123,7 @@ should set the proxy deployment image using the chart version and use sane defau
       name: release-name-studios-proxy
       namespace: NAMESPACE
     spec:
+      replicas: 2
       selector:
         matchLabels:
           app.kubernetes.io/component: proxy

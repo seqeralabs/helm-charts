@@ -1,5 +1,6 @@
 should run using config requested by the user:
   1: |
+    replicas: 2
     selector:
       matchLabels:
         app.kubernetes.io/component: server
@@ -77,6 +78,7 @@ should set the statefulset server image using the chart version and use sane def
       name: release-name-studios-server
       namespace: NAMESPACE
     spec:
+      replicas: 2
       selector:
         matchLabels:
           app.kubernetes.io/component: server
