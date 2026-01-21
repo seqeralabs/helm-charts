@@ -43,13 +43,6 @@ global:
   #   password: ""
   #   email: someone@example.com  # Optional
 
-  # # Optionally define nodeSelectors to apply to all Pods created by this chart.
-  # # This is useful to run Pods on specific nodes, e.g. with a specific architecture, e.g.:
-  # # nodeSelector:
-  # #   kubernetes.io/arch: amd64
-  # nodeSelector: {}
-  # # nodeAffinity: {}
-
 # Seqera Studios requires a Redis cache. Seqera recommends using a managed Redis installation
 # provided by an external provider.
 redis:
