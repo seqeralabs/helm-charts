@@ -391,10 +391,10 @@ TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_TOOL: '{{ $value.tool }}'
 TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_ICON: '{{ $value.icon |default $value.tool }}'
     {{- end }}
     {{- if $value.experimental }}
-TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_STATUS: 'experimental'
-TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_REPOSITORY: '{{ $value.experimental }}'
-TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_TOOL: '{{ $value.tool }}'
-TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_EXPERIMENTAL_ICON: '{{ $value.icon |default $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_STATUS: 'experimental'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_REPOSITORY: '{{ $value.experimental }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_ICON: '{{ $value.icon |default $value.tool }}'
     {{- end }}
   {{- end -}}
 {{- end -}}
