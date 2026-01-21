@@ -628,6 +628,7 @@ tests:
           value:
             GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
             MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+            TOWER_DATA_EXPLORER_ENABLED: "false"
 
   - it: should render custom Studios tool when provided
     documentSelector:
@@ -684,3 +685,16 @@ tests:
           tools: {}
     asserts:
       - matchSnapshot: {}
+
+  - it: should turn on data explorer flag when enabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"

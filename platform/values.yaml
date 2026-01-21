@@ -198,6 +198,11 @@ platform:
   # The Wave service provided by Seqera is `https://wave.seqera.io`
   waveServerUrl: "https://wave.seqera.io"
 
+  dataExplorer:
+    # -- Enable the Data Explorer feature:
+    # https://docs.seqera.io/platform-enterprise/data/data-explorer
+    enabled: false
+
   # Seqera Studios configuration
   studios:
     # tools[*] can be any name ..
