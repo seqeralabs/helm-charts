@@ -44,12 +44,6 @@ helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/pipeline-optimization
 
-## Examples
-
-Refer to the [examples directory](./examples) for different scenarios of installing the Pipeline Optimization chart.
-The examples provided are showcasing possible configurations of the helm chart, and are not representative of a full installation.
-Please refer to the [Seqera Pipeline Optimization documentation](https://docs.seqera.io/platform-enterprise/enterprise/configuration/pipeline_optimization) for complete installation instructions.
-
 ## Upgrading the chart
 
 When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md) for breaking changes and migration instructions.
