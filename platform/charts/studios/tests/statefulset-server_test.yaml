@@ -461,19 +461,75 @@ tests:
           path: spec.template.spec.containers[0].envFrom
           count: 2
 
-  # Common annotations tests
-  - it: should render common annotations on StatefulSet metadata
+  - it: should use custom existingSecretKey when both existingSecretName and existingSecretKey are set
+    template: statefulset-server.yaml
+    set:
+      redis:
+        existingSecretName: "external-redis-secret"
+        existingSecretKey: "MY_CUSTOM_KEY"
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].env
+          count: 1
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: external-redis-secret
+                key: MY_CUSTOM_KEY
+
+  # Metadata tests
+  - it: should apply commonLabels to statefulset metadata
+    template: statefulset-server.yaml
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3
+    set:
+      commonLabels:
+        environment: production
+        team: platform
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/component: server
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3
+            helm.sh/chart: studios-9.8.7
+            environment: production
+            team: platform
+
+  - it: should apply commonAnnotations to statefulset metadata
     template: statefulset-server.yaml
     set:
       commonAnnotations:
-        my-annotation: "my-value"
-        another-annotation: "another-value"
+        example.com/annotation: value1
+        another.com/annotation: value2
     asserts:
       - equal:
           path: metadata.annotations
           value:
-            my-annotation: "my-value"
-            another-annotation: "another-value"
+            example.com/annotation: value1
+            another.com/annotation: value2
+
+  - it: should evaluate template expressions in commonAnnotations
+    template: statefulset-server.yaml
+    release:
+      name: my-release
+    set:
+      commonAnnotations:
+        release-annotation: '{{ .Release.Name }}-annotation'
+        chart-annotation: '{{ .Chart.Name }}'
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            release-annotation: my-release-annotation
+            chart-annotation: studios
 
   - it: should not render annotations when commonAnnotations is empty
     template: statefulset-server.yaml
