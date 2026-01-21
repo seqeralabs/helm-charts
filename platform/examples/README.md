@@ -16,8 +16,8 @@ The following examples demonstrate possible configurations for enabling and cust
 
 | Example | Description |
 |---------|-------------|
-| [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline
-Optimization service subchart with database setup and registry access |
+| [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline Optimization service subchart with database setup and registry access |
+| [studios/](studios/) | Studios subchart configuration for interactive data analysis environments with ingress setup |
 
 ## Additional Resources
 
