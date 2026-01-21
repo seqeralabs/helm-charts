@@ -18,24 +18,22 @@
 */}}
 
 {{ if .Values.ingress.enabled }}
----
+  {{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+  {{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.extraLabels $commonLabels) "context" .) -}}
+  {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+  {{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) -}}
+  {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
-  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-  {{- with .Values.ingress.extraLabels }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
-    {{- $annotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) }}
-  annotations: {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $) | nindent 4 }}
-  {{- end }}
-
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
 spec:
   {{- with .Values.ingress.defaultBackend }}
-  defaultBackend: {{- include "common.tplvalues.render" ( dict "value" . "context" $ ) | nindent 4 }}
+  defaultBackend: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
   {{- if .Values.ingress.ingressClassName }}
@@ -47,24 +45,25 @@ spec:
   {{- end }}
 
   rules:
-    {{/* Hostname where to expose the connect service. */}}
-    - host: {{ tpl .Values.ingress.rules.host.connectDomain . | quote }}
+    {{/* Wildcard subdomain where to expose Studios */}}
+    - host: '{{ printf "*.%s" (tpl .Values.global.studiosDomain $) }}'
       http:
         paths:
-          - backend:
+          - path: {{ .Values.ingress.path | quote }}
+            pathType: {{ .Values.ingress.defaultPathType }}
+            backend:
               service:
                 name: {{ printf "%s-proxy" (include "common.names.fullname" .) | quote }}
                 port:
                   number: {{ .Values.proxy.service.http.port }}
-            pathType: {{ .Values.ingress.rules.host.pathType }}
-            path: {{ .Values.ingress.rules.host.path }}
+
   {{- range .Values.ingress.extraHosts }}
     - host: {{ tpl .host $ | quote }}
       http:
         paths:
     {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType | default "ImplementationSpecific" }}
+            pathType: {{ .pathType | default $.Values.ingress.defaultPathType }}
             backend:
               service:
                 name: {{ tpl .serviceName $ | quote }}

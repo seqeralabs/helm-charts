@@ -8,7 +8,7 @@ should configure extra hosts with multiple paths:
                 name: release-name-studios-proxy
                 port:
                   number: 80
-            path: /*
+            path: /
             pathType: ImplementationSpecific
     - host: api.example.com
       http:
@@ -56,7 +56,7 @@ should render complete ingress with all features:
                     name: release-name-studios-proxy
                     port:
                       number: 80
-                path: /*
+                path: /
                 pathType: ImplementationSpecific
         - host: admin.example.com
           http:
@@ -77,6 +77,7 @@ should render ingress when enabled with defaults:
     apiVersion: networking.k8s.io/v1
     kind: Ingress
     metadata:
+      annotations: {}
       labels:
         app.kubernetes.io/instance: release-name
         app.kubernetes.io/managed-by: Helm
@@ -95,5 +96,5 @@ should render ingress when enabled with defaults:
                     name: release-name-studios-proxy
                     port:
                       number: 80
-                path: /*
+                path: /
                 pathType: ImplementationSpecific

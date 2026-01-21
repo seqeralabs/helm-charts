@@ -81,7 +81,7 @@ tests:
             service:
               name: 'whatever'
               port:
-                number: '123'
+                number: 123
       - equal:
           path: spec.ingressClassName
           value: class-name
@@ -115,7 +115,7 @@ tests:
           value: "ImplementationSpecific"
       - equal:
           path: spec.rules[0].http.paths[0].path
-          value: "/*"
+          value: "/"
       - equal:
           path: spec.rules[0].http.paths[0].backend.service.name
           value: release-name-studios-proxy
@@ -173,10 +173,8 @@ tests:
         studiosDomain: 'studios.example.com'
       ingress:
         enabled: true
-        rules:
-          host:
-            pathType: Prefix
-            path: "/custom-path"
+        path: "/custom-path"
+        defaultPathType: "Prefix"
     asserts:
       - equal:
           path: spec.rules[0].http.paths[0].pathType
@@ -239,7 +237,7 @@ tests:
           path: spec.rules[1].http.paths[0].backend.service.port.number
           value: 9090
 
-  - it: should not set annotations when none provided
+  - it: should render empty annotations when none provided
     set:
       global:
         studiosDomain: 'studios.example.com'
@@ -248,8 +246,9 @@ tests:
         annotations: {}
       commonAnnotations: {}
     asserts:
-      - notExists:
+      - equal:
           path: metadata.annotations
+          value: {}
 
   - it: should handle multiple TLS configurations
     set:
@@ -398,7 +397,7 @@ tests:
           value: release-name-studios-custom
       - equal:
           path: spec.defaultBackend.service.port.number
-          value: "80"
+          value: 80
 
   - it: should configure TLS with multiple hosts in one entry
     set:

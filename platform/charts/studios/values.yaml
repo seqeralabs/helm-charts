@@ -421,44 +421,55 @@ serviceAccount:
   automountServiceAccountToken: true
 
 ingress:
+  # -- Enable ingress for Studios Proxy
   enabled: false
-  rules:
-    host:
-      # Studios needs an ingress listening on all subdomains of the connect domain.
-      connectDomain: '{{ printf "*.%s" (tpl .Values.global.studiosDomain $) }}'
-      pathType: ImplementationSpecific
-      path: "/*"
 
-  # Configure the default service for the ingress (evaluated as template).
+  # -- Path for the main ingress rule
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
+  path: "/"
+
+  # -- Default path type for the Ingress
+  defaultPathType: "ImplementationSpecific"
+
+  # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
-  # ingress doesn't reconcile successfully, `describe ingress <name>` will report problems.
-  #
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  defaultBackend: {}
   # defaultBackend:
   #   service:
-  #     name: '{{ printf "%s-proxy" (include "common.names.fullname" .) }}'
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
   #     port:
-  #       number: "{{ .Values.proxy.service.http.port }}"
-  defaultBackend: {}
+  #       number: '{{ .Values.frontend.service.http.port }}'
 
-  # List of extra hosts you want to include:
-  #
-  # extraHosts:
-  #   - host: "hostName"
-  #     paths:
-  #       - path: "/*"
-  #         pathType: ""  # Optional. Default is ImplementationSpecific.
-  #         serviceName: "serviceName"  # Evaluated as a template.
-  #         portNumber: portNumber
+  # -- Additional hosts you want to include. Evaluated as a template
   extraHosts: []
+  # extraHosts:
+  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.global.platformServicePort }}'
+  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.frontend.service.http.port }}'
 
-  # Ingress annotations specific to your load balancer.
+  # -- Ingress annotations specific to your load balancer. Evaluated as a template
   annotations: {}
-  # Additional labels for the ingress. Evaluated as a template.
+  # -- Additional labels for the ingress object. Evaluated as a template
   extraLabels: {}
-  # Name of the ingress class (replaces deprecated annotation `kubernetes.io/ingress.class`)
+  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`)
   ingressClassName: ""
-  # TLS configuration. Evaluated as a template.
+  # -- TLS configuration. Evaluated as a template
   tls: []
+  # tls:
+  #   - hosts:
+  #       - '{{ .Values.global.platformExternalDomain }}'
+  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  #     secretName: my-tls
 
 # -- Array of extra objects to deploy with the release
 extraDeploy: []

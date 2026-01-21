@@ -180,16 +180,15 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.imagePullSecretNames | list | `[]` |  |
 | serviceAccount.automountServiceAccountToken | bool | `true` |  |
-| ingress.enabled | bool | `false` |  |
-| ingress.rules.host.connectDomain | string | `"{{ printf \"*.%s\" (tpl .Values.global.studiosDomain $) }}"` |  |
-| ingress.rules.host.pathType | string | `"ImplementationSpecific"` |  |
-| ingress.rules.host.path | string | `"/*"` |  |
-| ingress.defaultBackend | object | `{}` |  |
-| ingress.extraHosts | list | `[]` |  |
-| ingress.annotations | object | `{}` |  |
-| ingress.extraLabels | object | `{}` |  |
-| ingress.ingressClassName | string | `""` |  |
-| ingress.tls | list | `[]` |  |
+| ingress.enabled | bool | `false` | Enable ingress for Studios Proxy |
+| ingress.path | string | `"/"` | Path for the main ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
+| ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress |
+| ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
+| ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
+| ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
+| ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
+| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
+| ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` |  |
