@@ -89,10 +89,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.image.digest | string | `""` | Proxy container image digest in the format `sha256:1234abcdef` |
 | proxy.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | proxy.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| proxy.oidcClientRegistrationToken | string | `""` |  |
-| proxy.oidcClientRegistrationTokenSecretName | string | `""` |  |
+| proxy.oidcClientRegistrationToken | string | `""` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token |
+| proxy.oidcClientRegistrationTokenSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
-| proxy.localCacheTTL | string | `"2m"` |  |
+| proxy.localCacheTTL | string | `"2m"` | TTL for local cache of Redis keys used for resiliency against Redis failures |
 | proxy.service.type | string | `"ClusterIP"` | Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | proxy.service.http.name | string | `"http"` | Service name to use |
 | proxy.service.http.port | int | `80` | Service port |
@@ -116,15 +116,14 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | proxy.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | proxy.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
-| proxy.podSecurityContext.enabled | bool | `true` |  |
-| proxy.podSecurityContext.fsGroup | int | `65532` |  |
-| proxy.containerSecurityContext.enabled | bool | `true` |  |
-| proxy.containerSecurityContext.runAsUser | int | `65532` |  |
-| proxy.containerSecurityContext.runAsGroup | int | `65532` |  |
-| proxy.containerSecurityContext.runAsNonRoot | bool | `true` |  |
-| proxy.containerSecurityContext.readOnlyRootFilesystem | bool | `false` |  |
-| proxy.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
-| proxy.containerSecurityContext.capabilities.add[0] | string | `"NET_BIND_SERVICE"` |  |
+| proxy.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
+| proxy.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| proxy.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
+| proxy.containerSecurityContext.runAsUser | int | `65532` | UID the container processes run as (overrides container image default) |
+| proxy.containerSecurityContext.runAsGroup | int | `65532` | GID the container processes run as (overrides container image default) |
+| proxy.containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| proxy.containerSecurityContext.readOnlyRootFilesystem | bool | `false` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| proxy.containerSecurityContext.capabilities | object | `{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | proxy.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | server.image.registry | string | `""` | Server container image registry |
 | server.image.repository | string | `"private/nf-tower-enterprise/data-studio/connect-server"` | Server container image repository |
@@ -132,12 +131,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.image.digest | string | `""` | Server container image digest in the format `sha256:1234abcdef` |
 | server.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | server.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| server.tunnelPort | int | `7070` |  |
-| server.listenerPort | int | `7777` |  |
+| server.tunnelPort | int | `7070` | Port that proxy contacts the server at to create a new tunnel |
+| server.listenerPort | int | `7777` | Port where the server listens for connections from the Studios clients |
 | server.service.type | string | `"ClusterIP"` | Server Service type. There should be no need to expose the Studios Server service outside of the cluster, since traffic goes through the proxy |
 | server.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
 | server.service.extraOptions | object | `{"clusterIP":"None"}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
-| server.logLevel | string | `"info"` |  |
+| server.logLevel | string | `"info"` | Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal` |
 | server.initContainers | list | `[]` | Additional init containers for the server pod. Evaluated as a template |
 | server.command | list | `[]` | Override default container command (useful when using custom images) |
 | server.args | list | `[]` | Override default container args (useful when using custom images) |
@@ -154,32 +153,31 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | server.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | server.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
-| server.podSecurityContext.enabled | bool | `true` |  |
-| server.podSecurityContext.fsGroup | int | `65532` |  |
-| server.containerSecurityContext.enabled | bool | `true` |  |
-| server.containerSecurityContext.runAsUser | int | `65532` |  |
-| server.containerSecurityContext.runAsGroup | int | `65532` |  |
-| server.containerSecurityContext.runAsNonRoot | bool | `true` |  |
-| server.containerSecurityContext.readOnlyRootFilesystem | bool | `false` |  |
-| server.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
-| server.containerSecurityContext.capabilities.add[0] | string | `"NET_BIND_SERVICE"` |  |
+| server.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
+| server.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| server.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
+| server.containerSecurityContext.runAsUser | int | `65532` | UID the container processes run as (overrides container image default) |
+| server.containerSecurityContext.runAsGroup | int | `65532` | GID the container processes run as (overrides container image default) |
+| server.containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| server.containerSecurityContext.readOnlyRootFilesystem | bool | `false` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| server.containerSecurityContext.capabilities | object | `{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | server.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies (for example, wait for Seqera Platform readiness before starting, etc) |
 | initContainerDependencies.waitForPlatform.enabled | bool | `true` | Enable wait for Seqera Platform init container before starting the proxy |
-| initContainerDependencies.waitForPlatform.image.registry | string | `""` | Override default wait for Platform init container image |
-| initContainerDependencies.waitForPlatform.image.repository | string | `"curlimages/curl"` |  |
-| initContainerDependencies.waitForPlatform.image.tag | string | `"latest"` |  |
-| initContainerDependencies.waitForPlatform.image.digest | string | `""` |  |
-| initContainerDependencies.waitForPlatform.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForPlatform.image.registry | string | `""` | Wait for Platform init container image registry |
+| initContainerDependencies.waitForPlatform.image.repository | string | `"curlimages/curl"` | Wait for Platform init container image repository |
+| initContainerDependencies.waitForPlatform.image.tag | string | `"latest"` | Wait for Platform init container image tag |
+| initContainerDependencies.waitForPlatform.image.digest | string | `""` | Wait for Platform init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForPlatform.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the wait for Platform init container |
 | initContainerDependencies.waitForPlatform.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForPlatform.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | initContainerDependencies.waitForPlatform.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForPlatform.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForPlatform.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.1","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| serviceAccount.name | string | `""` |  |
-| serviceAccount.annotations | object | `{}` |  |
-| serviceAccount.imagePullSecretNames | list | `[]` |  |
-| serviceAccount.automountServiceAccountToken | bool | `true` |  |
+| serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
+| serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |
+| serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
+| serviceAccount.automountServiceAccountToken | bool | `true` | Automount service account token when the ServiceAccount is generated |
 | ingress.enabled | bool | `false` | Enable ingress for Studios Proxy |
 | ingress.path | string | `"/"` | Path for the main ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
 | ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress |
@@ -190,10 +188,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
-| commonAnnotations | object | `{}` |  |
-| commonLabels | object | `{}` |  |
-| secretLabels | object | `{}` |  |
-| secretAnnotations | object | `{}` |  |
+| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
+| secretAnnotations | object | `{}` | Additional annotations for the Secret objects. Evaluated as a template |
 
 ## Licensing
 

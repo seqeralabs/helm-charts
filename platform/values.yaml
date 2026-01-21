@@ -1068,11 +1068,11 @@ serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
   # the release name
   name: ""
-  # -- Additional annotations for the Platform ServiceAccount to generate
+  # -- Additional annotations for the ServiceAccount to generate
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
-  # -- Automount service account token when the server service account is generated
+  # -- Automount service account token when the service account is generated
   automountServiceAccountToken: false
 
 ingress:

@@ -50,7 +50,7 @@ global:
   # nodeSelector: {}
   # # nodeAffinity: {}
 
-# Seqera Studios requires a Redis cache. Seqera recommends using a managed redis installation
+# Seqera Studios requires a Redis cache. Seqera recommends using a managed Redis installation
 # provided by an external provider.
 redis:
   # -- Redis hostname
@@ -97,18 +97,20 @@ proxy:
     # pullSecrets:
     #   - myRegistryKeySecretName
 
-  # A pre-shared initial access token can be shared with Seqera Platform to restrict
-  # registrations requests to only authorized OIDC clients. See
-  # https://openid.net/specs/openid-connect-registration-1_0.html#ClientRegistration
-  # The token can be provided as a string or as an external k8s Secret: in the latter case, a key
-  # can also be provided
-  # All fields are evaluated as a template
+  # -- Initial access token to share with Seqera Platform to restrict registration requests to
+  # only authorized OIDC clients. The token can be provided as a string of random chars or as an
+  # external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a
+  # Secret is provided, the chart will generate a random token
   oidcClientRegistrationToken: ""
+  # -- Name of an existing Secret containing the OIDC client registration token
+  # as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist
+  # in the same namespace at the time of deployment
   oidcClientRegistrationTokenSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
   # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
   oidcClientRegistrationTokenSecretKey: ""
-  # TODO: add details
+
+  # -- TTL for local cache of Redis keys used for resiliency against Redis failures
   localCacheTTL: "2m"
 
   service:
@@ -195,26 +197,37 @@ proxy:
   #   nodeSelector:
   #     service: myspecialnodegroup
 
-  # Configure Pods Security Context
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Configure Pods Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Empty map to disable Pod Security Context configuration
   podSecurityContext:
+    # -- Enable pod Security Context
     enabled: true
+    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+    # in the pod can share group-owned access
     fsGroup: 65532
 
-  # Configure Container Security Context
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  # Configure Container Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
+    # -- Enable container Security Context
     enabled: true
+    # -- UID the container processes run as (overrides container image default)
     runAsUser: 65532
+    # -- GID the container processes run as (overrides container image default)
     runAsGroup: 65532
+    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
-    readOnlyRootFilesystem: false  # TODO: check whether this can be enabled
+    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: false
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
     capabilities:
       drop:
         - ALL
       add:
         - NET_BIND_SERVICE # needed by caddy
-        # NET_ADMIN can be added for improved performance, increased UDP buffer size, see Linux capabilities at https://hub.docker.com/_/caddy
+        # NET_ADMIN can be added for improved performance and increased UDP buffer size, see Linux
+        # capabilities at https://hub.docker.com/_/caddy
         # - NET_ADMIN
 
   # -- Container requests and limits for different resources like CPU or memory
@@ -227,10 +240,10 @@ proxy:
   # sensible defaults to start with:
   # resources:
   #   requests:
-  #     cpu: "500m"
-  #     memory: "512Mi"
+  #     cpu: "30m"
+  #     memory: "64Mi"
   #   limits:
-  #     memory: "512Mi"
+  #     memory: "64Mi"
 
 server:
   image:
@@ -255,7 +268,9 @@ server:
     # pullSecrets:
     #   - myRegistryKeySecretName
 
+  # -- Port that proxy contacts the server at to create a new tunnel
   tunnelPort: 7070
+  # -- Port where the server listens for connections from the Studios clients
   listenerPort: 7777
 
   service:
@@ -279,7 +294,7 @@ server:
       # server pods, which will be discovered by DNS and contacted directly, not through the Service
       clusterIP: None
 
-  # Studios Server log level. [TODO: add possible choices]
+  # -- Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal`
   logLevel: "info"
 
   # -- Additional init containers for the server pod. Evaluated as a template
@@ -338,20 +353,30 @@ server:
   #   nodeSelector:
   #     service: myspecialnodegroup
 
-  # Configure Pods Security Context
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Configure Pods Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Empty map to disable Pod Security Context configuration
   podSecurityContext:
+    # -- Enable pod Security Context
     enabled: true
+    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+    # in the pod can share group-owned access
     fsGroup: 65532
 
-  # Configure Container Security Context
-  # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  # Configure Container Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
+    # -- Enable container Security Context
     enabled: true
+    # -- UID the container processes run as (overrides container image default)
     runAsUser: 65532
+    # -- GID the container processes run as (overrides container image default)
     runAsGroup: 65532
+    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
-    readOnlyRootFilesystem: false  # TODO: check whether this can be enabled
+    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: false
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
     capabilities:
       drop:
         - ALL
@@ -368,10 +393,10 @@ server:
   # sensible defaults to start with:
   # resources:
   #   requests:
-  #     cpu: "250m"
-  #     memory: "256Mi"
+  #     cpu: "20m"
+  #     memory: "50Mi"
   #   limits:
-  #     memory: "256Mi"
+  #     memory: "50Mi"
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies (for example, wait for Seqera
@@ -382,12 +407,15 @@ initContainerDependencies:
     # -- Enable wait for Seqera Platform init container before starting the proxy
     enabled: true
     image:
-      # -- Override default wait for Platform init container image
+      # -- Wait for Platform init container image registry
       registry: ""
+      # -- Wait for Platform init container image repository
       repository: "curlimages/curl"
+      # -- Wait for Platform init container image tag
       tag: "latest"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Wait for Platform init container image digest in the format `sha256:1234abcdef`
       digest: ""
+      # -- imagePullPolicy for the wait for Platform init container
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -411,13 +439,14 @@ initContainerDependencies:
         memory: "100Mi"
 
 serviceAccount:
-  # Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated.
+  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
+  # the release name
   name: ""
-  # Annotations for the Studios ServiceAccount to generate.
+  # -- Additional annotations for the ServiceAccount to generate
   annotations: {}
-  # Names of Secrets containing credentials to pull images from registries.
+  # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
-  # Automount service account token when the server service account is generated.
+  # -- Automount service account token when the ServiceAccount is generated
   automountServiceAccountToken: true
 
 ingress:
@@ -481,12 +510,11 @@ extraDeploy: []
 #     kind: AnotherExtraObjectKind
 #     ...
 
-# Common annotations to apply to all objects.
+# -- Annotations to add to all deployed objects
 commonAnnotations: {}
-# Common labels to apply to all objects.
-# WARNING: editing labels after the first installation can cause deployments to break. # TODO: to validate
+# -- Labels to add to all deployed objects
 commonLabels: {}
-# Additional labels for the Secret objects. Evaluated as a template.
+# -- Additional labels for the Secret objects. Evaluated as a template
 secretLabels: {}
-# Additional annotations for the Secret objects. Evaluated as a template.
+# -- Additional annotations for the Secret objects. Evaluated as a template
 secretAnnotations: {}

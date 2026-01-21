@@ -354,9 +354,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForCron.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForCron.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
-| serviceAccount.annotations | object | `{}` | Additional annotations for the Platform ServiceAccount to generate |
+| serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
-| serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the server service account is generated |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the service account is generated |
 | ingress.enabled | bool | `false` | Enable ingress for Platform |
 | ingress.path | string | `"/"` | Path for the main ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
 | ingress.contentPath | string | `"/"` | Path for the content domain ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
