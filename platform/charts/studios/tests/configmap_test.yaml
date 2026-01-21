@@ -138,7 +138,7 @@ tests:
             CONNECT_HOST_DOMAIN: release-name-studios-server
             CONNECT_TUNNEL_PORT: "7070"
             CONNECT_LISTENER_PORT: "7777"
-            CONNECT_SERVER_LOG_LEVEL: "info"
+            CONNECT_LOG_LEVEL: "info"
         documentSelector:
           path: metadata.name
           value: release-name-studios-server
@@ -156,7 +156,7 @@ tests:
             CONNECT_HOST_DOMAIN: release-name-studios-server
             CONNECT_LISTENER_PORT: "1234"
             CONNECT_TUNNEL_PORT: "5678"
-            CONNECT_SERVER_LOG_LEVEL: "whatever"
+            CONNECT_LOG_LEVEL: "whatever"
         documentSelector:
           path: metadata.name
           value: release-name-studios-server
@@ -451,7 +451,7 @@ tests:
             CONNECT_HOST_DOMAIN: release-name-studios-server
             CONNECT_TUNNEL_PORT: "8080"
             CONNECT_LISTENER_PORT: "8888"
-            CONNECT_SERVER_LOG_LEVEL: "debug"
+            CONNECT_LOG_LEVEL: "debug"
         documentSelector:
           path: metadata.name
           value: release-name-studios-server
@@ -524,7 +524,7 @@ tests:
       - isNotEmpty:
           path: data.CONNECT_LISTENER_PORT
       - isNotEmpty:
-          path: data.CONNECT_SERVER_LOG_LEVEL
+          path: data.CONNECT_LOG_LEVEL
         documentSelector:
           path: metadata.name
           value: release-name-studios-server

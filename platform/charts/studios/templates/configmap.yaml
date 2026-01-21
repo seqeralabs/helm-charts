@@ -61,4 +61,4 @@ data:
   CONNECT_HOST_DOMAIN: {{ printf "%s-server" (include "common.names.fullname" .) | quote }}
   CONNECT_TUNNEL_PORT: {{ .Values.server.tunnelPort | quote }}
   CONNECT_LISTENER_PORT: {{ .Values.server.listenerPort | quote }}
-  CONNECT_SERVER_LOG_LEVEL: {{ .Values.server.logLevel | quote }}
+  CONNECT_LOG_LEVEL: {{ .Values.server.logLevel | quote }}
