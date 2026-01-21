@@ -105,8 +105,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.args | list | `[]` | Override default container args (useful when using custom images) |
 | proxy.podLabels | object | `{}` | Additional labels for the proxy pod. Evaluated as a template |
 | proxy.podAnnotations | object | `{}` | Additional annotations for the proxy pod. Evaluated as a template |
-| proxy.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
-| proxy.configMapAnnotations | object | `{}` | Additional annotations for the ConfigMap objects. Evaluated as a template |
 | proxy.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | proxy.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | proxy.extraEnvVars | list | `[]` | Extra environment variables to set on the proxy pod |
@@ -142,8 +140,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.args | list | `[]` | Override default container args (useful when using custom images) |
 | server.podLabels | object | `{}` | Additional labels for the server pod. Evaluated as a template |
 | server.podAnnotations | object | `{}` | Additional annotations for the server pod. Evaluated as a template |
-| server.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
-| server.configMapAnnotations | object | `{}` | Additional annotations for the ConfigMap objects. Evaluated as a template |
 | server.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | server.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | server.extraEnvVars | list | `[]` | Extra environment variables to set on the server pod |
@@ -192,6 +188,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | commonLabels | object | `{}` | Labels to add to all deployed objects |
 | secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
 | secretAnnotations | object | `{}` | Additional annotations for the Secret objects. Evaluated as a template |
+| configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
+| configMapAnnotations | object | `{}` | Additional annotations for the ConfigMap objects. Evaluated as a template |
 
 ## Licensing
 

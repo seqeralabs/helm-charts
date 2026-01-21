@@ -154,10 +154,6 @@ proxy:
   # -- Additional annotations for the proxy pod. Evaluated as a template
   podAnnotations: {}
 
-  # -- Additional labels for the ConfigMap objects. Evaluated as a template
-  configMapLabels: {}
-  # -- Additional annotations for the ConfigMap objects. Evaluated as a template
-  configMapAnnotations: {}
   # -- Additional labels for the Service objects. Evaluated as a template
   serviceLabels: {}
   # -- Additional annotations for the Service objects. Evaluated as a template
@@ -310,10 +306,6 @@ server:
   # -- Additional annotations for the server pod. Evaluated as a template
   podAnnotations: {}
 
-  # -- Additional labels for the ConfigMap objects. Evaluated as a template
-  configMapLabels: {}
-  # -- Additional annotations for the ConfigMap objects. Evaluated as a template
-  configMapAnnotations: {}
   # -- Additional labels for the Service objects. Evaluated as a template
   serviceLabels: {}
   # -- Additional annotations for the Service objects. Evaluated as a template
@@ -518,3 +510,7 @@ commonLabels: {}
 secretLabels: {}
 # -- Additional annotations for the Secret objects. Evaluated as a template
 secretAnnotations: {}
+# -- Additional labels for the ConfigMap objects. Evaluated as a template
+configMapLabels: {}
+# -- Additional annotations for the ConfigMap objects. Evaluated as a template
+configMapAnnotations: {}
