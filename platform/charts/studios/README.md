@@ -75,6 +75,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.studiosDomain | string | `"studios.example.com"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | redis.host | string | `""` | Redis hostname |
 | redis.port | int | `6379` | Redis port |
 | redis.database | int | `0` | Redis database number |

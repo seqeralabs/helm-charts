@@ -60,6 +60,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | database.host | string | `""` | Pipeline Optimization MySQL database hostname |
 | database.port | int | `3306` | Pipeline Optimization MySQL database port |
 | database.name | string | `""` | Pipeline Optimization MySQL database name |

@@ -78,6 +78,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
 | platformDatabase.port | int | `3306` | Platform MySQL database port |
 | platformDatabase.name | string | `""` | Platform MySQL database name |

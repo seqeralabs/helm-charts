@@ -43,6 +43,17 @@ global:
   #   password: ""
   #   email: someone@example.com  # Optional
 
+  # -- Optional list of existing Secrets containing image pull credentials to use for pulling
+  # images from private registries. These Secrets are shared with all the subcharts automatically
+  imageCredentialsSecrets: []
+  # imageCredentialsSecrets:
+  # - myPrivateRegistryKeySecretName
+  #
+  # Each secret must be of type `kubernetes.io/dockerconfigjson` and contain the field
+  # `.dockerconfigjson` with value created with:
+  #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
+
 # Seqera Studios requires a Redis cache. Seqera recommends using a managed Redis installation
 # provided by an external provider.
 redis:
