@@ -42,7 +42,11 @@ Return the name of the secret containing the Platform Optimization database pass
 {{- end -}}
 
 {{- define "pipeline-optimization.database.secretKey" -}}
-  {{- printf "%s" (tpl .Values.database.existingSecretKey $) | default "SWELL_DB_PASSWORD" -}}
+  {{- if (include "pipeline-optimization.database.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.database.existingSecretKey $) | default "SWELL_DB_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "SWELL_DB_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -56,7 +60,11 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{- define "pipeline-optimization.platformDatabase.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- if (include "pipeline-optimization.platformDatabase.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_DB_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*

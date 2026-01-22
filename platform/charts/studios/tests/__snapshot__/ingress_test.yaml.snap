@@ -1,0 +1,100 @@
+should configure extra hosts with multiple paths:
+  1: |
+    - host: '*.studios.example.com'
+      http:
+        paths:
+          - backend:
+              service:
+                name: release-name-studios-proxy
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+    - host: api.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: api-v1
+                port:
+                  number: 8080
+            path: /v1
+            pathType: Prefix
+          - backend:
+              service:
+                name: api-v2
+                port:
+                  number: 8081
+            path: /v2
+            pathType: Prefix
+should render complete ingress with all features:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+        team: platform
+      labels:
+        app: studios
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        environment: production
+        helm.sh/chart: studios-8.7.6
+      name: release-name-studios
+      namespace: NAMESPACE
+    spec:
+      ingressClassName: nginx
+      rules:
+        - host: '*.studios.example.com'
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-studios-proxy
+                    port:
+                      number: 80
+                path: /
+                pathType: ImplementationSpecific
+        - host: admin.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: admin-service
+                    port:
+                      number: 8080
+                path: /admin
+                pathType: Prefix
+      tls:
+        - hosts:
+            - '*.studios.example.com'
+          secretName: studios-tls
+should render ingress when enabled with defaults:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: studios-8.7.6
+      name: release-name-studios
+      namespace: NAMESPACE
+    spec:
+      rules:
+        - host: '*.studios.example.com'
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-studios-proxy
+                    port:
+                      number: 80
+                path: /
+                pathType: ImplementationSpecific

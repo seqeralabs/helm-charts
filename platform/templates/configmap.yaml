@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -32,8 +32,14 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
+  TOWER_DATA_EXPLORER_ENABLED: {{ .Values.platform.dataExplorer.enabled | quote }}
 {{- if (index .Values "pipeline-optimization" "enabled") }}
   GROUNDSWELL_SERVER_URL: {{ printf "http://%s:%s" (include "common.names.dependency.fullname" (dict "chartName" "pipeline-optimization" "chartValues" (index .Values "pipeline-optimization") "context" $)) (tpl (index .Values "pipeline-optimization" "service" "http" "port" | toString) .) | quote }}
+{{- end }}
+{{- if .Values.studios.enabled }}
+  TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
+  TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+{{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
 ---
 kind: ConfigMap
@@ -88,4 +94,10 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   tower.yml: |-
+{{- if .Values.studios.enabled }}
+    tower:
+      data-studio:
+        allowed-workspaces: null
+{{- end }}
+    ---
     {{- include "seqera.tplvalues.render" (dict "value" .Values.platform.YAMLConfigFileContent "context" $) | nindent 4 }}

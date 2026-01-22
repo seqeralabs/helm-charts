@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.23.0](https://img.shields.io/badge/Version-0.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.24.1](https://img.shields.io/badge/Version-0.24.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.23.0 \
+  --version 0.24.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -64,6 +64,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 1.x.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 0.2.x |
+| file://charts/studios | studios | 1.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
@@ -72,9 +73,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain `.global.platformExternalDomain`. Evaluated as a template |
-| global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
+| global.platformServiceAddress | string | `"{{ printf \"%s-platform-backend\" .Release.Name | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
+| global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
+| global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
 | platformDatabase.port | int | `3306` | Platform MySQL database port |
 | platformDatabase.name | string | `""` | Platform MySQL database name |
@@ -101,6 +105,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.licenseString | string | `""` | Platform license key. A license key is a long alphanumeric string provided by your Seqera account manager Define the value as a String or a Secret, not both at the same time |
 | platform.licenseSecretName | string | `""` | Name of an existing Secret containing the Platform license key, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | platform.licenseSecretKey | string | `"TOWER_LICENSE"` | Key in the existing Secret containing the Platform license key |
+| platform.oidcPrivateKeyBase64 | string | `""` | OIDC private key in PEM format, base64-encoded. |
+| platform.oidcPrivateKeySecretName | string | `""` | Name of an existing Secret containing the OIDC private key in PEM format, as an alternative to the base64-encoded string field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| platform.oidcPrivateKeySecretKey | string | `"oidc.pem"` | Key in the existing Secret containing the OIDC private key in PEM format |
 | platform.smtp.host | string | `""` | SMTP server hostname to let users authenticate through email, and to send email notifications for events |
 | platform.smtp.port | string | `""` | SMTP server port |
 | platform.smtp.user | string | `""` | SMTP server username |
@@ -108,6 +115,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.smtp.existingSecretName | string | `""` | Name of an existing secret containing the SMTP password |
 | platform.smtp.existingSecretKey | string | `"TOWER_SMTP_PASSWORD"` | Key in the existing Secret containing the SMTP password |
 | platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is `https://wave.seqera.io` |
+| platform.dataExplorer.enabled | bool | `false` | Enable the Data Explorer feature: https://docs.seqera.io/platform-enterprise/data/data-explorer |
+| platform.studios.tools | object | `{"jupyter":{"deprecated":"public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1","recommended":"public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8","tool":"jupyter"},"rstudio":{"recommended":"public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8","tool":"rstudio"},"vscode":{"deprecated":"public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8","recommended":"public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8","tool":"vscode"},"xpra":{"recommended":"public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8","tool":"xpra"}}` | Map of tools to make available in Studios. Recommended and deprecated versions can be specified for each tool to allow upgrading from an older version. Refer to the documentation for more details: https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template |
 | platform.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
 | platform.secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
 | platform.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
@@ -120,9 +129,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing Secret containing the password for Redis |
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
-| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
-| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
-| commonLabels | object | `{}` | Labels to add to all deployed objects |
 | backend.image.registry | string | `""` | Backend container image registry |
 | backend.image.repository | string | `"private/nf-tower-enterprise/backend"` | Backend container image repository |
 | backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |
@@ -349,9 +355,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForCron.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForCron.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
-| serviceAccount.annotations | object | `{}` | Additional annotations for the Platform ServiceAccount to generate |
+| serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
-| serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the server service account is generated |
+| serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the service account is generated |
 | ingress.enabled | bool | `false` | Enable ingress for Platform |
 | ingress.path | string | `"/"` | Path for the main ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
 | ingress.contentPath | string | `"/"` | Path for the content domain ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
@@ -362,6 +368,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
+| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
+| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing

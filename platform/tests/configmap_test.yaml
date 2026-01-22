@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -36,11 +36,7 @@ tests:
     asserts:
       - isKind:
           of: ConfigMap
-      - equal:
-          path: data
-          value:
-            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
-            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+      - matchSnapshot: {}
 
   - it: should render cron cm with default values
     documentSelector:
@@ -82,6 +78,31 @@ tests:
       - equal:
           path: data.MICRONAUT_ENVIRONMENTS
           value: prod,whatever1,whatever2,redis,cron
+
+  - it: should evaluate template expressions in global.studiosConnectionUrl for backend configmap
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      global:
+        platformExternalDomain: "my-platform.example.com"
+        studiosDomain: "studios.example.net"
+        studiosConnectionUrl: '{{ printf "https://mycustomconnect.%s" .Values.global.studiosDomain }}'
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_STUDIO_CONNECT_URL
+          value: "https://mycustomconnect.studios.example.net"
+
+  - it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: false
+    asserts:
+      - notExists:
+          path: data.TOWER_DATA_STUDIO_CONNECT_URL
 
   - it: should include SMTP configuration when configured
     documentSelector:
@@ -153,6 +174,9 @@ tests:
           value: altair-platform,slurm-platform
 
   - it: should render tower-yml cm with no data in it
+    set:
+      studios:
+        enabled: false  # disable studios to not have data-studio section in the output
     documentSelector:
       path: metadata.name
       value: release-name-platform-tower-yml
@@ -162,7 +186,8 @@ tests:
       - equal:
           path: data
           value:
-            tower.yml: ""
+            tower.yml: |-
+              ---
 
   - it: should render tower-yml cm with provided data
     documentSelector:
@@ -179,9 +204,14 @@ tests:
           path: data
           value:
             tower.yml: |-
+              tower:
+                data-studio:
+                  allowed-workspaces: null
+              ---
               someKey: someValue
               anotherKey:
                 nestedKey: nestedValue
+
   - it: should render tower-yml cm with templated data
     documentSelector:
       path: metadata.name
@@ -202,6 +232,10 @@ tests:
           path: data
           value:
             tower.yml: |-
+              tower:
+                data-studio:
+                  allowed-workspaces: null
+              ---
               templatedKey:
                 url: https://my-platform.example.com
                 url2: https://my-platform.example.com
@@ -573,3 +607,94 @@ tests:
       - equal:
           path: data.TOWER_DB_URL
           value: "jdbc:mysql://db.example.com:3306/?permitMysqlScheme=true"
+
+  - it: should render Studios tools environment variables when studios is enabled with default tools
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should not render Studios tools environment variables when studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: false
+    asserts:
+      - equal:
+          path: data
+          value:
+            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
+            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+            TOWER_DATA_EXPLORER_ENABLED: "false"
+
+  - it: should render custom Studios tool when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v1.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render custom Studios tool with deprecated version when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v2.0.0
+              deprecated: registry.example.com/custom-tool:v1.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render custom Studios tool with deprecated and experimental versions when provided
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools:
+            customtool:
+              tool: customtool
+              recommended: registry.example.com/custom-tool:v2.0.0
+              deprecated: registry.example.com/custom-tool:v1.0.0
+              experimental: registry.example.com/custom-tool:v3.0.0
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should handle empty Studios tools map
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        studios:
+          tools: {}
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should turn on data explorer flag when enabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"

@@ -1,0 +1,279 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios requirements
+templates:
+  - NOTES.txt
+tests:
+  - it: should fail when redis.host is not defined
+    set:
+      redis:
+        host: ""
+      global:
+        redis:
+          host: ""
+    asserts:
+      - failedTemplate:
+          # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
+          errorPattern: ".*Redis host must be defined in 'redis.host'.*"
+
+  - it: should pass when redis.host is defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should fail when both OIDC token and secret are defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+        oidcClientRegistrationTokenSecretName: "my-secret name"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - failedTemplate:
+          errorPattern: .*Either define an OIDC token in .Values.proxy.oidcClientRegistrationToken or via a secret in .Values.proxy.oidcClientRegistrationTokenSecretName, but not both.*
+
+  - it: should pass when oidcClientRegistrationToken is defined and oidcClientRegistrationTokenSecretName is not
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "some-token"
+        oidcClientRegistrationTokenSecretName: ""
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when oidcClientRegistrationTokenSecretName is defined and oidcClientRegistrationToken is not
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "some-secret"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should fail when global.platformServiceAddress is not defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: ""
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*global.platformServiceAddress must be defined.*"
+
+  - it: should fail when global.platformServicePort is not defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*global.platformServicePort must be defined.*"
+
+  - it: should pass when both global.studiosDomain and global.studiosConnectionUrl are defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should fail when only global.studiosDomain is defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Both .Values.global.studiosDomain and .Values.global.studiosConnectionUrl must be defined.*"
+
+  - it: should fail when only global.studiosConnectionUrl is defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        studiosDomain: ""
+        studiosConnectionUrl: "http://studios.example.com"
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Both .Values.global.studiosDomain and .Values.global.studiosConnectionUrl must be defined.*"
+
+  - it: should fail when neither global.studiosDomain nor global.studiosConnectionUrl are defined
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: ""
+        studiosConnectionUrl: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Both .Values.global.studiosDomain and .Values.global.studiosConnectionUrl must be defined.*"
+
+  - it: should fail when both redis.password and redis.existingSecretName are defined
+    set:
+      redis:
+        host: "redis.example.com"
+        password: "my-password"
+        existingSecretName: "my-secret"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - failedTemplate:
+          errorPattern: ".*Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both.*"
+
+  - it: should pass when only redis.password is set
+    set:
+      redis:
+        host: "redis.example.com"
+        password: "my-password"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when redis has no authentication
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only redis.existingSecretName is set
+    set:
+      redis:
+        host: "redis.example.com"
+        existingSecretName: "my-secret"
+        existingSecretKey: "REDIS_PASSWORD"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when redis.existingSecretName is set with custom existingSecretKey
+    set:
+      redis:
+        host: "redis.example.com"
+        existingSecretName: "my-secret"
+        existingSecretKey: "MY_REDIS_KEY"
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 1

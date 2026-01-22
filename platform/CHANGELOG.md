@@ -5,6 +5,57 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-01-15
+
+### Added
+
+- Added `global.imageCredentialsSecrets` configuration to support multiple pre-existing image pull secrets
+  - Allows referencing existing Kubernetes secrets of type `kubernetes.io/dockerconfigjson` for private registry authentication
+  - Secrets are automatically added to the ServiceAccount's `imagePullSecrets` list
+  - Complements existing `global.imageCredentials` for inline secret creation
+- Added Studios template environment variables generator in tower.yml configuration
+  - New `studiosTemplates` configuration section for defining interactive analysis tools (e.g., R-IDE, Jupyter, VSCode, etc.)
+  - Supports tool customization with image, labels, icon, and resource requirements
+  - Includes `studiosTemplatesExperimental` for experimental tool configurations
+- Added `dataExplorer.enabled` toggle flag to control Data Explorer feature in Platform UI
+
+### Changed
+
+- Split Helm-controlled tower.yml content from user-provided content for better configuration management
+
+### Fixed
+
+- Fixed `secretKey` helper functions to ignore custom `existingSecretKey` when using chart-managed secrets, ensuring consistency with external secret handling pattern
+  - Fixed `platform.database.secretKey` helper
+  - Fixed `platform.redis.secretKey` helper
+  - Fixed `platform.jwt.secretKey` helper
+  - Fixed `platform.crypto.secretKey` helper
+  - Fixed `platform.license.secretKey` helper
+  - Fixed `platform.smtp.secretKey` helper
+- Fixed cron deployment to include `TOWER_DB_PASSWORD` environment variable for database migrations
+
+## [0.24.0] - 2026-01-13
+
+### Added
+
+- Added Studios subchart as a new dependency
+  - Studios provides interactive analysis capabilities for Seqera Platform
+  - Chart version 1.0.0, application version 0.8.0
+  - Integrated as a conditional subchart (enabled via `studios.enabled`)
+  - Deploys Studios server (StatefulSet) and proxy (Deployment) components
+  - Includes init container to wait for Platform readiness
+- Added platform URL integration test ([tests/studios_platform_url_test.yaml](platform/tests/studios_platform_url_test.yaml))
+  - Validates Platform URL configuration is accessible by Studios subchart
+
+### Changed
+
+- Reorganized values.yaml structure
+  - Moved `extraDeploy`, `commonAnnotations`, and `commonLabels` after ingress section
+  - Improved logical grouping of configuration sections
+- Updated dependencies to include Studios chart (version 1.x.x)
+  - Repository: `file://charts/studios`
+  - Condition: `studios.enabled`
+
 ## [0.23.0] - 2026-01-09
 
 ### Added

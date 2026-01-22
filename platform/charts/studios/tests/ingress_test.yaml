@@ -1,0 +1,499 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios ingress
+templates:
+  - ingress.yaml
+chart:
+  version: 8.7.6
+  appVersion: 9.9.9
+release:
+  name: release-name
+tests:
+  - it: should not render when ingress is disabled
+    set:
+      ingress:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should set annotations appropriately
+    set:
+      ingress:
+        enabled: true
+        annotations:
+          alb.ingress.kubernetes.io/group.name: my-alb-name
+          alb.ingress.kubernetes.io/group.order: "123"
+      commonAnnotations:
+        someRandom/annotation: "just-to-test-that-mix-and-match-works"
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: release-name-studios
+      - equal:
+          path: metadata.annotations
+          value:
+            # order isn't important, since entries are stored as a map again
+            alb.ingress.kubernetes.io/group.name: my-alb-name
+            someRandom/annotation: "just-to-test-that-mix-and-match-works"
+            alb.ingress.kubernetes.io/group.order: "123"
+      - notExists:
+          path: spec.defaultBackend
+
+  - it: should set defaultBackend, ingressClassName and tls if requested
+    set:
+      ingress:
+        enabled: true
+        defaultBackend:
+          service:
+            name: 'whatever'
+            port:
+              number: '123'
+        ingressClassName: class-name
+        tls:
+          - hosts:
+              - aDomain.example.com
+              - anotherDomain.example.com
+            secretName: secretContainingTLScert
+    asserts:
+      - equal:
+          path: spec.defaultBackend
+          value:
+            service:
+              name: 'whatever'
+              port:
+                number: 123
+      - equal:
+          path: spec.ingressClassName
+          value: class-name
+      - contains:
+          path: spec.tls
+          content:
+            hosts:
+              - aDomain.example.com
+              - anotherDomain.example.com
+            secretName: secretContainingTLScert
+
+  - it: should set the studios domain, service name and port automatically as well as extra hosts
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: whatever.example.com
+            paths:
+            - serviceName: myservice
+              portNumber: "12345"
+              pathType: asdf
+              path: /v123/
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: "*.studios.example.com"
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: "ImplementationSpecific"
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: "/"
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: release-name-studios-proxy
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 80
+      - equal:
+          path: spec.rules[1].host
+          value: "whatever.example.com"
+      - equal:
+          path: spec.rules[1].http.paths[0].pathType
+          value: "asdf"
+      - equal:
+          path: spec.rules[1].http.paths[0].path
+          value: "/v123/"
+
+  - it: should merge commonLabels and extraLabels correctly
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraLabels:
+          custom-label: "custom-value"
+          another-label: "another-value"
+      commonLabels:
+        global-label: "global-value"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: release-name
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: studios-8.7.6
+            another-label: "another-value"
+            custom-label: "custom-value"
+            global-label: "global-value"
+
+  - it: should evaluate connectDomain as a template
+    set:
+      global:
+        studiosDomain: '{{ .Release.Name }}.studios.example.com'
+      ingress:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: "*.release-name.studios.example.com"
+
+  - it: should use custom pathType and path when specified
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        path: "/custom-path"
+        defaultPathType: "Prefix"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: "Prefix"
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: "/custom-path"
+
+  - it: should use custom proxy service port
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+      proxy:
+        service:
+          http:
+            port: 8080
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: should set correct namespace
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: "NAMESPACE"
+
+  - it: should evaluate extraHosts fields as templates
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: '{{ .Release.Name }}.example.com'
+            paths:
+              - serviceName: '{{ include "common.names.fullname" . }}-custom'
+                portNumber: "{{ .Values.proxy.service.http.port }}"
+                pathType: Prefix
+                path: /api/
+      proxy:
+        service:
+          http:
+            port: 9090
+    asserts:
+      - equal:
+          path: spec.rules[1].host
+          value: "release-name.example.com"
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.name
+          value: "release-name-studios-custom"
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 9090
+
+  - it: should render empty annotations when none provided
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        annotations: {}
+      commonAnnotations: {}
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value: {}
+
+  - it: should handle multiple TLS configurations
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        tls:
+          - hosts:
+              - "*.studios.example.com"
+            secretName: studios-tls-cert
+          - hosts:
+              - "custom.example.com"
+            secretName: custom-tls-cert
+    asserts:
+      - equal:
+          path: spec.tls
+          value:
+            - hosts:
+                - "*.studios.example.com"
+              secretName: studios-tls-cert
+            - hosts:
+                - "custom.example.com"
+              secretName: custom-tls-cert
+
+  - it: should handle empty TLS array
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        tls: []
+    asserts:
+      - notExists:
+          path: spec.tls
+
+  - it: should not render defaultBackend when empty
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        defaultBackend: {}
+    asserts:
+      - notExists:
+          path: spec.defaultBackend
+
+  - it: should not set ingressClassName when empty
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        ingressClassName: ""
+    asserts:
+      - notExists:
+          path: spec.ingressClassName
+
+  - it: should use correct API version
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+    asserts:
+      - matchRegex:
+          path: apiVersion
+          pattern: ^networking\.k8s\.io/v1
+
+  - it: should render ingress when enabled with defaults
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should apply ingress annotations with templated values
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        annotations:
+          nginx.ingress.kubernetes.io/ssl-redirect: "true"
+          custom-port: "{{ .Values.proxy.service.http.port }}"
+          custom-domain: "{{ .Values.global.studiosDomain }}"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+            custom-port: "80"
+            custom-domain: "studios.example.com"
+
+  - it: should include extraLabels without template evaluation
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraLabels:
+          custom-domain: "studios.example.com"
+          custom-port: "80"
+    asserts:
+      - equal:
+          path: metadata.labels.custom-domain
+          value: studios.example.com
+      - equal:
+          path: metadata.labels.custom-port
+          value: "80"
+
+  - it: should render templated TLS values
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        tls:
+          - hosts:
+              - '{{ printf "*.%s" (tpl .Values.global.studiosDomain $) }}'
+            secretName: '{{ printf "%s-tls" (include "common.names.fullname" .) }}'
+    asserts:
+      - equal:
+          path: spec.tls[0].hosts[0]
+          value: "*.studios.example.com"
+      - equal:
+          path: spec.tls[0].secretName
+          value: release-name-studios-tls
+
+  - it: should render templated default backend values
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        defaultBackend:
+          service:
+            name: '{{ printf "%s-custom" (include "common.names.fullname" .) }}'
+            port:
+              number: '{{ .Values.proxy.service.http.port }}'
+    asserts:
+      - equal:
+          path: spec.defaultBackend.service.name
+          value: release-name-studios-custom
+      - equal:
+          path: spec.defaultBackend.service.port.number
+          value: 80
+
+  - it: should configure TLS with multiple hosts in one entry
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        tls:
+          - hosts:
+              - "*.studios.example.com"
+              - "connect.studios.example.com"
+              - "admin.studios.example.com"
+            secretName: wildcard-tls
+    asserts:
+      - lengthEqual:
+          path: spec.tls[0].hosts
+          count: 3
+      - equal:
+          path: spec.tls[0].secretName
+          value: wildcard-tls
+
+  - it: should configure extra hosts with multiple paths
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: api.example.com
+            paths:
+              - path: /v1
+                pathType: Prefix
+                serviceName: api-v1
+                portNumber: "8080"
+              - path: /v2
+                pathType: Prefix
+                serviceName: api-v2
+                portNumber: "8081"
+    asserts:
+      - matchSnapshot:
+          path: spec.rules
+
+  - it: should handle empty extraHosts array
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts: []
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 1
+
+  - it: should use default pathType for extraHosts when not specified
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: api.example.com
+            paths:
+              - path: /api
+                serviceName: api-service
+                portNumber: "8080"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].pathType
+          value: "ImplementationSpecific"
+
+  - it: should render complete ingress with all features
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+        extraLabels:
+          environment: production
+        tls:
+          - hosts:
+              - "*.studios.example.com"
+            secretName: studios-tls
+        extraHosts:
+          - host: admin.example.com
+            paths:
+              - path: /admin
+                pathType: Prefix
+                serviceName: admin-service
+                portNumber: "8080"
+      commonLabels:
+        app: studios
+      commonAnnotations:
+        team: platform
+    asserts:
+      - matchSnapshot: {}

@@ -1,0 +1,308 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 - 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios helper templates
+templates:
+  - serviceaccount.yaml
+  - configmap.yaml
+  - deployment-proxy.yaml
+  - secret.yaml
+tests:
+  # studios.serviceAccountName helper tests
+  - it: should use default service account name when not specified
+    template: serviceaccount.yaml
+    set:
+      serviceAccount:
+        name: ""
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-studios-sa
+
+  # Note: When serviceAccount.name is set, the template doesn't render so we can't test the custom
+  # name scenario directly in the template, but the helper is tested via the default case
+
+  # studios.redis.host and studios.redis.port helper tests (combined in CONNECT_REDIS_ADDRESS)
+  - it: should render redis address in common configmap with custom values
+    template: configmap.yaml
+    set:
+      redis:
+        host: "redis.example.com"
+        port: 6380
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_ADDRESS
+          value: "redis.example.com:6380"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should render redis address with default port
+    template: configmap.yaml
+    set:
+      redis:
+        host: "my-redis.local"
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_ADDRESS
+          value: "my-redis.local:6379"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  # studios.redis.tlsEnabled helper tests
+  - it: should render redis TLS as false when disabled
+    template: configmap.yaml
+    set:
+      redis:
+        enableTls: false
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_TLS_ENABLE
+          value: "false"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should render redis TLS as true when enabled
+    template: configmap.yaml
+    set:
+      redis:
+        enableTls: true
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_TLS_ENABLE
+          value: "true"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  # studios.redis.prefix helper tests
+  - it: should render redis prefix in common configmap when provided
+    template: configmap.yaml
+    set:
+      redis:
+        prefix: "custom:prefix"
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_PREFIX
+          value: "custom:prefix"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should render empty redis prefix when not provided
+    template: configmap.yaml
+    set:
+      redis:
+        prefix: ""
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_PREFIX
+          value: ""
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should evaluate redis prefix as a template (uppercase Release.Name)
+    template: configmap.yaml
+    set:
+      redis:
+        # Note: Studios values use uppercase Release.Name for prefix
+        prefix: "{{ .Release.Name | upper }}:sessions"
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_PREFIX
+          value: "RELEASE-NAME:sessions"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  # studios.redis.secretKey helper tests
+  - it: should use default secret key CONNECT_REDIS_PASSWORD when existingSecretKey is not set
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        password: "test-password"
+        existingSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: "CONNECT_REDIS_PASSWORD"
+
+  - it: should use custom secret key when existingSecretKey is provided with external secret
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        password: ""
+        existingSecretName: "external-redis-secret"
+        existingSecretKey: "CUSTOM_REDIS_KEY"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: "CUSTOM_REDIS_KEY"
+
+  - it: should evaluate template expressions in redis existingSecretKey with external secret
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        password: ""
+        existingSecretName: "external-redis-secret"
+        existingSecretKey: "{{ .Release.Name }}_REDIS_PASSWORD"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: "RELEASE-NAME_REDIS_PASSWORD"
+
+  - it: should always use CONNECT_REDIS_PASSWORD key when using chart-managed secret even if secretKey is customized
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        password: "test-password"
+        existingSecretName: ""
+        existingSecretKey: "{{ .Chart.Name | upper }}_REDIS_KEY"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1].valueFrom.secretKeyRef.key
+          value: "CONNECT_REDIS_PASSWORD"
+
+  # studios.oidcToken.secretName helper tests
+  - it: should return chart fullname for oidc secret when no existing secret specified
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationTokenSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "release-name-studios"
+
+  - it: should return existing secret name when oidcClientRegistrationTokenSecretName is provided
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationTokenSecretName: "my-oidc-secret"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "my-oidc-secret"
+
+  - it: should evaluate template expressions in oidcClientRegistrationTokenSecretName
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationTokenSecretName: "{{ .Release.Name }}-oidc"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "RELEASE-NAME-oidc"
+
+  # studios.oidcToken.secretKey helper tests
+  - it: should use default secret key OIDC_CLIENT_REGISTRATION_TOKEN when existingSecretKey is not set
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+
+  - it: should use custom secret key when oidcClientRegistrationTokenSecretKey is provided with external secret
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "external-secret"
+        oidcClientRegistrationTokenSecretKey: "CUSTOM_OIDC_KEY"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "CUSTOM_OIDC_KEY"
+
+  - it: should evaluate template expressions in oidc existingSecretKey
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationTokenSecretName: "my-secret"
+        oidcClientRegistrationTokenSecretKey: "{{ .Release.Name }}_OIDC_TOKEN"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "RELEASE-NAME_OIDC_TOKEN"
+
+  # Test context parameter is properly used for tpl evaluation
+  - it: should use context parameter for tpl evaluation in existingSecretName
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "{{ .Release.Name }}-{{ .Chart.Name }}-oidc"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "RELEASE-NAME-studios-oidc"
+
+  - it: should always use OIDC_CLIENT_REGISTRATION_TOKEN key when using chart-managed secret even if secretKey is customized
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
+        oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_TOKEN"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+
+  - it: should use custom secret key with tpl evaluation when using external secret
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "external-secret"
+        oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_TOKEN"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "STUDIOS_TOKEN"
+
+  # Test that empty string values properly trigger defaults
+  - it: should use default secret name when existingSecretName is empty string
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "release-name-studios"
+
+  - it: should use default secret key when existingSecretKey is empty string
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "OIDC_CLIENT_REGISTRATION_TOKEN"

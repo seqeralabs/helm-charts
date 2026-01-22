@@ -79,6 +79,11 @@ spec:
           command: {{- include "seqera.tplvalues.render" (dict "value" .Values.cron.dbMigrationInitContainer.command "context" $) | nindent 12 }}
           args: {{- include "seqera.tplvalues.render" (dict "value" .Values.cron.dbMigrationInitContainer.args "context" $) | nindent 12 }}
           env:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "platform.database.secretName" . }}
+                  key: {{ include "platform.database.secretKey" . }}
 {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

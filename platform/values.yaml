@@ -42,9 +42,16 @@ global:
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template
-  platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
   # -- Seqera Platform Service port
   platformServicePort: 8080
+
+  # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
+  # wildcard subdomains. Evaluated as a template
+  studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
+  # -- Base URL for Studios connections: can be any value, since each session will use a unique
+  # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
+  studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
@@ -54,6 +61,17 @@ global:
   #   username: ""
   #   password: ""
   #   email: someone@example.com  # Optional
+
+  # -- Optional list of existing Secrets containing image pull credentials to use for pulling
+  # images from private registries. These Secrets are shared with all the subcharts automatically
+  imageCredentialsSecrets: []
+  # imageCredentialsSecrets:
+  # - myPrivateRegistryKeySecretName
+  #
+  # Each secret must be of type `kubernetes.io/dockerconfigjson` and contain the field
+  # `.dockerconfigjson` with value created with:
+  #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
 platformDatabase:
   # -- Platform MySQL database hostname
@@ -161,6 +179,16 @@ platform:
   # @default -- `"TOWER_LICENSE"`
   licenseSecretKey: ""
 
+  # -- OIDC private key in PEM format, base64-encoded.
+  oidcPrivateKeyBase64: ""
+  # -- Name of an existing Secret containing the OIDC private key in PEM format, as an alternative
+  # to the base64-encoded string field. Note: the Secret must already exist in the same namespace at
+  # the time of deployment
+  oidcPrivateKeySecretName: ""
+  # -- Key in the existing Secret containing the OIDC private key in PEM format
+  # @default -- `"oidc.pem"`
+  oidcPrivateKeySecretKey: ""
+
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
     # notifications for events
@@ -180,6 +208,38 @@ platform:
   # -- URL of the Wave service Platform uses. Evaluated as a template.
   # The Wave service provided by Seqera is `https://wave.seqera.io`
   waveServerUrl: "https://wave.seqera.io"
+
+  dataExplorer:
+    # -- Enable the Data Explorer feature:
+    # https://docs.seqera.io/platform-enterprise/data/data-explorer
+    enabled: false
+
+  # Seqera Studios configuration
+  studios:
+    # -- Map of tools to make available in Studios. Recommended and deprecated versions can be
+    # specified for each tool to allow upgrading from an older version. Refer to the documentation
+    # for more details:
+    # https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template
+    tools:
+      jupyter:
+        tool: jupyter
+        recommended: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
+        deprecated: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+
+      vscode:
+        tool: vscode
+        recommended: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
+        deprecated: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+
+      rstudio:
+        tool: rstudio
+        recommended: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+
+      xpra:
+        tool: xpra
+        recommended: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+    # .platform.studios.tools expects a map of maps: the key can be any name, the only required
+    # field is 'recommended'.
 
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
   configMapLabels: {}
@@ -211,21 +271,6 @@ redis:
   existingSecretKey: ""
   # -- Enable TLS when connecting to Redis
   enableTls: false
-
-# -- Array of extra objects to deploy with the release
-extraDeploy: []
-# extraDeploy:
-#   - apiVersion: v1
-#     kind: MyExtraObjectKind
-#     ...
-#   - apiVersion: v1
-#     kind: AnotherExtraObjectKind
-#     ..
-
-# -- Annotations to add to all deployed objects
-commonAnnotations: {}
-# -- Labels to add to all deployed objects
-commonLabels: {}
 
 # Options specific to the Platform backend deployment
 backend:
@@ -1030,11 +1075,11 @@ serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
   # the release name
   name: ""
-  # -- Additional annotations for the Platform ServiceAccount to generate
+  # -- Additional annotations for the ServiceAccount to generate
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
-  # -- Automount service account token when the server service account is generated
+  # -- Automount service account token when the service account is generated
   automountServiceAccountToken: false
 
 ingress:
@@ -1091,6 +1136,26 @@ ingress:
   #       - '{{ .Values.global.platformExternalDomain }}'
   #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
   #     secretName: my-tls
+
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
+
+studios:
+  # -- Enable Studios feature. Refer to the subchart README for more details and the full list of
+  # configuration options
+  enabled: true
 
 pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the

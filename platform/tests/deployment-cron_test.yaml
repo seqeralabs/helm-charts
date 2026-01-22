@@ -25,6 +25,11 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+# To avoid expensive RSA key generation in tests, we set a default oidcPrivateKeyBase64 value.
+# Tests can override this if they need to test key generation specifically.
+set:
+  platform:
+    oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
 tests:
   - it: should produce a Deployment resource with minimal values
     # We need to set the template name because we needed to include the secret and configmap files
@@ -432,7 +437,12 @@ tests:
               value: redis://:6379
       - equal:
           path: spec.template.spec.initContainers[2].env
-          value: null
+          value:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-platform-backend
+                  key: TOWER_DB_PASSWORD
 
   - it: should render initContainer with appropriate env vars
     template: deployment-cron.yaml
@@ -505,6 +515,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[2].env
           value:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: my-db-password-key
             - name: CUSTOM_ENV_VAR
               value: custom-value
       - equal:

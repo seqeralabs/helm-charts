@@ -22,6 +22,11 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: TOWER_CRYPTO_SECRETKEY
                 name: release-name-platform-backend
+          - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+                name: release-name-studios
           - name: NXF_HOME
             value: /var/cache/tower/
           - name: NXF_PLUGINS_DIR
@@ -69,6 +74,8 @@ should produce a Deployment resource with minimal values:
             name: plugin-volume
           - mountPath: /?/.nextflow/
             name: plugin-volume
+          - mountPath: /data/certs
+            name: connect-cert-volume
     initContainers:
       - command:
           - sh
@@ -186,6 +193,9 @@ should produce a Deployment resource with minimal values:
       - emptyDir:
           sizeLimit: 1Gi
         name: plugin-volume
+      - name: connect-cert-volume
+        secret:
+          secretName: release-name-platform-backend
 should render the backend deployment with the correct checksums, labels and annotations:
   1: |
     apiVersion: apps/v1
@@ -215,8 +225,8 @@ should render the backend deployment with the correct checksums, labels and anno
       template:
         metadata:
           annotations:
-            checksum/configmap: b1d2bb154753f45071e6a9769e1227f5b11322528676daa53408e8b60055ba49
-            checksum/secret: 27e0ae5efe3beffdc19e0c47ecc973b5ecff8679033f1ea6ca92a640a4f46fdf
+            checksum/configmap: 59f8fd12b62ee6e0689f15a92f00516724686469b8b5c79bc6e8a067765dff2e
+            checksum/secret: 89b9d79cbae4413992a225994a5e0998097e75457539b51534c0455a1bf91988
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value
             pod-annotation-key2: "8080"
@@ -253,6 +263,11 @@ should render the backend deployment with the correct checksums, labels and anno
                     secretKeyRef:
                       key: TOWER_CRYPTO_SECRETKEY
                       name: release-name-platform-backend
+                - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: OIDC_CLIENT_REGISTRATION_TOKEN
+                      name: release-name-studios
                 - name: NXF_HOME
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR
@@ -300,6 +315,8 @@ should render the backend deployment with the correct checksums, labels and anno
                   name: plugin-volume
                 - mountPath: /?/.nextflow/
                   name: plugin-volume
+                - mountPath: /data/certs
+                  name: connect-cert-volume
           initContainers:
             - command:
                 - sh
@@ -417,3 +434,6 @@ should render the backend deployment with the correct checksums, labels and anno
             - emptyDir:
                 sizeLimit: 1Gi
               name: plugin-volume
+            - name: connect-cert-volume
+              secret:
+                secretName: release-name-platform-backend

@@ -1,0 +1,878 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios service
+templates:
+  - service.yaml
+chart:
+  version: 9.9.9
+  appVersion: 1.2.3
+tests:
+  - it: should create 2 Service objects
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: should setup the proxy service with sane defaults
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[0]
+          value:
+            name: http
+            port: 80
+            targetPort: 8081
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: studios
+
+  - it: should setup the proxy service with the requested details
+    set:
+      proxy:
+        service:
+          type: NodePort
+          http:
+            name: whatever
+            port: 81234
+            targetPort: 85678
+            nodePort: 31234
+          extraServices:
+          - name: whatever2
+            port: 8001
+            targetPort: 8002
+            nodePort: 30003
+        podLabels:
+          key1: value1
+          key2: value2
+      commonLabels:
+        key3: value3
+        key4: value4  ######
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0]
+          value:
+            name: whatever
+            port: 81234
+            targetPort: 85678
+            nodePort: 31234
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: whatever2
+            port: 8001
+            targetPort: 8002
+            nodePort: 30003
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: studios
+
+  - it: should setup the server service with sane defaults
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.selector["app.kubernetes.io/component"]
+          value: server
+
+  - it: should setup the server service with the requested details
+    set:
+      server:
+        service:
+          type: NodePort
+          extraServices:
+          - name: whatever2
+            port: 8001
+            targetPort: 8002
+            nodePort: 30003
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+      - equal:
+          path: spec.ports[0]
+          value:
+            name: whatever2
+            port: 8001
+            targetPort: 8002
+            nodePort: 30003
+
+  - it: should render proxy service with LoadBalancer type and custom nodePort
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: LoadBalancer
+          http:
+            nodePort: 31234
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 31234
+
+  - it: should render server service with LoadBalancer type
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: LoadBalancer
+          extraServices:
+          - name: custom-port
+            port: 9000
+            targetPort: 9001
+            nodePort: 30123
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30123
+
+  - it: should render proxy service with ExternalName type
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: ExternalName
+          extraOptions:
+            externalName: my-external-proxy.example.com
+          http:
+            nodePort: 31234
+    asserts:
+      - equal:
+          path: spec.type
+          value: ExternalName
+      - equal:
+          path: spec.externalName
+          value: my-external-proxy.example.com
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should render server service with ExternalName type
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: ExternalName
+          extraOptions:
+            externalName: my-external-server.example.com
+    asserts:
+      - equal:
+          path: spec.type
+          value: ExternalName
+      - equal:
+          path: spec.externalName
+          value: my-external-server.example.com
+
+  - it: should not render proxy nodePort when service type is ClusterIP
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: ClusterIP
+          http:
+            nodePort: 31234
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should not render server nodePort when service type is ClusterIP
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: ClusterIP
+          extraServices:
+          - name: custom-port
+            port: 9000
+            targetPort: 9001
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should apply commonLabels to proxy service
+    chart:
+      version: 1.2.3
+      appVersion: v4.5.6
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      commonLabels:
+        commonKey: commonValue
+        anotherCommonKey: anotherCommonValue
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: proxy
+      - equal:
+          path: metadata.labels["commonKey"]
+          value: commonValue
+      - equal:
+          path: metadata.labels["anotherCommonKey"]
+          value: anotherCommonValue
+
+  - it: should apply proxy.serviceLabels
+    chart:
+      version: 1.2.3
+      appVersion: v4.5.6
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        serviceLabels:
+          proxyKey: proxyValue
+          anotherProxyKey: anotherProxyValue
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: proxy
+      - equal:
+          path: metadata.labels["proxyKey"]
+          value: proxyValue
+      - equal:
+          path: metadata.labels["anotherProxyKey"]
+          value: anotherProxyValue
+
+  - it: should apply commonLabels to server service
+    chart:
+      version: 1.2.3
+      appVersion: v4.5.6
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      commonLabels:
+        commonKey: commonValue
+        anotherCommonKey: anotherCommonValue
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: server
+      - equal:
+          path: metadata.labels["commonKey"]
+          value: commonValue
+      - equal:
+          path: metadata.labels["anotherCommonKey"]
+          value: anotherCommonValue
+
+  - it: should apply server.serviceLabels
+    chart:
+      version: 1.2.3
+      appVersion: v4.5.6
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        serviceLabels:
+          serverKey: serverValue
+          anotherServerKey: anotherServerValue
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: server
+      - equal:
+          path: metadata.labels["serverKey"]
+          value: serverValue
+      - equal:
+          path: metadata.labels["anotherServerKey"]
+          value: anotherServerValue
+
+  - it: should render commonLabels with templated values for proxy service
+    chart:
+      version: 1.2.3
+      appVersion: v4.5.6
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      commonLabels:
+        commonLabelKey: commonLabelValue
+        templatedLabelKey: "{{ .Values.proxy.service.http.port | default 80 }}"
+      proxy:
+        service:
+          type: ClusterIP
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: RELEASE-NAME
+      - equal:
+          path: metadata.labels["app.kubernetes.io/component"]
+          value: proxy
+      - equal:
+          path: metadata.labels["commonLabelKey"]
+          value: commonLabelValue
+      - equal:
+          path: metadata.labels["templatedLabelKey"]
+          value: "80"
+
+  - it: should apply commonAnnotations to proxy service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      commonAnnotations:
+        commonAnnotationKey: commonAnnotationValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: commonAnnotationValue
+
+  - it: should apply proxy.serviceAnnotations
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        serviceAnnotations:
+          proxyAnnotationKey: proxyAnnotationValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            proxyAnnotationKey: proxyAnnotationValue
+
+  - it: should merge commonAnnotations and proxy.serviceAnnotations
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      commonAnnotations:
+        commonAnnotationKey: commonAnnotationValue
+        anotherCommonAnnotationKey: anotherCommonAnnotationValue
+      proxy:
+        serviceAnnotations:
+          proxyAnnotationKey: proxyAnnotationValue
+          commonAnnotationKey: proxyAnnotationOverrideValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: proxyAnnotationOverrideValue
+            anotherCommonAnnotationKey: anotherCommonAnnotationValue
+            proxyAnnotationKey: proxyAnnotationValue
+
+  - it: should apply commonAnnotations to server service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      commonAnnotations:
+        commonAnnotationKey: commonAnnotationValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: commonAnnotationValue
+
+  - it: should apply server.serviceAnnotations
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        serviceAnnotations:
+          serverAnnotationKey: serverAnnotationValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            serverAnnotationKey: serverAnnotationValue
+
+  - it: should merge commonAnnotations and server.serviceAnnotations
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      commonAnnotations:
+        commonAnnotationKey: commonAnnotationValue
+        anotherCommonAnnotationKey: anotherCommonAnnotationValue
+      server:
+        serviceAnnotations:
+          serverAnnotationKey: serverAnnotationValue
+          commonAnnotationKey: serverAnnotationOverrideValue
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            commonAnnotationKey: serverAnnotationOverrideValue
+            anotherCommonAnnotationKey: anotherCommonAnnotationValue
+            serverAnnotationKey: serverAnnotationValue
+
+  - it: should not apply custom proxy.podLabels to service selector, only if they override standard labels
+    set:
+      proxy:
+        podLabels:
+          podLabelKey: podLabelValueProxy
+          app.kubernetes.io/name: customProxy
+      server:
+        podLabels:
+          podLabelKey: podLabelValueServer
+          app.kubernetes.io/name: customServer
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: customProxy
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/component: server
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: customServer
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should render proxy service with extraOptions
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: ClusterIP
+          extraOptions:
+            sessionAffinity: ClientIP
+            loadBalancerIP: 1.2.3.4
+    asserts:
+      - equal:
+          path: spec.sessionAffinity
+          value: ClientIP
+      - equal:
+          path: spec.loadBalancerIP
+          value: 1.2.3.4
+
+  - it: should render server service with extraOptions
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: ClusterIP
+          extraOptions:
+            sessionAffinity: ClientIP
+            loadBalancerIP: 5.6.7.8
+            clusterIP: None
+    asserts:
+      - equal:
+          path: spec.sessionAffinity
+          value: ClientIP
+      - equal:
+          path: spec.loadBalancerIP
+          value: 5.6.7.8
+      - equal:
+          path: spec.clusterIP
+          value: None
+
+  - it: should not render extraOptions if not defined for proxy service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: ClusterIP
+    asserts:
+      - notExists:
+          path: spec.sessionAffinity
+      - notExists:
+          path: spec.loadBalancerIP
+
+  - it: should not render extraOptions if not defined for server service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: ClusterIP
+    asserts:
+      - notExists:
+          path: spec.sessionAffinity
+      - notExists:
+          path: spec.loadBalancerIP
+
+  - it: should omit selector, type, and ports from extraOptions for proxy service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: ClusterIP
+          extraOptions:
+            selector:
+              app.kubernetes.io/component: test
+            type: NodePort
+            ports:
+              - port: 80
+            customOption: customValue
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/component: proxy
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 80
+              targetPort: 8081
+      - equal:
+          path: spec.customOption
+          value: customValue
+
+  - it: should omit selector, type, and ports from extraOptions for server service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      server:
+        service:
+          type: ClusterIP
+          extraOptions:
+            selector:
+              app.kubernetes.io/component: test
+            type: NodePort
+            ports:
+              - port: 80
+            customOption: customServerValue
+            clusterIP: None
+    asserts:
+      - equal:
+          path: spec.selector
+          value:
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/component: server
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - notExists:
+          path: spec.ports[0]
+      - equal:
+          path: spec.customOption
+          value: customServerValue
+      - equal:
+          path: spec.clusterIP
+          value: None
+
+  - it: should render proxy service with extraOptions containing externalTrafficPolicy
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          type: LoadBalancer
+          extraOptions:
+            externalTrafficPolicy: Local
+    asserts:
+      - equal:
+          path: spec.externalTrafficPolicy
+          value: Local
+
+  - it: should render proxy service with extraOptions containing sessionAffinityConfig
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          extraOptions:
+            sessionAffinity: ClientIP
+            sessionAffinityConfig:
+              clientIP:
+                timeoutSeconds: 10800
+    asserts:
+      - equal:
+          path: spec.sessionAffinity
+          value: ClientIP
+      - equal:
+          path: spec.sessionAffinityConfig.clientIP.timeoutSeconds
+          value: 10800
+
+  - it: should render proxy service with extraOptions containing externalIPs
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          extraOptions:
+            externalIPs:
+              - 192.0.2.1
+              - 192.0.2.2
+    asserts:
+      - equal:
+          path: spec.externalIPs[0]
+          value: 192.0.2.1
+      - equal:
+          path: spec.externalIPs[1]
+          value: 192.0.2.2
+
+  - it: should evaluate template expressions in extraOptions for proxy service
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          extraOptions:
+            externalName: "{{ .Release.Name }}.example.com"
+    asserts:
+      - equal:
+          path: spec.externalName
+          value: RELEASE-NAME.example.com
+
+  - it: should render proxy service correctly with default values using matchSnapshot
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render server service correctly with default values using matchSnapshot
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render proxy service with custom release name
+    release:
+      name: my-custom-release
+    documentSelector:
+      path: metadata.name
+      value: my-custom-release-studios-proxy
+    asserts:
+      - equal:
+          path: metadata.name
+          value: my-custom-release-studios-proxy
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: my-custom-release
+
+  - it: should render server service with custom release name
+    release:
+      name: my-custom-release
+    documentSelector:
+      path: metadata.name
+      value: my-custom-release-studios-server
+    asserts:
+      - equal:
+          path: metadata.name
+          value: my-custom-release-studios-server
+      - equal:
+          path: spec.selector["app.kubernetes.io/instance"]
+          value: my-custom-release
+
+  - it: should render proxy service with numeric string ports
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          http:
+            port: "8443"
+            targetPort: "8443"
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8443
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 8443
+
+  - it: should render proxy service with named targetPort
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          http:
+            targetPort: http-port
+    asserts:
+      - equal:
+          path: spec.ports[0].targetPort
+          value: http-port
+
+  - it: should render proxy service with custom port name
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          http:
+            name: custom-http-port
+    asserts:
+      - equal:
+          path: spec.ports[0].name
+          value: custom-http-port
+
+  - it: should evaluate template expressions in proxy extraServices
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      proxy:
+        service:
+          extraServices:
+            - name: "{{ .Release.Name }}-metrics"
+              port: "{{ .Values.proxy.service.http.port }}"
+              targetPort: "{{ .Values.proxy.service.http.targetPort }}"
+    asserts:
+      - equal:
+          path: spec.ports[1].name
+          value: RELEASE-NAME-metrics
+      - equal:
+          path: spec.ports[1].port
+          value: "80"
+
+  - it: should render complete proxy service with all options using matchSnapshot
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-proxy
+    set:
+      commonLabels:
+        env: production
+      commonAnnotations:
+        monitoring: enabled
+      proxy:
+        service:
+          type: NodePort
+          http:
+            name: custom-http
+            port: 9090
+            targetPort: 9091
+            nodePort: 30080
+          extraServices:
+            - name: metrics
+              port: 9092
+              targetPort: 9092
+              nodePort: 30092
+          extraOptions:
+            externalTrafficPolicy: Local
+        serviceLabels:
+          component: proxy-svc
+        serviceAnnotations:
+          service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should render complete server service with all options using matchSnapshot
+    documentSelector:
+      path: metadata.name
+      value: release-name-studios-server
+    set:
+      commonLabels:
+        env: production
+      commonAnnotations:
+        monitoring: enabled
+      server:
+        service:
+          type: ClusterIP
+          extraServices:
+            - name: admin
+              port: 8888
+              targetPort: 8888
+          extraOptions:
+            sessionAffinity: ClientIP
+            clusterIP: None
+        serviceLabels:
+          component: server-svc
+        serviceAnnotations:
+          service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    asserts:
+      - matchSnapshot: {}

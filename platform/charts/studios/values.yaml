@@ -1,0 +1,520 @@
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Values in the .global section can be accessed by both parent and child subcharts as
+# .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
+global:
+  # -- Domain where Seqera Platform listens
+  platformExternalDomain: example.com
+
+  # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
+  # hostname. Evaluated as a template
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+  # -- Seqera Platform Service port
+  platformServicePort: 8080
+
+  # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
+  # wildcard subdomains. Evaluated as a template
+  studiosDomain: studios.example.com
+  # -- Base URL for Studios connections: can be any value, since each session will use a unique
+  # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
+  studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+
+  # -- Optional credentials to log in and fetch images from a private registry. These credentials
+  # are shared with all the subcharts automatically
+  imageCredentials: []
+  # imageCredentials:
+  # - registry: ""
+  #   username: ""
+  #   password: ""
+  #   email: someone@example.com  # Optional
+
+  # -- Optional list of existing Secrets containing image pull credentials to use for pulling
+  # images from private registries. These Secrets are shared with all the subcharts automatically
+  imageCredentialsSecrets: []
+  # imageCredentialsSecrets:
+  # - myPrivateRegistryKeySecretName
+  #
+  # Each secret must be of type `kubernetes.io/dockerconfigjson` and contain the field
+  # `.dockerconfigjson` with value created with:
+  #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
+
+# Seqera Studios requires a Redis cache. Seqera recommends using a managed Redis installation
+# provided by an external provider.
+redis:
+  # -- Redis hostname
+  host: ""
+  # -- Redis port
+  port: 6379
+  # -- Redis database number
+  database: 0
+  # -- Redis password if the installation requires it
+  password: ""
+  # -- Name of an existing Secret containing credentials for Redis, as an alternative to the
+  # password field. Note: the Secret must already exist in the same namespace at the time of
+  # deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the password for Redis
+  # @default -- `"CONNECT_REDIS_PASSWORD"`
+  existingSecretKey: ""
+  # -- Enable TLS when connecting to Redis
+  enableTls: false
+  # -- Key prefix to use when storing Studios sessions in Redis
+  prefix: "connect:session"
+
+# Options for the Studios Proxy component
+proxy:
+  image:
+    # -- Proxy container image registry
+    registry: ""
+    # -- Proxy container image repository
+    repository: private/nf-tower-enterprise/data-studio/connect-proxy
+    # -- Proxy container image tag
+    # @default -- `"{{ .chart.AppVersion }}"`
+    tag: ""
+    # -- Proxy container image digest in the format `sha256:1234abcdef`
+    digest: ""
+
+    # -- imagePullPolicy for the Proxy container
+    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # -- List of imagePullSecrets
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    pullSecrets: []
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+
+  # -- Initial access token to share with Seqera Platform to restrict registration requests to
+  # only authorized OIDC clients. The token can be provided as a string of random chars or as an
+  # external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a
+  # Secret is provided, the chart will generate a random token
+  oidcClientRegistrationToken: ""
+  # -- Name of an existing Secret containing the OIDC client registration token
+  # as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist
+  # in the same namespace at the time of deployment
+  oidcClientRegistrationTokenSecretName: ""
+  # -- Key in the existing Secret containing the OIDC client registration token
+  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  oidcClientRegistrationTokenSecretKey: ""
+
+  # -- TTL for local cache of Redis keys used for resiliency against Redis failures
+  localCacheTTL: "2m"
+
+  service:
+    # -- Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort
+    type: ClusterIP
+    http:
+      # -- Service name to use
+      name: http
+      # -- Service port
+      port: 80
+      # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+      # named port, distinct from the Service's external port)
+      targetPort: 8081
+      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # Choose port between 30000-32767, unless the cluster was configured differently than default
+      nodePort: null
+
+    # -- Other services that should live in the Service object
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    extraServices: []
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    #   nodePort: null
+
+    # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs). Evaluated as a template
+    extraOptions: {}
+
+  # -- Additional init containers for the proxy pod. Evaluated as a template
+  initContainers: []
+
+  # -- Override default container command (useful when using custom images)
+  command: []
+  # -- Override default container args (useful when using custom images)
+  args: []
+
+  # -- Additional labels for the proxy pod. Evaluated as a template
+  podLabels: {}
+  # -- Additional annotations for the proxy pod. Evaluated as a template
+  podAnnotations: {}
+
+  # -- Additional labels for the Service objects. Evaluated as a template
+  serviceLabels: {}
+  # -- Additional annotations for the Service objects. Evaluated as a template
+  serviceAnnotations: {}
+
+  # -- Extra environment variables to set on the proxy pod
+  extraEnvVars: []
+  # extraEnvVars:
+  #   - name: "CUSTOM_ENV_VAR"
+  #     value: "set-a-value-here"
+
+  # -- ConfigMap containing extra env vars
+  extraEnvVarsCMs: []
+  # -- Secret containing extra env vars
+  extraEnvVarsSecrets: []
+  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
+  # `extraVolumeMounts`
+  extraVolumes: []
+  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # `extraVolumes`
+  extraVolumeMounts: []
+
+  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+  # Evaluated as a template
+  extraOptionsSpec:
+    replicas: 2
+  # extraOptionsSpec:
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
+
+  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
+  # etc). Evaluated as a template
+  extraOptionsTemplateSpec: {}
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+
+  # Configure Pods Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Empty map to disable Pod Security Context configuration
+  podSecurityContext:
+    # -- Enable pod Security Context
+    enabled: true
+    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+    # in the pod can share group-owned access
+    fsGroup: 65532
+
+  # Configure Container Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  containerSecurityContext:
+    # -- Enable container Security Context
+    enabled: true
+    # -- UID the container processes run as (overrides container image default)
+    runAsUser: 65532
+    # -- GID the container processes run as (overrides container image default)
+    runAsGroup: 65532
+    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+    runAsNonRoot: true
+    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: false
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE # needed by caddy
+        # NET_ADMIN can be added for improved performance and increased UDP buffer size, see Linux
+        # capabilities at https://hub.docker.com/_/caddy
+        # - NET_ADMIN
+
+  # -- Container requests and limits for different resources like CPU or memory
+  resources: {}
+  # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. `.limits` are the
+  # maximum resources a container is allowed to use
+  # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # Seqera recommends tuning resources to match the expected workload. The following are
+  # sensible defaults to start with:
+  # resources:
+  #   requests:
+  #     cpu: "30m"
+  #     memory: "64Mi"
+  #   limits:
+  #     memory: "64Mi"
+
+server:
+  image:
+    # -- Server container image registry
+    registry: ""
+    # -- Server container image repository
+    repository: private/nf-tower-enterprise/data-studio/connect-server
+    # -- Server container image tag
+    # @default -- `"{{ .chart.AppVersion }}"`
+    tag: ""
+    # -- Server container image digest in the format `sha256:1234abcdef`
+    digest: ""
+
+    # -- imagePullPolicy for the Server container
+    # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    pullPolicy: IfNotPresent
+
+    # -- List of imagePullSecrets
+    # Secrets must be created in the same namespace, for example using the .extraDeploy array
+    # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    pullSecrets: []
+    # pullSecrets:
+    #   - myRegistryKeySecretName
+
+  # -- Port that proxy contacts the server at to create a new tunnel
+  tunnelPort: 7070
+  # -- Port where the server listens for connections from the Studios clients
+  listenerPort: 7777
+
+  service:
+    # -- Server Service type. There should be no need to expose the Studios Server service outside
+    # of the cluster, since traffic goes through the proxy
+    type: ClusterIP
+
+    # -- Other services that should live in the Service object
+    # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    extraServices: []
+    # extraServices:
+    # - name: myspecialservice
+    #   port: 1234
+    #   targetPort: 5678
+    #   nodePort: null
+
+    # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+    # externalTrafficPolicy, externalIPs). Evaluated as a template
+    extraOptions:
+      # A headless ClusterIP service is ideal for server because there could be multiple Studios
+      # server pods, which will be discovered by DNS and contacted directly, not through the Service
+      clusterIP: None
+
+  # -- Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal`
+  logLevel: "info"
+
+  # -- Additional init containers for the server pod. Evaluated as a template
+  initContainers: []
+
+  # -- Override default container command (useful when using custom images)
+  command: []
+  # -- Override default container args (useful when using custom images)
+  args: []
+
+  # -- Additional labels for the server pod. Evaluated as a template
+  podLabels: {}
+  # -- Additional annotations for the server pod. Evaluated as a template
+  podAnnotations: {}
+
+  # -- Additional labels for the Service objects. Evaluated as a template
+  serviceLabels: {}
+  # -- Additional annotations for the Service objects. Evaluated as a template
+  serviceAnnotations: {}
+
+  # -- Extra environment variables to set on the server pod
+  extraEnvVars: []
+  # extraEnvVars:
+  #   - name: "CUSTOM_ENV_VAR"
+  #     value: "set-a-value-here"
+
+  # -- ConfigMap containing extra env vars
+  extraEnvVarsCMs: []
+  # -- Secret containing extra env vars
+  extraEnvVarsSecrets: []
+  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
+  # `extraVolumeMounts`
+  extraVolumes: []
+  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # `extraVolumes`
+  extraVolumeMounts: []
+
+  # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+  # Evaluated as a template
+  extraOptionsSpec:
+    replicas: 2
+  # extraOptionsSpec:
+  #   strategy:
+  #     rollingUpdate:
+  #       maxUnavailable: x
+  #       maxSurge: y
+
+  # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
+  # etc). Evaluated as a template
+  extraOptionsTemplateSpec: {}
+  # extraOptionsTemplateSpec:
+  #   nodeSelector:
+  #     service: myspecialnodegroup
+
+  # Configure Pods Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  # Empty map to disable Pod Security Context configuration
+  podSecurityContext:
+    # -- Enable pod Security Context
+    enabled: true
+    # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+    # in the pod can share group-owned access
+    fsGroup: 65532
+
+  # Configure Container Security Context.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  containerSecurityContext:
+    # -- Enable container Security Context
+    enabled: true
+    # -- UID the container processes run as (overrides container image default)
+    runAsUser: 65532
+    # -- GID the container processes run as (overrides container image default)
+    runAsGroup: 65532
+    # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+    runAsNonRoot: true
+    # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: false
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
+    capabilities:
+      drop:
+        - ALL
+      add:
+        - NET_BIND_SERVICE
+
+  # -- Container requests and limits for different resources like CPU or memory
+  resources: {}
+  # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+  # the kubelet then guarantees at least these resources to the pod. `.limits` are the
+  # maximum resources a container is allowed to use
+  # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # Seqera recommends tuning resources to match the expected workload. The following are
+  # sensible defaults to start with:
+  # resources:
+  #   requests:
+  #     cpu: "20m"
+  #     memory: "50Mi"
+  #   limits:
+  #     memory: "50Mi"
+
+initContainerDependencies:
+  # -- Enable init containers that coordinate startup dependencies (for example, wait for Seqera
+  # Platform readiness before starting, etc)
+  enabled: true
+
+  waitForPlatform:
+    # -- Enable wait for Seqera Platform init container before starting the proxy
+    enabled: true
+    image:
+      # -- Wait for Platform init container image registry
+      registry: ""
+      # -- Wait for Platform init container image repository
+      repository: "curlimages/curl"
+      # -- Wait for Platform init container image tag
+      tag: "latest"
+      # -- Wait for Platform init container image digest in the format `sha256:1234abcdef`
+      digest: ""
+      # -- imagePullPolicy for the wait for Platform init container
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- UID the container processes run as (overrides container image default)
+      runAsUser: 101
+      # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+      runAsNonRoot: true
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Container requests and limits for different resources like CPU or memory
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+serviceAccount:
+  # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
+  # the release name
+  name: ""
+  # -- Additional annotations for the ServiceAccount to generate
+  annotations: {}
+  # -- Names of Secrets containing credentials to pull images from registries
+  imagePullSecretNames: []
+  # -- Automount service account token when the ServiceAccount is generated
+  automountServiceAccountToken: true
+
+ingress:
+  # -- Enable ingress for Studios Proxy
+  enabled: false
+
+  # -- Path for the main ingress rule
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
+  path: "/"
+
+  # -- Default path type for the Ingress
+  defaultPathType: "ImplementationSpecific"
+
+  # -- Configure the default service for the ingress (evaluated as template)
+  # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  defaultBackend: {}
+  # defaultBackend:
+  #   service:
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #     port:
+  #       number: '{{ .Values.frontend.service.http.port }}'
+
+  # -- Additional hosts you want to include. Evaluated as a template
+  extraHosts: []
+  # extraHosts:
+  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.global.platformServicePort }}'
+  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.frontend.service.http.port }}'
+
+  # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  annotations: {}
+  # -- Additional labels for the ingress object. Evaluated as a template
+  extraLabels: {}
+  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`)
+  ingressClassName: ""
+  # -- TLS configuration. Evaluated as a template
+  tls: []
+  # tls:
+  #   - hosts:
+  #       - '{{ .Values.global.platformExternalDomain }}'
+  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  #     secretName: my-tls
+
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
+# -- Additional labels for the Secret objects. Evaluated as a template
+secretLabels: {}
+# -- Additional annotations for the Secret objects. Evaluated as a template
+secretAnnotations: {}
+# -- Additional labels for the ConfigMap objects. Evaluated as a template
+configMapLabels: {}
+# -- Additional annotations for the ConfigMap objects. Evaluated as a template
+configMapAnnotations: {}

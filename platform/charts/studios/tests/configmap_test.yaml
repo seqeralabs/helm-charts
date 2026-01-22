@@ -1,0 +1,587 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios configmap
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render 3 different CM documents by default
+    asserts:
+      - hasDocuments:
+          count: 3
+
+  - it: should have correct apiVersion and kind for all configmaps
+    asserts:
+      - equal:
+          path: apiVersion
+          value: v1
+      - isKind:
+          of: ConfigMap
+
+  - it: should create the common configmap
+    set:
+      global:
+        redis:
+          host: this-will-be-overridden.example.com
+          port: 1234
+      redis:
+        host: this-takes-precedence.example.com
+        port: 5678
+    asserts:
+      - hasDocuments:
+          count: 3 # there should be 3 configmaps
+      # use equal here instead of isSubset to check that no additional values have been added to the
+      # configmap and have not been tested
+      - equal:
+          path: data
+          value: # order doesn't matter, since maps aren't ordered
+            CONNECT_REDIS_TLS_ENABLE: "false"
+            CONNECT_REDIS_ADDRESS: this-takes-precedence.example.com:5678
+            CONNECT_REDIS_PREFIX: "connect:session"
+            CONNECT_REDIS_DB: "0"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should set tls and redis prefix in common cm if defined
+    set:
+      redis:
+        host: this-takes-precedence.example.com
+        port: 5678
+        enableTls: true
+        prefix: whatever
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_REDIS_ADDRESS: this-takes-precedence.example.com:5678
+            CONNECT_REDIS_TLS_ENABLE: "true"
+            CONNECT_REDIS_PREFIX: "whatever"
+            CONNECT_REDIS_DB: "0"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should create the proxy configmap
+    set:
+      global:
+        platformExternalDomain: "example.com"
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - hasDocuments:
+          count: 3 # there should be 3 configmaps
+      - equal:
+          path: data
+          value:
+            CONNECT_HTTP_PORT: "8081"
+            CONNECT_PROXY_URL: "https://connect.studios.example.com"
+            CONNECT_TUNNEL_URL: "release-name-studios-server:7070"
+            PLATFORM_URL: "https://example.com"
+            LOCAL_CACHE_TTL: "2m"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should set proxy env vars in proxy cm if defined
+    set:
+      global:
+        platformExternalDomain: "example.com"
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: '{{ printf "https://connect.%s:80123" (tpl .Values.global.studiosDomain $) }}'
+      proxy:
+        service:
+          http:
+            targetPort: 1234
+        localCacheTTL: "1h"
+      server:
+        tunnelPort: 5678
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_HTTP_PORT: "1234"
+            CONNECT_PROXY_URL: "https://connect.studios.example.com:80123"
+            CONNECT_TUNNEL_URL: "release-name-studios-server:5678"
+            PLATFORM_URL: "https://example.com"
+            LOCAL_CACHE_TTL: "1h"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should create the server configmap
+    asserts:
+      - hasDocuments:
+          count: 3 # there should be 3 configmaps
+      - equal:
+          path: data
+          value:
+            CONNECT_HOST_DOMAIN: release-name-studios-server
+            CONNECT_TUNNEL_PORT: "7070"
+            CONNECT_LISTENER_PORT: "7777"
+            CONNECT_LOG_LEVEL: "info"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should set server env vars in server cm if defined
+    set:
+      server:
+        listenerPort: 1234
+        tunnelPort: 5678
+        logLevel: whatever
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_HOST_DOMAIN: release-name-studios-server
+            CONNECT_LISTENER_PORT: "1234"
+            CONNECT_TUNNEL_PORT: "5678"
+            CONNECT_LOG_LEVEL: "whatever"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should handle custom redis database number
+    set:
+      redis:
+        host: redis.example.com
+        database: 5
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_DB
+          value: "5"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should handle zero redis database number
+    set:
+      redis:
+        host: redis.example.com
+        database: 0
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_DB
+          value: "0"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should evaluate template expressions in redis.prefix
+    set:
+      redis:
+        host: redis.example.com
+        prefix: '{{ .Release.Name }}-sessions'
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_PREFIX
+          value: "RELEASE-NAME-sessions"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should evaluate template expressions in global.platformExternalDomain
+    set:
+      global:
+        platformExternalDomain: '{{ .Release.Name }}.example.com'
+    asserts:
+      - equal:
+          path: data.PLATFORM_URL
+          value: "https://RELEASE-NAME.example.com"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should evaluate template expressions in global.studiosConnectionUrl
+    set:
+      global:
+        platformExternalDomain: "example.com"
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - equal:
+          path: data.CONNECT_PROXY_URL
+          value: "https://connect.studios.example.com"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should apply commonLabels to all ConfigMaps
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      commonLabels:
+        environment: "dev"
+        team: "platform"
+    asserts:
+      - hasDocuments:
+          count: 3
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: studios-9.8.7
+            environment: dev
+            team: platform
+
+  - it: should apply commonAnnotations to all ConfigMaps
+    set:
+      commonAnnotations:
+        example.com/annotation: "value1"
+        another.com/annotation: "value2"
+    asserts:
+      - hasDocuments:
+          count: 3
+      - equal:
+          path: metadata.annotations
+          value:
+            example.com/annotation: "value1"
+            another.com/annotation: "value2"
+
+  - it: should apply configMapLabels to all ConfigMaps
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      configMapLabels:
+        custom-label: "custom-value"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: studios-9.8.7
+            custom-label: "custom-value"
+
+  - it: should apply configMapAnnotations to all ConfigMaps
+    set:
+      configMapAnnotations:
+        configmap.example.com/annotation: "configmap-specific"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            configmap.example.com/annotation: "configmap-specific"
+
+  - it: should merge commonLabels and configMapLabels with configMapLabels taking precedence
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      commonLabels:
+        environment: "common-env"
+        team: "platform"
+      configMapLabels:
+        environment: "configmap-env"
+        component: "configmap"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: studios-9.8.7
+            environment: "configmap-env"
+            team: "platform"
+            component: "configmap"
+
+  - it: should merge commonAnnotations and configMapAnnotations with configMapAnnotations taking precedence
+    set:
+      commonAnnotations:
+        annotation1: "common-value"
+        annotation2: "stays"
+      configMapAnnotations:
+        annotation1: "configmap-override"
+        annotation3: "new"
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            annotation1: "configmap-override"
+            annotation2: "stays"
+            annotation3: "new"
+
+  - it: should evaluate template expressions in commonLabels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      commonLabels:
+        release: '{{ .Release.Name }}'
+        chart: '{{ .Chart.Name }}'
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: studios-9.8.7
+            release: "RELEASE-NAME"
+            chart: "studios"
+
+  - it: should evaluate template expressions in commonAnnotations
+    chart:
+      appVersion: v9.9.9
+    set:
+      commonAnnotations:
+        release-name: '{{ .Release.Name }}'
+        app-version: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            release-name: "RELEASE-NAME"
+            app-version: "v9.9.9"
+
+  - it: should evaluate template expressions in configMapLabels
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3+abcdef
+    set:
+      configMapLabels:
+        release: '{{ .Release.Name }}'
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3+abcdef
+            helm.sh/chart: studios-9.8.7
+            release: "RELEASE-NAME"
+
+  - it: should evaluate template expressions in configMapAnnotations
+    set:
+      configMapAnnotations:
+        release-annotation: '{{ .Release.Name }}-annotation'
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            release-annotation: "RELEASE-NAME-annotation"
+
+  - it: should render complete common configmap with all custom values
+    set:
+      redis:
+        host: redis.prod.example.com
+        port: 6380
+        database: 3
+        enableTls: true
+        prefix: "custom-prefix"
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_REDIS_ADDRESS: "redis.prod.example.com:6380"
+            CONNECT_REDIS_TLS_ENABLE: "true"
+            CONNECT_REDIS_PREFIX: "custom-prefix"
+            CONNECT_REDIS_DB: "3"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should render complete proxy configmap with all custom values
+    set:
+      global:
+        platformExternalDomain: 'prod.example.com'
+        studiosDomain: 'studios.prod.example.com'
+        studiosConnectionUrl: 'https://connect-custom.prod.example.com'
+      proxy:
+        service:
+          http:
+            targetPort: 9091
+        localCacheTTL: "5m"
+      server:
+        tunnelPort: 8080
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_HTTP_PORT: "9091"
+            CONNECT_PROXY_URL: "https://connect-custom.prod.example.com"
+            CONNECT_TUNNEL_URL: "release-name-studios-server:8080"
+            PLATFORM_URL: "https://prod.example.com"
+            LOCAL_CACHE_TTL: "5m"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should render complete server configmap with all custom values
+    set:
+      server:
+        tunnelPort: 8080
+        listenerPort: 8888
+        logLevel: "debug"
+    asserts:
+      - equal:
+          path: data
+          value:
+            CONNECT_HOST_DOMAIN: release-name-studios-server
+            CONNECT_TUNNEL_PORT: "8080"
+            CONNECT_LISTENER_PORT: "8888"
+            CONNECT_LOG_LEVEL: "debug"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should use correct naming convention for all ConfigMaps
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-studios-common
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+      - equal:
+          path: metadata.name
+          value: release-name-studios-proxy
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+      - equal:
+          path: metadata.name
+          value: release-name-studios-server
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should contain all required data keys in common configmap
+    set:
+      redis:
+        host: redis.example.com
+    asserts:
+      - isNotEmpty:
+          path: data.CONNECT_REDIS_ADDRESS
+      - isNotEmpty:
+          path: data.CONNECT_REDIS_TLS_ENABLE
+      - isNotEmpty:
+          path: data.CONNECT_REDIS_PREFIX
+      - isNotEmpty:
+          path: data.CONNECT_REDIS_DB
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should contain all required data keys in proxy configmap
+    set:
+      global:
+        platformExternalDomain: "example.com"
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: 'https://connect.studios.example.com'
+    asserts:
+      - isNotEmpty:
+          path: data.CONNECT_HTTP_PORT
+      - isNotEmpty:
+          path: data.CONNECT_PROXY_URL
+      - isNotEmpty:
+          path: data.CONNECT_TUNNEL_URL
+      - isNotEmpty:
+          path: data.PLATFORM_URL
+      - isNotEmpty:
+          path: data.LOCAL_CACHE_TTL
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should contain all required data keys in server configmap
+    asserts:
+      - isNotEmpty:
+          path: data.CONNECT_HOST_DOMAIN
+      - isNotEmpty:
+          path: data.CONNECT_TUNNEL_PORT
+      - isNotEmpty:
+          path: data.CONNECT_LISTENER_PORT
+      - isNotEmpty:
+          path: data.CONNECT_LOG_LEVEL
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-server
+
+  - it: should handle empty redis.prefix gracefully
+    set:
+      redis:
+        host: redis.example.com
+        prefix: ""
+    asserts:
+      - equal:
+          path: data.CONNECT_REDIS_PREFIX
+          value: ""
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-common
+
+  - it: should handle different proxy.localCacheTTL formats
+    set:
+      proxy:
+        localCacheTTL: "30s"
+      global:
+        platformExternalDomain: "example.com"
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: 'https://connect.studios.example.com'
+    asserts:
+      - equal:
+          path: data.LOCAL_CACHE_TTL
+          value: "30s"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should evaluate platform's default global.platformExternalDomain template correctly
+    set:
+      # This tests template evaluation in the platformExternalDomain field
+      global:
+        platformExternalDomain: '{{ .Release.Name }}.example.com'
+        studiosDomain: "studios.example.com"
+        studiosConnectionUrl: 'https://connect.studios.example.com'
+    asserts:
+      - equal:
+          path: data.PLATFORM_URL
+          value: "https://RELEASE-NAME.example.com"
+        documentSelector:
+          path: metadata.name
+          value: release-name-studios-proxy
+
+  - it: should evaluate platformExternalDomain template with custom values
+    set:
+      fullnameOverride: my-custom-name
+      global:
+        platformExternalDomain: 'custom.example.com'
+    asserts:
+      - equal:
+          path: data.PLATFORM_URL
+          value: "https://custom.example.com"
+        documentSelector:
+          path: metadata.name
+          value: my-custom-name-proxy

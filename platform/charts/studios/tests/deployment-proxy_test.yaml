@@ -1,0 +1,1529 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Studios proxy deployment
+templates:
+  - deployment-proxy.yaml
+  # The following secret file is required since there's a checksum of it within the deployment manifest.
+  - secret.yaml
+tests:
+  - it: should set the proxy deployment image using the chart version and use sane defaults
+    template: deployment-proxy.yaml
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      global:
+        platformServiceAddress: platform-backend
+        platformServicePort: 8080
+      proxy:
+        # required otherwise the charts generates a random value which changes the secret checksum
+        oidcClientRegistrationToken: my-oidc-token
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: release-name-studios-proxy
+      - matchSnapshot: {}
+
+  - it: should render the proxy deployment with the specified tag version
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          tag: "1.2.3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy:1.2.3"
+
+  - it: should render the proxy deployment with the specified digest
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef"
+
+  - it: should render the proxy deployment with the correct checksums
+    template: deployment-proxy.yaml
+    # the chart version is included in the annotations, so it needs to be set
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      proxy:
+        oidcClientRegistrationToken: asdf
+        podLabels:
+          key123: this-overrides-the-commonLabels
+      redis:
+        password: fdsa
+      commonLabels:
+        key123: this-should-be-overridden
+        key456: this-should-not-be-overridden
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value:
+            checksum/secret: d5b47d6acae424280cfbd1dc8df12b36612aff6d949782e03dc58d0458c775e8
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: "9.9.9"
+            helm.sh/chart: "studios-9.9.9_test"
+            key123: this-overrides-the-commonLabels
+            key456: this-should-not-be-overridden
+
+  - it: should run using config requested by the user
+    template: deployment-proxy.yaml
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    set:
+      global:
+        platformServiceAddress: platform-backend
+        platformServicePort: 8080
+      proxy:
+        # required otherwise the charts generates a random value which changes the secret checksum
+        oidcClientRegistrationToken: my-oidc-token
+        image:
+          pullPolicy: Always
+          pullSecrets:
+            - aCustomImageRepositorySecretName
+        command: ["customCommand"]
+        args: ["arg0", "arg1"]
+        extraEnvVars:
+          - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
+            value: set-a-value-here
+        extraEnvVarsCMs:
+          - CMContainingExtraEnvVars
+        extraEnvVarsSecrets:
+          - SecretContainingExtraEnvVars
+        extraVolumes:
+          - name: extraVolumeName
+            emptyDir:
+              sizeLimit: "1Mi"
+        extraVolumeMounts:
+          - mountPath: /mymntpoint
+            name: extraVolumeName
+        podSecurityContext:
+          enabled: true
+          fsGroup: 9999
+        containerSecurityContext:
+          enabled: true
+          runAsUser: 9998
+          runAsGroup: 9999
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: []
+            add:
+              - NET_BIND_SERVICE
+              - NET_ADMIN
+      serviceAccount:
+        name: user-provided-sa
+    asserts:
+      - matchSnapshot:
+          path: spec
+
+  - it: should not enable redis auth unless it is enabled
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        auth:
+          enabled: false
+          password: this should not get set
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].envFrom
+          count: 2
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: release-name-studios-redis-password
+
+  # Metadata tests
+  - it: should include component label in deployment metadata
+    template: deployment-proxy.yaml
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/component: proxy
+
+  - it: should apply commonLabels to deployment metadata
+    template: deployment-proxy.yaml
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3
+    set:
+      commonLabels:
+        environment: production
+        team: platform
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3
+            helm.sh/chart: studios-9.8.7
+            environment: production
+            team: platform
+
+  - it: should apply commonAnnotations to deployment metadata
+    template: deployment-proxy.yaml
+    set:
+      commonAnnotations:
+        example.com/annotation: value1
+        another.com/annotation: value2
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            example.com/annotation: value1
+            another.com/annotation: value2
+
+  - it: should render namespace from release namespace
+    template: deployment-proxy.yaml
+    release:
+      namespace: custom-namespace
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+
+  # Selector tests
+  - it: should include component label in selector
+    template: deployment-proxy.yaml
+    asserts:
+      - isSubset:
+          path: spec.selector.matchLabels
+          content:
+            app.kubernetes.io/component: proxy
+
+  - it: shouldn't obey custom selector requests
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          selector:
+            matchLabels:
+              app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: studios
+
+  # extraOptionsSpec tests
+  - it: should obey replicas in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          replicas: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: should obey revisionHistoryLimit in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          revisionHistoryLimit: 5
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: should obey strategy in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          strategy:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 2
+    asserts:
+      - equal:
+          path: spec.strategy
+          value:
+            type: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 2
+
+  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          replicas: 3
+          selector:
+            matchLabels:
+              app: something-else
+          revisionHistoryLimit: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 3
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: studios
+
+  # extraOptionsTemplateSpec tests
+  - it: should render nodeSelector via extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+
+  - it: should render affinity via extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+    asserts:
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - whatever
+                  topologyKey: "kubernetes.io/hostname"
+
+  - it: should ignore serviceAccountName in extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-studios-sa
+
+  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          serviceAccountName: "some-other-sa"
+          serviceAccount: "some-other-sa"
+          securityContext:
+            fsGroup: 2000
+          initContainers:
+            - name: bad-init
+          containers:
+            - name: bad-container
+          volumes:
+            - name: bad-volume
+          imagePullSecrets:
+            - name: bad-secret
+          dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-studios-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  # Pod security context tests
+  - it: should render default podSecurityContext
+    template: deployment-proxy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 65532
+
+  - it: should disable podSecurityContext when enabled is false
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        podSecurityContext:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when enabled is false
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        podSecurityContext:
+          enabled: false
+        extraOptionsTemplateSpec:
+          securityContext:
+            fsGroup: 2000
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should omit the enabled field from podSecurityContext
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        podSecurityContext:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.enabled
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 65532
+
+  - it: should render custom podSecurityContext
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        podSecurityContext:
+          enabled: true
+          fsGroup: 2000
+          runAsNonRoot: true
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            runAsNonRoot: true
+
+  # Container security context tests
+  - it: should render default containerSecurityContext
+    template: deployment-proxy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            runAsUser: 65532
+            runAsGroup: 65532
+            runAsNonRoot: true
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+
+  - it: should disable containerSecurityContext when enabled is false
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        containerSecurityContext:
+          enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext
+
+  - it: should omit the enabled field from containerSecurityContext
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        containerSecurityContext:
+          enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.enabled
+
+  - it: should render custom containerSecurityContext
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        containerSecurityContext:
+          enabled: true
+          capabilities:
+            add:
+              - NET_ADMIN
+          runAsUser: 2000
+          runAsGroup: 2001
+          runAsNonRoot: false
+          readOnlyRootFilesystem: true
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            capabilities:
+              add:
+                - NET_ADMIN
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 2001
+            runAsNonRoot: false
+            runAsUser: 2000
+
+  # Init container tests
+  - it: should render wait-for-platform init container by default
+    template: deployment-proxy.yaml
+    set:
+      global:
+        platformServiceAddress: platform.example.com
+        platformServicePort: 8080
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-platform
+
+  - it: should render wait-for-platform init container with correct image
+    template: deployment-proxy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: curlimages/curl:latest
+      - equal:
+          path: spec.template.spec.initContainers[0].imagePullPolicy
+          value: IfNotPresent
+
+  - it: should render wait-for-platform init container with correct environment variables
+    template: deployment-proxy.yaml
+    set:
+      global:
+        platformServiceAddress: platform.example.com
+        platformServicePort: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: PLATFORM_HOST
+              value: platform.example.com
+            - name: PLATFORM_PORT
+              value: "8080"
+
+  - it: should evaluate template expressions in platformServiceAddress for init container
+    template: deployment-proxy.yaml
+    set:
+      global:
+        platformServiceAddress: '{{ .Release.Name }}-platform'
+        platformServicePort: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env[1].value
+          value: RELEASE-NAME-platform
+
+  - it: should render custom initContainers after wait-for-platform
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        initContainers:
+          - name: custom-init
+            image: busybox
+            command: ["sh", "-c", "echo hello"]
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-platform
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: custom-init
+
+  # Environment variable tests
+  - it: should include CONNECT_REDIS_PASSWORD env var when redis auth is enabled with password
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        host: redis.example.com
+        password: my-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: CONNECT_REDIS_PASSWORD
+
+  - it: should include CONNECT_REDIS_PASSWORD env var when redis auth is enabled with existingSecret
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        host: redis.example.com
+        existingSecretName: my-redis-secret
+        existingSecretKey: MY_REDIS_KEY
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: MY_REDIS_KEY
+
+  - it: should render extraEnvVars
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraEnvVars:
+          - name: CUSTOM_ENV_VAR
+            value: custom-value
+          - name: ANOTHER_VAR
+            value: another-value
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CUSTOM_ENV_VAR
+            value: custom-value
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ANOTHER_VAR
+            value: another-value
+
+  # envFrom tests
+  - it: should include configMapRef for studios-common
+    template: deployment-proxy.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: release-name-studios-common
+
+  - it: should include configMapRef for studios-proxy
+    template: deployment-proxy.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: release-name-studios-proxy
+
+  - it: should include OIDC registration token as env var
+    template: deployment-proxy.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: release-name-studios
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+
+  - it: should render extraEnvVarsCMs
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraEnvVarsCMs:
+          - extra-cm-1
+          - extra-cm-2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: extra-cm-1
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: extra-cm-2
+
+  - it: should render extraEnvVarsSecrets
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraEnvVarsSecrets:
+          - extra-secret-1
+          - extra-secret-2
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: extra-secret-1
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: extra-secret-2
+
+  # Container configuration tests
+  - it: should use chart appVersion as default image tag
+    template: deployment-proxy.yaml
+    chart:
+      appVersion: "1.0.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "private/nf-tower-enterprise/data-studio/connect-proxy:1.0.0"
+
+  - it: should render image with custom registry
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          registry: my-registry.example.com
+          tag: "1.2.3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-proxy:1.2.3"
+
+  - it: should render image with registry and digest
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          registry: my-registry.example.com
+          digest: "sha256:1234abcdef"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef"
+
+  - it: should render container with correct imagePullPolicy
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+
+  - it: should render container ports
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        service:
+          http:
+            targetPort: 9091
+            name: custom-http
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].ports[0]
+          value:
+            containerPort: 9091
+            name: custom-http
+
+  - it: should set container name to proxy
+    template: deployment-proxy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: proxy
+
+  # Volume and volumeMount tests
+  - it: should render default caddy-temp-data-volume
+    template: deployment-proxy.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: caddy-temp-data-volume
+            emptyDir:
+              sizeLimit: "100Mi"
+
+  - it: should render volumeMount for caddy-temp-data-volume
+    template: deployment-proxy.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /data
+            name: caddy-temp-data-volume
+
+  - it: should render extraVolumes
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraVolumes:
+          - name: extra-volume
+            emptyDir:
+              sizeLimit: "50Mi"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-volume
+            emptyDir:
+              sizeLimit: "50Mi"
+
+  - it: should render extraVolumeMounts
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraVolumeMounts:
+          - name: extra-mount
+            mountPath: /custom-path
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: extra-mount
+            mountPath: /custom-path
+
+  # ServiceAccount tests
+  - it: should use default serviceAccount
+    template: deployment-proxy.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-studios-sa
+
+  - it: should use custom serviceAccount
+    template: deployment-proxy.yaml
+    set:
+      serviceAccount:
+        name: custom-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: custom-sa
+
+  # ImagePullSecrets tests
+  - it: should render imagePullSecrets from proxy.image.pullSecrets
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          pullSecrets:
+            - secret1
+            - secret2
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: secret1
+            - name: secret2
+
+  - it: should not render imagePullSecrets when empty
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        image:
+          pullSecrets: []
+    asserts:
+      - isEmpty:
+          path: spec.template.spec.imagePullSecrets
+
+  # Pod labels and annotations tests
+  - it: should merge commonLabels and podLabels with podLabels taking precedence
+    template: deployment-proxy.yaml
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3
+    set:
+      commonLabels:
+        environment: common-env
+        team: platform
+      proxy:
+        podLabels:
+          environment: pod-env
+          component: proxy-component
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: studios
+            app.kubernetes.io/version: v1.2.3
+            helm.sh/chart: studios-9.8.7
+            environment: pod-env
+            team: platform
+            component: proxy-component
+
+  - it: should evaluate template expressions in podLabels
+    template: deployment-proxy.yaml
+    chart:
+      version: 9.8.7
+      appVersion: v1.2.3
+    set:
+      proxy:
+        podLabels:
+          release: '{{ .Release.Name }}'
+          chart: '{{ .Chart.Name }}'
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.release
+          value: RELEASE-NAME
+      - equal:
+          path: spec.template.metadata.labels.chart
+          value: studios
+
+  - it: should merge podAnnotations with checksum annotation
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: test-token
+        podAnnotations:
+          custom-annotation: custom-value
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations.custom-annotation
+          value: custom-value
+      - isNotEmpty:
+          path: spec.template.metadata.annotations.checksum/secret
+
+  - it: should evaluate template expressions in podAnnotations
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: test-token
+        podAnnotations:
+          release-annotation: '{{ .Release.Name }}-annotation'
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations.release-annotation
+          value: RELEASE-NAME-annotation
+
+  # Command and args combination tests
+  - it: should render both custom command and args when set together
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        command: ["custom-entrypoint"]
+        args: ["--flag1", "--flag2"]
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value: ["custom-entrypoint"]
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value: ["--flag1", "--flag2"]
+
+  # Init container image configuration tests
+  - it: should render wait-for-platform init container with digest
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            digest: "sha256:abcdef1234567890"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: "curlimages/curl@sha256:abcdef1234567890"
+
+  - it: should render wait-for-platform init container with custom registry
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            registry: my-registry.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: "my-registry.example.com/curlimages/curl:latest"
+
+  - it: should render wait-for-platform init container with custom registry and tag
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            registry: my-registry.example.com
+            tag: "8.5.0"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: "my-registry.example.com/curlimages/curl:8.5.0"
+
+  - it: should render wait-for-platform init container with custom pullPolicy
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].imagePullPolicy
+          value: Always
+
+  - it: should not render wait-for-platform init container when initContainerDependencies is disabled
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        enabled: false
+      proxy:
+        initContainers:
+          - name: custom-init
+            image: busybox
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: custom-init
+
+  - it: should render wait-for-platform init container with security context and resources
+    template: deployment-proxy.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          securityContext:
+            runAsUser: 101
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: "50Mi"
+            limits:
+              memory: "100Mi"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext
+          value:
+            runAsUser: 101
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      - equal:
+          path: spec.template.spec.initContainers[0].resources
+          value:
+            requests:
+              cpu: "0.1"
+              memory: "50Mi"
+            limits:
+              memory: "100Mi"
+
+  # envFrom order and count tests
+  - it: should render all envFrom sources in correct order without redis auth
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        host: redis.example.com
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].envFrom
+          count: 2
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[0]
+          value:
+            configMapRef:
+              name: release-name-studios-common
+      - equal:
+          path: spec.template.spec.containers[0].envFrom[1]
+          value:
+            configMapRef:
+              name: release-name-studios-proxy
+
+  - it: should render multiple extraEnvVarsCMs and extraEnvVarsSecrets in correct order
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraEnvVarsCMs:
+          - cm-1
+          - cm-2
+          - cm-3
+        extraEnvVarsSecrets:
+          - secret-1
+          - secret-2
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.containers[0].envFrom
+          count: 7
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: cm-1
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: cm-2
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: cm-3
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: secret-1
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: secret-2
+
+  # Deployment strategy and rollout tests
+  - it: should maintain consistent selector labels for deployment immutability
+    template: deployment-proxy.yaml
+    chart:
+      version: 1.0.0
+      appVersion: v1.0.0
+    set:
+      proxy:
+        podLabels:
+          custom-label: custom-value
+    asserts:
+      # Core selector labels must be minimal and stable for Deployment immutability
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: proxy
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: studios
+      # Custom podLabels are NOT included in selector (only core labels)
+      - notExists:
+          path: spec.selector.matchLabels["custom-label"]
+      # But custom labels ARE in pod template labels
+      - equal:
+          path: spec.template.metadata.labels["custom-label"]
+          value: custom-value
+
+  # Volume configuration edge cases
+  - it: should render multiple extraVolumes and extraVolumeMounts
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraVolumes:
+          - name: extra-volume-1
+            emptyDir:
+              sizeLimit: "50Mi"
+          - name: extra-volume-2
+            configMap:
+              name: my-config
+        extraVolumeMounts:
+          - name: extra-volume-1
+            mountPath: /custom-path-1
+          - name: extra-volume-2
+            mountPath: /custom-path-2
+            readOnly: true
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.volumes
+          count: 3
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-volume-1
+            emptyDir:
+              sizeLimit: "50Mi"
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: extra-volume-2
+            configMap:
+              name: my-config
+      - lengthEqual:
+          path: spec.template.spec.containers[0].volumeMounts
+          count: 3
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: extra-volume-1
+            mountPath: /custom-path-1
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: extra-volume-2
+            mountPath: /custom-path-2
+            readOnly: true
+
+  # Container port name customization
+  - it: should render custom container port name
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        service:
+          http:
+            name: custom-port-name
+            targetPort: 8081
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].ports[0]
+          value:
+            containerPort: 8081
+            name: custom-port-name
+
+  # Redis configuration with existingSecret
+  - it: should use existingSecret for redis password
+    template: deployment-proxy.yaml
+    set:
+      redis:
+        host: redis.example.com
+        existingSecretName: external-redis-secret
+        existingSecretKey: MY_REDIS_PASSWORD_KEY
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CONNECT_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: external-redis-secret
+                key: MY_REDIS_PASSWORD_KEY
+
+  # Init container wait-for-platform with different platform addresses
+  - it: should handle platformServiceAddress with protocol
+    template: deployment-proxy.yaml
+    set:
+      global:
+        platformServiceAddress: "http://platform.example.com"
+        platformServicePort: 8080
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env[1].value
+          value: "http://platform.example.com"
+
+  # Security context edge cases
+  - it: should allow empty capabilities drop array
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        containerSecurityContext:
+          enabled: true
+          capabilities:
+            drop: []
+            add:
+              - NET_BIND_SERVICE
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.capabilities
+          value:
+            drop: []
+            add:
+              - NET_BIND_SERVICE
+
+  # podSecurityContext with multiple fields
+  - it: should render podSecurityContext with all common fields
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        podSecurityContext:
+          enabled: true
+          fsGroup: 2000
+          runAsNonRoot: true
+          fsGroupChangePolicy: "OnRootMismatch"
+          supplementalGroups:
+            - 3000
+            - 4000
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 2000
+            runAsNonRoot: true
+            fsGroupChangePolicy: "OnRootMismatch"
+            supplementalGroups:
+              - 3000
+              - 4000
+
+  # extraOptionsSpec with progressDeadlineSeconds
+  - it: should render progressDeadlineSeconds in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          progressDeadlineSeconds: 600
+    asserts:
+      - equal:
+          path: spec.progressDeadlineSeconds
+          value: 600
+
+  # extraOptionsSpec with paused deployment
+  - it: should render paused field in extraOptionsSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsSpec:
+          paused: true
+    asserts:
+      - equal:
+          path: spec.paused
+          value: true
+
+  # extraOptionsTemplateSpec with tolerations
+  - it: should render tolerations via extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          tolerations:
+            - key: "key1"
+              operator: "Equal"
+              value: "value1"
+              effect: "NoSchedule"
+    asserts:
+      - equal:
+          path: spec.template.spec.tolerations
+          value:
+            - key: "key1"
+              operator: "Equal"
+              value: "value1"
+              effect: "NoSchedule"
+
+  # extraOptionsTemplateSpec with topologySpreadConstraints
+  - it: should render topologySpreadConstraints via extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          topologySpreadConstraints:
+            - maxSkew: 1
+              topologyKey: zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app: studios-proxy
+    asserts:
+      - equal:
+          path: spec.template.spec.topologySpreadConstraints
+          value:
+            - maxSkew: 1
+              topologyKey: zone
+              whenUnsatisfiable: DoNotSchedule
+              labelSelector:
+                matchLabels:
+                  app: studios-proxy
+
+  # extraOptionsTemplateSpec with priorityClassName
+  - it: should render priorityClassName via extraOptionsTemplateSpec
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        extraOptionsTemplateSpec:
+          priorityClassName: high-priority
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: high-priority
+
+  # Comprehensive test with many options combined
+  - it: should render deployment with comprehensive configuration
+    template: deployment-proxy.yaml
+    chart:
+      version: "9.9.9+test"
+      appVersion: "9.9.9"
+    release:
+      namespace: custom-namespace
+    set:
+      global:
+        platformServiceAddress: platform.example.com
+        platformServicePort: 8080
+      proxy:
+        oidcClientRegistrationToken: my-token
+        image:
+          registry: my-registry.com
+          tag: "2.0.0"
+          pullPolicy: Always
+          pullSecrets:
+            - my-secret
+        command: ["custom-cmd"]
+        args: ["--verbose"]
+        extraEnvVars:
+          - name: CUSTOM_VAR
+            value: custom-value
+        extraVolumes:
+          - name: extra-vol
+            emptyDir: {}
+        extraVolumeMounts:
+          - name: extra-vol
+            mountPath: /extra
+        podLabels:
+          custom-label: custom-value
+        podAnnotations:
+          custom-annotation: annotation-value
+        podSecurityContext:
+          enabled: true
+          fsGroup: 9999
+        containerSecurityContext:
+          enabled: true
+          runAsUser: 9998
+        initContainers:
+          - name: custom-init
+            image: busybox
+        extraOptionsSpec:
+          replicas: 3
+          revisionHistoryLimit: 5
+        extraOptionsTemplateSpec:
+          nodeSelector:
+            disktype: ssd
+      redis:
+        host: redis.example.com
+        password: redis-pass
+      serviceAccount:
+        name: custom-sa
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.namespace
+          value: custom-namespace
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+      - equal:
+          path: spec.template.spec.nodeSelector.disktype
+          value: ssd
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: custom-sa
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "my-registry.com/private/nf-tower-enterprise/data-studio/connect-proxy:2.0.0"
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+
+  # Resources configuration tests
+  - it: should not render resources when not specified
+    template: deployment-proxy.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].resources
+
+  - it: should render resources when specified
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2000m"
+            memory: "2Gi"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+
+  - it: should render resources with only requests
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+  - it: should render resources with only limits
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+
+  - it: should render resources with memory limit only
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        resources:
+          limits:
+            memory: "4000Mi"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              memory: "4000Mi"

@@ -140,7 +140,11 @@ Return the name of the secret containing the Platform database password.
 {{- end -}}
 
 {{- define "platform.database.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- if (include "platform.database.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platformDatabase.existingSecretKey $) | default "TOWER_DB_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_DB_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -246,7 +250,11 @@ Return the name of the secret containing the Redis password.
 Return the key of the secret containing the Redis password.
 */}}
 {{- define "platform.redis.secretKey" -}}
-  {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- if (include "platform.redis.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.redis.existingSecretKey $) | default "TOWER_REDIS_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_REDIS_PASSWORD" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -259,7 +267,11 @@ Return the name of the secret containing the JWT token.
   {{- include "platform.jwt.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.jwt.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- if (include "platform.jwt.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.jwtSeedSecretKey $) | default "TOWER_JWT_SECRET" -}}
+  {{- else -}}
+    {{- printf "TOWER_JWT_SECRET" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -272,7 +284,11 @@ Return the name of the secret containing the crypto token.
   {{- include "platform.crypto.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.crypto.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- if (include "platform.crypto.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.cryptoSeedSecretKey $) | default "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- else -}}
+    {{- printf "TOWER_CRYPTO_SECRETKEY" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -285,7 +301,11 @@ Return the name of the secret containing the Platform license token.
   {{- include "platform.license.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.license.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- if (include "platform.license.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.licenseSecretKey $) | default "TOWER_LICENSE" -}}
+  {{- else -}}
+    {{- printf "TOWER_LICENSE" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*
@@ -298,7 +318,28 @@ Return the name of the secret containing the SMTP password.
   {{- include "platform.smtp.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
 {{- end -}}
 {{- define "platform.smtp.secretKey" -}}
-  {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- if (include "platform.smtp.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.smtp.existingSecretKey $) | default "TOWER_SMTP_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "TOWER_SMTP_PASSWORD" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the OIDC private key.
+*/}}
+{{- define "platform.oidc.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.oidcPrivateKeySecretName $) -}}
+{{- end -}}
+{{- define "studios.oidcPrivateKeySecretName" -}}
+  {{- include "platform.oidc.existingSecret" $ | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
+{{- define "platform.oidc.secretKey" -}}
+  {{- if (include "platform.oidc.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.oidcPrivateKeySecretKey $) | default "oidc.pem" -}}
+  {{- else -}}
+    {{- printf "oidc.pem" -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* Common initContainer to wait for Cron service to be ready.
@@ -330,6 +371,31 @@ Return the name of the secret containing the SMTP password.
 
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
+  {{- end -}}
+{{- end -}}
+
+{{/* Generate list of Seqera Studios tool images to provide to the user in the UI
+
+{{ include "platform.studios.toolsEnvVars" $ }}
+*/}}
+{{- define "platform.studios.toolsEnvVars" -}}
+  {{- range $key, $value := .Values.platform.studios.tools }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_STATUS: 'recommended'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_REPOSITORY: '{{ $value.recommended }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- if $value.deprecated }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_STATUS: 'deprecated'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_REPOSITORY: '{{ $value.deprecated }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-OLD_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- end }}
+    {{- if $value.experimental }}
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_STATUS: 'experimental'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_REPOSITORY: '{{ $value.experimental }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_TOOL: '{{ $value.tool }}'
+TOWER_DATA_STUDIO_TEMPLATES_{{ upper $key }}-EXPERIMENTAL_ICON: '{{ $value.icon |default $value.tool }}'
+    {{- end }}
   {{- end -}}
 {{- end -}}
 
