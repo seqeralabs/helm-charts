@@ -437,7 +437,12 @@ tests:
               value: redis://:6379
       - equal:
           path: spec.template.spec.initContainers[2].env
-          value: null
+          value:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-platform-backend
+                  key: TOWER_DB_PASSWORD
 
   - it: should render initContainer with appropriate env vars
     template: deployment-cron.yaml
@@ -510,6 +515,11 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[2].env
           value:
+            - name: TOWER_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-db-secret
+                  key: my-db-password-key
             - name: CUSTOM_ENV_VAR
               value: custom-value
       - equal:

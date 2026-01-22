@@ -148,7 +148,12 @@ should produce a Deployment resource with minimal values:
           - /bin/sh
           - -c
           - /migrate-db.sh
-        env: null
+        env:
+          - name: TOWER_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: TOWER_DB_PASSWORD
+                name: release-name-platform-backend
         envFrom:
           - configMapRef:
               name: release-name-platform-cron
@@ -375,7 +380,12 @@ should render the cron deployment with the correct checksums, labels and annotat
                 - /bin/sh
                 - -c
                 - /migrate-db.sh
-              env: null
+              env:
+                - name: TOWER_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: db-password-key
+                      name: unittest
               envFrom:
                 - configMapRef:
                     name: release-name-platform-cron
