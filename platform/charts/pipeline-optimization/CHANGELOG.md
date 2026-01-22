@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2026-01-15
 
+### Added
+
+- Added `global.imageCredentialsSecrets` configuration to support multiple pre-existing image pull secrets
+  - Allows referencing existing Kubernetes secrets of type `kubernetes.io/dockerconfigjson` for private registry authentication
+  - Secrets are automatically added to the ServiceAccount's `imagePullSecrets` list
+  - Complements existing `global.imageCredentials` for inline secret creation
+
 ### Fixed
 
 - Fixed `secretKey` helper functions to ignore custom `existingSecretKey` when using chart-managed secrets, ensuring consistency with external secret handling pattern

@@ -216,9 +216,6 @@ platform:
 
   # Seqera Studios configuration
   studios:
-    # tools[*] can be any name ..
-    # adding a deprecated and recommended version for each tool to allow upgrading versions
-
     # -- Map of tools to make available in Studios. Recommended and deprecated versions can be
     # specified for each tool to allow upgrading from an older version. Refer to the documentation
     # for more details:
@@ -241,9 +238,8 @@ platform:
       xpra:
         tool: xpra
         recommended: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
-    # .platform.studios.tools expects a map: the key can be any name, the only required field is the
-    # recommended.
-    # TODO: tool field, icon, experimental. add full example
+    # .platform.studios.tools expects a map of maps: the key can be any name, the only required
+    # field is 'recommended'.
 
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
   configMapLabels: {}

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.1] - 2026-01-15
 
+### Added
+
+- Added `global.imageCredentialsSecrets` configuration to support multiple pre-existing image pull secrets
+  - Allows referencing existing Kubernetes secrets of type `kubernetes.io/dockerconfigjson` for private registry authentication
+  - Secrets are automatically added to the ServiceAccount's `imagePullSecrets` list
+  - Complements existing `global.imageCredentials` for inline secret creation
+- Added Studios template environment variables generator in tower.yml configuration
+  - New `studiosTemplates` configuration section for defining interactive analysis tools (e.g., R-IDE, Jupyter, VSCode, etc.)
+  - Supports tool customization with image, labels, icon, and resource requirements
+  - Includes `studiosTemplatesExperimental` for experimental tool configurations
+- Added `dataExplorer.enabled` toggle flag to control Data Explorer feature in Platform UI
+
+### Changed
+
+- Split Helm-controlled tower.yml content from user-provided content for better configuration management
+
 ### Fixed
 
 - Fixed `secretKey` helper functions to ignore custom `existingSecretKey` when using chart-managed secrets, ensuring consistency with external secret handling pattern
@@ -16,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `platform.crypto.secretKey` helper
   - Fixed `platform.license.secretKey` helper
   - Fixed `platform.smtp.secretKey` helper
+- Fixed cron deployment to include `TOWER_DB_PASSWORD` environment variable for database migrations
 
 ## [0.24.0] - 2026-01-13
 

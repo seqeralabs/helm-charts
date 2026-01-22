@@ -7,9 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2026-01-15
 
+### Added
+
+- Added `global.imageCredentialsSecrets` configuration to support multiple pre-existing image pull secrets
+  - Allows referencing existing Kubernetes secrets of type `kubernetes.io/dockerconfigjson` for private registry authentication
+  - Secrets are automatically added to the ServiceAccount's `imagePullSecrets` list
+  - Complements existing `global.imageCredentials` for inline secret creation
+
+### Changed
+
+- Changed default replica counts to 2 to improve high availability
+- Updated OIDC token secret management to recreate token if missing from secret
+  - Addresses scenario where Studios is enabled after initial Platform installation
+- Removed component-specific labels and annotations from ConfigMap values
+  - Made `commonLabels` and `commonAnnotations` more generic and reusable
+
 ### Fixed
 
 - Fixed `studios.redis.secretKey` and `studios.oidcToken.secretKey` helpers to ignore custom `existingSecretKey` when using chart-managed secrets
+- Fixed Redis environment variable mount in server StatefulSet
+- Fixed `CONNECT_LOG_LEVEL` environment variable name in ConfigMap (was using incorrect variable name)
 
 ## [1.0.0] - 2026-01-13
 
