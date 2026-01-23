@@ -105,6 +105,10 @@ proxy:
   # only authorized OIDC clients. The token can be provided as a string of random chars or as an
   # external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a
   # Secret is provided, the chart will generate a random token
+  # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
+  # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
+  # regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always
+  # explicitly set this value or use an existing secret when using Kustomize.
   oidcClientRegistrationToken: ""
   # -- Name of an existing Secret containing the OIDC client registration token
   # as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist

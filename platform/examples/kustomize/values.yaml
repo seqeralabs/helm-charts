@@ -17,6 +17,9 @@ global:
 
 platform:
   licenseSecretName: "platform-license"
+  jwtSeedSecretName: "platform-jwt-seed"
+  cryptoSeedSecretName: "platform-crypto-seed"
+  oidcPrivateKeySecretName: "platform-oidc-private-key"
 
 backend:
   image:
@@ -72,3 +75,7 @@ ingress:
         - '{{ .Values.global.platformExternalDomain }}'
         - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
       secretName: my-tls
+
+studios:
+  proxy:
+    oidcClientRegistrationTokenSecretName: "studios-oidc-client-registration-token"
