@@ -10,6 +10,6 @@ dependencies:
   version: 0.2.1
 - name: studios
   repository: file://charts/studios
-  version: 1.0.1
-digest: sha256:d844343a55406f02e736450a67cf84cc816b1b03dd409f4577ff92d27ea1086e
-generated: "2026-01-15T16:38:00.32045626+01:00"
+  version: 1.1.0
+digest: sha256:069b2909b7a1da95c813a607ddb14c0f6e223ec4c200a44171c19df8b7a10b04
+generated: "2026-01-23T10:18:14.779305969+01:00"
