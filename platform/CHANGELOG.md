@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added warnings in `values.yaml` about Kustomize incompatibility with Helm auto-generated random values
 - Simplified and improved Kustomize example documentation with prominent warning banner about explicit configuration requirements when using Kustomize
+- Updated Studios subchart to version 1.1.1
 
 ## [0.25.1] - 2026-01-23
 
