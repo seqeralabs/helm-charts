@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -46,10 +46,21 @@ tests:
           # failedTemplate.errorMessage fails due to this bug: https://github.com/helm-unittest/helm-unittest/issues/652
           errorPattern: "Define the MySQL database hostname at 'platformDatabase.host'\\."
 
+  - it: should fail when neither platformDatabase.password nor platformDatabase.existingSecretName is provided
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: ""
+        existingSecretName: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either a database password at 'platformDatabase.password' or an existing secret name at 'platformDatabase.existingSecretName' must be provided\\."
+
   - it: should fail when redis.host is not defined
     set:
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       redis:
         host: ""
     asserts:
@@ -60,6 +71,7 @@ tests:
     set:
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       redis:
         host: "whatever"
       platform:
@@ -74,6 +86,7 @@ tests:
         host: "whatever"
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       platform:
         licenseString: "whatever"
         jwtSeedString: "whatever"
@@ -88,6 +101,7 @@ tests:
         host: "whatever"
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       platform:
         licenseString: "whatever"
         cryptoSeedString: "whatever"
@@ -100,6 +114,7 @@ tests:
     set:
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       redis:
         host: "whatever"
       platform:
@@ -118,6 +133,7 @@ tests:
         host: "whatever"
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       platform:
         licenseString: "whatever"
         executionBackends: []
@@ -129,6 +145,35 @@ tests:
     set:
       platformDatabase:
         host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when platformDatabase.password is provided
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "mypassword"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when platformDatabase.existingSecretName is provided
+    set:
+      platformDatabase:
+        host: "whatever"
+        existingSecretName: "my-secret"
       redis:
         host: "whatever"
       platform:
@@ -142,6 +187,7 @@ tests:
     set:
       platformDatabase:
         host: "whatever"
+        password: "whatever"
       redis:
         host: "whatever"
       platform:
