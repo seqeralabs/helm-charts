@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -45,6 +45,11 @@
 
 {{- if not .Values.platformDatabase.host -}}
 {{- $message := "Define the MySQL database hostname at 'platformDatabase.host'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and (not .Values.platformDatabase.password) (not (include "platform.database.existingSecret" .)) -}}
+{{- $message := "Either a database password at 'platformDatabase.password' or an existing secret name at 'platformDatabase.existingSecretName' must be provided." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
