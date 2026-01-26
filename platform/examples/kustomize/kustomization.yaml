@@ -7,7 +7,7 @@ namespace: albertoc-platform
 helmCharts:
 - name: platform
   repo: oci://public.cr.seqera.io/charts
-  version: 0.16.1
+  version: 0.25.2
   releaseName: seqera-platform
   # Basic values to provide to the Helm chart
   valuesFile: values.yaml

@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
+![Version: 1.1.1](https://img.shields.io/badge/Version-1.1.1-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.1.0 \
+  --version 1.1.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -90,7 +90,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.image.digest | string | `""` | Proxy container image digest in the format `sha256:1234abcdef` |
 | proxy.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | proxy.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| proxy.oidcClientRegistrationToken | string | `""` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token |
+| proxy.oidcClientRegistrationToken | string | `""` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always explicitly set this value or use an existing secret when using Kustomize |
 | proxy.oidcClientRegistrationTokenSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 | proxy.localCacheTTL | string | `"2m"` | TTL for local cache of Redis keys used for resiliency against Redis failures |
