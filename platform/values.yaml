@@ -131,7 +131,7 @@ platform:
   # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
   # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which will break authentication. Always
-  # explicitly set this value or use an existing secret when using Kustomize.
+  # explicitly set this value or use an existing secret when using Kustomize
   jwtSeedString: ""
   # -- Name of an existing Secret containing the JWT seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
@@ -148,7 +148,7 @@ platform:
   # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
   # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which will make  existing encrypted data
-  # inaccessible. Always explicitly set this value or use an existing secret when using Kustomize.
+  # inaccessible. Always explicitly set this value or use an existing secret when using Kustomize
   cryptoSeedString: ""
   # -- Name of an existing Secret containing the crypto seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
@@ -191,7 +191,7 @@ platform:
   # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
   # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always
-  # explicitly set this value or use an existing secret when using Kustomize.
+  # explicitly set this value or use an existing secret when using Kustomize
   oidcPrivateKeyBase64: ""
   # -- Name of an existing Secret containing the OIDC private key in PEM format, as an alternative
   # to the base64-encoded string field. Note: the Secret must already exist in the same namespace at
