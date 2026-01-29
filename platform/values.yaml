@@ -170,10 +170,10 @@ platform:
     - googlebatch-platform
     - googlecloud-platform
     - k8s-platform
-    - local-platform
     - lsf-platform
     - moab-platform
     - slurm-platform
+    - uge-platform
 
   # -- Platform license key. A license key is a long alphanumeric string provided by your Seqera
   # account manager. Define the value as a String or a Secret, not both at the same time
