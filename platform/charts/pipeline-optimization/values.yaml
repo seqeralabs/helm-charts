@@ -360,6 +360,16 @@ initContainerDependencies:
       limits:
         memory: "100Mi"
 
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
   # the release name
