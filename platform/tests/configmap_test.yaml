@@ -698,3 +698,99 @@ tests:
       - equal:
           path: data.TOWER_DATA_EXPLORER_ENABLED
           value: "true"
+
+  - it: should turn off data explorer flag when explicitly disabled and studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: false
+      studios:
+        enabled: false
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "false"
+
+  - it: should turn on data explorer flag when studios is enabled even if dataExplorer is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: false
+      studios:
+        enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"
+
+  - it: should turn on data explorer flag when both dataExplorer and studios are enabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: true
+      studios:
+        enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"
+
+  - it: should render Studios Wave custom image registry and repository when configured
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: true
+      platform:
+        studios:
+          customImageRegistry: "myregistry.example.com"
+          customImageRepository: "myteam/studios-repo"
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
+          value: "myregistry.example.com"
+      - equal:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
+          value: "myteam/studios-repo"
+
+  - it: should render empty Studios Wave custom image registry and repository when not configured
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
+          value: ""
+      - equal:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
+          value: ""
+
+  - it: should not include Studios Wave custom image env vars when studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      studios:
+        enabled: false
+      platform:
+        studios:
+          customImageRegistry: "myregistry.example.com"
+          customImageRepository: "myteam/studios-repo"
+    asserts:
+      - notExists:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
+      - notExists:
+          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY

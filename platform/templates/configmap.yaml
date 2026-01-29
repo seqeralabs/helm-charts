@@ -32,13 +32,15 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
-  TOWER_DATA_EXPLORER_ENABLED: {{ .Values.platform.dataExplorer.enabled | quote }}
+  TOWER_DATA_EXPLORER_ENABLED: {{ include "platform.dataExplorer.enabled" . | quote }}
 {{- if (index .Values "pipeline-optimization" "enabled") }}
   GROUNDSWELL_SERVER_URL: {{ printf "http://%s:%s" (include "common.names.dependency.fullname" (dict "chartName" "pipeline-optimization" "chartValues" (index .Values "pipeline-optimization") "context" $)) (tpl (index .Values "pipeline-optimization" "service" "http" "port" | toString) .) | quote }}
 {{- end }}
 {{- if .Values.studios.enabled }}
   TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
   TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+  TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: {{ .Values.platform.studios.customImageRegistry | quote }}
+  TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: {{ .Values.platform.studios.customImageRepository | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
 ---

@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.25.2](https://img.shields.io/badge/Version-0.25.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.25.3](https://img.shields.io/badge/Version-0.25.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.25.2 \
+  --version 0.25.3 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -116,6 +116,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.smtp.existingSecretKey | string | `"TOWER_SMTP_PASSWORD"` | Key in the existing Secret containing the SMTP password |
 | platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is `https://wave.seqera.io` |
 | platform.dataExplorer.enabled | bool | `false` | Enable the Data Explorer feature: https://docs.seqera.io/platform-enterprise/data/data-explorer |
+| platform.studios.customImageRegistry | string | `""` | Image registry where Wave (defined at `.platform.waveServerUrl`) will push custom Studios images built for user sessions. Credentials to the registry/repository must be defined in each Platform Workspace. Example: `myregistry.example.com` |
+| platform.studios.customImageRepository | string | `""` | Image repository where Wave (defined at `.platform.waveServerUrl`) will push custom Studios images built for user sessions. Example: `myteam/studios-container-repo` |
 | platform.studios.tools | object | `{"jupyter":{"deprecated":"public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1","recommended":"public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8","tool":"jupyter"},"rstudio":{"recommended":"public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8","tool":"rstudio"},"vscode":{"deprecated":"public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8","recommended":"public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8","tool":"vscode"},"xpra":{"recommended":"public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8","tool":"xpra"}}` | Map of tools to make available in Studios. Recommended and deprecated versions can be specified for each tool to allow upgrading from an older version. Refer to the documentation for more details: https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template |
 | platform.configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
 | platform.secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
