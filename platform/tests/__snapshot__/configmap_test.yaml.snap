@@ -311,7 +311,7 @@ should render shared cm with default values:
       TOWER_DB_MIN_POOL_SIZE: "2"
       TOWER_DB_URL: jdbc:mysql://:3306/?permitMysqlScheme=true
       TOWER_DB_USER: ""
-      TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,awscloud-platform,azbatch-platform,azcloud-platform,eks-platform,gke-platform,googlebatch-platform,googlecloud-platform,k8s-platform,local-platform,lsf-platform,moab-platform,slurm-platform
+      TOWER_ENABLE_PLATFORMS: altair-platform,awsbatch-platform,awscloud-platform,azbatch-platform,azcloud-platform,eks-platform,gke-platform,googlebatch-platform,googlecloud-platform,k8s-platform,lsf-platform,moab-platform,slurm-platform,uge-platform
       TOWER_REDIS_URL: redis://:6379
       TOWER_SERVER_URL: https://example.com
       WAVE_SERVER_URL: https://wave.seqera.io
