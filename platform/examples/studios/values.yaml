@@ -1,0 +1,67 @@
+# Studios Configuration Example
+#
+# Several required Platform options are not included here (e.g., Platform database,
+# redis cache, ingress, external domain, etc). This example focuses specifically on
+# Pipeline Optimization configuration.
+
+global:
+  platformExternalDomain: example.com
+
+  # Studios domain - each session gets a unique subdomain
+  studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
+  studiosConnectionUrl: '{{ printf "https://connect.%s" .Values.global.studiosDomain }}'
+
+platform:
+  # Turn on Data Explorer
+  dataExplorer:
+    enabled: true
+
+backend:
+  extraEnvVars:
+    # Configure Studios integration with Wave, see docs for details:
+    # https://docs.seqera.io/platform-enterprise/studios/add-studio-git-repo
+    - name: TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
+      value: "registry.example.com"
+    - name: TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
+      value: "my/repository/"
+
+# Enable Studios subchart
+studios:
+  enabled: true
+
+  # Redis cache
+  redis:
+    host: "redis.example.com"
+
+  # Proxy configuration
+  proxy:
+    resources:
+      requests:
+        cpu: "30m"
+        memory: "64Mi"
+      limits:
+        memory: "64Mi"
+
+  # Server configuration
+  server:
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "50Mi"
+      limits:
+        memory: "50Mi"
+
+  # Nginx ingress for wildcard subdomain routing
+  # The ingress controller must support wildcard hosts; your configuration may vary
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    tls:
+      - secretName: studios-tls-cert
+        hosts:
+          - '{{ printf "*.%s" (tpl .Values.global.studiosDomain .) }}'
