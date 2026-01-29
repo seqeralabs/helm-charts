@@ -39,6 +39,8 @@ data:
 {{- if .Values.studios.enabled }}
   TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
   TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+  TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: {{ .Values.platform.studios.customImageRegistry | quote }}
+  TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: {{ .Values.platform.studios.customImageRepository | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
 ---

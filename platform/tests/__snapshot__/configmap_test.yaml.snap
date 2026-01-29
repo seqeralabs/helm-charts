@@ -30,6 +30,8 @@ should handle empty Studios tools map:
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:
@@ -74,6 +76,8 @@ should render Studios tools environment variables when studios is enabled with d
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:
@@ -118,6 +122,8 @@ should render backend cm with default values:
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:
@@ -166,6 +172,8 @@ should render custom Studios tool when provided:
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:
@@ -222,6 +230,8 @@ should render custom Studios tool with deprecated and experimental versions when
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:
@@ -274,6 +284,8 @@ should render custom Studios tool with deprecated version when provided:
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_REPOSITORY: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_STATUS: recommended
       TOWER_DATA_STUDIO_TEMPLATES_XPRA_TOOL: xpra
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: ""
+      TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: ""
       TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
     kind: ConfigMap
     metadata:

@@ -228,6 +228,14 @@ platform:
 
   # Seqera Studios configuration
   studios:
+    # -- Image registry where Wave (defined at `.platform.waveServerUrl`) will push custom Studios
+    # images built for user sessions. Credentials to the registry/repository must be defined in each
+    # Platform Workspace. Example: `myregistry.example.com`
+    customImageRegistry: ""
+    # -- Image repository where Wave (defined at `.platform.waveServerUrl`) will push custom Studios
+    # images built for user sessions. Example: `myteam/studios-container-repo`
+    customImageRepository: ""
+
     # -- Map of tools to make available in Studios. Recommended and deprecated versions can be
     # specified for each tool to allow upgrading from an older version. Refer to the documentation
     # for more details:

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.3] - 2026-01-29
 
+### Added
+
+- Added Studios Wave custom image configuration environment variables
+  - New `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY` environment variable for specifying custom registry where Wave pushes Studios images
+  - New `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY` environment variable for specifying custom repository where Wave pushes Studios images
+  - Both variables are set from `platform.studios.customImageRegistry` and `platform.studios.customImageRepository` values respectively
+  - Variables are only included when Studios is enabled
+
 ### Changed
 
 - Data Explorer is now automatically enabled when the Studios subchart is enabled
