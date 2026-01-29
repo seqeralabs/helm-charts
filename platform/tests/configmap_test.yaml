@@ -698,3 +698,48 @@ tests:
       - equal:
           path: data.TOWER_DATA_EXPLORER_ENABLED
           value: "true"
+
+  - it: should turn off data explorer flag when explicitly disabled and studios is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: false
+      studios:
+        enabled: false
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "false"
+
+  - it: should turn on data explorer flag when studios is enabled even if dataExplorer is disabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: false
+      studios:
+        enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"
+
+  - it: should turn on data explorer flag when both dataExplorer and studios are enabled
+    documentSelector:
+      path: metadata.name
+      value: release-name-platform-backend
+    set:
+      platform:
+        dataExplorer:
+          enabled: true
+      studios:
+        enabled: true
+    asserts:
+      - equal:
+          path: data.TOWER_DATA_EXPLORER_ENABLED
+          value: "true"

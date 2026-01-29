@@ -442,3 +442,17 @@ Validate that a value is a string representation of an integer.
 {{- join "; " $errors -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return whether the data explorer should be enabled.
+Data explorer is automatically enabled when studios is enabled.
+
+{{ include "platform.dataExplorer.enabled" . }}
+*/}}
+{{- define "platform.dataExplorer.enabled" -}}
+  {{- if or .Values.platform.dataExplorer.enabled .Values.studios.enabled -}}
+true
+  {{- else -}}
+false
+  {{- end -}}
+{{- end -}}

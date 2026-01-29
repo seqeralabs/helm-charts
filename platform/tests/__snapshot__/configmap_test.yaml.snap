@@ -4,7 +4,7 @@ should handle empty Studios tools map:
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
@@ -48,7 +48,7 @@ should render Studios tools environment variables when studios is enabled with d
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
@@ -92,7 +92,7 @@ should render backend cm with default values:
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_REPOSITORY: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
@@ -136,7 +136,7 @@ should render custom Studios tool when provided:
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_ICON: customtool
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_REPOSITORY: registry.example.com/custom-tool:v1.0.0
@@ -184,7 +184,7 @@ should render custom Studios tool with deprecated and experimental versions when
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-EXPERIMENTAL_ICON: customtool
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-EXPERIMENTAL_REPOSITORY: registry.example.com/custom-tool:v3.0.0
@@ -240,7 +240,7 @@ should render custom Studios tool with deprecated version when provided:
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-      TOWER_DATA_EXPLORER_ENABLED: "false"
+      TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_ICON: customtool
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-OLD_REPOSITORY: registry.example.com/custom-tool:v1.0.0

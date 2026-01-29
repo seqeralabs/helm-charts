@@ -32,7 +32,7 @@ metadata:
   annotations: {{- $annotations | nindent 4 }}
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.backend.micronautEnvs" . }}
-  TOWER_DATA_EXPLORER_ENABLED: {{ .Values.platform.dataExplorer.enabled | quote }}
+  TOWER_DATA_EXPLORER_ENABLED: {{ include "platform.dataExplorer.enabled" . | quote }}
 {{- if (index .Values "pipeline-optimization" "enabled") }}
   GROUNDSWELL_SERVER_URL: {{ printf "http://%s:%s" (include "common.names.dependency.fullname" (dict "chartName" "pipeline-optimization" "chartValues" (index .Values "pipeline-optimization") "context" $)) (tpl (index .Values "pipeline-optimization" "service" "http" "port" | toString) .) | quote }}
 {{- end }}
