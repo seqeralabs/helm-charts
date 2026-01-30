@@ -36,6 +36,7 @@ tests:
   asserts:
   - matchSnapshot:
       path: spec.template.spec
+
 - it: should render the backend deployment with the specified tag version
   template: deployment-backend.yaml
   set:
@@ -46,6 +47,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].image
       value: private/nf-tower-enterprise/backend:9.0.0
+
 - it: should render the backend deployment with the specified digest, overriding the tag
   template: deployment-backend.yaml
   set:
@@ -57,6 +59,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].image
       value: private/nf-tower-enterprise/backend@sha256:1234abcdef
+
 - it: should render the backend deployment with the correct checksums, labels and annotations
   template: deployment-backend.yaml
   chart:
@@ -85,6 +88,7 @@ tests:
       licenseSecretKey: license-token-key
   asserts:
   - matchSnapshot: {}
+
 - it: shouldn't obey custom selector requests
   template: deployment-backend.yaml
   set:
@@ -100,6 +104,7 @@ tests:
         app.kubernetes.io/component: backend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
+
 - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
   template: deployment-backend.yaml
   set:
@@ -123,6 +128,7 @@ tests:
         app.kubernetes.io/component: backend
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/name: platform
+
 - it: should render extraOptionsTemplateSpec under spec.template.spec
   template: deployment-backend.yaml
   set:
@@ -157,6 +163,7 @@ tests:
                 values:
                 - whatever
             topologyKey: kubernetes.io/hostname
+
 - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
   template: deployment-backend.yaml
   set:
@@ -171,6 +178,7 @@ tests:
   - equal:
       path: spec.template.spec.dnsPolicy
       value: ClusterFirstWithHostNet
+
 - it: should render default podsecurityContext
   template: deployment-backend.yaml
   asserts:
@@ -178,6 +186,7 @@ tests:
       path: spec.template.spec.securityContext
       value:
         fsGroup: 101
+
 - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
   template: deployment-backend.yaml
   set:
@@ -190,6 +199,7 @@ tests:
   asserts:
   - notExists:
       path: spec.template.spec.securityContext
+
 - it: should render whatever podsecurityContext is set
   template: deployment-backend.yaml
   set:
@@ -204,6 +214,7 @@ tests:
       value:
         fsGroup: 2000
         asdf: 123
+
 - it: should render custom container securityContext
   template: deployment-backend.yaml
   set:
@@ -229,6 +240,7 @@ tests:
         runAsNonRoot: false
         runAsUser: 2000
         asdf: 123
+
 - it: should render container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
   template: deployment-backend.yaml
   set:
@@ -236,6 +248,19 @@ tests:
       extraEnvVars:
       - name: CUSTOM_ENV_VAR
         value: custom-value
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: 12345
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: '{{ .Values.global.platformServicePort }}'
       extraEnvVarsCMs:
       - extra-env-vars-cm1
       - extra-env-vars-cm2
@@ -276,7 +301,20 @@ tests:
       - name: NXF_PLUGINS_DIR
         value: /var/cache/tower/plugins/
       - name: CUSTOM_ENV_VAR
-        value: custom-value
+        value: "custom-value"
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: "12345"
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: "8080"
   - equal:
       path: spec.template.spec.containers[0].envFrom
       value:
@@ -292,6 +330,7 @@ tests:
           name: extra-env-vars-secret1
       - secretRef:
           name: extra-env-vars-secret2
+
 - it: should render initContainers that wait for required services to be ready
   template: deployment-backend.yaml
   asserts:
@@ -344,6 +383,7 @@ tests:
         value: release-name-platform-cron
       - name: CRON_PORT
         value: '8080'
+
 - it: should render initContainer with appropriate env vars
   template: deployment-backend.yaml
   kubernetesProvider:
@@ -416,6 +456,7 @@ tests:
         value: '8080'
   - notExists:
       path: spec.template.spec.initContainers[2].envFrom
+
 - it: should render multiple extra initContainers
   template: deployment-backend.yaml
   set:
@@ -455,6 +496,7 @@ tests:
         - sh
         - -c
         - echo Hello from another extra init container
+
 - it: should include extra Volumes in the backend pod spec
   template: deployment-backend.yaml
   set:
@@ -477,6 +519,7 @@ tests:
           secretName: release-name-platform-backend
       - emptyDir: {}
         name: extra-volume
+
 - it: should use custom image for the backend deployment
   template: deployment-backend.yaml
   set:
@@ -493,6 +536,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].imagePullPolicy
       value: Always
+
 - it: should use custom command and args for the backend container
   template: deployment-backend.yaml
   set:
@@ -512,6 +556,7 @@ tests:
       value:
       - --custom-arg1
       - value1
+
 - it: should render custom resources for the backend container
   template: deployment-backend.yaml
   set:
@@ -531,6 +576,7 @@ tests:
         requests:
           cpu: '1'
           memory: 512Mi
+
 - it: should disable probes for the backend container
   template: deployment-backend.yaml
   set:
@@ -546,6 +592,7 @@ tests:
       path: spec.template.spec.containers[0].readinessProbe
   - notExists:
       path: spec.template.spec.containers[0].startupProbe
+
 - it: should adapt the custom probe port for the backend container for v25.3
   template: deployment-backend.yaml
   chart:
@@ -567,6 +614,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].readinessProbe.httpGet.port
       value: 8089
+
 - it: should not adapt the custom probe port for the backend container for v25.2
   template: deployment-backend.yaml
   chart:
@@ -588,6 +636,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].readinessProbe.httpGet.port
       value: 8080
+
 - it: should not adapt the custom probe port for v24.8 (pre-25.3)
   template: deployment-backend.yaml
   chart:
@@ -612,6 +661,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
       value: 8080
+
 - it: should not adapt the custom probe port for v25.2.0+asdf (pre-25.3 with metadata)
   template: deployment-backend.yaml
   chart:
@@ -636,6 +686,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
       value: 8080
+
 - it: should adapt the custom probe port for v25.4.0 (post-25.3)
   template: deployment-backend.yaml
   chart:
@@ -662,6 +713,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].startupProbe.httpGet.port
       value: 9002
+
 - it: should adapt the custom probe port for v25.4.0+asdf (post-25.3 with metadata)
   template: deployment-backend.yaml
   chart:
@@ -688,6 +740,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].startupProbe.httpGet.port
       value: 9002
+
 - it: should adapt the custom probe port for v26.1.0 (future version)
   template: deployment-backend.yaml
   chart:
@@ -712,6 +765,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].startupProbe.httpGet.port
       value: 9000
+
 - it: should use custom probe settings for the backend container with ports as templates
   template: deployment-backend.yaml
   chart:
@@ -774,6 +828,7 @@ tests:
         periodSeconds: 25
         successThreshold: 1
         timeoutSeconds: 3
+
 - it: should use custom probe settings for the backend container with some ports as templates, some string, some integer
   template: deployment-backend.yaml
   chart:
@@ -830,6 +885,7 @@ tests:
         periodSeconds: 5
         successThreshold: 1
         timeoutSeconds: 3
+
 - it: should adapt the custom tcpSocket probe port for the backend container for v25.3
   template: deployment-backend.yaml
   chart:
@@ -860,6 +916,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
       value: 9092
+
 - it: should not adapt the custom tcpSocket probe port for the backend container for v25.2
   template: deployment-backend.yaml
   chart:
@@ -890,6 +947,7 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
       value: 8080
+
 - it: should disable podSecurityContext when 'enabled' is false
   template: deployment-backend.yaml
   set:
@@ -899,6 +957,7 @@ tests:
   asserts:
   - notExists:
       path: spec.template.spec.securityContext
+
 - it: should disable initContainers that wait for required services to be ready
   template: deployment-backend.yaml
   set:

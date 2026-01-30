@@ -202,6 +202,19 @@ tests:
       extraEnvVars:
       - name: CUSTOM_ENV_VAR
         value: custom-value
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: 12345
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: '{{ .Values.global.platformServicePort }}'
       extraEnvVarsCMs:
       - extra-env-vars-cm1
       - extra-env-vars-cm2
@@ -219,7 +232,20 @@ tests:
       - name: NGINX_LISTEN_PORT
         value: '8083'
       - name: CUSTOM_ENV_VAR
-        value: custom-value
+        value: "custom-value"
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: "12345"
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: "8080"
   - equal:
       path: spec.template.spec.containers[0].envFrom
       value:

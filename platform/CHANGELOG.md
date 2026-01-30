@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.7] - 2026-01-30
+
+### Changed
+
+- Updated environment variable rendering to use `seqera.envVars.render` helper function instead of `seqera.tplvalues.render` for correct templating behavior
+- Updated pipeline-optimization subchart to version 0.2.4
+- Updated studios subchart to version 1.1.3
+
 ## [0.25.6] - 2026-01-30
 
 ### Changed

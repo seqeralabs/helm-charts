@@ -85,7 +85,7 @@ spec:
                   name: {{ include "platform.database.secretName" . }}
                   key: {{ include "platform.database.secretKey" . }}
 {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
-            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
           envFrom:
             - configMapRef:
@@ -186,7 +186,7 @@ spec:
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
 {{- with .Values.cron.extraEnvVars }}
-            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
 
 {{- with .Values.cron.resources }}

@@ -360,6 +360,19 @@ tests:
         extraEnvVars:
         - name: CUSTOM_ENV_VAR
           value: custom-value
+        - name: STRING_VAR
+          value: some-string-value
+        - name: INTEGER_VAR
+          value: 12345
+        - name: QUOTED_INTEGER_VAR
+          value: "67890"
+        - name: MY_SECRET_VAR
+          valueFrom:
+            secretKeyRef:
+              name: my-secret
+              key: my-key
+        - name: TEMPLATED_VAR
+          value: '{{ .Values.global.platformServicePort }}'
         extraEnvVarsCMs:
         - extra-env-vars-cm1
         - extra-env-vars-cm2
@@ -406,7 +419,20 @@ tests:
             name: my-db-secret
             key: my-db-password-key
       - name: CUSTOM_ENV_VAR
-        value: custom-value
+        value: "custom-value"
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: "12345"
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: "8080"
   - equal:
       path: spec.template.spec.initContainers[2].envFrom
       value:
@@ -463,6 +489,92 @@ tests:
         - sh
         - -c
         - echo Hello from another extra init container
+
+- it: should render cron container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
+  template: deployment-cron.yaml
+  set:
+    cron:
+      extraEnvVars:
+      - name: CUSTOM_ENV_VAR
+        value: custom-value
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: 12345
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: '{{ .Values.global.platformServicePort }}'
+      extraEnvVarsCMs:
+      - extra-env-vars-cm1
+      - extra-env-vars-cm2
+      extraEnvVarsSecrets:
+      - extra-env-vars-secret1
+      - extra-env-vars-secret2
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].env
+      value:
+      - name: TOWER_DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: release-name-platform-backend
+            key: TOWER_DB_PASSWORD
+      - name: TOWER_LICENSE
+        valueFrom:
+          secretKeyRef:
+            name: release-name-platform-backend
+            key: TOWER_LICENSE
+      - name: TOWER_JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: release-name-platform-backend
+            key: TOWER_JWT_SECRET
+      - name: TOWER_CRYPTO_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: release-name-platform-backend
+            key: TOWER_CRYPTO_SECRETKEY
+      - name: NXF_HOME
+        value: /var/cache/tower/
+      - name: NXF_PLUGINS_DIR
+        value: /var/cache/tower/plugins/
+      - name: CUSTOM_ENV_VAR
+        value: "custom-value"
+      - name: STRING_VAR
+        value: some-string-value
+      - name: INTEGER_VAR
+        value: "12345"
+      - name: QUOTED_INTEGER_VAR
+        value: "67890"
+      - name: MY_SECRET_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+      - name: TEMPLATED_VAR
+        value: "8080"
+  - equal:
+      path: spec.template.spec.containers[0].envFrom
+      value:
+      - configMapRef:
+          name: release-name-platform-cron
+      - configMapRef:
+          name: release-name-platform-shared-backend-cron
+      - configMapRef:
+          name: extra-env-vars-cm1
+      - configMapRef:
+          name: extra-env-vars-cm2
+      - secretRef:
+          name: extra-env-vars-secret1
+      - secretRef:
+          name: extra-env-vars-secret2
+
 - it: should prevent initContainer securityContext to be set via extraEnvVars when 'enabled' is false
   template: deployment-cron.yaml
   set:

@@ -147,7 +147,7 @@ spec:
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
 {{- with .Values.backend.extraEnvVars }}
-            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
 
 {{- with .Values.backend.resources }}
