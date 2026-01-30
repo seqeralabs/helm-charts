@@ -174,3 +174,31 @@ Examples:
   {{- end -}}
 {{- $list | toYaml -}}
 {{- end -}}
+
+{{/*
+Render environment variables ensuring all values are strings.
+This is necessary because Kubernetes requires env var values to be strings,
+but YAML parsers may interpret numeric values as integers.
+
+Usage: {{ include "seqera.envVars.render" (dict "value" .Values.backend.extraEnvVars "context" $) }}
+
+This helper ensures that:
+- All env var values are quoted as strings (required by Kubernetes)
+- Template expressions in values are evaluated
+- valueFrom references work correctly
+*/}}
+{{- define "seqera.envVars.render" -}}
+  {{- if kindIs "slice" .value -}}
+    {{- range .value -}}
+      {{- $envVar := . -}}
+      {{- if kindIs "map" $envVar }}
+- name: {{ tpl (toString $envVar.name) $.context }}
+        {{- if hasKey $envVar "value" }}
+  value: {{ tpl (toString $envVar.value) $.context | quote }}
+        {{- else if hasKey $envVar "valueFrom" }}
+  valueFrom: {{- include "common.tplvalues.render" (dict "value" $envVar.valueFrom "context" $.context) | nindent 4 }}
+        {{- end }}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

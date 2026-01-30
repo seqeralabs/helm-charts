@@ -5,6 +5,16 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-01-30
+
+### Added
+
+- `seqera.envVars.render` - Helper to render environment variables with all values as strings
+  - Ensures Kubernetes env var value compliance (all values must be strings)
+  - Handles integer values by quoting them (e.g., `12345` becomes `"12345"`)
+  - Supports template evaluation in env var values
+  - Supports `valueFrom` references for secrets and configmaps
+
 ## [1.1.0] - 2026-01-13
 
 ### Added

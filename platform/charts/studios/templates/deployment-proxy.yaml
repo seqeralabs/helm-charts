@@ -102,7 +102,7 @@ spec:
                   key: {{ include "studios.redis.secretKey" . }}
 {{- end }}
 {{- with .Values.proxy.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
           envFrom:
             - configMapRef:

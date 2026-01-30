@@ -85,7 +85,7 @@ spec:
                   key: {{ include "studios.redis.secretKey" . }}
 {{- end }}
 {{- with .Values.server.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
           envFrom:
             - configMapRef:
