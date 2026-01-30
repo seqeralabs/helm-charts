@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -24,509 +24,251 @@ chart:
   version: 1.2.3
   appVersion: "v9.9.9"
 tests:
-  - it: should not render ingress when disabled
-    set:
-      ingress:
-        enabled: false
-    asserts:
-      - hasDocuments:
-          count: 0
-
-  - it: should render ingress when enabled
-    set:
-      ingress:
-        enabled: true
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should set correct hostname
-    set:
-      ingress:
-        enabled: true
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.rules[0].host
-          value: platform.example.com
-
-  - it: should apply ingress class
-    set:
-      ingress:
-        enabled: true
-        ingressClassName: "nginx"
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.ingressClassName
-          value: nginx
-
-  - it: should apply ingress annotations with templated values
-    set:
-      ingress:
-        enabled: true
-        annotations:
-          nginx.ingress.kubernetes.io/rewrite-target: "/"
-          nginx.ingress.kubernetes.io/ssl-redirect: "true"
-          whatever: "{{ .Values.global.platformServicePort | default 8443 }}"
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            nginx.ingress.kubernetes.io/rewrite-target: "/"
-            nginx.ingress.kubernetes.io/ssl-redirect: "true"
-            whatever: "8080"  # should be rendered as string, k8s doesn't accept integers in annotations
-
-  - it: should merge common annotations with ingress annotations
-    set:
-      ingress:
-        enabled: true
-        annotations:
-          ingress-specific: "value1"
-      commonAnnotations:
-        common-annotation: "value2"
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: metadata.annotations.ingress-specific
-          value: value1
-      - equal:
-          path: metadata.annotations.common-annotation
-          value: value2
-
-  - it: should apply ingress labels with templated values
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-      ingress:
-        enabled: true
-        extraLabels:
-          domain: "{{ .Values.global.platformExternalDomain }}"
-          whatever: "{{ .Values.global.platformServicePort | default 8443 }}"
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v9.9.9
-            helm.sh/chart: platform-1.2.3
-            domain: platform.example.com
-            whatever: "8080"  # should be rendered as string, k8s doesn't accept integers in labels
-
-  - it: should merge common labels with ingress labels
-    set:
-      ingress:
-        enabled: true
-        extraLabels:
-          custom-label: "custom-value"
-      commonLabels:
-        common-label: "common-value"
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v9.9.9
-            helm.sh/chart: platform-1.2.3
-            custom-label: custom-value
-            common-label: common-value
-
-  - it: should expose user-data. (content) subdomain when enabled
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-      ingress:
-        enabled: true
-    asserts:
-      - equal:
-          path: spec.rules[1]
-          value:
-            host: "user-data.platform.example.com"
-            http:
-              paths:
-              - backend:
-                  service:
-                    name: "release-name-platform-frontend"
-                    port:
-                      number: 80
-                path: "/"
-                pathType: "ImplementationSpecific"
-
-  - it: should expose user-data. (content) on custom subdomain when enabled
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-        contentDomain: "user-data.example.com"
-      ingress:
-        enabled: true
-    asserts:
-      - equal:
-          path: spec.rules[1]
-          value:
-            host: "user-data.example.com"
-            http:
-              paths:
-              - backend:
-                  service:
-                    name: "release-name-platform-frontend"
-                    port:
-                      number: 80
-                path: "/"
-                pathType: "ImplementationSpecific"
-
-  - it: should not expose user-data. (content) subdomain when not set
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-        contentDomain: ""
-      ingress:
-        enabled: true
-    asserts:
-      - equal:
-          path: spec.rules
-          value:
-            - host: platform.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /
-                    pathType: ImplementationSpecific
-
-  - it: should not expose www subdomain when disabled
-    set:
-      global:
-        platformExternalDomain: "platform.example.com"
-      ingress:
-        enabled: true
-        enableHostOnWWWSubdomain: false
-    asserts:
-      - equal:
-          path: spec.rules
-          value:
-            - host: platform.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /
-                    pathType: ImplementationSpecific
-            - host: user-data.platform.example.com
-              http:
-                paths:
-                  - backend:
-                      service:
-                        name: release-name-platform-frontend
-                        port:
-                          number: 80
-                    path: /
-                    pathType: ImplementationSpecific
-
-  - it: should configure TLS when enabled
-    set:
-      ingress:
-        enabled: true
-        tls:
-          - hosts:
-              - platform.example.com
-            secretName: platform-tls
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.tls[0]
-          value:
-            hosts:
-              - platform.example.com
-            secretName: platform-tls
-
-  - it: should configure multiple TLS entries
-    set:
-      ingress:
-        enabled: true
-        tls:
-          - hosts:
-              - platform.example.com
-            secretName: platform-tls
-          - hosts:
-              - user-data.platform.example.com
-            secretName: content-tls
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - lengthEqual:
-          path: spec.tls
-          count: 2
-      - equal:
-          path: spec.tls[0].secretName
-          value: platform-tls
-      - equal:
-          path: spec.tls[1].secretName
-          value: content-tls
-
-  - it: should render templated TLS values
-    set:
-      ingress:
-        enabled: true
-        tls:
-          - hosts:
-              - '{{ .Values.global.platformExternalDomain }}'
-            secretName: '{{ printf "%s-tls" (include "common.names.fullname" .) }}'
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.tls[0].hosts[0]
-          value: platform.example.com
-      - equal:
-          path: spec.tls[0].secretName
-          value: release-name-platform-tls
-
-  - it: should configure TLS with multiple hosts in one entry
-    set:
-      ingress:
-        enabled: true
-        tls:
-          - hosts:
-              - platform.example.com
-              - user-data.platform.example.com
-              - www.platform.example.com
-            secretName: wildcard-tls
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - lengthEqual:
-          path: spec.tls[0].hosts
-          count: 3
-      - equal:
-          path: spec.tls[0].secretName
-          value: wildcard-tls
-
-  - it: should handle empty TLS array
-    set:
-      ingress:
-        enabled: true
-        tls: []
-    asserts:
-      - notExists:
-          path: spec.tls
-
-  - it: should use default path when not set
-    set:
-      ingress:
-        enabled: true
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.rules[0].http.paths[0].path
-          value: "/"
-
-  - it: should use custom paths when set
-    set:
-      ingress:
-        enabled: true
-        path: "/*"
-        contentPath: "/platform/*"
-      global:
-        platformExternalDomain: "platform.example.com"
-    asserts:
-      - equal:
-          path: spec.rules[0].http.paths[0].path
-          value: "/*"
-      - equal:
-          path: spec.rules[1].http.paths[0].path
-          value: "/platform/*"
-
-  - it: should configure extra hosts
-    set:
-      ingress:
-        enabled: true
-        extraHosts:
-          - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
-            paths:
-              - path: /*  # For ALB ingress controller
-                pathType: Prefix  # Optional, defaults to defaultPathType value
-                serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
-                portNumber: '{{ .Values.global.platformServicePort }}'
-          - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
-            paths:
-              - path: /*  # For ALB ingress controller
-                pathType: Prefix  # Optional, defaults to defaultPathType value
-                serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
-                portNumber: '{{ .Values.frontend.service.http.port }}'
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should configure extra hosts with multiple paths
-    set:
-      ingress:
-        enabled: true
-        extraHosts:
-          - host: api.example.com
-            paths:
-              - path: /v1
-                pathType: Prefix
-                serviceName: api-v1
-                portNumber: "8080"
-              - path: /v2
-                pathType: Prefix
-                serviceName: api-v2
-                portNumber: "8081"
-    asserts:
-      - matchSnapshot:
-          path: spec.rules
-
-  - it: should use render templates in extraHosts
-    set:
-      ingress:
-        enabled: true
-        extraHosts:
-          - host: api.example.com
-            paths:
-              - path: /api
-                serviceName: release-name-platform-backend
-                portNumber: '{{ .Values.global.platformServicePort }}'
-      global:
-        platformServicePort: 9090
-    asserts:
-      - equal:
-          path: spec.rules[2].http.paths[0].backend.service.port.number
-          value: 9090
-
-  - it: should handle empty extraHosts array
-    set:
-      ingress:
-        enabled: true
-        extraHosts: []
-    asserts:
-      - lengthEqual:
-          path: spec.rules
-          count: 2
-
-  - it: should configure default backend when set
-    set:
-      ingress:
-        enabled: true
-        defaultBackend:
-          service:
-            name: default-backend
-            port:
-              number: 8080
-    asserts:
-      - equal:
-          path: spec.defaultBackend
-          value:
-            service:
-              name: default-backend
-              port:
-                number: 8080
-
-  - it: should render templated default backend values
-    set:
-      ingress:
-        enabled: true
-        defaultBackend:
-          service:
-            name: '{{ printf "%s-custom" (include "common.names.fullname" .) }}'
-            port:
-              number: '{{ .Values.frontend.service.http.port }}'
-    asserts:
-      - equal:
-          path: spec.defaultBackend.service.name
-          value: release-name-platform-custom
-      - equal:
-          path: spec.defaultBackend.service.port.number
-          value: 80
-
-  - it: should not render defaultBackend when empty
-    set:
-      ingress:
-        enabled: true
-        defaultBackend: {}
-    asserts:
-      - notExists:
-          path: spec.defaultBackend
-
-  - it: should use custom pathType
-    set:
-      ingress:
-        enabled: true
-        defaultPathType: "Prefix"
-    asserts:
-      - equal:
-          path: spec.rules[0].http.paths[0].pathType
-          value: Prefix
-      - equal:
-          path: spec.rules[1].http.paths[0].pathType
-          value: Prefix
-
-  - it: should use Exact pathType
-    set:
-      ingress:
-        enabled: true
-        defaultPathType: "Exact"
-    asserts:
-      - equal:
-          path: spec.rules[0].http.paths[0].pathType
-          value: Exact
-
-  - it: should use correct API version
-    set:
-      ingress:
-        enabled: true
-    asserts:
-      - matchRegex:
-          path: apiVersion
-          pattern: ^networking\.k8s\.io/v1
-
-  - it: should not set ingressClassName when empty
-    set:
-      ingress:
-        enabled: true
-        ingressClassName: ""
-    asserts:
-      - notExists:
-          path: spec.ingressClassName
-
-  - it: should render complete ingress with all options
-    set:
-      ingress:
-        enabled: true
-        ingressClassName: nginx
-        path: "/*"
-        contentPath: "/content/*"
-        defaultPathType: Prefix
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
-        extraLabels:
-          environment: production
-        tls:
-          - hosts:
-              - platform.example.com
-              - user-data.platform.example.com
-            secretName: wildcard-tls
-        extraHosts:
-          - host: api.example.com
-            paths:
-              - path: /
-                serviceName: api-service
-                portNumber: "8080"
-    asserts:
-      - matchSnapshot: {}
+- it: should not render ingress when disabled
+  set:
+    ingress:
+      enabled: false
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: should set correct hostname
+  set:
+    ingress:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: spec.rules[0].host
+      value: platform.example.com
+- it: should apply ingress annotations with templated values
+  set:
+    ingress:
+      enabled: true
+      annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /
+        nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        whatever: '{{ .Values.global.platformServicePort | default 8443 }}'
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        nginx.ingress.kubernetes.io/rewrite-target: /
+        nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        whatever: '8080'
+- it: should apply ingress labels with templated values
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    ingress:
+      enabled: true
+      extraLabels:
+        domain: '{{ .Values.global.platformExternalDomain }}'
+        whatever: '{{ .Values.global.platformServicePort | default 8443 }}'
+  asserts:
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+        domain: platform.example.com
+        whatever: '8080'
+- it: should expose user-data. (content) subdomain when enabled
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    ingress:
+      enabled: true
+  asserts:
+  - equal:
+      path: spec.rules[1]
+      value:
+        host: user-data.platform.example.com
+        http:
+          paths:
+          - backend:
+              service:
+                name: release-name-platform-frontend
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+- it: should not expose user-data. (content) subdomain when not set
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ''
+    ingress:
+      enabled: true
+  asserts:
+  - equal:
+      path: spec.rules
+      value:
+      - host: platform.example.com
+        http:
+          paths:
+          - backend:
+              service:
+                name: release-name-platform-frontend
+                port:
+                  number: 80
+            path: /
+            pathType: ImplementationSpecific
+- it: should configure TLS when enabled
+  set:
+    ingress:
+      enabled: true
+      tls:
+      - hosts:
+        - platform.example.com
+        secretName: platform-tls
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: spec.tls[0]
+      value:
+        hosts:
+        - platform.example.com
+        secretName: platform-tls
+- it: should render templated TLS values
+  set:
+    ingress:
+      enabled: true
+      tls:
+      - hosts:
+        - '{{ .Values.global.platformExternalDomain }}'
+        secretName: '{{ printf "%s-tls" (include "common.names.fullname" .) }}'
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: spec.tls[0].hosts[0]
+      value: platform.example.com
+  - equal:
+      path: spec.tls[0].secretName
+      value: release-name-platform-tls
+- it: should handle empty TLS array
+  set:
+    ingress:
+      enabled: true
+      tls: []
+  asserts:
+  - notExists:
+      path: spec.tls
+- it: should use custom paths when set
+  set:
+    ingress:
+      enabled: true
+      path: /*
+      contentPath: /platform/*
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: spec.rules[0].http.paths[0].path
+      value: /*
+  - equal:
+      path: spec.rules[1].http.paths[0].path
+      value: /platform/*
+- it: should configure extra hosts with multiple paths
+  set:
+    ingress:
+      enabled: true
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /v1
+          pathType: Prefix
+          serviceName: api-v1
+          portNumber: '8080'
+        - path: /v2
+          pathType: Prefix
+          serviceName: api-v2
+          portNumber: '8081'
+  asserts:
+  - matchSnapshot:
+      path: spec.rules
+- it: should handle empty extraHosts array
+  set:
+    ingress:
+      enabled: true
+      extraHosts: []
+  asserts:
+  - lengthEqual:
+      path: spec.rules
+      count: 2
+- it: should render templated default backend values
+  set:
+    ingress:
+      enabled: true
+      defaultBackend:
+        service:
+          name: '{{ printf "%s-custom" (include "common.names.fullname" .) }}'
+          port:
+            number: '{{ .Values.frontend.service.http.port }}'
+  asserts:
+  - equal:
+      path: spec.defaultBackend.service.name
+      value: release-name-platform-custom
+  - equal:
+      path: spec.defaultBackend.service.port.number
+      value: 80
+- it: should use custom pathType
+  set:
+    ingress:
+      enabled: true
+      defaultPathType: Prefix
+  asserts:
+  - equal:
+      path: spec.rules[0].http.paths[0].pathType
+      value: Prefix
+  - equal:
+      path: spec.rules[1].http.paths[0].pathType
+      value: Prefix
+- it: should use correct API version
+  set:
+    ingress:
+      enabled: true
+  asserts:
+  - matchRegex:
+      path: apiVersion
+      pattern: ^networking\.k8s\.io/v1
+- it: should not set ingressClassName when empty
+  set:
+    ingress:
+      enabled: true
+      ingressClassName: ''
+  asserts:
+  - notExists:
+      path: spec.ingressClassName
+- it: should render complete ingress with all options
+  set:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      path: /*
+      contentPath: /content/*
+      defaultPathType: Prefix
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      extraLabels:
+        environment: production
+      tls:
+      - hosts:
+        - platform.example.com
+        - user-data.platform.example.com
+        secretName: wildcard-tls
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /
+          serviceName: api-service
+          portNumber: '8080'
+  asserts:
+  - matchSnapshot: {}

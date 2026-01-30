@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -22,6 +22,11 @@ templates:
   - secret.yaml
   - deployment-cron.yaml
   - configmap.yaml # needed for checksum tests in deployments
+# To avoid expensive RSA key generation in tests, we set a default oidcPrivateKeyBase64 value.
+# Tests can override this if they need to test key generation specifically.
+set:
+  platform:
+    oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
 tests:
   - it: should create the credentials in the imagepullsecret Secret correctly (duplicate of test in secret_test.yaml)
     template: secret.yaml
