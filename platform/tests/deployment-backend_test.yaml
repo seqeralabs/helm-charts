@@ -31,1344 +31,880 @@ set:
   platform:
     oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
 tests:
-  - it: should produce a Deployment resource with minimal values
-    # We need to set the template name because we needed to include the secret and configmap files
-    # to compute their checksums that are added to the deployment annotations to perform automatic
-    # rollouts, but we aren't interested in testing those files here.
-    template: deployment-backend.yaml
-    asserts:
-      - matchSnapshot:
-          # Check only the spec.template.spec to avoid snapshot changes due to checksum annotations
-          path: spec.template.spec
-
-  - it: should render the backend deployment with the specified tag version
-    template: deployment-backend.yaml
-    set:
-      backend:
-        image:
-          tag: "9.0.0"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/backend:9.0.0"
-
-  - it: should render the backend deployment with the specified digest, overriding the tag
-    template: deployment-backend.yaml
-    set:
-      backend:
-        image:
-          tag: "this will be ignored"
-          digest: "sha256:1234abcdef"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/backend@sha256:1234abcdef"
-
-  - it: should render the backend deployment with the correct checksums, labels and annotations
-    template: deployment-backend.yaml
-    # the chart version is included in the annotations, so it needs to be set
-    chart:
-      version: "9.9.9+test"
-      appVersion: "9.9.9"
-    set:
-      platformDatabase:
-        existingSecretName: "unittest"
-        existingSecretKey: "db-password-key"
-      commonLabels:
-        key123: this-should-be-overridden-in-pod-labels
-        key456: this-should-not-be-overridden
-        key789: "{{ .Values.global.platformServicePort | default 8443 }}"
-      commonAnnotations:
-        common-annotation-key: common-annotation-value
-      backend:
-        podLabels:
-          key123: this-overrides-the-commonLabels
-        podAnnotations:
-          pod-annotation-key: pod-annotation-value
-          pod-annotation-key2: "{{ .Values.global.platformServicePort | default 8443 }}"
-      platform:
-        jwtSeedString: these need to be defined
-        cryptoSeedString: otherwise 'helm template' creates random ones each time
-        # Take the license from a secret instead of a string, just for fun
-        licenseSecretName: "unittest"
-        licenseSecretKey: "license-token-key"
-    asserts:
-      - matchSnapshot: {}
-
-  - it: shouldn't obey custom selector requests
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraOptionsSpec:
-          selector:
-            matchLabels:
-              app: something-else
-    asserts:
-      - equal:
-          path: spec.selector.matchLabels
-          value:
-            app.kubernetes.io/component: backend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: platform
-
-  - it: should obey a mix of ignored fields and valid options in extraOptionsSpec
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraOptionsSpec:
-          replicas: 3
-          selector:
-            matchLabels:
-              app: something-else
-          revisionHistoryLimit: 3
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 3
-      - equal:
-          path: spec.revisionHistoryLimit
-          value: 3
-      - equal:
-          path: spec.selector.matchLabels
-          value:
-            app.kubernetes.io/component: backend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: platform
-
-  - it: should render extraOptionsTemplateSpec under spec.template.spec
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraOptionsTemplateSpec:
-          nodeSelector:
-            disktype: ssd
-          affinity:
-            podAntiAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                      - key: app
-                        operator: In
-                        values:
-                          - whatever
-                  topologyKey: "kubernetes.io/hostname"
-    asserts:
-      - equal:
-          path: spec.template.spec.nodeSelector
-          value:
-            disktype: ssd
-      - equal:
-          path: spec.template.spec.affinity
-          value:
-            podAntiAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                      - key: app
-                        operator: In
-                        values:
-                          - whatever
-                  topologyKey: "kubernetes.io/hostname"
-
-  - it: should ignore certain fields that we manage under extraOptionsTemplateSpec
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraOptionsTemplateSpec:
-          serviceAccountName: "some-other-sa"
-    asserts:
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: release-name-platform-sa
-
-  - it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraOptionsTemplateSpec:
-          serviceAccountName: "some-other-sa"
-          dnsPolicy: ClusterFirstWithHostNet
-    asserts:
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: release-name-platform-sa
-      - equal:
-          path: spec.template.spec.dnsPolicy
-          value: ClusterFirstWithHostNet
-
-  - it: should render default podsecurityContext
-    template: deployment-backend.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 101
-
-  - it: should disable podSecurityContext when 'enabled' is false
-    template: deployment-backend.yaml
-    set:
-      backend:
-        podSecurityContext:
-          enabled: false
-    asserts:
-      - notExists:
-          path: spec.template.spec.securityContext
-
-  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
-    template: deployment-backend.yaml
-    set:
-      backend:
-        podSecurityContext:
-          enabled: false
-        extraOptionsTemplateSpec:
-          securityContext:
-            fsGroup: 2000
-    asserts:
-      - notExists:
-          path: spec.template.spec.securityContext
-
-  - it: should omit the 'enabled' field from podSecurityContext
-    template: deployment-backend.yaml
-    set:
-      backend:
-        podSecurityContext:
-          enabled: true
-    asserts:
-      - notExists:
-          path: spec.template.spec.securityContext.enabled
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 101
-
-  - it: should render whatever podsecurityContext is set
-    template: deployment-backend.yaml
-    set:
-      backend:
-        podSecurityContext:
-          enabled: true
+- it: should produce a Deployment resource with minimal values
+  template: deployment-backend.yaml
+  asserts:
+  - matchSnapshot:
+      path: spec.template.spec
+- it: should render the backend deployment with the specified tag version
+  template: deployment-backend.yaml
+  set:
+    backend:
+      image:
+        tag: 9.0.0
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/backend:9.0.0
+- it: should render the backend deployment with the specified digest, overriding the tag
+  template: deployment-backend.yaml
+  set:
+    backend:
+      image:
+        tag: this will be ignored
+        digest: sha256:1234abcdef
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/backend@sha256:1234abcdef
+- it: should render the backend deployment with the correct checksums, labels and annotations
+  template: deployment-backend.yaml
+  chart:
+    version: 9.9.9+test
+    appVersion: 9.9.9
+  set:
+    platformDatabase:
+      existingSecretName: unittest
+      existingSecretKey: db-password-key
+    commonLabels:
+      key123: this-should-be-overridden-in-pod-labels
+      key456: this-should-not-be-overridden
+      key789: '{{ .Values.global.platformServicePort | default 8443 }}'
+    commonAnnotations:
+      common-annotation-key: common-annotation-value
+    backend:
+      podLabels:
+        key123: this-overrides-the-commonLabels
+      podAnnotations:
+        pod-annotation-key: pod-annotation-value
+        pod-annotation-key2: '{{ .Values.global.platformServicePort | default 8443 }}'
+    platform:
+      jwtSeedString: these need to be defined
+      cryptoSeedString: otherwise 'helm template' creates random ones each time
+      licenseSecretName: unittest
+      licenseSecretKey: license-token-key
+  asserts:
+  - matchSnapshot: {}
+- it: shouldn't obey custom selector requests
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            app: something-else
+  asserts:
+  - equal:
+      path: spec.selector.matchLabels
+      value:
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+- it: should obey a mix of ignored fields and valid options in extraOptionsSpec
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraOptionsSpec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: something-else
+        revisionHistoryLimit: 3
+  asserts:
+  - equal:
+      path: spec.replicas
+      value: 3
+  - equal:
+      path: spec.revisionHistoryLimit
+      value: 3
+  - equal:
+      path: spec.selector.matchLabels
+      value:
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+- it: should render extraOptionsTemplateSpec under spec.template.spec
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          disktype: ssd
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - whatever
+              topologyKey: kubernetes.io/hostname
+  asserts:
+  - equal:
+      path: spec.template.spec.nodeSelector
+      value:
+        disktype: ssd
+  - equal:
+      path: spec.template.spec.affinity
+      value:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - whatever
+            topologyKey: kubernetes.io/hostname
+- it: should ignore certain managed fields under extraOptionsTemplateSpec and still render others
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraOptionsTemplateSpec:
+        serviceAccountName: some-other-sa
+        dnsPolicy: ClusterFirstWithHostNet
+  asserts:
+  - equal:
+      path: spec.template.spec.serviceAccountName
+      value: release-name-platform-sa
+  - equal:
+      path: spec.template.spec.dnsPolicy
+      value: ClusterFirstWithHostNet
+- it: should render default podsecurityContext
+  template: deployment-backend.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.securityContext
+      value:
+        fsGroup: 101
+- it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when 'enabled' is false
+  template: deployment-backend.yaml
+  set:
+    backend:
+      podSecurityContext:
+        enabled: false
+      extraOptionsTemplateSpec:
+        securityContext:
           fsGroup: 2000
-          asdf: 123
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 2000
-            asdf: 123
-
-  - it: should render custom container securityContext
-    template: deployment-backend.yaml
-    set:
-      backend:
-        containerSecurityContext:
-          capabilities:
-            add:
-              - NET_ADMIN
-          runAsUser: 2000
-          runAsNonRoot: false
-          readOnlyRootFilesystem: false
-          asdf: 123
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext
-          value:
-            capabilities:
-              add:
-                - NET_ADMIN
-              drop:
-                - ALL
-            readOnlyRootFilesystem: false
-            runAsNonRoot: false
-            runAsUser: 2000
-            asdf: 123
-
-  - it: should render container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraEnvVars:
-          - name: CUSTOM_ENV_VAR
-            value: custom-value
-        extraEnvVarsCMs: [extra-env-vars-cm1, extra-env-vars-cm2]
-        extraEnvVarsSecrets: [extra-env-vars-secret1, extra-env-vars-secret2]
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env
-          value:
-            - name: TOWER_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_DB_PASSWORD
-                  name: release-name-platform-backend
-            - name: TOWER_LICENSE
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_LICENSE
-                  name: release-name-platform-backend
-            - name: TOWER_JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_JWT_SECRET
-                  name: release-name-platform-backend
-            - name: TOWER_CRYPTO_SECRETKEY
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_CRYPTO_SECRETKEY
-                  name: release-name-platform-backend
-            - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  key: OIDC_CLIENT_REGISTRATION_TOKEN
-                  name: release-name-studios
-            - name: NXF_HOME
-              value: /var/cache/tower/
-            - name: NXF_PLUGINS_DIR
-              value: /var/cache/tower/plugins/
-            - name: CUSTOM_ENV_VAR
-              value: custom-value
-      - equal:
-          path: spec.template.spec.containers[0].envFrom
-          value:
-            - configMapRef:
-                name: release-name-platform-backend
-            - configMapRef:
-                name: release-name-platform-shared-backend-cron
-            - configMapRef:
-                name: extra-env-vars-cm1
-            - configMapRef:
-                name: extra-env-vars-cm2
-            - secretRef:
-                name: extra-env-vars-secret1
-            - secretRef:
-                name: extra-env-vars-secret2
-
-  - it: should render initContainers that wait for required services to be ready
-    template: deployment-backend.yaml
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.initContainers
-          count: 3
-      - equal:
-          path: spec.template.spec.initContainers[0].name
-          value: wait-for-platform-db
-      - equal:
-          path: spec.template.spec.initContainers[1].name
-          value: wait-for-redis
-      - equal:
-          path: spec.template.spec.initContainers[2].name
-          value: wait-for-cron
-      - equal:
-          path: spec.template.spec.initContainers[2].image
-          value: curlimages/curl:latest
-      - equal:
-          path: spec.template.spec.initContainers[0].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: DB_HOST
-              value: ""
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_NAME
-              value: ""
-            - name: DB_USERNAME
-              value: ""
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: TOWER_DB_PASSWORD
-                  name: release-name-platform-backend
-      - equal:
-          path: spec.template.spec.initContainers[1].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: REDIS_URI
-              value: redis://:6379
-      - equal:
-          path: spec.template.spec.initContainers[2].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: CRON_HOST
-              value: release-name-platform-cron
-            - name: CRON_PORT
-              value: "8080"
-
-  - it: should render initContainer with appropriate env vars
-    template: deployment-backend.yaml
-    kubernetesProvider:
-      scheme:
-        "v1/Secret":
-          gvr:
-            version:  "v1"
-            resource: "secrets"
-          namespaced: true
-      objects:
-        - apiVersion: v1
-          kind: Secret
-          type: Opaque
-          metadata:
+  asserts:
+  - notExists:
+      path: spec.template.spec.securityContext
+- it: should render whatever podsecurityContext is set
+  template: deployment-backend.yaml
+  set:
+    backend:
+      podSecurityContext:
+        enabled: true
+        fsGroup: 2000
+        asdf: 123
+  asserts:
+  - equal:
+      path: spec.template.spec.securityContext
+      value:
+        fsGroup: 2000
+        asdf: 123
+- it: should render custom container securityContext
+  template: deployment-backend.yaml
+  set:
+    backend:
+      containerSecurityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+        runAsUser: 2000
+        runAsNonRoot: false
+        readOnlyRootFilesystem: false
+        asdf: 123
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].securityContext
+      value:
+        capabilities:
+          add:
+          - NET_ADMIN
+          drop:
+          - ALL
+        readOnlyRootFilesystem: false
+        runAsNonRoot: false
+        runAsUser: 2000
+        asdf: 123
+- it: should render container with extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraEnvVars:
+      - name: CUSTOM_ENV_VAR
+        value: custom-value
+      extraEnvVarsCMs:
+      - extra-env-vars-cm1
+      - extra-env-vars-cm2
+      extraEnvVarsSecrets:
+      - extra-env-vars-secret1
+      - extra-env-vars-secret2
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].env
+      value:
+      - name: TOWER_DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: TOWER_DB_PASSWORD
+            name: release-name-platform-backend
+      - name: TOWER_LICENSE
+        valueFrom:
+          secretKeyRef:
+            key: TOWER_LICENSE
+            name: release-name-platform-backend
+      - name: TOWER_JWT_SECRET
+        valueFrom:
+          secretKeyRef:
+            key: TOWER_JWT_SECRET
+            name: release-name-platform-backend
+      - name: TOWER_CRYPTO_SECRETKEY
+        valueFrom:
+          secretKeyRef:
+            key: TOWER_CRYPTO_SECRETKEY
+            name: release-name-platform-backend
+      - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            key: OIDC_CLIENT_REGISTRATION_TOKEN
+            name: release-name-studios
+      - name: NXF_HOME
+        value: /var/cache/tower/
+      - name: NXF_PLUGINS_DIR
+        value: /var/cache/tower/plugins/
+      - name: CUSTOM_ENV_VAR
+        value: custom-value
+  - equal:
+      path: spec.template.spec.containers[0].envFrom
+      value:
+      - configMapRef:
+          name: release-name-platform-backend
+      - configMapRef:
+          name: release-name-platform-shared-backend-cron
+      - configMapRef:
+          name: extra-env-vars-cm1
+      - configMapRef:
+          name: extra-env-vars-cm2
+      - secretRef:
+          name: extra-env-vars-secret1
+      - secretRef:
+          name: extra-env-vars-secret2
+- it: should render initContainers that wait for required services to be ready
+  template: deployment-backend.yaml
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.initContainers
+      count: 3
+  - equal:
+      path: spec.template.spec.initContainers[0].name
+      value: wait-for-platform-db
+  - equal:
+      path: spec.template.spec.initContainers[1].name
+      value: wait-for-redis
+  - equal:
+      path: spec.template.spec.initContainers[2].name
+      value: wait-for-cron
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: curlimages/curl:latest
+  - equal:
+      path: spec.template.spec.initContainers[0].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: DB_HOST
+        value: ''
+      - name: DB_PORT
+        value: '3306'
+      - name: DB_NAME
+        value: ''
+      - name: DB_USERNAME
+        value: ''
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: TOWER_DB_PASSWORD
+            name: release-name-platform-backend
+  - equal:
+      path: spec.template.spec.initContainers[1].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: REDIS_URI
+        value: redis://:6379
+  - equal:
+      path: spec.template.spec.initContainers[2].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: CRON_HOST
+        value: release-name-platform-cron
+      - name: CRON_PORT
+        value: '8080'
+- it: should render initContainer with appropriate env vars
+  template: deployment-backend.yaml
+  kubernetesProvider:
+    scheme:
+      v1/Secret:
+        gvr:
+          version: v1
+          resource: secrets
+        namespaced: true
+    objects:
+    - apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: my-db-secret
+        namespace: NAMESPACE
+      data:
+        my-db-password-key: bXktZGItcGFzc3dvcmQxMjM=
+  set:
+    platformDatabase:
+      host: my-db-host
+      port: 3307
+      name: my-db-name
+      username: my-db-username
+      existingSecretName: my-db-secret
+      existingSecretKey: my-db-password-key
+    redis:
+      host: my-redis-host
+      port: 6380
+      password: my-redis-password123
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: DB_HOST
+        value: my-db-host
+      - name: DB_PORT
+        value: '3307'
+      - name: DB_NAME
+        value: my-db-name
+      - name: DB_USERNAME
+        value: my-db-username
+      - name: DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
             name: my-db-secret
-            namespace: NAMESPACE
-          data:
-            my-db-password-key: "bXktZGItcGFzc3dvcmQxMjM=" # my-db-password123
-    set:
-      platformDatabase:
-        host: "my-db-host"
-        port: 3307
-        name: "my-db-name"
-        username: "my-db-username"
-        existingSecretName: "my-db-secret"
-        existingSecretKey: "my-db-password-key"
-      redis:
-        host: "my-redis-host"
-        port: 6380
-        password: "my-redis-password123"
-    asserts:
-      - equal:
-          path: spec.template.spec.initContainers[0].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: DB_HOST
-              value: my-db-host
-            - name: DB_PORT
-              value: "3307"
-            - name: DB_NAME
-              value: my-db-name
-            - name: DB_USERNAME
-              value: my-db-username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: my-db-secret
-                  key: my-db-password-key
-      - equal:
-          path: spec.template.spec.initContainers[1].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: REDIS_URI
-              value: redis://my-redis-host:6380
-            - name: REDISCLI_AUTH
-              valueFrom:
-                secretKeyRef:
-                  name: release-name-platform-backend
-                  key: TOWER_REDIS_PASSWORD
-      - equal:
-          path: spec.template.spec.initContainers[2].env
-          value:
-            - name: SLEEP_PERIOD_SECONDS
-              value: "5"
-            - name: CRON_HOST
-              value: release-name-platform-cron
-            - name: CRON_PORT
-              value: "8080"
-      - notExists:
-          path: spec.template.spec.initContainers[2].envFrom
-
-  - it: should render extra initContainer
-    template: deployment-backend.yaml
-    set:
-      backend:
-        initContainers:
-          - name: extra-init-container
-            image: busybox:latest
-            command: ["sh", "-c", "echo Hello from extra init container"]
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.initContainers
-          count: 4
-      - equal:
-          path: spec.template.spec.initContainers[3]
-          value:
-            name: extra-init-container
-            image: busybox:latest
-            command: ["sh", "-c", "echo Hello from extra init container"]
-
-  - it: should render multiple extra initContainers
-    template: deployment-backend.yaml
-    set:
-      backend:
-        initContainers:
-          - name: extra-init-container1
-            image: busybox:latest
-            command: ["sh", "-c", "echo Hello from extra init container"]
-          - name: extra-init-container2
-            image: alpine:latest
-            command: ["sh", "-c", "echo Hello from another extra init container"]
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.initContainers
-          count: 5
-      - equal:
-          path: spec.template.spec.initContainers[3]
-          value:
-            name: extra-init-container1
-            image: busybox:latest
-            command: ["sh", "-c", "echo Hello from extra init container"]
-      - equal:
-          path: spec.template.spec.initContainers[4]
-          value:
-            name: extra-init-container2
-            image: alpine:latest
-            command: ["sh", "-c", "echo Hello from another extra init container"]
-
-  - it: should include extra volumeMounts in the backendcontainer
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraVolumeMounts:
-          - name: extra-volume
-            mountPath: /extra/path
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts
-          value:
-            - mountPath: /tower.yml
-              name: config-volume
-              subPath: tower.yml
-            - mountPath: /var/cache/tower/
-              name: plugin-volume
-            - mountPath: /.nextflow/
-              name: plugin-volume
-            - mountPath: /?/.nextflow/
-              name: plugin-volume
-            - mountPath: /data/certs
-              name: connect-cert-volume
-            - name: extra-volume
-              mountPath: /extra/path
-
-  - it: should include extra Volumes in the backend pod spec
-    template: deployment-backend.yaml
-    set:
-      backend:
-        extraVolumes:
-          - name: extra-volume
-            emptyDir: {}
-    asserts:
-      - equal:
-          path: spec.template.spec.volumes
-          value:
-            - configMap:
-                name: release-name-platform-tower-yml
-              name: config-volume
-            - emptyDir:
-                sizeLimit: 1Gi
-              name: plugin-volume
-            - name: connect-cert-volume
-              secret:
-                secretName: release-name-platform-backend
-            - emptyDir: {}
-              name: extra-volume
-
-  - it: should use custom image for the backend deployment
-    template: deployment-backend.yaml
-    set:
-      backend:
-        image:
-          registry: my-custom-registry.io
-          repository: my-custom-repo/my-backend-image
-          tag: "2.0.0"
-          pullPolicy: Always
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "my-custom-registry.io/my-custom-repo/my-backend-image:2.0.0"
-      - equal:
-          path: spec.template.spec.containers[0].imagePullPolicy
-          value: Always
-
-  - it: should use custom image digest for the backend deployment
-    template: deployment-backend.yaml
-    set:
-      backend:
-        image:
-          registry: my-custom-registry.io
-          repository: my-custom-repo/my-backend-image
-          tag: "this-will-be-ignored"
-          digest: "sha256:whatever"
-          pullPolicy: Always
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "my-custom-registry.io/my-custom-repo/my-backend-image@sha256:whatever"
-
-  - it: should use custom command and args for the backend container
-    template: deployment-backend.yaml
-    set:
-      backend:
-        command: ["/bin/custom-backend-start"]
-        args: ["--custom-arg1", "value1"]
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].command
-          value: ["/bin/custom-backend-start"]
-      - equal:
-          path: spec.template.spec.containers[0].args
-          value: ["--custom-arg1", "value1"]
-
-  - it: should render custom resources for the backend container
-    template: deployment-backend.yaml
-    set:
-      backend:
-        resources:
-          limits:
-            memory: 1Gi
-          requests:
-            cpu: "1"
-            memory: 512Mi
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].resources
-          value:
-            limits:
-              memory: 1Gi
-            requests:
-              cpu: "1"
-              memory: 512Mi
-
-  - it: should disable probes for the backend container
-    template: deployment-backend.yaml
-    set:
-      backend:
-        livenessProbe:
-          enabled: false
-        readinessProbe:
-          enabled: false
-    asserts:
-      - notExists:
-          path: spec.template.spec.containers[0].livenessProbe
-      - notExists:
-          path: spec.template.spec.containers[0].readinessProbe
-      - notExists:
-          path: spec.template.spec.containers[0].startupProbe
-
-  - it: should use custom probe settings for the backend container
-    template: deployment-backend.yaml
-    set:
-      backend:
-        livenessProbe:
-          initialDelaySeconds: 10
-          periodSeconds: 20
-        readinessProbe:
-          initialDelaySeconds: 15
-          periodSeconds: 25
-        startupProbe:
-          enabled: true
-          initialDelaySeconds: 20
-          periodSeconds: 30
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 20
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe
-          value:
-            failureThreshold: 10
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 20
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 25
-            successThreshold: 1
-            timeoutSeconds: 3
-
-  - it: should adapt the custom probe port for the backend container for v25.3
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.3.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort:  "8089"
-        startupProbe:
-          enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 8089
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 8089
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
-          value: 8089
-
-  - it: should not adapt the custom probe port for the backend container for v25.2
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.2.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort:  "8089"
-        startupProbe:
-          enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
-          value: 8080
-
-  - it: should not adapt the custom probe port for v24.8 (pre-25.3)
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v24.8"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9000"
-        readinessProbe:
-          tcpSocket:
-            port: 9001
-        startupProbe:
-          enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 8080
-
-  - it: should not adapt the custom probe port for v25.2.0+asdf (pre-25.3 with metadata)
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.2.0+asdf"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9000"
-        readinessProbe:
-          tcpSocket:
-            port: 9001
-        startupProbe:
-          enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 8080
-
-  - it: should adapt the custom probe port for v25.4.0 (post-25.3)
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.4.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9000"
-        readinessProbe:
-          tcpSocket:
-            port: 9001
-        startupProbe:
-          enabled: true
-          httpGet:
-            port: 9002
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 9000
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 9001
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 9002
-
-  - it: should adapt the custom probe port for v25.4.0+asdf (post-25.3 with metadata)
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.4.0+asdf"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9000"
-        readinessProbe:
-          tcpSocket:
-            port: 9001
-        startupProbe:
-          enabled: true
-          httpGet:
-            port: 9002
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 9000
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 9001
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 9002
-
-  - it: should adapt the custom probe port for v26.1.0 (future version)
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v26.1.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9000"
-        readinessProbe:
-          tcpSocket:
-            port: 9001
-        startupProbe:
-          enabled: true
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.httpGet.port
-          value: 9000
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 9001
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.httpGet.port
-          value: 9000
-
-  - it: should use custom probe settings for the backend container with ports as templates
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.3.0"
-    set:
-      backend:
-        service:
-          port:  "8089"
-        livenessProbe:
-          enabled: true
-          httpGet:
-            path: /health
-            port: "{{ .Values.backend.service.port }}"
-          initialDelaySeconds: 10
-          periodSeconds: 20
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: "{{ .Values.backend.service.port }}"
-          initialDelaySeconds: 15
-          periodSeconds: 25
-        startupProbe:
-          enabled: true
-          httpGet:
-            path: /health
-            port: "{{ .Values.backend.service.port }}"
-          initialDelaySeconds: 20
-          periodSeconds: 30
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8089
-            initialDelaySeconds: 20
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe
-          value:
-            failureThreshold: 10
-            httpGet:
-              path: /health
-              port: 8089
-            initialDelaySeconds: 10
-            periodSeconds: 20
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8089
-            initialDelaySeconds: 15
-            periodSeconds: 25
-            successThreshold: 1
-            timeoutSeconds: 3
-
-  - it: should use custom probe settings for the backend container with some ports as templates, some string, some integer
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.3.0"
-    set:
-      backend:
-        service:
-          port:  "8089"
-        livenessProbe:
-          enabled: true
-          httpGet:
-            path: /health
-            port: "{{ .Values.backend.service.port }}"
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: "8088"
-        startupProbe:
-          enabled: true
-          httpGet:
-            path: /health
-            port: 8087
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8087
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe
-          value:
-            failureThreshold: 10
-            httpGet:
-              path: /health
-              port: 8089
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 3
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe
-          value:
-            failureThreshold: 5
-            httpGet:
-              path: /health
-              port: 8088
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            successThreshold: 1
-            timeoutSeconds: 3
-
-  - it: should adapt the custom tcpSocket probe port for the backend container for v25.3
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.3.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9090"
-        livenessProbe:
-          enabled: true
-          tcpSocket:
-            port: "{{ .Values.backend.service.http.targetPort }}"
-        readinessProbe:
-          tcpSocket:
-            port: "9091"
-        startupProbe:
-          enabled: true
-          tcpSocket:
-            port: 9092
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
-          value: 9090
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 9091
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
-          value: 9092
-
-  - it: should not adapt the custom tcpSocket probe port for the backend container for v25.2
-    template: deployment-backend.yaml
-    chart:
-      appVersion: "v25.2.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: "9090"
-        livenessProbe:
-          enabled: true
-          tcpSocket:
-            port: "{{ .Values.backend.service.http.targetPort }}"
-        readinessProbe:
-          tcpSocket:
-            port: "9091"
-        startupProbe:
-          enabled: true
-          tcpSocket:
-            port: 9092
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
-          value: 8080
-      - equal:
-          path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
-          value: 8080
-
-  - it: should add image pull secrets to the backend deployment
-    template: deployment-backend.yaml
-    set:
-      backend:
-        image:
-          pullSecrets:
-            - my-custom-pull-secret
-            - my-custom-pull-secret2
-    asserts:
-      - equal:
-          path: spec.template.spec.imagePullSecrets
-          value:
-            - name: my-custom-pull-secret
-            - name: my-custom-pull-secret2
-
-  - it: should render a templated integer value as integer
-    template: deployment-backend.yaml
-    set:
-      frontend:
-        extraOptionsSpec:
-          replicas: 2
-      backend:
-        extraOptionsSpec:
-          replicas: '{{ .Values.frontend.extraOptionsSpec.replicas }}'
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 2
-
-  - it: should disable initContainers that wait for required services to be ready
-    template: deployment-backend.yaml
-    set:
-      initContainerDependencies:
+            key: my-db-password-key
+  - equal:
+      path: spec.template.spec.initContainers[1].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: REDIS_URI
+        value: redis://my-redis-host:6380
+      - name: REDISCLI_AUTH
+        valueFrom:
+          secretKeyRef:
+            name: release-name-platform-backend
+            key: TOWER_REDIS_PASSWORD
+  - equal:
+      path: spec.template.spec.initContainers[2].env
+      value:
+      - name: SLEEP_PERIOD_SECONDS
+        value: '5'
+      - name: CRON_HOST
+        value: release-name-platform-cron
+      - name: CRON_PORT
+        value: '8080'
+  - notExists:
+      path: spec.template.spec.initContainers[2].envFrom
+- it: should render multiple extra initContainers
+  template: deployment-backend.yaml
+  set:
+    backend:
+      initContainers:
+      - name: extra-init-container1
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - echo Hello from extra init container
+      - name: extra-init-container2
+        image: alpine:latest
+        command:
+        - sh
+        - -c
+        - echo Hello from another extra init container
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.initContainers
+      count: 5
+  - equal:
+      path: spec.template.spec.initContainers[3]
+      value:
+        name: extra-init-container1
+        image: busybox:latest
+        command:
+        - sh
+        - -c
+        - echo Hello from extra init container
+  - equal:
+      path: spec.template.spec.initContainers[4]
+      value:
+        name: extra-init-container2
+        image: alpine:latest
+        command:
+        - sh
+        - -c
+        - echo Hello from another extra init container
+- it: should include extra Volumes in the backend pod spec
+  template: deployment-backend.yaml
+  set:
+    backend:
+      extraVolumes:
+      - name: extra-volume
+        emptyDir: {}
+  asserts:
+  - equal:
+      path: spec.template.spec.volumes
+      value:
+      - configMap:
+          name: release-name-platform-tower-yml
+        name: config-volume
+      - emptyDir:
+          sizeLimit: 1Gi
+        name: plugin-volume
+      - name: connect-cert-volume
+        secret:
+          secretName: release-name-platform-backend
+      - emptyDir: {}
+        name: extra-volume
+- it: should use custom image for the backend deployment
+  template: deployment-backend.yaml
+  set:
+    backend:
+      image:
+        registry: my-custom-registry.io
+        repository: my-custom-repo/my-backend-image
+        tag: 2.0.0
+        pullPolicy: Always
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-custom-registry.io/my-custom-repo/my-backend-image:2.0.0
+  - equal:
+      path: spec.template.spec.containers[0].imagePullPolicy
+      value: Always
+- it: should use custom command and args for the backend container
+  template: deployment-backend.yaml
+  set:
+    backend:
+      command:
+      - /bin/custom-backend-start
+      args:
+      - --custom-arg1
+      - value1
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].command
+      value:
+      - /bin/custom-backend-start
+  - equal:
+      path: spec.template.spec.containers[0].args
+      value:
+      - --custom-arg1
+      - value1
+- it: should render custom resources for the backend container
+  template: deployment-backend.yaml
+  set:
+    backend:
+      resources:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: '1'
+          memory: 512Mi
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].resources
+      value:
+        limits:
+          memory: 1Gi
+        requests:
+          cpu: '1'
+          memory: 512Mi
+- it: should disable probes for the backend container
+  template: deployment-backend.yaml
+  set:
+    backend:
+      livenessProbe:
         enabled: false
-    asserts:
-      - equal:
-          path: spec.template.spec.initContainers
-          value: null
-
-  - it: should mount the user-provided secrets on deployment with default secret keys
-    template: deployment-backend.yaml
-    set:
-      redis:
-        existingSecretName: "my-redis-secret"
-      platformDatabase:
-        existingSecretName: "my-db-secret"
-      platform:
-        licenseSecretName: "my-license-secret"
-        jwtSeedSecretName: "my-jwt-seed-secret"
-        cryptoSeedSecretName: "my-crypto-seed-secret"
-        smtp:
-          host: asdf
-          existingSecretName: "my-smtp-secret"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_DB_PASSWORD')]
-          value:
-            name: TOWER_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-db-secret
-                key: TOWER_DB_PASSWORD
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_REDIS_PASSWORD')]
-          value:
-            name: TOWER_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-redis-secret
-                key: TOWER_REDIS_PASSWORD
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_LICENSE')]
-          value:
-            name: TOWER_LICENSE
-            valueFrom:
-              secretKeyRef:
-                name: my-license-secret
-                key: TOWER_LICENSE
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_JWT_SECRET')]
-          value:
-            name: TOWER_JWT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: my-jwt-seed-secret
-                key: TOWER_JWT_SECRET
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_CRYPTO_SECRETKEY')]
-          value:
-            name: TOWER_CRYPTO_SECRETKEY
-            valueFrom:
-              secretKeyRef:
-                name: my-crypto-seed-secret
-                key: TOWER_CRYPTO_SECRETKEY
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_SMTP_PASSWORD')]
-          value:
-            name: TOWER_SMTP_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-smtp-secret
-                key: TOWER_SMTP_PASSWORD
-
-  - it: should mount the user-provided secrets on deployment with custom secret keys
-    template: deployment-backend.yaml
-    set:
-      redis:
-        existingSecretName: "my-redis-secret"
-        existingSecretKey: "my-redis-secret-key"
-      platformDatabase:
-        existingSecretName: "my-db-secret"
-        existingSecretKey: "my-db-secret-key"
-      platform:
-        licenseSecretName: "my-license-secret"
-        licenseSecretKey: "my-license-secret-key"
-        jwtSeedSecretName: "my-jwt-seed-secret"
-        jwtSeedSecretKey: "my-jwt-seed-secret-key"
-        cryptoSeedSecretName: "my-crypto-seed-secret"
-        cryptoSeedSecretKey: "my-crypto-seed-secret-key"
-        smtp:
-          host: asdf
-          existingSecretName: "my-smtp-secret"
-          existingSecretKey: "my-smtp-secret-key"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_DB_PASSWORD')]
-          value:
-            name: TOWER_DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-db-secret
-                key: my-db-secret-key
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_REDIS_PASSWORD')]
-          value:
-            name: TOWER_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-redis-secret
-                key: my-redis-secret-key
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_LICENSE')]
-          value:
-            name: TOWER_LICENSE
-            valueFrom:
-              secretKeyRef:
-                name: my-license-secret
-                key: my-license-secret-key
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_JWT_SECRET')]
-          value:
-            name: TOWER_JWT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: my-jwt-seed-secret
-                key: my-jwt-seed-secret-key
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_CRYPTO_SECRETKEY')]
-          value:
-            name: TOWER_CRYPTO_SECRETKEY
-            valueFrom:
-              secretKeyRef:
-                name: my-crypto-seed-secret
-                key: my-crypto-seed-secret-key
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_SMTP_PASSWORD')]
-          value:
-            name: TOWER_SMTP_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: my-smtp-secret
-                key: my-smtp-secret-key
-
-  - it: should mount the OIDC registration token when studios is enabled with inline token
-    template: deployment-backend.yaml
-    set:
-      studios:
-        enabled: true
-        proxy:
-          oidcClientRegistrationToken: "my-inline-token"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
-          value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: release-name-studios
-                key: OIDC_CLIENT_REGISTRATION_TOKEN
-
-  - it: should mount the OIDC registration token when studios is enabled with external secret and default key
-    template: deployment-backend.yaml
-    set:
-      studios:
-        enabled: true
-        proxy:
-          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
-          value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: my-oidc-secret
-                key: OIDC_CLIENT_REGISTRATION_TOKEN
-
-  - it: should mount the OIDC registration token when studios is enabled with external secret and custom key
-    template: deployment-backend.yaml
-    set:
-      studios:
-        enabled: true
-        proxy:
-          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
-          oidcClientRegistrationTokenSecretKey: "my-custom-key"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
-          value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: my-oidc-secret
-                key: my-custom-key
-
-  - it: should not mount the OIDC registration token when studios is disabled
-    template: deployment-backend.yaml
-    set:
-      studios:
+      readinessProbe:
         enabled: false
-        proxy:
-          oidcClientRegistrationToken: "my-inline-token"
-    asserts:
-      - notExists:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
-
-  - it: should still mount the OIDC registration token when studios is enabled but no token is provided, because the chart creates a random one in that case
-    template: deployment-backend.yaml
-    set:
-      studios:
+  asserts:
+  - notExists:
+      path: spec.template.spec.containers[0].livenessProbe
+  - notExists:
+      path: spec.template.spec.containers[0].readinessProbe
+  - notExists:
+      path: spec.template.spec.containers[0].startupProbe
+- it: should adapt the custom probe port for the backend container for v25.3
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.3.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '8089'
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationToken: ""
-          oidcClientRegistrationTokenSecretName: ""
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef
-          value:
-            name: "release-name-studios"
-            key: "OIDC_CLIENT_REGISTRATION_TOKEN"
-
-  # Test that studios.oidcToken helpers work correctly when called from platform chart with subchart context
-  - it: should use studios subchart fullname (release-name-studios) when called from platform chart with inline token
-    template: deployment-backend.yaml
-    set:
-      studios:
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 8089
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 8089
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+      value: 8089
+- it: should not adapt the custom probe port for the backend container for v25.2
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.2.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '8089'
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationToken: "my-token"
-          oidcClientRegistrationTokenSecretName: ""
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
-          value: "release-name-studios"
-
-  - it: should evaluate template expressions using subchart context when called from platform chart
-    template: deployment-backend.yaml
-    set:
-      studios:
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+      value: 8080
+- it: should not adapt the custom probe port for v24.8 (pre-25.3)
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v24.8
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9000'
+      readinessProbe:
+        tcpSocket:
+          port: 9001
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationToken: ""
-          oidcClientRegistrationTokenSecretName: "{{ .Release.Name }}-{{ .Chart.Name }}"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
-          value: "RELEASE-NAME-studios"
-
-  - it: should use custom secret key with template expressions when called from platform chart
-    template: deployment-backend.yaml
-    set:
-      studios:
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 8080
+- it: should not adapt the custom probe port for v25.2.0+asdf (pre-25.3 with metadata)
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.2.0+asdf
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9000'
+      readinessProbe:
+        tcpSocket:
+          port: 9001
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationTokenSecretName: "my-oidc-secret"
-          oidcClientRegistrationTokenSecretKey: "{{ .Chart.Name | upper }}_OIDC_KEY"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.key
-          value: "STUDIOS_OIDC_KEY"
-
-  - it: should correctly pass Values and context to studios.oidcToken helpers from platform chart
-    template: deployment-backend.yaml
-    set:
-      studios:
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 8080
+- it: should adapt the custom probe port for v25.4.0 (post-25.3)
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.4.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9000'
+      readinessProbe:
+        tcpSocket:
+          port: 9001
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationToken: "test-token"
-          oidcClientRegistrationTokenSecretName: ""
-          oidcClientRegistrationTokenSecretKey: ""
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')]
-          value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: release-name-studios
-                key: OIDC_CLIENT_REGISTRATION_TOKEN
-
-  - it: should work when platform chart passes a different release name to studios context
-    template: deployment-backend.yaml
-    release:
-      name: my-custom-release
-    set:
-      studios:
+        httpGet:
+          port: 9002
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 9000
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 9001
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 9002
+- it: should adapt the custom probe port for v25.4.0+asdf (post-25.3 with metadata)
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.4.0+asdf
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9000'
+      readinessProbe:
+        tcpSocket:
+          port: 9001
+      startupProbe:
         enabled: true
-        proxy:
-          oidcClientRegistrationToken: "test-token"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[?(@.name=='TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN')].valueFrom.secretKeyRef.name
-          value: "my-custom-release-studios"
+        httpGet:
+          port: 9002
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 9000
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 9001
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 9002
+- it: should adapt the custom probe port for v26.1.0 (future version)
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v26.1.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9000'
+      readinessProbe:
+        tcpSocket:
+          port: 9001
+      startupProbe:
+        enabled: true
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.httpGet.port
+      value: 9000
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 9001
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.httpGet.port
+      value: 9000
+- it: should use custom probe settings for the backend container with ports as templates
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.3.0
+  set:
+    backend:
+      service:
+        port: '8089'
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: '{{ .Values.backend.service.port }}'
+        initialDelaySeconds: 10
+        periodSeconds: 20
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: '{{ .Values.backend.service.port }}'
+        initialDelaySeconds: 15
+        periodSeconds: 25
+      startupProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: '{{ .Values.backend.service.port }}'
+        initialDelaySeconds: 20
+        periodSeconds: 30
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe
+      value:
+        failureThreshold: 5
+        httpGet:
+          path: /health
+          port: 8089
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        successThreshold: 1
+        timeoutSeconds: 3
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe
+      value:
+        failureThreshold: 10
+        httpGet:
+          path: /health
+          port: 8089
+        initialDelaySeconds: 10
+        periodSeconds: 20
+        successThreshold: 1
+        timeoutSeconds: 3
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe
+      value:
+        failureThreshold: 5
+        httpGet:
+          path: /health
+          port: 8089
+        initialDelaySeconds: 15
+        periodSeconds: 25
+        successThreshold: 1
+        timeoutSeconds: 3
+- it: should use custom probe settings for the backend container with some ports as templates, some string, some integer
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.3.0
+  set:
+    backend:
+      service:
+        port: '8089'
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: '{{ .Values.backend.service.port }}'
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: '8088'
+      startupProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: 8087
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe
+      value:
+        failureThreshold: 5
+        httpGet:
+          path: /health
+          port: 8087
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 3
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe
+      value:
+        failureThreshold: 10
+        httpGet:
+          path: /health
+          port: 8089
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 3
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe
+      value:
+        failureThreshold: 5
+        httpGet:
+          path: /health
+          port: 8088
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        successThreshold: 1
+        timeoutSeconds: 3
+- it: should adapt the custom tcpSocket probe port for the backend container for v25.3
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.3.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9090'
+      livenessProbe:
+        enabled: true
+        tcpSocket:
+          port: '{{ .Values.backend.service.http.targetPort }}'
+      readinessProbe:
+        tcpSocket:
+          port: '9091'
+      startupProbe:
+        enabled: true
+        tcpSocket:
+          port: 9092
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
+      value: 9090
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 9091
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
+      value: 9092
+- it: should not adapt the custom tcpSocket probe port for the backend container for v25.2
+  template: deployment-backend.yaml
+  chart:
+    appVersion: v25.2.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: '9090'
+      livenessProbe:
+        enabled: true
+        tcpSocket:
+          port: '{{ .Values.backend.service.http.targetPort }}'
+      readinessProbe:
+        tcpSocket:
+          port: '9091'
+      startupProbe:
+        enabled: true
+        tcpSocket:
+          port: 9092
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].livenessProbe.tcpSocket.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+      value: 8080
+  - equal:
+      path: spec.template.spec.containers[0].startupProbe.tcpSocket.port
+      value: 8080
+- it: should disable podSecurityContext when 'enabled' is false
+  template: deployment-backend.yaml
+  set:
+    backend:
+      podSecurityContext:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.spec.securityContext
+- it: should disable initContainers that wait for required services to be ready
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      enabled: false
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers
+      value: null

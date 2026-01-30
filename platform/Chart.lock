@@ -7,9 +7,9 @@ dependencies:
   version: 1.1.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 0.2.2
+  version: 0.2.3
 - name: studios
   repository: file://charts/studios
-  version: 1.1.1
-digest: sha256:3922e33632061ffb281bcd04246c5cb2b88941261d944273d3a34fed69357671
-generated: "2026-01-29T17:24:48.217317575+01:00"
+  version: 1.1.2
+digest: sha256:51c492c93e70dd59f82e65de34f22392dff4bcf74b6d974e120e8dc2f219e7b4
+generated: "2026-01-30T15:10:25.13790498+01:00"

@@ -24,773 +24,361 @@ chart:
   version: 1.2.3
   appVersion: "v9.9.9"
 tests:
-  - it: should render 4 different CM documents by default
-    asserts:
-      - hasDocuments:
-          count: 4
-
-  - it: should render backend cm with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - matchSnapshot: {}
-
-  - it: should render cron cm with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - equal:
-          path: data
-          value:
-            MICRONAUT_ENVIRONMENTS: prod,redis,cron
-            TOWER_CRON_SERVER_PORT: "8082"
-
-  - it: should setup requested micronaut envs for backend when required, in addition to the mandatory ones
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        micronautEnvironments: [prod, whatever1, whatever2]
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - equal:
-          path: data.MICRONAUT_ENVIRONMENTS
-          value: prod,whatever1,whatever2,redis,ha,wave,groundswell
-
-  - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        micronautEnvironments: [prod, whatever1, whatever2]
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - equal:
-          path: data.MICRONAUT_ENVIRONMENTS
-          value: prod,whatever1,whatever2,redis,cron
-
-  - it: should evaluate template expressions in global.studiosConnectionUrl for backend configmap
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      global:
-        platformExternalDomain: "my-platform.example.com"
-        studiosDomain: "studios.example.net"
-        studiosConnectionUrl: '{{ printf "https://mycustomconnect.%s" .Values.global.studiosDomain }}'
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_STUDIO_CONNECT_URL
-          value: "https://mycustomconnect.studios.example.net"
-
-  - it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
+- it: should render 4 different CM documents by default
+  asserts:
+  - hasDocuments:
+      count: 4
+- it: should render cron cm with default values
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  asserts:
+  - isKind:
+      of: ConfigMap
+  - equal:
+      path: data
+      value:
+        MICRONAUT_ENVIRONMENTS: prod,redis,cron
+        TOWER_CRON_SERVER_PORT: '8082'
+- it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      micronautEnvironments:
+      - prod
+      - whatever1
+      - whatever2
+  asserts:
+  - isKind:
+      of: ConfigMap
+  - equal:
+      path: data.MICRONAUT_ENVIRONMENTS
+      value: prod,whatever1,whatever2,redis,cron
+- it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    studios:
+      enabled: false
+  asserts:
+  - notExists:
+      path: data.TOWER_DATA_STUDIO_CONNECT_URL
+- it: should apply common labels
+  chart:
+    version: 9.8.7
+    appVersion: v1.2.3+abcdef
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    commonLabels:
+      environment: dev
+      team: platform
+      numericLabelAsString: '{{ .Values.global.platformServicePort | default 1234 }}'
+  asserts:
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v1.2.3+abcdef
+        helm.sh/chart: platform-9.8.7
+        environment: dev
+        team: platform
+        numericLabelAsString: '8080'
+- it: should render env var with the requested execution backends
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platform:
+      executionBackends:
+      - altair-platform
+      - slurm-platform
+  asserts:
+  - equal:
+      path: data.TOWER_ENABLE_PLATFORMS
+      value: altair-platform,slurm-platform
+- it: should render tower-yml cm with provided data
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-tower-yml
+  set:
+    platform:
+      YAMLConfigFileContent: "someKey: someValue\nanotherKey:\n  nestedKey: nestedValue\n"
+  asserts:
+  - equal:
+      path: data
+      value:
+        tower.yml: "tower:\n  data-studio:\n    allowed-workspaces: null\n---\nsomeKey: someValue\nanotherKey:\n  nestedKey:\
+          \ nestedValue"
+- it: should render annotations in all configmaps when provided
+  set:
+    global:
+      platformServicePort: 1234
+    commonAnnotations:
+      annotation1: value1
+      annotation2: '{{ .Values.global.platformServicePort }}'
+  asserts:
+  - hasDocuments:
+      count: 4
+  - equal:
+      path: metadata.annotations
+      value:
+        annotation1: value1
+        annotation2: '1234'
+- it: should merge annotations from commonAnnotations and platform.configMapAnnotations
+  set:
+    commonAnnotations:
+      annotation1: this should get overwritten
+      annotation2: this should stay
+    platform:
+      configMapAnnotations:
+        annotation1: this overrides the common annotation
+  asserts:
+  - hasDocuments:
+      count: 4
+  - equal:
+      path: metadata.annotations
+      value:
+        annotation1: this overrides the common annotation
+        annotation2: this should stay
+- it: should render labels in all configmaps when provided via platform.configMapLabels
+  chart:
+    version: 9.8.7
+    appVersion: v1.2.3+abcdef
+  set:
+    global:
+      platformServicePort: 1234
+    platform:
+      configMapLabels:
+        labelA: valueA
+        labelB: '{{ .Values.global.platformServicePort }}'
+  asserts:
+  - hasDocuments:
+      count: 4
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v1.2.3+abcdef
+        helm.sh/chart: platform-9.8.7
+        labelA: valueA
+        labelB: '1234'
+- it: should render database driver correctly with default "mariadb"
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  asserts:
+  - equal:
+      path: data.TOWER_DB_DRIVER
+      value: org.mariadb.jdbc.Driver
+- it: should render database driver correctly when using "mysql" as alias
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      driver: mysql
+  asserts:
+  - equal:
+      path: data.TOWER_DB_DRIVER
+      value: org.mariadb.jdbc.Driver
+- it: should fail when empty database driver is provided
+  set:
+    platformDatabase:
+      driver: ''
+  asserts:
+  - failedTemplate:
+      errorMessage: 'Unsupported database driver: ''''. Supported drivers are: ''mariadb'' (or its alias ''mysql'').'
+- it: should render db dialect correctly when explicitly set to "mysql-8"
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      dialect: mysql-8
+  asserts:
+  - equal:
+      path: data.TOWER_DB_DIALECT
+      value: io.seqera.util.MySQL8DialectCollateBin
+- it: should fail when database dialect is unsupported
+  set:
+    platformDatabase:
+      dialect: unsupported-dialect
+  asserts:
+  - failedTemplate:
+      errorMessage: 'Unsupported database dialect: ''unsupported-dialect''. Supported dialects are: ''mysql-8'', ''mariadb-10''.'
+- it: should render database url correctly for mariadb driver with default list of parameters
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  asserts:
+  - equal:
+      path: data.TOWER_DB_URL
+      value: jdbc:mysql://:3306/?permitMysqlScheme=true
+- it: should render database url correctly for mysql driver (alias for mariadb) with specified parameters
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      connectionOptions:
+        mariadb: []
+        mysql:
+        - param1=value1
+        - param2=value2
+  asserts:
+  - equal:
+      path: data.TOWER_DB_URL
+      value: jdbc:mysql://:3306/?param1=value1&param2=value2
+- it: should render database url correctly using mariadb options when no mysql options are provided
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      connectionOptions:
+        mariadb:
+        - param1=value1
+        - param2=value2
+        mysql: []
+  asserts:
+  - equal:
+      path: data.TOWER_DB_URL
+      value: jdbc:mysql://:3306/?param1=value1&param2=value2
+- it: should render database url with custom database name
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      host: db.example.com
+      port: 3306
+      name: tower_db
+  asserts:
+  - equal:
+      path: data.TOWER_DB_URL
+      value: jdbc:mysql://db.example.com:3306/tower_db?permitMysqlScheme=true
+- it: should render database url with custom name and connection options
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    platformDatabase:
+      host: prod-db.example.com
+      port: 3306
+      name: production_db
+      connectionOptions:
+        mariadb:
+        - useSSL=true
+        - serverTimezone=UTC
+  asserts:
+  - equal:
+      path: data.TOWER_DB_URL
+      value: jdbc:mysql://prod-db.example.com:3306/production_db?useSSL=true&serverTimezone=UTC
+- it: should render Studios tools environment variables when studios is enabled with default tools
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  asserts:
+  - matchSnapshot: {}
+- it: should render custom Studios tool when provided
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    platform:
       studios:
-        enabled: false
-    asserts:
-      - notExists:
-          path: data.TOWER_DATA_STUDIO_CONNECT_URL
-
-  - it: should include SMTP configuration when configured
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platform:
-        smtp:
-          host: "smtp.example.com"
-          port: "587"
-          user: "user@example.com"
-          password: "smtp-password"
-    asserts:
-      - equal:
-          path: data.TOWER_SMTP_HOST
-          value: smtp.example.com
-      - equal:
-          path: data.TOWER_SMTP_PORT
-          value: "587"
-      - equal:
-          path: data.TOWER_SMTP_USER
-          value: user@example.com
-      - notExists:
-          path: data.TOWER_SMTP_PASSWORD
-
-  - it: should apply common labels
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3+abcdef
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      commonLabels:
-        environment: "dev"
-        team: "platform"
-        numericLabelAsString: "{{ .Values.global.platformServicePort | default 1234 }}"
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: platform-9.8.7
-            environment: dev
-            team: platform
-            numericLabelAsString: "8080"
-
-  - it: should render shared cm with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    asserts:
-      - matchSnapshot: {}
-
-  # The case with no execution backends is tested in the NOTES.txt unittests
-  - it: should render env var with the requested execution backends
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platform:
-        executionBackends: [altair-platform, slurm-platform]
-    asserts:
-      - equal:
-          path: data.TOWER_ENABLE_PLATFORMS
-          value: altair-platform,slurm-platform
-
-  - it: should render tower-yml cm with no data in it
-    set:
+        tools:
+          customtool:
+            tool: customtool
+            recommended: registry.example.com/custom-tool:v1.0.0
+  asserts:
+  - matchSnapshot: {}
+- it: should render custom Studios tool with deprecated and experimental versions when provided
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    platform:
       studios:
-        enabled: false  # disable studios to not have data-studio section in the output
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-tower-yml
-    asserts:
-      - isKind:
-          of: ConfigMap
-      - equal:
-          path: data
-          value:
-            tower.yml: |-
-              ---
-
-  - it: should render tower-yml cm with provided data
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-tower-yml
-    set:
-      platform:
-        YAMLConfigFileContent: |
-          someKey: someValue
-          anotherKey:
-            nestedKey: nestedValue
-    asserts:
-      - equal:
-          path: data
-          value:
-            tower.yml: |-
-              tower:
-                data-studio:
-                  allowed-workspaces: null
-              ---
-              someKey: someValue
-              anotherKey:
-                nestedKey: nestedValue
-
-  - it: should render tower-yml cm with templated data
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-tower-yml
-    set:
-      global:
-        platformExternalDomain: "my-platform.example.com"
-        platformServicePort: 1234
-      platform:
-        YAMLConfigFileContent: |
-          templatedKey:
-            url: https://{{ .Values.global.platformExternalDomain }}
-            url2: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) }}
-            # The port should be rendered as a number, not as a string
-            port: {{ .Values.global.platformServicePort }}
-    asserts:
-      - equal:
-          path: data
-          value:
-            tower.yml: |-
-              tower:
-                data-studio:
-                  allowed-workspaces: null
-              ---
-              templatedKey:
-                url: https://my-platform.example.com
-                url2: https://my-platform.example.com
-                # The port should be rendered as a number, not as a string
-                port: 1234
-
-  - it: should render annotations in all configmaps when provided
-    set:
-      global:
-        platformServicePort: 1234
-      commonAnnotations:
-        annotation1: "value1"
-        annotation2: "{{ .Values.global.platformServicePort }}"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.annotations
-          value:
-            annotation1: "value1"
-            annotation2: "1234"  # should be rendered as string, k8s doesn't support integers in annotations nor labels
-
-  - it: should render annotations in all configmaps when provided via platform.configMapAnnotations
-    set:
-      global:
-        platformServicePort: 1234
-      platform:
-        configMapAnnotations:
-          annotationA: "valueA"
-          annotationB: "{{ .Values.global.platformServicePort }}"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.annotations
-          value:
-            annotationA: "valueA"
-            annotationB: "1234"
-
-  - it: should merge annotations from commonAnnotations and platform.configMapAnnotations
-    set:
-      commonAnnotations:
-        annotation1: "this should get overwritten"
-        annotation2: "this should stay"
-      platform:
-        configMapAnnotations:
-          annotation1: "this overrides the common annotation"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.annotations
-          value:
-            annotation1: "this overrides the common annotation"
-            annotation2: "this should stay"
-
-  - it: should render labels in all configmaps when provided
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3+abcdef
-    set:
-      global:
-        platformServicePort: 1234
-      commonLabels:
-        label1: "value1"
-        label2: "{{ .Values.global.platformServicePort }}"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: platform-9.8.7
-            label1: "value1"
-            label2: "1234"  # should be rendered as string, k8s doesn't support integers in labels nor labels
-
-  - it: should render labels in all configmaps when provided via platform.configMapLabels
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3+abcdef
-    set:
-      global:
-        platformServicePort: 1234
-      platform:
-        configMapLabels:
-          labelA: "valueA"
-          labelB: "{{ .Values.global.platformServicePort }}"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: platform-9.8.7
-            labelA: "valueA"
-            labelB: "1234"
-
-  - it: should merge labels from commonLabels and platform.configMapLabels
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3+abcdef
-    set:
-      commonLabels:
-        label1: "this should get overwritten"
-        label2: "this should stay"
-      platform:
-        configMapLabels:
-          label1: "this overrides the common label"
-    asserts:
-      - hasDocuments:
-          count: 4  # make sure to update this too if more configmaps are added
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: platform-9.8.7
-            label1: "this overrides the common label"
-            label2: "this should stay"
-
-  - it: should render database driver correctly with default "mariadb"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DRIVER
-          value: "org.mariadb.jdbc.Driver"
-
-  - it: should render database driver correctly with explicit "mariadb"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DRIVER
-          value: "org.mariadb.jdbc.Driver"
-
-  - it: should render database driver correctly when using "mysql" as alias
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        driver: "mysql"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DRIVER
-          value: "org.mariadb.jdbc.Driver"
-
-  - it: should fail when database driver is unsupported
-    set:
-      platformDatabase:
-        driver: "unsupported"
-    asserts:
-      - failedTemplate:
-          errorMessage: "Unsupported database driver: 'unsupported'. Supported drivers are: 'mariadb' (or its alias 'mysql')."
-
-  - it: should fail when empty database driver is provided
-    set:
-      platformDatabase:
-        driver: ""
-    asserts:
-      - failedTemplate:
-          errorMessage: "Unsupported database driver: ''. Supported drivers are: 'mariadb' (or its alias 'mysql')."
-
-  - it: should render db dialect correctly with default "mysql-8"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DIALECT
-          value: "io.seqera.util.MySQL8DialectCollateBin"
-
-  - it: should render db dialect correctly when explicitly set to "mysql-8"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        dialect: "mysql-8"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DIALECT
-          value: "io.seqera.util.MySQL8DialectCollateBin"
-
-  - it: should render db dialect correctly when set to "mariadb-10"
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        dialect: "mariadb-10"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_DIALECT
-          value: "io.seqera.util.MariaDB10DialectCollateBin"
-
-  - it: should fail when database dialect is unsupported
-    set:
-      platformDatabase:
-        dialect: "unsupported-dialect"
-    asserts:
-      - failedTemplate:
-          errorMessage: "Unsupported database dialect: 'unsupported-dialect'. Supported dialects are: 'mysql-8', 'mariadb-10'."
-
-  - it: should fail when empty database dialect is provided
-    set:
-      platformDatabase:
-        dialect: ""
-    asserts:
-      - failedTemplate:
-          errorMessage: "Unsupported database dialect: ''. Supported dialects are: 'mysql-8', 'mariadb-10'."
-
-  - it: should render database url correctly for mariadb driver with default list of parameters
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/?permitMysqlScheme=true"
-
-  - it: should render database url correctly for mariadb driver with specified parameters
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        connectionOptions:
-          mariadb:
-            - "param1=value1"
-            - "param2=value2"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/?param1=value1&param2=value2"
-
-  - it: should render database url correctly for mysql driver (alias for mariadb) with specified parameters
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        connectionOptions:
-          mariadb: []
-          mysql:
-            - "param1=value1"
-            - "param2=value2"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/?param1=value1&param2=value2"
-
-  - it: should render database url correctly using mariadb options over mysql if both are provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        connectionOptions:
-          mariadb:
-            - "param1=value1"
-            - "param2=value2"
-          mysql:
-            - "paramA=value1"
-            - "paramB=value2"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/?param1=value1&param2=value2"
-
-  - it: should render database url correctly using mariadb options when no mysql options are provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        connectionOptions:
-          mariadb:
-            - "param1=value1"
-            - "param2=value2"
-          mysql: []
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/?param1=value1&param2=value2"
-
-  - it: should render database url correctly when no options are provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        connectionOptions:
-          mariadb: []
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://:3306/"
-
-  - it: should render database url with custom database name
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        host: "db.example.com"
-        port: 3306
-        name: "tower_db"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://db.example.com:3306/tower_db?permitMysqlScheme=true"
-
-  - it: should render database url with custom host, port, and database name
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        host: "my-db-host.internal"
-        port: 3307
-        name: "my_database"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://my-db-host.internal:3307/my_database?permitMysqlScheme=true"
-
-  - it: should render database url with custom name and connection options
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        host: "prod-db.example.com"
-        port: 3306
-        name: "production_db"
-        connectionOptions:
-          mariadb:
-            - "useSSL=true"
-            - "serverTimezone=UTC"
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://prod-db.example.com:3306/production_db?useSSL=true&serverTimezone=UTC"
-
-  - it: should render database url with empty database name
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-shared-backend-cron
-    set:
-      platformDatabase:
-        host: "db.example.com"
-        port: 3306
-        name: ""
-    asserts:
-      - equal:
-          path: data.TOWER_DB_URL
-          value: "jdbc:mysql://db.example.com:3306/?permitMysqlScheme=true"
-
-  - it: should render Studios tools environment variables when studios is enabled with default tools
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should not render Studios tools environment variables when studios is disabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      studios:
-        enabled: false
-    asserts:
-      - equal:
-          path: data
-          value:
-            GROUNDSWELL_SERVER_URL: "http://RELEASE-NAME-pipeline-optimization:8090"
-            MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
-            TOWER_DATA_EXPLORER_ENABLED: "false"
-
-  - it: should render custom Studios tool when provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        studios:
-          tools:
-            customtool:
-              tool: customtool
-              recommended: registry.example.com/custom-tool:v1.0.0
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render custom Studios tool with deprecated version when provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        studios:
-          tools:
-            customtool:
-              tool: customtool
-              recommended: registry.example.com/custom-tool:v2.0.0
-              deprecated: registry.example.com/custom-tool:v1.0.0
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render custom Studios tool with deprecated and experimental versions when provided
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        studios:
-          tools:
-            customtool:
-              tool: customtool
-              recommended: registry.example.com/custom-tool:v2.0.0
-              deprecated: registry.example.com/custom-tool:v1.0.0
-              experimental: registry.example.com/custom-tool:v3.0.0
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should handle empty Studios tools map
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        studios:
-          tools: {}
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should turn on data explorer flag when enabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        dataExplorer:
-          enabled: true
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_EXPLORER_ENABLED
-          value: "true"
-
-  - it: should turn off data explorer flag when explicitly disabled and studios is disabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        dataExplorer:
-          enabled: false
-      studios:
-        enabled: false
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_EXPLORER_ENABLED
-          value: "false"
-
-  - it: should turn on data explorer flag when studios is enabled even if dataExplorer is disabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        dataExplorer:
-          enabled: false
-      studios:
+        tools:
+          customtool:
+            tool: customtool
+            recommended: registry.example.com/custom-tool:v2.0.0
+            deprecated: registry.example.com/custom-tool:v1.0.0
+            experimental: registry.example.com/custom-tool:v3.0.0
+  asserts:
+  - matchSnapshot: {}
+- it: should turn on data explorer flag when enabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    platform:
+      dataExplorer:
         enabled: true
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_EXPLORER_ENABLED
-          value: "true"
-
-  - it: should turn on data explorer flag when both dataExplorer and studios are enabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      platform:
-        dataExplorer:
-          enabled: true
-      studios:
-        enabled: true
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_EXPLORER_ENABLED
-          value: "true"
-
-  - it: should render Studios Wave custom image registry and repository when configured
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      studios:
-        enabled: true
-      platform:
-        studios:
-          customImageRegistry: "myregistry.example.com"
-          customImageRepository: "myteam/studios-repo"
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
-          value: "myregistry.example.com"
-      - equal:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
-          value: "myteam/studios-repo"
-
-  - it: should render empty Studios Wave custom image registry and repository when not configured
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      studios:
-        enabled: true
-    asserts:
-      - equal:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
-          value: ""
-      - equal:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
-          value: ""
-
-  - it: should not include Studios Wave custom image env vars when studios is disabled
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      studios:
+  asserts:
+  - equal:
+      path: data.TOWER_DATA_EXPLORER_ENABLED
+      value: 'true'
+- it: should turn on data explorer flag when studios is enabled even if dataExplorer is disabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    platform:
+      dataExplorer:
         enabled: false
-      platform:
-        studios:
-          customImageRegistry: "myregistry.example.com"
-          customImageRepository: "myteam/studios-repo"
-    asserts:
-      - notExists:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
-      - notExists:
-          path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
+    studios:
+      enabled: true
+  asserts:
+  - equal:
+      path: data.TOWER_DATA_EXPLORER_ENABLED
+      value: 'true'
+- it: should render Studios Wave custom image registry and repository when configured
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    studios:
+      enabled: true
+    platform:
+      studios:
+        customImageRegistry: myregistry.example.com
+        customImageRepository: myteam/studios-repo
+  asserts:
+  - equal:
+      path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
+      value: myregistry.example.com
+  - equal:
+      path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
+      value: myteam/studios-repo
+- it: should fail when database driver is unsupported
+  set:
+    platformDatabase:
+      driver: unsupported
+  asserts:
+  - failedTemplate:
+      errorMessage: 'Unsupported database driver: ''unsupported''. Supported drivers are: ''mariadb'' (or its alias ''mysql'').'
+- it: should not render Studios tools environment variables when studios is disabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    studios:
+      enabled: false
+  asserts:
+  - equal:
+      path: data
+      value:
+        GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
+        MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+        TOWER_DATA_EXPLORER_ENABLED: 'false'

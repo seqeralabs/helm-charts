@@ -19,1032 +19,553 @@
 
 suite: test Studios server statefulset
 templates:
-  - statefulset-server.yaml
-  # The following secret is required since there's a checksum of it within the deployment manifest.
-  - secret.yaml
+- statefulset-server.yaml
+- secret.yaml
 tests:
-  - it: should set the statefulset server image using the chart version and use sane defaults
-    template: statefulset-server.yaml
-    chart:
-      version: "8.7.6+test"
-      appVersion: "9.9.9"
-    set:
-      proxy:
-        # required otherwise the charts generates a random value which changes the secret checksum
-        oidcClientRegistrationToken: my-oidc-token
-    asserts:
-      - isKind:
-          of: StatefulSet
-      - equal:
-          path: metadata.name
-          value: release-name-studios-server
-      - matchSnapshot: {}
-
-  - it: should render the server deployment with the specified tag version
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          tag: "1.2.3"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/connect-server:1.2.3"
-
-  - it: should render the server deployment with the specified digest
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          digest: "sha256:1234abcdef"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/connect-server@sha256:1234abcdef"
-
-  - it: should render the server deployment with the correct checksums
-    template: statefulset-server.yaml
-    # the chart version is included in the annotations, so it needs to be set
-    chart:
-      version: "8.7.6+test"
-      appVersion: "9.9.9"
-    set:
-      proxy:
-        oidcClientRegistrationToken: asdf
-      server:
-        podLabels:
-          key123: this-overrides-the-commonLabels
-      redis:
-        password: fdsa
-      commonLabels:
-        key123: this-should-be-overridden
+- it: should set the statefulset server image using the chart version and use sane defaults
+  template: statefulset-server.yaml
+  chart:
+    version: 8.7.6+test
+    appVersion: 9.9.9
+  set:
+    proxy:
+      oidcClientRegistrationToken: my-oidc-token
+  asserts:
+  - isKind:
+      of: StatefulSet
+  - equal:
+      path: metadata.name
+      value: release-name-studios-server
+  - matchSnapshot: {}
+- it: should render the server deployment with the specified tag version
+  template: statefulset-server.yaml
+  set:
+    server:
+      image:
+        tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/data-studio/connect-server:1.2.3
+- it: should render the server deployment with the specified digest
+  template: statefulset-server.yaml
+  set:
+    server:
+      image:
+        digest: sha256:1234abcdef
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/data-studio/connect-server@sha256:1234abcdef
+- it: should render the server deployment with the correct checksums
+  template: statefulset-server.yaml
+  chart:
+    version: 8.7.6+test
+    appVersion: 9.9.9
+  set:
+    proxy:
+      oidcClientRegistrationToken: asdf
+    server:
+      podLabels:
+        key123: this-overrides-the-commonLabels
+    redis:
+      password: fdsa
+    commonLabels:
+      key123: this-should-be-overridden
+      key456: this-should-not-be-overridden
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations
+      value:
+        checksum/secret: 07f59012286ce98a15a3872ddd71f50df6a93068fb9cd958e16d11a44e40e856
+  - equal:
+      path: spec.template.metadata.labels
+      value:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: studios-8.7.6_test
+        key123: this-overrides-the-commonLabels
         key456: this-should-not-be-overridden
-    asserts:
-      - equal:
-          path: spec.template.metadata.annotations
-          value:
-            checksum/secret: 07f59012286ce98a15a3872ddd71f50df6a93068fb9cd958e16d11a44e40e856
-      - equal:
-          path: spec.template.metadata.labels
-          value:
-            app.kubernetes.io/component: server
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: "9.9.9"
-            helm.sh/chart: "studios-8.7.6_test"
-            key123: this-overrides-the-commonLabels
-            key456: this-should-not-be-overridden
-
-  - it: should run using config requested by the user
-    template: statefulset-server.yaml
-    chart:
-      version: "8.7.6+test"
-      appVersion: "9.9.9"
-    set:
-      proxy:
-        # required otherwise the charts generates a random value which changes the secret checksum
-        oidcClientRegistrationToken: my-oidc-token
-      server:
-        image:
-          pullPolicy: Always
-          pullSecrets:
-            - aCustomImageRepositorySecretName
-        command: ["customCommand"]
-        args: ["arg0", "arg1"]
-        extraEnvVars:
-          - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
-            value: set-a-value-here
-        extraEnvVarsCM: CMContainingExtraEnvVars
-        extraEnvVarsSecret: SecretContainingExtraEnvVars
-        extraVolumes:
-          - name: extraVolumeName
-            emptyDir:
-              sizeLimit: "1Mi"
-        extraVolumeMounts:
-          - mountPath: /mymntpoint
-            name: extraVolumeName
-        podSecurityContext:
-          enabled: true
-          fsGroup: 9999
-        containerSecurityContext:
-          enabled: true
-          runAsUser: 9998
-          runAsGroup: 9999
-          runAsNonRoot: true
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: []
-            add:
-              - NET_BIND_SERVICE
-              - NET_ADMIN
-      serviceAccount:
-        name: user-provided-sa
-    asserts:
-      - matchSnapshot:
-          path: spec
-
-  - it: should not enable redis auth unless it is enabled
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: ""
-        existingSecretName: ""
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env
-          value: null
-      - lengthEqual:
-          path: spec.template.spec.containers[0].envFrom
-          count: 2
-
-  # Resources configuration tests
-  - it: should not render resources when not specified
-    template: statefulset-server.yaml
-    asserts:
-      - notExists:
-          path: spec.template.spec.containers[0].resources
-
-  - it: should render resources when specified
-    template: statefulset-server.yaml
-    set:
-      server:
-        resources:
-          requests:
-            cpu: "250m"
-            memory: "256Mi"
-          limits:
-            cpu: "1000m"
-            memory: "1Gi"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].resources
-          value:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "1000m"
-              memory: "1Gi"
-
-  - it: should render resources with only requests
-    template: statefulset-server.yaml
-    set:
-      server:
-        resources:
-          requests:
-            cpu: "100m"
-            memory: "128Mi"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].resources
-          value:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-
-  - it: should render resources with only limits
-    template: statefulset-server.yaml
-    set:
-      server:
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].resources
-          value:
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-
-  - it: should render resources with memory limit only
-    template: statefulset-server.yaml
-    set:
-      server:
-        resources:
-          limits:
-            memory: "2000Mi"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].resources
-          value:
-            limits:
-              memory: "2000Mi"
-
-  # Init containers tests
-  - it: should render init containers when specified
-    template: statefulset-server.yaml
-    set:
-      server:
-        initContainers:
-          - name: init-wait
-            image: busybox:1.28
-            command: ['sh', '-c', 'echo waiting for dependencies']
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.initContainers
-          count: 1
-      - equal:
-          path: spec.template.spec.initContainers[0].name
-          value: init-wait
-      - equal:
-          path: spec.template.spec.initContainers[0].image
-          value: busybox:1.28
-
-  - it: should not render init containers when not specified
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.initContainers
-          value: null
-
-  # extraOptionsSpec tests (StatefulSet-level options)
-  - it: should apply extraOptionsSpec at StatefulSet spec level
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsSpec:
-          replicas: 3
-          updateStrategy:
-            type: RollingUpdate
-            rollingUpdate:
-              partition: 1
-          podManagementPolicy: Parallel
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 3
-      - equal:
-          path: spec.updateStrategy.type
-          value: RollingUpdate
-      - equal:
-          path: spec.updateStrategy.rollingUpdate.partition
-          value: 1
-      - equal:
-          path: spec.podManagementPolicy
-          value: Parallel
-
-  - it: should not override selector or serviceName with extraOptionsSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsSpec:
-          selector:
-            matchLabels:
-              should: not-appear
-          serviceName: should-not-appear
-          replicas: 2
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 2
-      - notEqual:
-          path: spec.serviceName
-          value: should-not-appear
-      - equal:
-          path: spec.serviceName
-          value: release-name-studios-server
-      - notEqual:
-          path: spec.selector.matchLabels.should
-          value: not-appear
-
-  # extraOptionsTemplateSpec tests (Pod-level options)
-  - it: should apply extraOptionsTemplateSpec at pod spec level
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsTemplateSpec:
-          nodeSelector:
-            disktype: ssd
-          restartPolicy: Always
-          dnsPolicy: ClusterFirst
-    asserts:
-      - equal:
-          path: spec.template.spec.nodeSelector
-          value:
-            disktype: ssd
-      - equal:
-          path: spec.template.spec.restartPolicy
-          value: Always
-      - equal:
-          path: spec.template.spec.dnsPolicy
-          value: ClusterFirst
-
-  - it: should apply affinity with extraOptionsTemplateSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsTemplateSpec:
-          affinity:
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: kubernetes.io/arch
-                        operator: In
-                        values:
-                          - amd64
-    asserts:
-      - exists:
-          path: spec.template.spec.affinity.nodeAffinity
-      - equal:
-          path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
-          value: kubernetes.io/arch
-
-  - it: should not override serviceAccountName or securityContext with extraOptionsTemplateSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsTemplateSpec:
-          serviceAccountName: should-not-appear
-          serviceAccount: should-not-appear
-          securityContext:
-            fsGroup: 12345
-          nodeSelector:
-            disktype: ssd
-    asserts:
-      - equal:
-          path: spec.template.spec.nodeSelector.disktype
-          value: ssd
-      - notEqual:
-          path: spec.template.spec.serviceAccountName
-          value: should-not-appear
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: release-name-studios-sa
-
-  # Pod annotations tests
-  - it: should render custom pod annotations
-    template: statefulset-server.yaml
-    set:
-      server:
-        podAnnotations:
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "9090"
-          custom-annotation: "custom-value"
-    asserts:
-      - equal:
-          path: spec.template.metadata.annotations["prometheus.io/scrape"]
-          value: "true"
-      - equal:
-          path: spec.template.metadata.annotations["prometheus.io/port"]
-          value: "9090"
-      - equal:
-          path: spec.template.metadata.annotations["custom-annotation"]
-          value: "custom-value"
-      - exists:
-          path: spec.template.metadata.annotations["checksum/secret"]
-
-  # Security context disabled tests
-  - it: should not render pod security context when disabled
-    template: statefulset-server.yaml
-    set:
-      server:
-        podSecurityContext:
-          enabled: false
-    asserts:
-      - notExists:
-          path: spec.template.spec.securityContext
-
-  - it: should not render container security context when disabled
-    template: statefulset-server.yaml
-    set:
-      server:
-        containerSecurityContext:
-          enabled: false
-    asserts:
-      - notExists:
-          path: spec.template.spec.containers[0].securityContext
-
-  # Redis authentication enabled tests
-  - it: should enable redis auth when password is set
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: "my-secret-password"
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].env
-          count: 1
-      - equal:
-          path: spec.template.spec.containers[0].env[0]
-          value:
-            name: CONNECT_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: release-name-studios
-                key: CONNECT_REDIS_PASSWORD
-      - lengthEqual:
-          path: spec.template.spec.containers[0].envFrom
-          count: 2
-
-  - it: should enable redis auth when existingSecretName is set
-    template: statefulset-server.yaml
-    set:
-      redis:
-        existingSecretName: "external-redis-secret"
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].env
-          count: 1
-      - equal:
-          path: spec.template.spec.containers[0].env[0]
-          value:
-            name: CONNECT_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: external-redis-secret
-                key: CONNECT_REDIS_PASSWORD
-      - lengthEqual:
-          path: spec.template.spec.containers[0].envFrom
-          count: 2
-
-  - it: should use custom existingSecretKey when both existingSecretName and existingSecretKey are set
-    template: statefulset-server.yaml
-    set:
-      redis:
-        existingSecretName: "external-redis-secret"
-        existingSecretKey: "MY_CUSTOM_KEY"
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].env
-          count: 1
-      - equal:
-          path: spec.template.spec.containers[0].env[0]
-          value:
-            name: CONNECT_REDIS_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: external-redis-secret
-                key: MY_CUSTOM_KEY
-
-  # Metadata tests
-  - it: should apply commonLabels to statefulset metadata
-    template: statefulset-server.yaml
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3
-    set:
-      commonLabels:
-        environment: production
-        team: platform
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/component: server
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3
-            helm.sh/chart: studios-9.8.7
-            environment: production
-            team: platform
-
-  - it: should apply commonAnnotations to statefulset metadata
-    template: statefulset-server.yaml
-    set:
-      commonAnnotations:
+- it: should run using config requested by the user
+  template: statefulset-server.yaml
+  chart:
+    version: 8.7.6+test
+    appVersion: 9.9.9
+  set:
+    proxy:
+      oidcClientRegistrationToken: my-oidc-token
+    server:
+      image:
+        pullPolicy: Always
+        pullSecrets:
+        - aCustomImageRepositorySecretName
+      command:
+      - customCommand
+      args:
+      - arg0
+      - arg1
+      extraEnvVars:
+      - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
+        value: set-a-value-here
+      extraEnvVarsCM: CMContainingExtraEnvVars
+      extraEnvVarsSecret: SecretContainingExtraEnvVars
+      extraVolumes:
+      - name: extraVolumeName
+        emptyDir:
+          sizeLimit: 1Mi
+      extraVolumeMounts:
+      - mountPath: /mymntpoint
+        name: extraVolumeName
+      podSecurityContext:
+        enabled: true
+        fsGroup: 9999
+      containerSecurityContext:
+        enabled: true
+        runAsUser: 9998
+        runAsGroup: 9999
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: []
+          add:
+          - NET_BIND_SERVICE
+          - NET_ADMIN
+    serviceAccount:
+      name: user-provided-sa
+  asserts:
+  - matchSnapshot:
+      path: spec
+- it: should not enable redis auth unless it is enabled
+  template: statefulset-server.yaml
+  set:
+    redis:
+      password: ''
+      existingSecretName: ''
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].env
+      value: null
+  - lengthEqual:
+      path: spec.template.spec.containers[0].envFrom
+      count: 2
+- it: should render resources when specified
+  template: statefulset-server.yaml
+  set:
+    server:
+      resources:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].resources
+      value:
+        requests:
+          cpu: 250m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+- it: should render resources with only limits
+  template: statefulset-server.yaml
+  set:
+    server:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].resources
+      value:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+- it: should render init containers when specified
+  template: statefulset-server.yaml
+  set:
+    server:
+      initContainers:
+      - name: init-wait
+        image: busybox:1.28
+        command:
+        - sh
+        - -c
+        - echo waiting for dependencies
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.initContainers
+      count: 1
+  - equal:
+      path: spec.template.spec.initContainers[0].name
+      value: init-wait
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: busybox:1.28
+- it: should apply extraOptionsSpec at StatefulSet spec level
+  template: statefulset-server.yaml
+  set:
+    server:
+      extraOptionsSpec:
+        replicas: 3
+        updateStrategy:
+          type: RollingUpdate
+          rollingUpdate:
+            partition: 1
+        podManagementPolicy: Parallel
+  asserts:
+  - equal:
+      path: spec.replicas
+      value: 3
+  - equal:
+      path: spec.updateStrategy.type
+      value: RollingUpdate
+  - equal:
+      path: spec.updateStrategy.rollingUpdate.partition
+      value: 1
+  - equal:
+      path: spec.podManagementPolicy
+      value: Parallel
+- it: should not override selector or serviceName with extraOptionsSpec
+  template: statefulset-server.yaml
+  set:
+    server:
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            should: not-appear
+        serviceName: should-not-appear
+        replicas: 2
+  asserts:
+  - equal:
+      path: spec.replicas
+      value: 2
+  - notEqual:
+      path: spec.serviceName
+      value: should-not-appear
+  - equal:
+      path: spec.serviceName
+      value: release-name-studios-server
+  - notEqual:
+      path: spec.selector.matchLabels.should
+      value: not-appear
+- it: should apply affinity with extraOptionsTemplateSpec
+  template: statefulset-server.yaml
+  set:
+    server:
+      extraOptionsTemplateSpec:
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                  - amd64
+  asserts:
+  - exists:
+      path: spec.template.spec.affinity.nodeAffinity
+  - equal:
+      path: spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key
+      value: kubernetes.io/arch
+- it: should render custom pod annotations
+  template: statefulset-server.yaml
+  set:
+    server:
+      podAnnotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9090'
+        custom-annotation: custom-value
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/scrape"]
+      value: 'true'
+  - equal:
+      path: spec.template.metadata.annotations["prometheus.io/port"]
+      value: '9090'
+  - equal:
+      path: spec.template.metadata.annotations["custom-annotation"]
+      value: custom-value
+  - exists:
+      path: spec.template.metadata.annotations["checksum/secret"]
+- it: should not render pod security context when disabled
+  template: statefulset-server.yaml
+  set:
+    server:
+      podSecurityContext:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.spec.securityContext
+- it: should enable redis auth when password is set
+  template: statefulset-server.yaml
+  set:
+    redis:
+      password: my-secret-password
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.containers[0].env
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0]
+      value:
+        name: CONNECT_REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: release-name-studios
+            key: CONNECT_REDIS_PASSWORD
+  - lengthEqual:
+      path: spec.template.spec.containers[0].envFrom
+      count: 2
+- it: should enable redis auth when existingSecretName is set
+  template: statefulset-server.yaml
+  set:
+    redis:
+      existingSecretName: external-redis-secret
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.containers[0].env
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0]
+      value:
+        name: CONNECT_REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: external-redis-secret
+            key: CONNECT_REDIS_PASSWORD
+  - lengthEqual:
+      path: spec.template.spec.containers[0].envFrom
+      count: 2
+- it: should use custom existingSecretKey when both existingSecretName and existingSecretKey are set
+  template: statefulset-server.yaml
+  set:
+    redis:
+      existingSecretName: external-redis-secret
+      existingSecretKey: MY_CUSTOM_KEY
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.containers[0].env
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0]
+      value:
+        name: CONNECT_REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: external-redis-secret
+            key: MY_CUSTOM_KEY
+- it: should apply commonAnnotations to statefulset metadata
+  template: statefulset-server.yaml
+  set:
+    commonAnnotations:
+      example.com/annotation: value1
+      another.com/annotation: value2
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
         example.com/annotation: value1
         another.com/annotation: value2
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            example.com/annotation: value1
-            another.com/annotation: value2
-
-  - it: should evaluate template expressions in commonAnnotations
-    template: statefulset-server.yaml
-    release:
-      name: my-release
-    set:
-      commonAnnotations:
-        release-annotation: '{{ .Release.Name }}-annotation'
-        chart-annotation: '{{ .Chart.Name }}'
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            release-annotation: my-release-annotation
-            chart-annotation: studios
-
-  - it: should not render annotations when commonAnnotations is empty
-    template: statefulset-server.yaml
-    set:
-      commonAnnotations: {}
-    asserts:
-      - notExists:
-          path: metadata.annotations
-
-  # ServiceName validation
-  - it: should set correct serviceName for StatefulSet
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.serviceName
-          value: release-name-studios-server
-      - isKind:
-          of: StatefulSet
-
-  # Edge cases
-  - it: should handle empty extraEnvVars array gracefully without redis auth
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: ""
-        existingSecretName: ""
-      server:
-        extraEnvVars: []
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env
-          value: null
-
-  - it: should render redis auth and extraEnvVars together
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: "my-secret"
-      server:
-        extraEnvVars:
-          - name: CUSTOM_VAR
-            value: custom-value
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].env
-          count: 2
-      - equal:
-          path: spec.template.spec.containers[0].env[0].name
-          value: CONNECT_REDIS_PASSWORD
-      - equal:
-          path: spec.template.spec.containers[0].env[1]
-          value:
-            name: CUSTOM_VAR
-            value: custom-value
-
-  - it: should handle empty volumes and volumeMounts
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraVolumes: []
-        extraVolumeMounts: []
-    asserts:
-      - equal:
-          path: spec.template.spec.volumes
-          value: null
-      - equal:
-          path: spec.template.spec.containers[0].volumeMounts
-          value: null
-
-  # Metadata and labels tests
-  - it: should include component label in statefulset metadata
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: metadata.labels["app.kubernetes.io/component"]
-          value: server
-
-  - it: should include component label in selector
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.selector.matchLabels["app.kubernetes.io/component"]
-          value: server
-      - equal:
-          path: spec.template.metadata.labels["app.kubernetes.io/component"]
-          value: server
-
-  - it: should merge commonLabels and podLabels with podLabels taking precedence
-    template: statefulset-server.yaml
-    chart:
-      version: "1.2.3+test"
-      appVersion: "1.2.3"
-    set:
-      proxy:
-        oidcClientRegistrationToken: my-token
-      commonLabels:
-        common-label: common-value
-        override-me: from-common
-      server:
-        podLabels:
-          pod-label: pod-value
-          override-me: from-pod
-    asserts:
-      - equal:
-          path: spec.template.metadata.labels
-          value:
-            app.kubernetes.io/component: server
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: "1.2.3"
-            helm.sh/chart: studios-1.2.3_test
-            common-label: common-value
-            pod-label: pod-value
-            override-me: from-pod
-
-  - it: should maintain consistent selector labels for StatefulSet immutability
-    template: statefulset-server.yaml
-    set:
-      server:
-        podLabels:
-          custom-label: custom-value
-    asserts:
-      # Core selector labels must be minimal and stable for StatefulSet immutability
-      - equal:
-          path: spec.selector.matchLabels["app.kubernetes.io/name"]
-          value: studios
-      - equal:
-          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
-          value: RELEASE-NAME
-      - equal:
-          path: spec.selector.matchLabels["app.kubernetes.io/component"]
-          value: server
-      # Custom podLabels are NOT included in selector (only core labels)
-      - notExists:
-          path: spec.selector.matchLabels["custom-label"]
-      # But custom labels ARE in pod template labels
-      - equal:
-          path: spec.template.metadata.labels["custom-label"]
-          value: custom-value
-
-  - it: should render namespace from release namespace
-    template: statefulset-server.yaml
-    release:
-      namespace: my-custom-namespace
-    asserts:
-      - equal:
-          path: metadata.namespace
-          value: my-custom-namespace
-
-  # Template expression evaluation tests
-  - it: should evaluate template expressions in podLabels
-    template: statefulset-server.yaml
-    release:
-      name: my-release
-    set:
-      server:
-        podLabels:
-          release-name: "{{ .Release.Name }}"
-          chart-name: "{{ .Chart.Name }}"
-    asserts:
-      - equal:
-          path: spec.template.metadata.labels["release-name"]
-          value: my-release
-      - equal:
-          path: spec.template.metadata.labels["chart-name"]
-          value: studios
-
-  # NOTE: The server template currently uses toYaml for podAnnotations, not tpl rendering
-  # This means template expressions are NOT evaluated. This test documents current behavior.
-  # To enable template evaluation, the template should use common.tplvalues.render like proxy does.
-  - it: should render podAnnotations as-is without template evaluation
-    template: statefulset-server.yaml
-    release:
-      name: my-release
-    set:
-      server:
-        podAnnotations:
-          static-annotation: "my-value"
-          example-template: "{{ .Release.Name }}-annotation"
-    asserts:
-      - equal:
-          path: spec.template.metadata.annotations["static-annotation"]
-          value: my-value
-      # Template expressions are NOT evaluated currently (uses toYaml, not tpl render)
-      - equal:
-          path: spec.template.metadata.annotations["example-template"]
-          value: "{{ .Release.Name }}-annotation"
-
-  # envFrom ordering tests
-  - it: should render all envFrom sources in correct order without redis auth
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: ""
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].envFrom
-          count: 2
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[0]
-          value:
-            configMapRef:
-              name: release-name-studios-common
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[1]
-          value:
-            configMapRef:
-              name: release-name-studios-server
-
-  - it: should render multiple extraEnvVarsCM and extraEnvVarsSecret in correct order
-    template: statefulset-server.yaml
-    set:
-      redis:
-        password: my-password
-      server:
-        extraEnvVarsCM: extra-cm
-        extraEnvVarsSecret: extra-secret
-    asserts:
-      - lengthEqual:
-          path: spec.template.spec.containers[0].envFrom
-          count: 4
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
-          value: release-name-studios-common
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[1].configMapRef.name
-          value: release-name-studios-server
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[2].configMapRef.name
-          value: extra-cm
-      - equal:
-          path: spec.template.spec.containers[0].envFrom[3].secretRef.name
-          value: extra-secret
-      # Redis password should be in env, not envFrom
-      - lengthEqual:
-          path: spec.template.spec.containers[0].env
-          count: 1
-      - equal:
-          path: spec.template.spec.containers[0].env[0].name
-          value: CONNECT_REDIS_PASSWORD
-
-  - it: should include configMapRef for studios-common
-    template: statefulset-server.yaml
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            configMapRef:
-              name: release-name-studios-common
-
-  - it: should include configMapRef for studios-server
-    template: statefulset-server.yaml
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            configMapRef:
-              name: release-name-studios-server
-
-  # Image and container tests
-  - it: should use chart appVersion as default image tag
-    template: statefulset-server.yaml
-    chart:
-      appVersion: "2.3.4"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "private/nf-tower-enterprise/data-studio/connect-server:2.3.4"
-
-  - it: should render image with custom registry
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          registry: my-registry.example.com
-          tag: "1.0.0"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-server:1.0.0"
-
-  - it: should render image with registry and digest
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          registry: my-registry.example.com
-          digest: "sha256:abcd1234"
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: "my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-server@sha256:abcd1234"
-
-  - it: should render container with correct imagePullPolicy
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          pullPolicy: Always
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].imagePullPolicy
-          value: Always
-
-  - it: should set container name to server
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].name
-          value: server
-
-  - it: should not render imagePullSecrets when empty
-    template: statefulset-server.yaml
-    set:
-      server:
-        image:
-          pullSecrets: []
-    asserts:
-      - equal:
-          path: spec.template.spec.imagePullSecrets
-          value: null
-
-  - it: should render both custom command and args when set together
-    template: statefulset-server.yaml
-    set:
-      server:
-        command: ["custom-entrypoint"]
-        args: ["--flag1", "--flag2"]
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].command
-          value: ["custom-entrypoint"]
-      - equal:
-          path: spec.template.spec.containers[0].args
-          value: ["--flag1", "--flag2"]
-
-  # Security context field sanitization tests
-  - it: should omit the enabled field from podSecurityContext
-    template: statefulset-server.yaml
-    set:
-      server:
-        podSecurityContext:
-          enabled: true
-          fsGroup: 1000
-          runAsNonRoot: true
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 1000
-            runAsNonRoot: true
-
-  - it: should omit the enabled field from containerSecurityContext
-    template: statefulset-server.yaml
-    set:
-      server:
-        containerSecurityContext:
-          enabled: true
-          runAsUser: 1000
-          runAsGroup: 2000
-          runAsNonRoot: true
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop: ["ALL"]
-            add: ["NET_BIND_SERVICE"]
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext
-          value:
-            runAsUser: 1000
-            runAsGroup: 2000
-            runAsNonRoot: true
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop: ["ALL"]
-              add: ["NET_BIND_SERVICE"]
-      # Verify 'enabled' field is not present
-      - notExists:
-          path: spec.template.spec.containers[0].securityContext.enabled
-
-  - it: should prevent podSecurityContext to be set via extraOptionsTemplateSpec when enabled is false
-    template: statefulset-server.yaml
-    set:
-      server:
-        podSecurityContext:
-          enabled: false
-        extraOptionsTemplateSpec:
-          securityContext:
-            fsGroup: 9999
-          nodeSelector:
-            test: value
-    asserts:
-      - notExists:
-          path: spec.template.spec.securityContext
-      - equal:
-          path: spec.template.spec.nodeSelector.test
-          value: value
-
-  - it: should render default podSecurityContext
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 65532
-
-  - it: should render default containerSecurityContext
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext
-          value:
-            runAsUser: 65532
-            runAsGroup: 65532
-            runAsNonRoot: true
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
-              add:
-                - NET_BIND_SERVICE
-
-  - it: should render podSecurityContext with all common fields
-    template: statefulset-server.yaml
-    set:
-      server:
-        podSecurityContext:
-          enabled: true
-          fsGroup: 2000
-          fsGroupChangePolicy: OnRootMismatch
-          runAsUser: 1000
-          runAsGroup: 3000
-          runAsNonRoot: true
-          supplementalGroups: [4000, 5000]
-          seccompProfile:
-            type: RuntimeDefault
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value:
-            fsGroup: 2000
-            fsGroupChangePolicy: OnRootMismatch
-            runAsUser: 1000
-            runAsGroup: 3000
-            runAsNonRoot: true
-            supplementalGroups: [4000, 5000]
-            seccompProfile:
-              type: RuntimeDefault
-
-  # StatefulSet-specific tests
-  - it: should render minReadySeconds in extraOptionsSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsSpec:
-          minReadySeconds: 30
-    asserts:
-      - equal:
-          path: spec.minReadySeconds
-          value: 30
-
-  - it: should render persistentVolumeClaimRetentionPolicy in extraOptionsSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsSpec:
-          persistentVolumeClaimRetentionPolicy:
-            whenDeleted: Retain
-            whenScaled: Delete
-    asserts:
-      - equal:
-          path: spec.persistentVolumeClaimRetentionPolicy
-          value:
-            whenDeleted: Retain
-            whenScaled: Delete
-
-  - it: should render volumeClaimTemplates in extraOptionsSpec
-    template: statefulset-server.yaml
-    set:
-      server:
-        extraOptionsSpec:
-          volumeClaimTemplates:
-            - metadata:
-                name: data
-              spec:
-                accessModes: ["ReadWriteOnce"]
-                resources:
-                  requests:
-                    storage: 10Gi
-    asserts:
-      - lengthEqual:
-          path: spec.volumeClaimTemplates
-          count: 1
-      - equal:
-          path: spec.volumeClaimTemplates[0].metadata.name
-          value: data
-      - equal:
-          path: spec.volumeClaimTemplates[0].spec.accessModes[0]
-          value: ReadWriteOnce
-
-  # ServiceAccount tests
-  - it: should use default serviceAccount
-    template: statefulset-server.yaml
-    asserts:
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: release-name-studios-sa
-
-  - it: should use custom serviceAccount
-    template: statefulset-server.yaml
-    set:
-      serviceAccount:
-        name: custom-sa
-    asserts:
-      - equal:
-          path: spec.template.spec.serviceAccountName
-          value: custom-sa
+- it: should evaluate template expressions in commonAnnotations
+  template: statefulset-server.yaml
+  release:
+    name: my-release
+  set:
+    commonAnnotations:
+      release-annotation: '{{ .Release.Name }}-annotation'
+      chart-annotation: '{{ .Chart.Name }}'
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        release-annotation: my-release-annotation
+        chart-annotation: studios
+- it: should not render annotations when commonAnnotations is empty
+  template: statefulset-server.yaml
+  set:
+    commonAnnotations: {}
+  asserts:
+  - notExists:
+      path: metadata.annotations
+- it: should handle empty extraEnvVars array gracefully without redis auth
+  template: statefulset-server.yaml
+  set:
+    redis:
+      password: ''
+      existingSecretName: ''
+    server:
+      extraEnvVars: []
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].env
+      value: null
+- it: should include component label in statefulset metadata
+  template: statefulset-server.yaml
+  asserts:
+  - equal:
+      path: metadata.labels["app.kubernetes.io/component"]
+      value: server
+- it: should render podAnnotations as-is without template evaluation
+  template: statefulset-server.yaml
+  release:
+    name: my-release
+  set:
+    server:
+      podAnnotations:
+        static-annotation: my-value
+        example-template: '{{ .Release.Name }}-annotation'
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations["static-annotation"]
+      value: my-value
+  - equal:
+      path: spec.template.metadata.annotations["example-template"]
+      value: '{{ .Release.Name }}-annotation'
+- it: should render all envFrom sources in correct order without redis auth
+  template: statefulset-server.yaml
+  set:
+    redis:
+      password: ''
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.containers[0].envFrom
+      count: 2
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[0]
+      value:
+        configMapRef:
+          name: release-name-studios-common
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[1]
+      value:
+        configMapRef:
+          name: release-name-studios-server
+- it: should render multiple extraEnvVarsCM and extraEnvVarsSecret in correct order
+  template: statefulset-server.yaml
+  set:
+    redis:
+      password: my-password
+    server:
+      extraEnvVarsCM: extra-cm
+      extraEnvVarsSecret: extra-secret
+  asserts:
+  - lengthEqual:
+      path: spec.template.spec.containers[0].envFrom
+      count: 4
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[0].configMapRef.name
+      value: release-name-studios-common
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[1].configMapRef.name
+      value: release-name-studios-server
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[2].configMapRef.name
+      value: extra-cm
+  - equal:
+      path: spec.template.spec.containers[0].envFrom[3].secretRef.name
+      value: extra-secret
+  - lengthEqual:
+      path: spec.template.spec.containers[0].env
+      count: 1
+  - equal:
+      path: spec.template.spec.containers[0].env[0].name
+      value: CONNECT_REDIS_PASSWORD
+- it: should include configMapRef for studios-common
+  template: statefulset-server.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        configMapRef:
+          name: release-name-studios-common
+- it: should include configMapRef for studios-server
+  template: statefulset-server.yaml
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].envFrom
+      content:
+        configMapRef:
+          name: release-name-studios-server
+- it: should render image with registry and digest
+  template: statefulset-server.yaml
+  set:
+    server:
+      image:
+        registry: my-registry.example.com
+        digest: sha256:abcd1234
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-server@sha256:abcd1234
+- it: should render container with correct imagePullPolicy
+  template: statefulset-server.yaml
+  set:
+    server:
+      image:
+        pullPolicy: Always
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].imagePullPolicy
+      value: Always
+- it: should not render imagePullSecrets when empty
+  template: statefulset-server.yaml
+  set:
+    server:
+      image:
+        pullSecrets: []
+  asserts:
+  - equal:
+      path: spec.template.spec.imagePullSecrets
+      value: null
+- it: should omit the enabled field from podSecurityContext
+  template: statefulset-server.yaml
+  set:
+    server:
+      podSecurityContext:
+        enabled: true
+        fsGroup: 1000
+        runAsNonRoot: true
+  asserts:
+  - equal:
+      path: spec.template.spec.securityContext
+      value:
+        fsGroup: 1000
+        runAsNonRoot: true
+- it: should not render container security context when disabled
+  template: statefulset-server.yaml
+  set:
+    server:
+      containerSecurityContext:
+        enabled: false
+  asserts:
+  - notExists:
+      path: spec.template.spec.containers[0].securityContext
+- it: should render default podSecurityContext
+  template: statefulset-server.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.securityContext
+      value:
+        fsGroup: 65532
+- it: should render persistentVolumeClaimRetentionPolicy in extraOptionsSpec
+  template: statefulset-server.yaml
+  set:
+    server:
+      extraOptionsSpec:
+        persistentVolumeClaimRetentionPolicy:
+          whenDeleted: Retain
+          whenScaled: Delete
+  asserts:
+  - equal:
+      path: spec.persistentVolumeClaimRetentionPolicy
+      value:
+        whenDeleted: Retain
+        whenScaled: Delete

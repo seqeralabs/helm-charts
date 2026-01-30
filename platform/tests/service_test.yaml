@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
 #
-# Copyright (c) 2025 Seqera Labs
+# Copyright (c) 2025 - 2026 Seqera Labs
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -24,1049 +24,499 @@ chart:
   version: 9.9.9
   appVersion: "1.2.3+asdf"
 tests:
-  - it: should render 3 services by default
-    asserts:
-      - hasDocuments:
-          count: 3
-
-  - it: should render backend service correctly by default
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ClusterIP
-            selector:
-              app.kubernetes.io/component: backend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8080
-
-  - it: should render cron service correctly by default
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ClusterIP
-            selector:
-              app.kubernetes.io/component: cron
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8082
-
-  - it: should render frontend service correctly by default
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ClusterIP
-            selector:
-              app.kubernetes.io/component: frontend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 80
-                targetPort: 8083
-
-  - it: should render backend service with custom targetPort when requested, in v26
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    chart:
-      appVersion: "26"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 9090
-
-  - it: should render backend service with custom targetPort when requested, in v26.1.2
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    chart:
-      appVersion: "26.1.2"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 9090
-
-  - it: should render backend service with custom targetPort when requested, in v25.4
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    chart:
-      appVersion: "25.4.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 9090
-
-  - it: should render backend service with custom targetPort when requested, in v25.4.0+asdf
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    chart:
-      appVersion: "25.4.0+asdf"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 9090
-
-  - it: should render backend service with custom targetPort when requested, in v25.3
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    chart:
-      appVersion: "25.3.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 9090
-
-  - it: should not render backend service with custom targetPort when v25.2.0
-    chart:
-      appVersion: "25.2.0"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - failedTemplate:
-          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
-
-  - it: should not render backend service with custom targetPort when v25.2.0+asdf
-    chart:
-      appVersion: "25.2.0+asdf"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - failedTemplate:
-          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
-
-  - it: should not render backend service with custom targetPort when v24.8
-    chart:
-      appVersion: "24.8.0+asdf"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - failedTemplate:
-          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
-
-  - it: should not render backend service with custom targetPort when v24
-    chart:
-      appVersion: "24"
-    set:
-      backend:
-        service:
-          http:
-            targetPort: 9090
-    asserts:
-      - failedTemplate:
-          errorPattern: "backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not support custom target ports (must be 8080)"
-
-  - it: should render backend service with custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: NodePort
-          http:
-            nodePort: 30080
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: NodePort
-            selector:
-              app.kubernetes.io/component: backend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8080
-                nodePort: 30080
-
-  - it: should render cron service with custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: NodePort
-          http:
-            nodePort: 30081
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: NodePort
-            selector:
-              app.kubernetes.io/component: cron
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8082
-                nodePort: 30081
-
-  - it: should render frontend service with custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: NodePort
-          http:
-            nodePort: 30082
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: NodePort
-            selector:
-              app.kubernetes.io/component: frontend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 80
-                targetPort: 8083
-                nodePort: 30082
-
-  - it: should render backend service with LoadBalancer type and custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: LoadBalancer
-          http:
-            nodePort: 30080
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: LoadBalancer
-            selector:
-              app.kubernetes.io/component: backend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8080
-                nodePort: 30080
-
-  - it: should render cron service with LoadBalancer type and custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: LoadBalancer
-          http:
-            nodePort: 30081
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: LoadBalancer
-            selector:
-              app.kubernetes.io/component: cron
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8082
-                nodePort: 30081
-
-  - it: should render frontend service with LoadBalancer type and custom nodePort when requested
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: LoadBalancer
-          http:
-            nodePort: 30082
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: LoadBalancer
-            selector:
-              app.kubernetes.io/component: frontend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 80
-                targetPort: 8083
-                nodePort: 30082
-
-  - it: should render backend service with ExternalName type and external address, ignoring nodePort
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ExternalName
-          extraOptions:
-            externalName: my-external-service.example.com
-          http:
-            nodePort: 30080
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ExternalName
-            externalName: my-external-service.example.com
-            selector:
-              app.kubernetes.io/component: backend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8080
-
-  - it: should render cron service with ExternalName type and external address, ignoring nodePort
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: ExternalName
-          extraOptions:
-            externalName: my-external-service.example.com
-          http:
-            nodePort: 30081
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ExternalName
-            externalName: my-external-service.example.com
-            selector:
-              app.kubernetes.io/component: cron
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8082
-
-  - it: should render frontend service with ExternalName type and external address, ignoring nodePort
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: ExternalName
-          extraOptions:
-            externalName: my-external-service.example.com
-          http:
-            nodePort: 30082
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ExternalName
-            externalName: my-external-service.example.com
-            selector:
-              app.kubernetes.io/component: frontend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 80
-                targetPort: 8083
-
-  - it: should not render backend service with custom nodePort when not using NodePort or LoadBalancer
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-          http:
-            nodePort: 30080
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ClusterIP
-            selector:
-              app.kubernetes.io/component: backend
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8080
-
-  - it: should not render cron service with custom nodePort when not using NodePort or LoadBalancer
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: ClusterIP
-          http:
-            nodePort: 30081
-    asserts:
-      - equal:
-          path: spec
-          value:
-            type: ClusterIP
-            selector:
-              app.kubernetes.io/component: cron
-              app.kubernetes.io/name: platform
-              app.kubernetes.io/instance: RELEASE-NAME
-            ports:
-              - name: http
-                port: 8080
-                targetPort: 8082
-
-  - it: should not render frontend service with custom nodePort when not using NodePort or LoadBalancer
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: ClusterIP
-          http:
-            nodePort: 30082
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render backend service correctly with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render cron service correctly with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render frontend service correctly with default values
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render backend service correctly with custom ports and custom service name
-    documentSelector:
-      path: metadata.name
-      value: custom-backend-service-name
-    chart:
-      appVersion: "25.6.3"
-    set:
-      global:
-        platformServiceAddress: custom-backend-service-name
-        platformServicePort: 9123
-      backend:
-        service:
-          http:
-            name: custom-http-name
-            port: 9090
-            targetPort: 9090
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render cron service correctly with custom ports and custom service name
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          http:
-            name: custom-http-name
-            port: 9090
-            targetPort: 9090
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should render frontend service correctly with custom ports and custom service name
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          http:
-            name: custom-http-name
-            port: 9090
-            targetPort: 9090
-    asserts:
-      - matchSnapshot: {}
-
-  - it: should merge commonLabels and platform.serviceLabels
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3-asdf
-    set:
-      commonLabels:
-        commonKey: commonValue
+- it: should render 3 services by default
+  asserts:
+  - hasDocuments:
+      count: 3
+- it: should render backend service correctly by default
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ClusterIP
+        selector:
+          app.kubernetes.io/component: backend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+- it: should render cron service correctly by default
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ClusterIP
+        selector:
+          app.kubernetes.io/component: cron
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8082
+- it: should render frontend service correctly by default
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ClusterIP
+        selector:
+          app.kubernetes.io/component: frontend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 80
+          targetPort: 8083
+- it: should render backend service with custom targetPort when requested, in v26.1.2
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  chart:
+    appVersion: 26.1.2
+  set:
+    backend:
+      service:
+        http:
+          targetPort: 9090
+  asserts:
+  - equal:
+      path: spec.ports[0].targetPort
+      value: 9090
+- it: should render backend service with custom targetPort when requested, in v25.4.0+asdf
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  chart:
+    appVersion: 25.4.0+asdf
+  set:
+    backend:
+      service:
+        http:
+          targetPort: 9090
+  asserts:
+  - equal:
+      path: spec.ports[0].targetPort
+      value: 9090
+- it: should not render backend service with custom targetPort when v25.2.0
+  chart:
+    appVersion: 25.2.0
+  set:
+    backend:
+      service:
+        http:
+          targetPort: 9090
+  asserts:
+  - failedTemplate:
+      errorPattern: backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not
+        support custom target ports (must be 8080)
+- it: should not render backend service with custom targetPort when v24.8
+  chart:
+    appVersion: 24.8.0+asdf
+  set:
+    backend:
+      service:
+        http:
+          targetPort: 9090
+  asserts:
+  - failedTemplate:
+      errorPattern: backend.service.http.targetPort can only be customized in Platform v25.3.0+. Current version does not
+        support custom target ports (must be 8080)
+- it: should render backend service with custom nodePort when requested
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: NodePort
+        http:
+          nodePort: 30080
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: NodePort
+        selector:
+          app.kubernetes.io/component: backend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+          nodePort: 30080
+- it: should render frontend service with custom nodePort when requested
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  set:
+    frontend:
+      service:
+        type: NodePort
+        http:
+          nodePort: 30082
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: NodePort
+        selector:
+          app.kubernetes.io/component: frontend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 80
+          targetPort: 8083
+          nodePort: 30082
+- it: should render cron service with LoadBalancer type and custom nodePort when requested
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      service:
+        type: LoadBalancer
+        http:
+          nodePort: 30081
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: LoadBalancer
+        selector:
+          app.kubernetes.io/component: cron
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8082
+          nodePort: 30081
+- it: should render backend service with ExternalName type and external address, ignoring nodePort
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: ExternalName
+        extraOptions:
+          externalName: my-external-service.example.com
+        http:
+          nodePort: 30080
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ExternalName
+        externalName: my-external-service.example.com
+        selector:
+          app.kubernetes.io/component: backend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+- it: should render frontend service with ExternalName type and external address, ignoring nodePort
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  set:
+    frontend:
+      service:
+        type: ExternalName
+        extraOptions:
+          externalName: my-external-service.example.com
+        http:
+          nodePort: 30082
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ExternalName
+        externalName: my-external-service.example.com
+        selector:
+          app.kubernetes.io/component: frontend
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 80
+          targetPort: 8083
+- it: should not render cron service with custom nodePort when not using NodePort or LoadBalancer
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      service:
+        type: ClusterIP
+        http:
+          nodePort: 30081
+  asserts:
+  - equal:
+      path: spec
+      value:
+        type: ClusterIP
+        selector:
+          app.kubernetes.io/component: cron
+          app.kubernetes.io/name: platform
+          app.kubernetes.io/instance: RELEASE-NAME
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8082
+- it: should render backend service correctly with default values
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  asserts:
+  - matchSnapshot: {}
+- it: should render frontend service correctly with default values
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  asserts:
+  - matchSnapshot: {}
+- it: should render cron service correctly with custom ports and custom service name
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      service:
+        http:
+          name: custom-http-name
+          port: 9090
+          targetPort: 9090
+  asserts:
+  - matchSnapshot: {}
+- it: should merge commonLabels and platform.serviceLabels
+  chart:
+    version: 9.8.7
+    appVersion: v1.2.3-asdf
+  set:
+    commonLabels:
+      commonKey: commonValue
+      anotherCommonKey: anotherCommonValue
+    platform:
+      serviceLabels:
+        platformKey: platformValue
+        commonKey: platformOverrideValue
+  asserts:
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v1.2.3-asdf
+        helm.sh/chart: platform-9.8.7
+        commonKey: platformOverrideValue
         anotherCommonKey: anotherCommonValue
-      platform:
-        serviceLabels:
-          platformKey: platformValue
-          commonKey: platformOverrideValue # platform.serviceLabels should override commonLabels
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3-asdf
-            helm.sh/chart: platform-9.8.7
-            commonKey: platformOverrideValue
-            anotherCommonKey: anotherCommonValue
-            platformKey: platformValue
-
-  - it: should render commonLabels with templated values
-    chart:
-      version: 9.8.7
-      appVersion: v1.2.3-asdf
-    set:
-      commonLabels:
-        commonLabelKey: commonLabelValue
-        templatedLabelKey: "{{ .Values.global.platformServicePort | default 8441 }}"
-      backend:
-        service:
-          type: ClusterIP
-    asserts:
-      - equal:
-          path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/version: v1.2.3-asdf
-            helm.sh/chart: platform-9.8.7
-            commonLabelKey: commonLabelValue
-            templatedLabelKey: "8080"
-
-  - it: should apply commonAnnotations
-    set:
-      commonAnnotations:
+        platformKey: platformValue
+- it: should apply commonAnnotations
+  set:
+    commonAnnotations:
+      commonAnnotationKey: commonAnnotationValue
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
         commonAnnotationKey: commonAnnotationValue
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            commonAnnotationKey: commonAnnotationValue
-
-  - it: should apply platform.serviceAnnotations
-    set:
-      platform:
-        serviceAnnotations:
-          platformAnnotationKey: platformAnnotationValue
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            platformAnnotationKey: platformAnnotationValue
-
-  - it: should merge commonAnnotations and platform.serviceAnnotations
-    set:
-      commonAnnotations:
-        commonAnnotationKey: commonAnnotationValue
+- it: should merge commonAnnotations and platform.serviceAnnotations
+  set:
+    commonAnnotations:
+      commonAnnotationKey: commonAnnotationValue
+      anotherCommonAnnotationKey: anotherCommonAnnotationValue
+    platform:
+      serviceAnnotations:
+        platformAnnotationKey: platformAnnotationValue
+        commonAnnotationKey: platformAnnotationOverrideValue
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        commonAnnotationKey: platformAnnotationOverrideValue
         anotherCommonAnnotationKey: anotherCommonAnnotationValue
-      platform:
-        serviceAnnotations:
-          platformAnnotationKey: platformAnnotationValue
-          commonAnnotationKey: platformAnnotationOverrideValue # platform.serviceAnnotations should override commonAnnotations
-    asserts:
-      - equal:
-          path: metadata.annotations
-          value:
-            commonAnnotationKey: platformAnnotationOverrideValue
-            anotherCommonAnnotationKey: anotherCommonAnnotationValue
-            platformAnnotationKey: platformAnnotationValue
-
-  - it: should not apply custom .podLabels to service selector, only if they override standard labels
-    set:
-      backend:
-        podLabels:
-          podLabelKey: podLabelValueBackend
-          app.kubernetes.io/name: customBackend
-      cron:
-        podLabels:
-          podLabelKey: podLabelValueCron
-          app.kubernetes.io/name: customCron
-      frontend:
-        podLabels:
-          podLabelKey: podLabelValueFrontend
-          app.kubernetes.io/name: customFrontend
-    asserts:
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/component: backend
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: customBackend
-        documentSelector:
-          path: metadata.name
-          value: release-name-platform-backend
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/component: cron
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: customCron
-        documentSelector:
-          path: metadata.name
-          value: release-name-platform-cron
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/component: cron
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/name: customCron
-        documentSelector:
-          path: metadata.name
-          value: release-name-platform-cron
-
-  - it: should render backend service with extraOptions
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-          extraOptions:
-            sessionAffinity: ClientIP
-            loadBalancerIP: 1.2.3.4
-    asserts:
-      - equal:
-          path: spec.sessionAffinity
-          value: ClientIP
-      - equal:
-          path: spec.loadBalancerIP
-          value: 1.2.3.4
-
-  - it: should not render extraOptions if not defined for backend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-    asserts:
-      - notExists:
-          path: spec.sessionAffinity
-      - notExists:
-          path: spec.loadBalancerIP
-
-  - it: should omit selector, type, and ports from extraOptions for backend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-          extraOptions:
-            selector:
-              app.kubernetes.io/component: test
-            type: NodePort
-            ports:
-              - port: 80
-            customOption: customValue
-    asserts:
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/component: backend
-      - equal:
-          path: spec.type
-          value: ClusterIP
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 8080
-              targetPort: 8080
-      - equal:
-          path: spec.customOption
-          value: customValue
-
-  - it: should render backend service with extra ports when defined
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          extraServices:
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-    asserts:
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 8080
-              targetPort: 8080
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-
-  - it: should render cron service with extra ports when defined
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          extraServices:
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-    asserts:
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 8080
-              targetPort: 8082
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-
-  - it: should render frontend service with extra ports when defined
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          extraServices:
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-    asserts:
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 80
-              targetPort: 8083
-            - name: "extra-port-for-custom-service"
-              port: 8888
-              targetPort: 8888
-
-  - it: should verify http.name is set correctly for backend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-          http:
-            name: custom-http
-            port: 80
-    asserts:
-      - equal:
-          path: spec.ports[0].name
-          value: custom-http
-
-  - it: should verify port uses global.platformServicePort for backend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      global:
-        platformServicePort: 8081
-      backend:
-        service:
-          type: ClusterIP
-    asserts:
-      - equal:
-          path: spec.ports[0].port
-          value: 8081
-
-  - it: should verify targetPort is hardcoded to 8080 for backend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-backend
-    set:
-      backend:
-        service:
-          type: ClusterIP
-          targetPort: 9090  # This is currently getting ignored, backend targetPort is hardcoded.
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 8080
-
-  - it: should render cron service with extraOptions
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: ClusterIP
-          extraOptions:
-            sessionAffinity: ClientIP
-            loadBalancerIP: 1.2.3.4
-    asserts:
-      - equal:
-          path: spec.sessionAffinity
-          value: ClientIP
-      - equal:
-          path: spec.loadBalancerIP
-          value: 1.2.3.4
-
-  - it: should not render extraOptions if not defined for cron service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: ClusterIP
-    asserts:
-      - notExists:
-          path: spec.sessionAffinity
-      - notExists:
-          path: spec.loadBalancerIP
-
-  - it: should omit selector, type, and ports from extraOptions for cron service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          type: ClusterIP
-          extraOptions:
-            selector:
-              app.kubernetes.io/component: test
-            type: NodePort
-            ports:
-              - port: 80
-            customOption: customValue
-    asserts:
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/component: cron
-      - equal:
-          path: spec.type
-          value: ClusterIP
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 8080
-              targetPort: 8082
-      - equal:
-          path: spec.customOption
-          value: customValue
-
-  - it: should render frontend service with extraOptions
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: ClusterIP
-          extraOptions:
-            sessionAffinity: ClientIP
-            loadBalancerIP: 1.2.3.4
-    asserts:
-      - equal:
-          path: spec.sessionAffinity
-          value: ClientIP
-      - equal:
-          path: spec.loadBalancerIP
-          value: 1.2.3.4
-
-  - it: should not render extraOptions if not defined for frontend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: ClusterIP
-    asserts:
-      - notExists:
-          path: spec.sessionAffinity
-      - notExists:
-          path: spec.loadBalancerIP
-
-  - it: should omit selector, type, and ports from extraOptions for frontend service
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          type: ClusterIP
-          extraOptions:
-            selector:
-              app.kubernetes.io/component: test
-            type: NodePort
-            ports:
-              - port: 80
-            customOption: customValue
-    asserts:
-      - equal:
-          path: spec.selector
-          value:
-            app.kubernetes.io/name: platform
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/component: frontend
-      - equal:
-          path: spec.type
-          value: ClusterIP
-      - equal:
-          path: spec.ports
-          value:
-            - name: http
-              port: 80
-              targetPort: 8083
-      - equal:
-          path: spec.customOption
-          value: customValue
-
-  - it: should verify cron service port can be customized
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          http:
-            port: 8181
-    asserts:
-      - equal:
-          path: spec.ports[0].port
-          value: 8181
-
-  - it: should verify cron service targetPort can be customized
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-cron
-    set:
-      cron:
-        service:
-          http:
-            targetPort: 8282
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 8282
-
-  - it: should verify frontend service port can be customized
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          http:
-            port: 82
-    asserts:
-      - equal:
-          path: spec.ports[0].port
-          value: 82
-
-  - it: should verify frontend service targetPort can be customized
-    documentSelector:
-      path: metadata.name
-      value: release-name-platform-frontend
-    set:
-      frontend:
-        service:
-          http:
-            targetPort: 8383
-    asserts:
-      - equal:
-          path: spec.ports[0].targetPort
-          value: 8383
+        platformAnnotationKey: platformAnnotationValue
+- it: should render backend service with extraOptions
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: ClusterIP
+        extraOptions:
+          sessionAffinity: ClientIP
+          loadBalancerIP: 1.2.3.4
+  asserts:
+  - equal:
+      path: spec.sessionAffinity
+      value: ClientIP
+  - equal:
+      path: spec.loadBalancerIP
+      value: 1.2.3.4
+- it: should omit selector, type, and ports from extraOptions for backend service
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: ClusterIP
+        extraOptions:
+          selector:
+            app.kubernetes.io/component: test
+          type: NodePort
+          ports:
+          - port: 80
+          customOption: customValue
+  asserts:
+  - equal:
+      path: spec.selector
+      value:
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/component: backend
+  - equal:
+      path: spec.type
+      value: ClusterIP
+  - equal:
+      path: spec.ports
+      value:
+      - name: http
+        port: 8080
+        targetPort: 8080
+  - equal:
+      path: spec.customOption
+      value: customValue
+- it: should render cron service with extra ports when defined
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      service:
+        extraServices:
+        - name: extra-port-for-custom-service
+          port: 8888
+          targetPort: 8888
+  asserts:
+  - equal:
+      path: spec.ports
+      value:
+      - name: http
+        port: 8080
+        targetPort: 8082
+      - name: extra-port-for-custom-service
+        port: 8888
+        targetPort: 8888
+- it: should verify http.name is set correctly for backend service
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: ClusterIP
+        http:
+          name: custom-http
+          port: 80
+  asserts:
+  - equal:
+      path: spec.ports[0].name
+      value: custom-http
+- it: should verify targetPort is hardcoded to 8080 for backend service
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  set:
+    backend:
+      service:
+        type: ClusterIP
+        targetPort: 9090
+  asserts:
+  - equal:
+      path: spec.ports[0].targetPort
+      value: 8080
+- it: should not render extraOptions if not defined for cron service
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    cron:
+      service:
+        type: ClusterIP
+  asserts:
+  - notExists:
+      path: spec.sessionAffinity
+  - notExists:
+      path: spec.loadBalancerIP
+- it: should render frontend service with extraOptions
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  set:
+    frontend:
+      service:
+        type: ClusterIP
+        extraOptions:
+          sessionAffinity: ClientIP
+          loadBalancerIP: 1.2.3.4
+  asserts:
+  - equal:
+      path: spec.sessionAffinity
+      value: ClientIP
+  - equal:
+      path: spec.loadBalancerIP
+      value: 1.2.3.4
+- it: should omit selector, type, and ports from extraOptions for frontend service
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-frontend
+  set:
+    frontend:
+      service:
+        type: ClusterIP
+        extraOptions:
+          selector:
+            app.kubernetes.io/component: test
+          type: NodePort
+          ports:
+          - port: 80
+          customOption: customValue
+  asserts:
+  - equal:
+      path: spec.selector
+      value:
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/component: frontend
+  - equal:
+      path: spec.type
+      value: ClusterIP
+  - equal:
+      path: spec.ports
+      value:
+      - name: http
+        port: 80
+        targetPort: 8083
+  - equal:
+      path: spec.customOption
+      value: customValue
