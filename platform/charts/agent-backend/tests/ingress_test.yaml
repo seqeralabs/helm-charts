@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+suite: test agent-backend ingress
+templates:
+  - ingress.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should NOT render by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render when ingress.enabled is true
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: agent.example.com
+          paths:
+            - path: /
+              serviceName: agent-backend-svc
+              portNumber: 8002
+    asserts:
+      - isKind:
+          of: Ingress
+      - matchSnapshot: {}
+
+  - it: should set ingressClassName
+    set:
+      ingress.enabled: true
+      ingress.ingressClassName: nginx
+      ingress.extraHosts:
+        - host: agent.example.com
+          paths:
+            - path: /
+              serviceName: agent-backend-svc
+              portNumber: 8002
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should configure TLS
+    set:
+      ingress.enabled: true
+      ingress.tls:
+        - hosts:
+            - agent.example.com
+          secretName: agent-tls
+      ingress.extraHosts:
+        - host: agent.example.com
+          paths:
+            - path: /
+              serviceName: agent-backend-svc
+              portNumber: 8002
+    asserts:
+      - isNotNull:
+          path: spec.tls
+      - equal:
+          path: spec.tls[0].secretName
+          value: agent-tls

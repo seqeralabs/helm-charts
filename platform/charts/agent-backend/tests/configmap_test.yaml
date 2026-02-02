@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+suite: test agent-backend configmap
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a ConfigMap with default values
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchSnapshot: {}
+
+  - it: should contain database configuration
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.port: 3306
+      database.name: agentdb
+      database.username: agentuser
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_HOST
+          value: mysql.default.svc.cluster.local
+      - equal:
+          path: data.AGENT_BACKEND_DB_PORT
+          value: "3306"
+      - equal:
+          path: data.AGENT_BACKEND_DB_NAME
+          value: agentdb
+      - equal:
+          path: data.AGENT_BACKEND_DB_USER
+          value: agentuser
+
+  - it: should contain platform URLs
+    set:
+      global.platformExternalDomain: prod.example.com
+      global.mcpExternalDomain: mcp.prod.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_API_URL
+          value: "https://prod.example.com/api"
+      - equal:
+          path: data.SEQERA_MCP_URL
+          value: "https://mcp.prod.example.com/mcp"

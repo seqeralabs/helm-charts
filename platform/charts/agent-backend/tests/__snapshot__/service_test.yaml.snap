@@ -1,0 +1,17 @@
+should render a Service with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/component: agent-backend
+      name: release-name-agent-backend
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 80
+          targetPort: 8002
+      selector:
+        app.kubernetes.io/component: agent-backend
+      type: ClusterIP

@@ -1181,3 +1181,8 @@ pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the
   # full list of configuration options
   enabled: true
+
+agent-backend:
+  # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for 
+  # more details and the full list of configuration options
+  enabled: true

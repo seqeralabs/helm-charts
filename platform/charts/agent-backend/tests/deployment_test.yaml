@@ -1,0 +1,246 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test agent-backend deployment
+templates:
+  - deployment.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a Deployment with default values
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+      agentBackend.anthropicApiKey.apiKey: test-anthropic-key
+      agentBackend.langchainApiKey.apiKey: test-langchain-key
+    asserts:
+      - isKind:
+          of: Deployment
+      - matchSnapshot: {}
+
+  - it: should set custom replica count
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      agentBackend.replicaCount: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+
+  - it: should use custom image
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      agentBackend.image.registry: custom-registry.io
+      agentBackend.image.repository: custom/agent-backend
+      agentBackend.image.tag: v1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: custom-registry.io/custom/agent-backend:v1.2.3
+
+  - it: should include envFrom references
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: release-name-agent-backend
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: release-name-agent-backend
+
+  - it: should mount extra volumes
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      extraVolumes:
+        - name: custom-volume
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: custom-volume
+          mountPath: /custom
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: custom-volume
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: custom-volume
+            mountPath: /custom
+
+  - it: should apply custom resources
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      agentBackend.resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 500m
+          memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+
+  - it: should include init containers
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      agentBackend.initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: ['sh', '-c', 'echo waiting']
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: wait-for-db
+            image: busybox
+            command: ['sh', '-c', 'echo waiting']
+
+  - it: should apply common labels
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should include both built-in init containers by default
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init
+
+  - it: should allow disabling individual init containers
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+      initContainerDependencies.waitForMySQL.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: init
+
+  - it: should support custom init containers alongside built-in ones
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+      initContainerDependencies.enabled: true
+      initContainerDependencies.waitForMySQL.enabled: true
+      initContainerDependencies.init.enabled: true
+      agentBackend.initContainers:
+        - name: custom-init
+          image: busybox
+          command: ['sh', '-c', 'echo custom']
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: custom-init

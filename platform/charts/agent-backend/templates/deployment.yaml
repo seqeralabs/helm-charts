@@ -1,0 +1,173 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app.kubernetes.io/component: agent-backend
+{{- with .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+{{- end }}
+
+spec:
+  replicas: {{ .Values.agentBackend.replicaCount }}
+{{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.agentBackend.podLabels .Values.commonLabels) "context" .) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
+      app.kubernetes.io/component: agent-backend
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+        app.kubernetes.io/component: agent-backend
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+
+    spec:
+      serviceAccountName: {{ include "agent-backend.serviceAccountName" . }}
+{{- if .Values.agentBackend.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.agentBackend.podSecurityContext "enabled" | toYaml | nindent 8 }}
+{{- end }}
+
+      initContainers:
+{{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.waitForMySQL.enabled }}
+        - name: wait-for-db
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+              until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+                echo "$(date): see you in 5 seconds"
+                sleep 5
+              done
+              echo "$(date): db server ready"
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: AGENT_BACKEND_DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: AGENT_BACKEND_DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: AGENT_BACKEND_DB_NAME
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: AGENT_BACKEND_DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "common.names.fullname" . }}
+                  key: AGENT_BACKEND_DB_PASSWORD
+          securityContext: {{- toYaml .Values.initContainerDependencies.waitForMySQL.securityContext | nindent 12 }}
+{{- if .Values.initContainerDependencies.waitForMySQL.resources }}
+          resources: {{- toYaml .Values.initContainerDependencies.waitForMySQL.resources | nindent 12 }}
+{{- end }}
+{{- end }}
+{{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.init.enabled }}
+        - name: init
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.agentBackend.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.agentBackend.image.pullPolicy }}
+          command: {{ .Values.initContainerDependencies.init.command | toYaml | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.names.fullname" . }}
+            - secretRef:
+                name: {{ include "common.names.fullname" . }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+{{- with .Values.extraVolumeMounts }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+          securityContext: {{- toYaml .Values.initContainerDependencies.init.securityContext | nindent 12 }}
+{{- if .Values.initContainerDependencies.init.resources }}
+          resources: {{- toYaml .Values.initContainerDependencies.init.resources | nindent 12 }}
+{{- end }}
+{{- end }}
+{{- with .Values.agentBackend.initContainers }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+      containers:
+        - name: agent-backend
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.agentBackend.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.agentBackend.image.pullPolicy }}
+{{- with .Values.agentBackend.command }}
+          command: {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.agentBackend.args }}
+          args: {{- toYaml . | nindent 12 }}
+{{- end }}
+          ports:
+            - name: http
+              containerPort: 8002
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.names.fullname" . }}
+            - secretRef:
+                name: {{ include "common.names.fullname" . }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+{{- with .Values.extraVolumeMounts }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+{{- end }}
+
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.livenessProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.readinessProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.startupProbe.enabled }}
+          startupProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.startupProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.agentBackend.resources }}
+          resources: {{- toYaml .Values.agentBackend.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- with .Values.extraVolumes }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+{{- if .Values.agentBackend.image.pullSecrets }}
+      imagePullSecrets:
+{{- range .Values.agentBackend.image.pullSecrets }}
+        - name: {{ . | quote }}
+{{- end }}
+{{- end }}

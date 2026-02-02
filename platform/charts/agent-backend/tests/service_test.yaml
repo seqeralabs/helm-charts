@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+suite: test agent-backend service
+templates:
+  - service.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a Service with default values
+    asserts:
+      - isKind:
+          of: Service
+      - matchSnapshot: {}
+
+  - it: should set custom service type
+    set:
+      agentBackend.service.type: NodePort
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+
+  - it: should set custom port
+    set:
+      agentBackend.service.http.port: 9000
+      agentBackend.service.http.targetPort: 9000
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 9000
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 9000
+
+  - it: should include nodePort when service type is NodePort
+    set:
+      agentBackend.service.type: NodePort
+      agentBackend.service.http.nodePort: 30080
+    asserts:
+      - equal:
+          path: spec.ports[0].nodePort
+          value: 30080
