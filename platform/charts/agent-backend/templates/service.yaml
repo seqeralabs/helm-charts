@@ -26,18 +26,18 @@ metadata:
   labels:
     app.kubernetes.io/component: agent-backend
 spec:
-  type: {{ .Values.agentBackend.service.type }}
+  type: {{ .Values.service.type }}
   selector:
     app.kubernetes.io/component: agent-backend
   ports:
-    - name: {{ tpl .Values.agentBackend.service.http.name . }}
-      port: {{ tpl (toString .Values.agentBackend.service.http.port) . | int }}
-{{- $targetPort := tpl (toString .Values.agentBackend.service.http.targetPort) . }}
+    - name: {{ tpl .Values.service.http.name . }}
+      port: {{ tpl (toString .Values.service.http.port) . | int }}
+{{- $targetPort := tpl (toString .Values.service.http.targetPort) . }}
 {{- if regexMatch "^[0-9]+$" $targetPort }}
       targetPort: {{ $targetPort | int }}
 {{- else }}
       targetPort: {{ $targetPort }}
 {{- end }}
-{{- if and .Values.agentBackend.service.http.nodePort (or (eq .Values.agentBackend.service.type "NodePort") (eq .Values.agentBackend.service.type "LoadBalancer")) }}
-      nodePort: {{ .Values.agentBackend.service.http.nodePort }}
+{{- if and .Values.service.http.nodePort (or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer")) }}
+      nodePort: {{ .Values.service.http.nodePort }}
 {{- end }}

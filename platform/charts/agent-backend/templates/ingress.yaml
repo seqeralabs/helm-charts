@@ -45,6 +45,17 @@ spec:
   {{- end }}
 
   rules:
+    {{/* Wildcard subdomain where to expose Studios */}}
+    - host: {{ tpl .Values.global.agentBackendDomain . | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path | quote }}
+            pathType: {{ .Values.ingress.defaultPathType }}
+            backend:
+              service:
+                name: {{ (include "common.names.fullname" .) | quote }}
+                port:
+                  number: {{ .Values.service.http.port }}
   {{- range .Values.ingress.extraHosts }}
     - host: {{ tpl .host $ | quote }}
       http:

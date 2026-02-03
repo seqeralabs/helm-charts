@@ -13,7 +13,6 @@ should render a Deployment with default values:
       name: release-name-agent-backend
       namespace: NAMESPACE
     spec:
-      replicas: 1
       selector:
         matchLabels:
           app.kubernetes.io/component: agent-backend
@@ -22,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 641a59e06733f8c4a165544d500970ddd990423723ff0e8a442fe50591e49aa0
+            checksum/configmap: 4fd3b6c3d69a041721baec8095e4140d5b3f5d9e2d2e719376085a1e601184d5
             checksum/secret: f075db11f29c8f74afed5d95834ff296872f4726283c2975429d4cd672cbbf02
           labels:
             app.kubernetes.io/component: agent-backend
@@ -38,7 +37,7 @@ should render a Deployment with default values:
                     name: release-name-agent-backend
                 - secretRef:
                     name: release-name-agent-backend
-              image: cr.seqera.io/private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: private/nf-tower-enterprise/agent-backend:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -51,7 +50,7 @@ should render a Deployment with default values:
                 timeoutSeconds: 3
               name: agent-backend
               ports:
-                - containerPort: 8002
+                - containerPort: "8002"
                   name: http
               readinessProbe:
                 failureThreshold: 5
@@ -102,15 +101,25 @@ should render a Deployment with default values:
                     secretKeyRef:
                       key: AGENT_BACKEND_DB_PASSWORD
                       name: release-name-agent-backend
+                - name: BBB_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
+                - name: CCC_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
               image: mysql:9
               imagePullPolicy: IfNotPresent
               name: wait-for-db
               resources:
                 limits:
-                  memory: 100Mi
+                  memory: 500Mi
                 requests:
-                  cpu: "0.5"
-                  memory: 50Mi
+                  cpu: 50m
+                  memory: 500Mi
               securityContext:
                 capabilities:
                   drop:
@@ -125,15 +134,9 @@ should render a Deployment with default values:
                     name: release-name-agent-backend
                 - secretRef:
                     name: release-name-agent-backend
-              image: cr.seqera.io/private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: private/nf-tower-enterprise/agent-backend:v9.9.9
               imagePullPolicy: IfNotPresent
               name: init
-              resources:
-                limits:
-                  memory: 500Mi
-                requests:
-                  cpu: 50m
-                  memory: 500Mi
               securityContext:
                 capabilities:
                   drop:

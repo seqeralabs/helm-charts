@@ -14,6 +14,16 @@ should render when ingress.enabled is true:
       namespace: NAMESPACE
     spec:
       rules:
+        - host: ai.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-agent-backend
+                    port:
+                      number: 80
+                path: /
+                pathType: ImplementationSpecific
         - host: agent.example.com
           http:
             paths:

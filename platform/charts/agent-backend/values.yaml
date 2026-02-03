@@ -21,6 +21,8 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
+  agentBackendDomain: ai.example.com
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   imageCredentials: []
@@ -59,94 +61,118 @@ database:
   # -- database dialect. Currently only 'mysql' is supported
   dialect: mysql
 
-agentBackend:
-  # Default values for agent-backend subchart.
-  
-  # -- Domain where Seqera MPC listens
-  mcpExternalDomain: mcp.example.com
+# -- Domain where Seqera MCP listens
+mcpExternalDomain: mcp.example.com
 
-  anthropicModel: "claude-sonnet-4-20250514"
-  image:
-    # -- Image registry
-    registry: ""
-    # -- Image repository
-    repository: "private/nf-tower-enterprise/agent-backend"
-    # -- Image tag (defaults to Chart appVersion if not specified)
-    tag: ""
-    # -- Image digest (overrides tag if specified)
-    digest: ""
-    # -- Image pull policy
-    pullPolicy: IfNotPresent
-    # -- Image pull secrets
-    pullSecrets: []
+anthropicModel: "claude-sonnet-4-20250514"
+image:
+  # -- Image registry
+  registry: ""
+  # -- Image repository
+  repository: "private/nf-tower-enterprise/agent-backend"
+  # -- Image tag (defaults to Chart appVersion if not specified)
+  tag: ""
+  # -- Image digest (overrides tag if specified)
+  digest: ""
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Image pull secrets
+  pullSecrets: []
 
-  # -- Override the default command
-  command: []
-  # -- Override the default args
-  args: []
+# -- Override the default command
+command: []
+# -- Override the default args
+args: []
 
-  # -- Service configuration
-  service:
-    # -- Service type
-    type: ClusterIP
-    http:
-      name: http
-      # -- Service port
-      port: 80
-      # -- Container target port
-      targetPort: 8002
-      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
-      # Choose port between 30000-32767, unless the cluster was configured differently than default
-      nodePort: null
+# -- Service configuration
+service:
+  # -- Service type
+  type: ClusterIP
+  http:
+    name: http
+    # -- Service port
+    port: 80
+    # -- Container target port
+    targetPort: 8002
+    # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+    # Choose port between 30000-32767, unless the cluster was configured differently than default
+    nodePort: null
 
-  # -- Additional init containers for the backend pod. Evaluated as a template
-  initContainers: []
+# -- Additional init containers for the backend pod. Evaluated as a template
+agentInitContainers: []
 
-  # -- Extra environment variables
-  # @default -- See values.yaml
-  extraEnvVars: []
-    # - name: MY_ENV_VAR
-    #   value: "my-value"
+# -- Extra environment variables
+extraEnvVars: []
+# extraEnvVars:
+#   - name: "CUSTOM_ENV_VAR"
+#     value: "set-a-value-here"
 
-  # -- ConfigMaps to mount as environment variables
-  extraEnvVarsCMs: []
-    # - my-configmap
+# -- ConfigMaps to mount as environment variables
+extraEnvVarsCMs: []
+  # - my-configmap
 
-  # -- Secrets to mount as environment variables
-  extraEnvVarsSecrets: []
-    # - my-secret
+# -- Secrets to mount as environment variables
+extraEnvVarsSecrets: []
+  # - my-secret
 
-  # -- Resource limits and requests
-  resources: {}
-    # requests:
-    #   cpu: 100m
-    #   memory: 1000Mi
-    # limits:
-    #   memory: 1000Mi
+# -- Resource limits and requests
+resources: {}
+  # requests:
+  #   cpu: 100m
+  #   memory: 1000Mi
+  # limits:
+  #   memory: 1000Mi
 
-  # -- Pod security context
-  podSecurityContext:
-    enabled: true
-    fsGroup: 101
+# -- Pod security context
+podSecurityContext:
+  enabled: true
+  fsGroup: 101
+  runAsNonRoot: true
+
+# -- Pod labels
+podLabels: {}
+
+# -- Environment (e.g., production, development)
+environment: production
+
+# -- Log level (e.g., INFO, DEBUG, WARNING, ERROR)
+logLevel: INFO
+
+# -- Anthropic API key (inline, not recommended for production)
+anthropicApiKey: ""
+# -- Name of an existing Secret containing the Anthropic API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+anthropicApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the Anthropic API key
+# @default -- `"ANTHROPIC_API_KEY"`
+anthropicApiKeyExistingSecretKey: ""
+
+# -- LangChain API key (inline, not recommended for production)
+langchainApiKey:
+# -- Name of an existing Secret containing the LangChain API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+langchainApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the LangChain API key
+# @default -- `"LANGCHAIN_API_KEY"`
+langchainApiKeyExistingSecretKey: ""
+
+
+initContainedDbMigrations:
+  # -- Command to run in the init container
+  command:
+    - './init.sh'
+
+  securityContext:
+    # -- UID the container processes run as (overrides container image default)
+    runAsUser: 101
+    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
     runAsNonRoot: true
-
-  # -- Anthropic API key (inline, not recommended for production)
-  anthropicApiKey: ""
-  # -- Name of an existing Secret containing the Anthropic API key.
-  # Note: the Secret must already exist in the same namespace at the time of deployment
-  anthropicApiKeyExistingSecretName: ""
-  # -- Key in the existing Secret containing the Anthropic API key
-  # @default -- `"ANTHROPIC_API_KEY"`
-  anthropicApiKeyExistingSecretKey: ""
-
-  # -- LangChain API key (inline, not recommended for production)
-  langchainApiKey:
-  # -- Name of an existing Secret containing the LangChain API key.
-  # Note: the Secret must already exist in the same namespace at the time of deployment
-  langchainApiKeyExistingSecretName: ""
-  # -- Key in the existing Secret containing the LangChain API key
-  # @default -- `"LANGCHAIN_API_KEY"`
-  langchainApiKeyExistingSecretKey: ""
+    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+    readOnlyRootFilesystem: true
+    # -- Fine-grained Linux kernel privileges to add or drop for the container
+    capabilities:
+      drop:
+        - ALL
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies
@@ -185,25 +211,6 @@ initContainerDependencies:
       limits:
         memory: "100Mi"
 
-  init:
-    # -- Enable init container that runs database migrations and initialization
-    enabled: true
-    # -- Command to run in the init container
-    command:
-      - './init.sh'
-
-    securityContext:
-      # -- UID the container processes run as (overrides container image default)
-      runAsUser: 101
-      # -- Require the container to run as a non-root UID (prevents starting if UID 0)
-      runAsNonRoot: true
-      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
-      readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container
-      capabilities:
-        drop:
-          - ALL
-
     # -- Container requests and limits for different resources like CPU or memory
     resources:
       requests:
@@ -222,7 +229,7 @@ startupProbe:
     # -- HTTP GET path for startup probe
     path: "health"
     # -- HTTP GET port for startup probe. Evaluated as a template
-    port: "{{ .Values.agentBackend.service.http.targetPort }}"
+    port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
   initialDelaySeconds: 5
   # -- Often set longer to avoid frequent checks while starting
@@ -244,7 +251,7 @@ readinessProbe:
     # -- HTTP GET path for readiness probe
     path: "/health"
     # -- HTTP GET port for readiness probe. Evaluated as a template
-    port: "{{ .Values.agentBackend.service.http.targetPort }}"
+    port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation
@@ -264,7 +271,7 @@ livenessProbe:
     # -- HTTP GET path for liveness probe
     path: "/health"
     # -- HTTP GET port for liveness probe. Evaluated as a template
-    port: "{{ .Values.agentBackend.service.http.targetPort }}"
+    port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation

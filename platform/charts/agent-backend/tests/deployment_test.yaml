@@ -30,13 +30,13 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
       database.password: test-db-password
-      agentBackend.anthropicApiKey: test-anthropic-key
-      agentBackend.langchainApiKey: test-langchain-key
+      anthropicApiKey: test-anthropic-key
+      langchainApiKey: test-langchain-key
     asserts:
       - isKind:
           of: Deployment
@@ -46,43 +46,38 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
-      agentBackend.image.registry: custom-registry.io
-      agentBackend.image.repository: custom/agent-backend
-      agentBackend.image.tag: v1.2.3
+      image.registry: custom-registry.io
+      image.repository: custom/agent-backend
+      image.tag: v1.2.3
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
           value: custom-registry.io/custom/agent-backend:v1.2.3
 
-  - it: should include envFrom references
+  - it: should include configMapRef in main container envFrom
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
     asserts:
-      - contains:
+      - equal:
           path: spec.template.spec.containers[0].envFrom
-          content:
-            configMapRef:
-              name: release-name-agent-backend
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: release-name-agent-backend
+          value:
+            - configMapRef:
+                name: release-name-agent-backend
 
   - it: should mount extra volumes
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -108,11 +103,11 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
-      agentBackend.resources:
+      resources:
         limits:
           cpu: 1000m
           memory: 1Gi
@@ -134,11 +129,11 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
-      agentBackend.initContainers:
+      agentInitContainers:
         - name: wait-for-db
           image: busybox
           command: ['sh', '-c', 'echo waiting']
@@ -154,7 +149,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -170,7 +165,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -186,11 +181,11 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: init
 
-  - it: should allow disabling individual init containers
+  - it: should allow disabling mysql waiting init containers
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -208,15 +203,15 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
       database.password: test-db-password
       initContainerDependencies.enabled: true
       initContainerDependencies.waitForMySQL.enabled: true
-      initContainerDependencies.init.enabled: true
-      agentBackend.initContainers:
+      initContainedDbMigrations.enabled: true
+      agentInitContainers:
         - name: custom-init
           image: busybox
           command: ['sh', '-c', 'echo custom']

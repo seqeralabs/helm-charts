@@ -46,6 +46,11 @@ global:
   # -- Seqera Platform Service port
   platformServicePort: 8080
 
+
+  # -- Domain where the Agent Backend service listens. Make sure the TLS certificate covers this and its
+  # wildcard subdomains. Evaluated as a template
+  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
+
   # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
   # wildcard subdomains. Evaluated as a template
   studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
@@ -1183,6 +1188,6 @@ pipeline-optimization:
   enabled: true
 
 agent-backend:
-  # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for 
+  # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
   # more details and the full list of configuration options
   enabled: true

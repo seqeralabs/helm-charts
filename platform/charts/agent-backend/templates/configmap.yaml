@@ -30,17 +30,17 @@ metadata:
   labels: {{- $labels | nindent 4 }}
   annotations: {{- $annotations | nindent 4 }}
 data:
-  AGENT_BACKEND_PORT: {{ .Values.agentBackend.service.http.targetPort | quote }}
+  AGENT_BACKEND_PORT: {{ .Values.service.http.targetPort | quote }}
 
   SEQERA_PLATFORM_API_URL: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain .)  | quote }}
-  SEQERA_MCP_URL: {{ printf "https://%s/mcp" (tpl .Values.agentBackend.mcpExternalDomain .)  | quote }}
+  SEQERA_MCP_URL: {{ printf "https://%s/mcp" (tpl .Values.mcpExternalDomain .)  | quote }}
 
-  ANTHROPIC_MODEL: {{ tpl .Values.agentBackend.anthropicModel . | quote }}
+  ANTHROPIC_MODEL: {{ tpl .Values.anthropicModel . | quote }}
 
   AGENT_BACKEND_DB_HOST: {{ tpl .Values.database.host . | quote }}
   AGENT_BACKEND_DB_PORT: {{ .Values.database.port | quote }}
   AGENT_BACKEND_DB_NAME: {{ tpl .Values.database.name . | quote }}
   AGENT_BACKEND_DB_USER: {{ tpl .Values.database.username . | quote }}
 
-  ENVIRONMENT: {{ .Values.agentBackend.environment | default "production" | quote }}
-  LOG_LEVEL: {{ .Values.agentBackend.logLevel | default "INFO" | quote }}
+  ENVIRONMENT: {{ .Values.environment | default "production" | quote }}
+  LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

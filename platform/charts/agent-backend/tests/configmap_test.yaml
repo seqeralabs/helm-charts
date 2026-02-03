@@ -4,6 +4,18 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 suite: test agent-backend configmap
 templates:
@@ -15,7 +27,7 @@ tests:
   - it: should render a ConfigMap with default values
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -27,7 +39,7 @@ tests:
   - it: should contain database configuration
     set:
       global.platformExternalDomain: test.example.com
-      agentBackend.mcpExternalDomain: mcp.test.example.com
+      mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.port: 3306
       database.name: agentdb
@@ -49,7 +61,7 @@ tests:
   - it: should contain platform URLs
     set:
       global.platformExternalDomain: prod.example.com
-      agentBackend.mcpExternalDomain: mcp.prod.example.com
+      mcpExternalDomain: mcp.prod.example.com
       database.host: mysql
       database.name: db
       database.username: user
