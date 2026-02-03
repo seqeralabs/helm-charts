@@ -225,3 +225,143 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[2].name
           value: custom-init
+
+  - it: should use external secret for database password
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.existingSecretName: my-db-secret
+      database.existingSecretKey: db-password
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: db-password
+
+  - it: should use external secret for anthropic API key
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      anthropicApiKeyExistingSecretName: my-anthropic-secret
+      anthropicApiKeyExistingSecretKey: api-key
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1]
+          value:
+            name: ANTHROPIC_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-anthropic-secret
+                key: api-key
+
+  - it: should use external secret for langchain API key
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      langchainApiKeyExistingSecretName: my-langchain-secret
+      langchainApiKeyExistingSecretKey: langchain-key
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[2]
+          value:
+            name: LANGCHAIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-langchain-secret
+                key: langchain-key
+
+  - it: should configure main container with env before envFrom
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+      anthropicApiKey: test-anthropic-key
+      langchainApiKey: test-langchain-key
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: AGENT_BACKEND_DB_PASSWORD
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: ANTHROPIC_API_KEY
+            - name: LANGCHAIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: LANGCHAIN_API_KEY
+
+  - it: should configure wait-for-db init container env vars correctly
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+      initContainerDependencies.waitForMySQL.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].envFrom
+          value:
+            - configMapRef:
+                name: release-name-agent-backend
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: AGENT_BACKEND_DB_PASSWORD
+
+  - it: should configure init (migration) container env vars correctly
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      mcpExternalDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.password: test-db-password
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[1].envFrom
+          value:
+            - configMapRef:
+                name: release-name-agent-backend
+      - equal:
+          path: spec.template.spec.initContainers[1].env
+          value:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: AGENT_BACKEND_DB_PASSWORD

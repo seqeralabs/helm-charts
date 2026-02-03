@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 4fd3b6c3d69a041721baec8095e4140d5b3f5d9e2d2e719376085a1e601184d5
+            checksum/configmap: 56ca44a697710a7f19269a95d9e29acd4f0733c1941f797e88000bab8b4ec2b9
             checksum/secret: f075db11f29c8f74afed5d95834ff296872f4726283c2975429d4cd672cbbf02
           labels:
             app.kubernetes.io/component: agent-backend
@@ -32,10 +32,24 @@ should render a Deployment with default values:
             helm.sh/chart: agent-backend-1.2.3
         spec:
           containers:
-            - envFrom:
+            - env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
+                - name: ANTHROPIC_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: ANTHROPIC_API_KEY
+                      name: release-name-agent-backend
+                - name: LANGCHAIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: LANGCHAIN_API_KEY
+                      name: release-name-agent-backend
+              envFrom:
                 - configMapRef:
-                    name: release-name-agent-backend
-                - secretRef:
                     name: release-name-agent-backend
               image: private/nf-tower-enterprise/agent-backend:v9.9.9
               imagePullPolicy: IfNotPresent
@@ -76,41 +90,14 @@ should render a Deployment with default values:
                   done
                   echo "$(date): db server ready"
               env:
-                - name: DB_HOST
-                  valueFrom:
-                    configMapKeyRef:
-                      key: AGENT_BACKEND_DB_HOST
-                      name: release-name-agent-backend
-                - name: DB_PORT
-                  valueFrom:
-                    configMapKeyRef:
-                      key: AGENT_BACKEND_DB_PORT
-                      name: release-name-agent-backend
-                - name: DB_NAME
-                  valueFrom:
-                    configMapKeyRef:
-                      key: AGENT_BACKEND_DB_NAME
-                      name: release-name-agent-backend
-                - name: DB_USERNAME
-                  valueFrom:
-                    configMapKeyRef:
-                      key: AGENT_BACKEND_DB_USER
-                      name: release-name-agent-backend
                 - name: DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_DB_PASSWORD
                       name: release-name-agent-backend
-                - name: BBB_DB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: AGENT_BACKEND_DB_PASSWORD
-                      name: release-name-agent-backend
-                - name: CCC_DB_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      key: AGENT_BACKEND_DB_PASSWORD
-                      name: release-name-agent-backend
+              envFrom:
+                - configMapRef:
+                    name: release-name-agent-backend
               image: mysql:9
               imagePullPolicy: IfNotPresent
               name: wait-for-db
@@ -129,10 +116,14 @@ should render a Deployment with default values:
                 runAsUser: 101
             - command:
                 - ./init.sh
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
               envFrom:
                 - configMapRef:
-                    name: release-name-agent-backend
-                - secretRef:
                     name: release-name-agent-backend
               image: private/nf-tower-enterprise/agent-backend:v9.9.9
               imagePullPolicy: IfNotPresent

@@ -4,6 +4,18 @@
 # All rights reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 suite: test agent-backend ingress
 templates:
@@ -65,3 +77,62 @@ tests:
       - equal:
           path: spec.tls[0].secretName
           value: agent-tls
+
+  - it: should include default rule using global.agentBackendDomain
+    set:
+      global.agentBackendDomain: ai.example.com
+      ingress.enabled: true
+      ingress.path: /
+      ingress.defaultPathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: ai.example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: release-name-agent-backend
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 80
+
+  - it: should include both default rule and extraHosts
+    set:
+      global.agentBackendDomain: ai.example.com
+      ingress.enabled: true
+      ingress.path: /
+      ingress.defaultPathType: Prefix
+      ingress.extraHosts:
+        - host: custom.example.com
+          paths:
+            - path: /api
+              pathType: Prefix
+              serviceName: api-service
+              portNumber: 8080
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+      - equal:
+          path: spec.rules[0].host
+          value: ai.example.com
+      - equal:
+          path: spec.rules[1].host
+          value: custom.example.com
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.name
+          value: api-service
+
+  - it: should template global.agentBackendDomain
+    set:
+      global.agentBackendDomain: "{{ .Release.Name }}.example.com"
+      ingress.enabled: true
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: RELEASE-NAME.example.com
