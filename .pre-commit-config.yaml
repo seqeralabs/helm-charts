@@ -40,8 +40,8 @@ repos:
   # https://github.com/emzeat/mz-lictools/pull/48
   # Use separate calls to the same hook to first decorate helm template files with Go text/template
   # style, then decorate remaining yaml and other files with standard style.
-  - repo: https://github.com/seqeralabs/mz-lictools
-    rev: f3b3f53
+  - repo: https://github.com/emzeat/mz-lictools
+    rev: v2.9.0
     hooks:
       - id: license-tools
         name: Fix license header on Helm templates

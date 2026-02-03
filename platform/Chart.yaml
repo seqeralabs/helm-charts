@@ -70,3 +70,9 @@ dependencies:
   tags:
     - studios
   condition: studios.enabled
+- name: agent-backend
+  version: "0.1.x"
+  repository: "file://charts/agent-backend"
+  tags:
+    - agent-backend
+  condition: agent-backend.enabled

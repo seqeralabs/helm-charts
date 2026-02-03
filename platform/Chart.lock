@@ -1,7 +1,7 @@
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.31.4
+  version: 2.34.0
 - name: seqera-common
   repository: file://../seqera-common
   version: 1.1.1
@@ -13,3 +13,8 @@ dependencies:
   version: 1.1.2
 digest: sha256:9fcbfcf5dbd2c6d316f832e7523345da609ecbf519f6155354e32ff7fba247fd
 generated: "2026-01-30T15:40:23.621216988+01:00"
+- name: agent-backend
+  repository: file://charts/agent-backend
+  version: 0.1.0
+digest: sha256:fa3d396844a175261efc60f25b20ec0a3a515fd674311882a35d236c36fd2dbd
+generated: "2026-02-03T12:32:22.884384+01:00"
