@@ -21,9 +21,6 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
-  # -- Domain where Seqera Platform listens
-  mcpExternalDomain: mcp.example.com
-
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   imageCredentials: []
@@ -44,15 +41,34 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+database:
+  host: ""
+  port: 3306
+  name: ""
+  username: ""
+  # -- MySQL database password
+  password: ""
+  # -- Name of an existing Secret containing credentials for the MySQL
+  # database, as an alternative to the password field. Note: the Secret must already exist in the
+  # same namespace at the time of deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the password for the MySQL
+  # database
+  # @default -- `"DB_PASSWORD"`
+  existingSecretKey: ""
+  # -- database dialect. Currently only 'mysql' is supported
+  dialect: mysql
+
 agentBackend:
   # Default values for agent-backend subchart.
+  
+  # -- Domain where Seqera MPC listens
+  mcpExternalDomain: mcp.example.com
 
-  # -- Number of replicas for the agent-backend deployment
-  replicaCount: 1
-
+  anthropicModel: "claude-sonnet-4-20250514"
   image:
     # -- Image registry
-    registry: "cr.seqera.io"
+    registry: ""
     # -- Image repository
     repository: "private/nf-tower-enterprise/agent-backend"
     # -- Image tag (defaults to Chart appVersion if not specified)
@@ -102,12 +118,11 @@ agentBackend:
 
   # -- Resource limits and requests
   resources: {}
-    # limits:
-    #   cpu: 500m
-    #   memory: 512Mi
     # requests:
-    #   cpu: 250m
-    #   memory: 256Mi
+    #   cpu: 100m
+    #   memory: 1000Mi
+    # limits:
+    #   memory: 1000Mi
 
   # -- Pod security context
   podSecurityContext:
@@ -115,27 +130,23 @@ agentBackend:
     fsGroup: 101
     runAsNonRoot: true
 
-  # -- Anthropic API key configuration
-  anthropicApiKey:
-    # -- Anthropic API key (inline, not recommended for production)
-    apiKey: ""
-    # -- Name of an existing Secret containing the Anthropic API key.
-    # Note: the Secret must already exist in the same namespace at the time of deployment
-    existingSecretName: ""
-    # -- Key in the existing Secret containing the Anthropic API key
-    # @default -- `"ANTHROPIC_API_KEY"`
-    existingSecretKey: ""
+  # -- Anthropic API key (inline, not recommended for production)
+  anthropicApiKey: ""
+  # -- Name of an existing Secret containing the Anthropic API key.
+  # Note: the Secret must already exist in the same namespace at the time of deployment
+  anthropicApiKeyExistingSecretName: ""
+  # -- Key in the existing Secret containing the Anthropic API key
+  # @default -- `"ANTHROPIC_API_KEY"`
+  anthropicApiKeyExistingSecretKey: ""
 
-  # -- LangChain API key configuration
+  # -- LangChain API key (inline, not recommended for production)
   langchainApiKey:
-    # -- LangChain API key (inline, not recommended for production)
-    apiKey: ""
-    # -- Name of an existing Secret containing the LangChain API key.
-    # Note: the Secret must already exist in the same namespace at the time of deployment
-    existingSecretName: ""
-    # -- Key in the existing Secret containing the LangChain API key
-    # @default -- `"LANGCHAIN_API_KEY"`
-    existingSecretKey: ""
+  # -- Name of an existing Secret containing the LangChain API key.
+  # Note: the Secret must already exist in the same namespace at the time of deployment
+  langchainApiKeyExistingSecretName: ""
+  # -- Key in the existing Secret containing the LangChain API key
+  # @default -- `"LANGCHAIN_API_KEY"`
+  langchainApiKeyExistingSecretKey: ""
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies
@@ -264,25 +275,6 @@ livenessProbe:
   failureThreshold: 10
   # -- Typically 1 (usually ignored)
   successThreshold: 1
-
-
-database:
-  host: ""
-  port: 3306
-  name: ""
-  username: ""
-  # -- MySQL database password
-  password: ""
-  # -- Name of an existing Secret containing credentials for the MySQL
-  # database, as an alternative to the password field. Note: the Secret must already exist in the
-  # same namespace at the time of deployment
-  existingSecretName: ""
-  # -- Key in the existing Secret containing the password for the MySQL
-  # database
-  # @default -- `"DB_PASSWORD"`
-  existingSecretKey: ""
-  # -- database dialect. Currently only 'mysql' is supported
-  dialect: mysql
 
 # -- Service account configuration
 serviceAccount:

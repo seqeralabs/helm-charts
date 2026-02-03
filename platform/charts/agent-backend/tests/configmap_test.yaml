@@ -15,7 +15,7 @@ tests:
   - it: should render a ConfigMap with default values
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -27,7 +27,7 @@ tests:
   - it: should contain database configuration
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.port: 3306
       database.name: agentdb
@@ -49,7 +49,7 @@ tests:
   - it: should contain platform URLs
     set:
       global.platformExternalDomain: prod.example.com
-      global.mcpExternalDomain: mcp.prod.example.com
+      agentBackend.mcpExternalDomain: mcp.prod.example.com
       database.host: mysql
       database.name: db
       database.username: user

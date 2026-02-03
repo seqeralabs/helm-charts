@@ -18,7 +18,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -31,7 +31,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -47,7 +47,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -64,7 +64,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user

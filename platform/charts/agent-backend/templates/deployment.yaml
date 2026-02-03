@@ -30,7 +30,6 @@ metadata:
 {{- end }}
 
 spec:
-  replicas: {{ .Values.agentBackend.replicaCount }}
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.agentBackend.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}

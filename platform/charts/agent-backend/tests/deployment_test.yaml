@@ -30,37 +30,23 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
       database.password: test-db-password
-      agentBackend.anthropicApiKey.apiKey: test-anthropic-key
-      agentBackend.langchainApiKey.apiKey: test-langchain-key
+      agentBackend.anthropicApiKey: test-anthropic-key
+      agentBackend.langchainApiKey: test-langchain-key
     asserts:
       - isKind:
           of: Deployment
       - matchSnapshot: {}
 
-  - it: should set custom replica count
-    template: deployment.yaml
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
-      agentBackend.replicaCount: 3
-    asserts:
-      - equal:
-          path: spec.replicas
-          value: 3
-
   - it: should use custom image
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -76,7 +62,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -96,7 +82,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -122,7 +108,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -148,7 +134,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -168,7 +154,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -184,7 +170,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -204,7 +190,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -222,7 +208,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      global.mcpExternalDomain: mcp.test.example.com
+      agentBackend.mcpExternalDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
