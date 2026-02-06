@@ -1,0 +1,552 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Agent Backend NOTES.txt
+templates:
+  - NOTES.txt
+chart:
+  version: 1.0.0
+  appVersion: "v1.0.0"
+tests:
+  # Image registry tests
+  - it: should fail when image.registry is not defined
+    set:
+      image:
+        registry: ""
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the container registry at 'image.registry'\\."
+
+  - it: should fail when image.registry is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the container registry at 'image.registry'\\."
+
+  # Database host tests
+  - it: should fail when database.host is not defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: ""
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database host at 'database.host'\\."
+
+  - it: should fail when database.host is missing
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database host at 'database.host'\\."
+
+  # Database name tests
+  - it: should fail when database.name is not defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: ""
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database name at 'database.name'\\."
+
+  - it: should fail when database.name is missing
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database name at 'database.name'\\."
+
+  # Database username tests
+  - it: should fail when database.username is not defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: ""
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database username at 'database.username'\\."
+
+  - it: should fail when database.username is missing
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database username at 'database.username'\\."
+
+  # Database password tests
+  - it: should fail when database.password is not defined and no existingSecretName
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: ""
+        existingSecretName: ""
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database password at 'database.password' or provide an existing secret name at 'database.existingSecretName'\\."
+
+  - it: should fail when both database.password and database.existingSecretName are defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+        existingSecretName: "my-secret"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'database.password' or an existing secret name in 'database.existingSecretName', but not both\\."
+
+  - it: should pass when only database.password is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only database.existingSecretName is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        existingSecretName: "my-secret"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # Anthropic API key tests
+  - it: should fail when anthropicApiKey is not defined and no existingSecretName
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: ""
+      anthropicApiKeyExistingSecretName: ""
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Anthropic API key at 'anthropicApiKey' or provide an existing secret name at 'anthropicApiKeyExistingSecretName'\\."
+
+  - it: should fail when both anthropicApiKey and anthropicApiKeyExistingSecretName are defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      anthropicApiKeyExistingSecretName: "my-anthropic-secret"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'anthropicApiKey' or an existing secret name in 'anthropicApiKeyExistingSecretName', but not both\\."
+
+  - it: should pass when only anthropicApiKey is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only anthropicApiKeyExistingSecretName is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKeyExistingSecretName: "my-anthropic-secret"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # LangChain API key tests
+  - it: should fail when langchainApiKey is not defined and no existingSecretName
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: ""
+      langchainApiKeyExistingSecretName: ""
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the LangChain API key at 'langchainApiKey' or provide an existing secret name at 'langchainApiKeyExistingSecretName'\\."
+
+  - it: should fail when both langchainApiKey and langchainApiKeyExistingSecretName are defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      langchainApiKeyExistingSecretName: "my-langchain-secret"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'langchainApiKey' or an existing secret name in 'langchainApiKeyExistingSecretName', but not both\\."
+
+  - it: should pass when only langchainApiKey is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only langchainApiKeyExistingSecretName is set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKeyExistingSecretName: "my-langchain-secret"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # Image credentials tests
+  - it: should fail when neither imageCredentials nor imageCredentialsSecrets are defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials: []
+        imageCredentialsSecrets: []
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define container registry credentials at 'global.imageCredentials' or provide existing secret names at 'global.imageCredentialsSecrets'\\."
+
+  - it: should pass when imageCredentials is defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when imageCredentialsSecrets is defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentialsSecrets:
+          - my-registry-secret
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when both imageCredentials and imageCredentialsSecrets are defined
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+        imageCredentialsSecrets:
+          - my-registry-secret
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # Complete valid configuration test
+  - it: should pass with all required values properly set
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      langchainApiKey: "test-langchain-key"
+      global:
+        imageCredentials:
+          - registry: "cr.seqera.io"
+            username: "user"
+            password: "pass"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # Valid configuration with external secrets
+  - it: should pass with all required values using external secrets
+    set:
+      image:
+        registry: "cr.seqera.io"
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        existingSecretName: "db-secret"
+      anthropicApiKeyExistingSecretName: "anthropic-secret"
+      langchainApiKeyExistingSecretName: "langchain-secret"
+      global:
+        imageCredentialsSecrets:
+          - registry-secret
+    asserts:
+      - hasDocuments:
+          count: 1
