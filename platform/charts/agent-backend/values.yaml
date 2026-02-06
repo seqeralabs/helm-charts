@@ -87,7 +87,7 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-# -- Anthropic API key (inline, not recommended for production)
+# -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""
 # -- Name of an existing Secret containing the Anthropic API key.
 # Note: the Secret must already exist in the same namespace at the time of deployment
@@ -96,7 +96,7 @@ anthropicApiKeyExistingSecretName: ""
 # @default -- `"ANTHROPIC_API_KEY"`
 anthropicApiKeyExistingSecretKey: ""
 
-# -- LangChain API key (inline, not recommended for production)
+# -- LangChain API key. Define the value as a String or a Secret, not both at the same time
 langchainApiKey: ""
 # -- Name of an existing Secret containing the LangChain API key.
 # Note: the Secret must already exist in the same namespace at the time of deployment

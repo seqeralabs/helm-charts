@@ -76,10 +76,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| anthropicApiKey | string | `""` | Anthropic API key (inline, not recommended for production) |
+| anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
-| langchainApiKey | string | `""` | LangChain API key (inline, not recommended for production) |
+| langchainApiKey | string | `""` | LangChain API key. Define the value as a String or a Secret, not both at the same time |
 | langchainApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the LangChain API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | langchainApiKeyExistingSecretKey | string | `"LANGCHAIN_API_KEY"` | Key in the existing Secret containing the LangChain API key |
 | environment | string | `"production"` | Environment (e.g., production, development) |
