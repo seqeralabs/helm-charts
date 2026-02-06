@@ -99,9 +99,6 @@ service:
     # Choose port between 30000-32767, unless the cluster was configured differently than default
     nodePort: null
 
-# -- Additional init containers for the  pod. Evaluated as a template
-agentInitContainers: []
-
 # -- Extra environment variables
 extraEnvVars: []
 # extraEnvVars:
@@ -206,6 +203,9 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
+
+# -- Additional init containers for the pod. Evaluated as a template
+initContainers: []
 
 # Configure extra options for the startup probe
 startupProbe:

@@ -438,6 +438,7 @@ backend:
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # Seqera recommends tuning resources to match the expected workload. The following are
   # sensible defaults to start with:
+  #
   # resources:
   #   requests:
   #     cpu: "1"

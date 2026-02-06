@@ -85,7 +85,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | service.http.port | int | `80` | Service port |
 | service.http.targetPort | int | `8002` | Container target port |
 | service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
-| agentInitContainers | list | `[]` | Additional init containers for the  pod. Evaluated as a template |
 | extraEnvVars | list | `[]` | Extra environment variables |
 | extraEnvVarsCMs | list | `[]` | ConfigMaps to mount as environment variables |
 | extraEnvVarsSecrets | list | `[]` | Secrets to mount as environment variables |
@@ -116,6 +115,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainers | list | `[]` | Additional init containers for the pod. Evaluated as a template |
 | startupProbe.enabled | bool | `false` | Enable startup probe |
 | startupProbe.httpGet.path | string | `"health"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |

@@ -133,7 +133,7 @@ tests:
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
-      agentInitContainers:
+      initContainers:
         - name: wait-for-db
           image: busybox
           command: ['sh', '-c', 'echo waiting']
@@ -211,7 +211,7 @@ tests:
       initContainerDependencies.enabled: true
       initContainerDependencies.waitForMySQL.enabled: true
       dbMigrationInitContainer.enabled: true
-      agentInitContainers:
+      initContainers:
         - name: custom-init
           image: busybox
           command: ['sh', '-c', 'echo custom']
