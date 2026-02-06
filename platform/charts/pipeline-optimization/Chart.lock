@@ -6,4 +6,4 @@ dependencies:
   repository: file://../../../seqera-common
   version: 1.1.1
 digest: sha256:094579925be4e62dd256f43a4adb2f678ec7db06d3231735a2af4ab02d2b6380
-generated: "2026-02-06T12:39:12.75463362+01:00"
+generated: "2026-02-06T12:39:06.143445389+01:00"
