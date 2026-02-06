@@ -15,3 +15,31 @@ should render a Service with default values:
       selector:
         app.kubernetes.io/component: agent-backend
       type: ClusterIP
+should render complete service with all options using matchSnapshot:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        app.kubernetes.io/component: agent-backend
+      name: release-name-agent-backend
+      namespace: NAMESPACE
+    spec:
+      externalTrafficPolicy: Local
+      ports:
+        - name: custom-http
+          nodePort: 30080
+          port: 8080
+          targetPort: 8002
+        - name: metrics
+          nodePort: 30090
+          port: 9090
+          targetPort: 9091
+        - name: admin
+          nodePort: 30888
+          port: 8888
+          targetPort: 8889
+      selector:
+        app.kubernetes.io/component: agent-backend
+      sessionAffinity: ClientIP
+      type: NodePort

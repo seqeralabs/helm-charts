@@ -58,3 +58,206 @@ tests:
       - equal:
           path: spec.ports[0].nodePort
           value: 30080
+
+  - it: should not include nodePort when service type is ClusterIP
+    set:
+      service.type: ClusterIP
+      service.http.nodePort: 30080
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - notExists:
+          path: spec.ports[0].nodePort
+
+  - it: should render extraServices with numeric ports
+    set:
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9090
+    asserts:
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: metrics
+            port: 9090
+            targetPort: 9090
+
+  - it: should render extraServices with named targetPort
+    set:
+      service.extraServices:
+        - name: admin
+          port: 8080
+          targetPort: admin-port
+    asserts:
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: admin
+            port: 8080
+            targetPort: admin-port
+
+  - it: should render multiple extraServices
+    set:
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9090
+        - name: admin
+          port: 8888
+          targetPort: 8888
+    asserts:
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: metrics
+            port: 9090
+            targetPort: 9090
+      - equal:
+          path: spec.ports[2]
+          value:
+            name: admin
+            port: 8888
+            targetPort: 8888
+
+  - it: should render extraServices with nodePort when service type is NodePort
+    set:
+      service.type: NodePort
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9090
+          nodePort: 30090
+    asserts:
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: metrics
+            port: 9090
+            targetPort: 9090
+            nodePort: 30090
+
+  - it: should render extraServices with nodePort when service type is LoadBalancer
+    set:
+      service.type: LoadBalancer
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9090
+          nodePort: 30090
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer
+      - equal:
+          path: spec.ports[1]
+          value:
+            name: metrics
+            port: 9090
+            targetPort: 9090
+            nodePort: 30090
+
+  - it: should not render nodePort in extraServices when service type is ClusterIP
+    set:
+      service.type: ClusterIP
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9090
+          nodePort: 30090
+    asserts:
+      - equal:
+          path: spec.type
+          value: ClusterIP
+      - equal:
+          path: spec.ports[1].name
+          value: metrics
+      - equal:
+          path: spec.ports[1].port
+          value: 9090
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 9090
+      - notExists:
+          path: spec.ports[1].nodePort
+
+  - it: should evaluate template expressions in extraServices
+    set:
+      service.extraServices:
+        - name: "{{ .Release.Name }}-metrics"
+          port: "{{ .Values.service.http.port }}"
+          targetPort: "{{ .Values.service.http.targetPort }}"
+    asserts:
+      - equal:
+          path: spec.ports[1].name
+          value: RELEASE-NAME-metrics
+      - equal:
+          path: spec.ports[1].port
+          value: 80
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 8002
+
+  - it: should render service with both default http port and extraServices
+    set:
+      service.http.port: 80
+      service.http.targetPort: 8002
+      service.extraServices:
+        - name: metrics
+          port: 9090
+          targetPort: 9091
+        - name: admin
+          port: 8080
+          targetPort: 8081
+    asserts:
+      - equal:
+          path: spec.ports
+          value:
+            - name: http
+              port: 80
+              targetPort: 8002
+            - name: metrics
+              port: 9090
+              targetPort: 9091
+            - name: admin
+              port: 8080
+              targetPort: 8081
+
+  - it: should render extraServices with numeric string ports
+    set:
+      service.extraServices:
+        - name: metrics
+          port: "9090"
+          targetPort: "9091"
+    asserts:
+      - equal:
+          path: spec.ports[1].port
+          value: 9090
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 9091
+
+  - it: should render complete service with all options using matchSnapshot
+    set:
+      service:
+        type: NodePort
+        http:
+          name: custom-http
+          port: 8080
+          targetPort: 8002
+          nodePort: 30080
+        extraServices:
+          - name: metrics
+            port: 9090
+            targetPort: 9091
+            nodePort: 30090
+          - name: admin
+            port: 8888
+            targetPort: 8889
+            nodePort: 30888
+        extraOptions:
+          externalTrafficPolicy: Local
+          sessionAffinity: ClientIP
+    asserts:
+      - matchSnapshot: {}
