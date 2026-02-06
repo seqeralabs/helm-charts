@@ -7,7 +7,7 @@ Currently, it includes charts for:
 - [Studios](./studios/README.md): Studios is a unified platform for interactive analysis.
 - [Pipeline Optimization](./platform/charts/pipeline-optimization/README.md): A service to optimize
   Nextflow pipelines running on Platform - internally referred to as Groundswell.
-- [Seqera AI Backend](./agent-backend/README.md): A backend service for the Seqera AI CLI.
+- [Seqera AI Backend](./agent-backend/README.md): Backend service for Seqera CLI AI capabilities
 
 The Platform chart is the main chart, and other charts can be deployed as sub-charts of Platform.
 However, the sub-charts are also designed to be deployed independently from the Platform chart, if
