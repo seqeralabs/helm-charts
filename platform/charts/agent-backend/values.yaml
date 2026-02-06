@@ -21,7 +21,11 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
-  agentBackendDomain: ai.example.com
+  # -- Domain where the Agent Backend service listens. Evaluated as a template
+  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
+
+  # -- Domain where Seqera MCP listens. Evaluated as a template
+  mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
@@ -61,9 +65,6 @@ database:
   # -- database dialect. Currently only 'mysql' is supported
   dialect: mysql
 
-# -- Domain where Seqera MCP listens
-mcpExternalDomain: mcp.example.com
-
 anthropicModel: "claude-sonnet-4-20250514"
 image:
   # -- Image registry
@@ -98,7 +99,7 @@ service:
     # Choose port between 30000-32767, unless the cluster was configured differently than default
     nodePort: null
 
-# -- Additional init containers for the backend pod. Evaluated as a template
+# -- Additional init containers for the  pod. Evaluated as a template
 agentInitContainers: []
 
 # -- Extra environment variables
@@ -129,14 +130,11 @@ podSecurityContext:
   fsGroup: 101
   runAsNonRoot: true
 
-# -- Pod labels
-podLabels: {}
-
 # -- Environment (e.g., production, development)
 environment: production
 
-# -- Log level (e.g., INFO, DEBUG, WARNING, ERROR)
-logLevel: INFO
+# -- Log level (e.g., DEBUG, INFO, WARNING, ERROR)
+logLevel: INFO # is debug lower than info?
 
 # -- Anthropic API key (inline, not recommended for production)
 anthropicApiKey: ""
@@ -148,7 +146,7 @@ anthropicApiKeyExistingSecretName: ""
 anthropicApiKeyExistingSecretKey: ""
 
 # -- LangChain API key (inline, not recommended for production)
-langchainApiKey:
+langchainApiKey: ""
 # -- Name of an existing Secret containing the LangChain API key.
 # Note: the Secret must already exist in the same namespace at the time of deployment
 langchainApiKeyExistingSecretName: ""
@@ -156,11 +154,9 @@ langchainApiKeyExistingSecretName: ""
 # @default -- `"LANGCHAIN_API_KEY"`
 langchainApiKeyExistingSecretKey: ""
 
-
-initContainedDbMigrations:
-  # -- Command to run in the init container
-  command:
-    - './init.sh'
+dbMigrationInitContainer:
+  # -- Command to run in the init container performing DB migrations
+  command: ['./init.sh']
 
   securityContext:
     # -- UID the container processes run as (overrides container image default)
@@ -179,7 +175,7 @@ initContainerDependencies:
   enabled: true
 
   waitForMySQL:
-    # -- Enable wait for MySQL init container before starting backend and cron
+    # -- Enable wait for MySQL init container before starting the main container
     enabled: true
     image:
       # -- Override default wait for MySQL init container image
@@ -210,16 +206,6 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
-
-    # -- Container requests and limits for different resources like CPU or memory
-    resources:
-      requests:
-        cpu: "50m"
-        memory: "500Mi"
-      limits:
-        memory: "500Mi"
-
-
 
 # Configure extra options for the startup probe
 startupProbe:
@@ -355,7 +341,6 @@ containerSecurityContext:
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 101
-
 
 # -- Extra volumes
 extraVolumes: []

@@ -46,17 +46,18 @@ global:
   # -- Seqera Platform Service port
   platformServicePort: 8080
 
-
-  # -- Domain where the Agent Backend service listens. Make sure the TLS certificate covers this and its
-  # wildcard subdomains. Evaluated as a template
-  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
-
   # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
   # wildcard subdomains. Evaluated as a template
   studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
   # -- Base URL for Studios connections: can be any value, since each session will use a unique
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
   studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+
+  # -- Domain where Seqera MCP listens. Evaluated as a template
+  mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
+
+  # -- Domain where the Agent Backend service listens. Evaluated as a template
+  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically

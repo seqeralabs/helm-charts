@@ -27,7 +27,7 @@ tests:
   - it: should render a ConfigMap with default values
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb
       database.username: agent
@@ -39,7 +39,7 @@ tests:
   - it: should contain database configuration
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.port: 3306
       database.name: agentdb
@@ -61,7 +61,7 @@ tests:
   - it: should contain platform URLs
     set:
       global.platformExternalDomain: prod.example.com
-      mcpExternalDomain: mcp.prod.example.com
+      global.mcpDomain: mcp.prod.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -76,7 +76,7 @@ tests:
   - it: should use custom anthropic model
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -89,7 +89,7 @@ tests:
   - it: should use custom service port in configmap
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -99,10 +99,10 @@ tests:
           path: data.AGENT_BACKEND_PORT
           value: "9000"
 
-  - it: should template mcpExternalDomain
+  - it: should template mcpDomain
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: "{{ .Release.Name }}-mcp.example.com"
+      global.mcpDomain: "{{ .Release.Name }}-mcp.example.com"
       database.host: mysql
       database.name: db
       database.username: user
@@ -114,7 +114,7 @@ tests:
   - it: should set custom environment and log level
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -131,7 +131,7 @@ tests:
   - it: should use default environment and log level
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user

@@ -30,7 +30,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -43,7 +43,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -59,7 +59,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
@@ -76,7 +76,7 @@ tests:
     template: deployment.yaml
     set:
       global.platformExternalDomain: test.example.com
-      mcpExternalDomain: mcp.test.example.com
+      global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user

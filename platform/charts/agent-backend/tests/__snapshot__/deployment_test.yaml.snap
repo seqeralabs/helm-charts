@@ -103,10 +103,10 @@ should render a Deployment with default values:
               name: wait-for-db
               resources:
                 limits:
-                  memory: 500Mi
+                  memory: 100Mi
                 requests:
-                  cpu: 50m
-                  memory: 500Mi
+                  cpu: "0.5"
+                  memory: 50Mi
               securityContext:
                 capabilities:
                   drop:

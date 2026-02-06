@@ -80,7 +80,7 @@ spec:
         - name: init
           image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: {{ .Values.initContainedDbMigrations.command | toYaml | nindent 12 }}
+          command: {{ .Values.dbMigrationInitContainer.command | toYaml | nindent 12 }}
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
@@ -90,16 +90,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.database.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
-          
+
           volumeMounts:
             - name: tmp
               mountPath: /tmp
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
-          securityContext: {{- toYaml .Values.initContainedDbMigrations.securityContext | nindent 12 }}
-{{- if .Values.initContainedDbMigrations.resources }}
-          resources: {{- toYaml .Values.initContainedDbMigrations.resources | nindent 12 }}
+          securityContext: {{- toYaml .Values.dbMigrationInitContainer.securityContext | nindent 12 }}
+{{- if .Values.dbMigrationInitContainer.resources }}
+          resources: {{- toYaml .Values.dbMigrationInitContainer.resources | nindent 12 }}
 {{- end }}
 
 {{- with .Values.agentInitContainers }}

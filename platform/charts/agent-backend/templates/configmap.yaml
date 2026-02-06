@@ -33,7 +33,7 @@ data:
   AGENT_BACKEND_PORT: {{ .Values.service.http.targetPort | quote }}
 
   SEQERA_PLATFORM_API_URL: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain .)  | quote }}
-  SEQERA_MCP_URL: {{ printf "https://%s/mcp" (tpl .Values.mcpExternalDomain .)  | quote }}
+  SEQERA_MCP_URL: {{ printf "https://%s/mcp" (tpl .Values.global.mcpDomain .)  | quote }}
 
   ANTHROPIC_MODEL: {{ tpl .Values.anthropicModel . | quote }}
 
