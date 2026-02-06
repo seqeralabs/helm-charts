@@ -36,25 +36,38 @@ clean-deps:
 	@echo "Cleaning all dependency packages..."
 	@rm -f charts/*.tgz
 
-# Clean only subchart packages (pipeline-optimization, studios)
+# Clean only subchart packages (pipeline-optimization, studios, agent-backend)
 # This prevents helm unittest from running tests twice on subcharts
 clean-subchart-packages:
 	@echo "Cleaning subchart packages..."
-	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz
+	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz
 
 # Rebuild only external dependencies (seqera-common, bitnami common) if missing
-# Subcharts (pipeline-optimization, studios) are kept unpacked to avoid duplicate test runs
+# Subcharts (pipeline-optimization, studios, agent-backend) are kept unpacked to avoid duplicate test runs
 rebuild-deps: clean-subchart-packages
 	@echo "Checking external dependencies..."
 	@if [ ! -f charts/common-*.tgz ] || [ ! -f charts/seqera-common-*.tgz ]; then \
 		echo "Missing dependencies detected, fetching..."; \
 		helm dependency update 2>&1 | grep -v "walk.go" || true; \
 		echo "Cleaning subchart packages to prevent duplicate test runs..."; \
-		rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz; \
+		rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz; \
 		echo "✓ External dependencies rebuilt successfully (subcharts remain unpacked)"; \
 	else \
 		echo "✓ All external dependencies already present (use 'make rebuild-deps-force' to force refresh)"; \
 	fi
+	@echo "Checking subchart dependencies..."
+	@for subchart in pipeline-optimization studios agent-backend; do \
+		if [ -d "charts/$$subchart" ]; then \
+			echo "Checking dependencies for $$subchart..."; \
+			if [ ! -f "charts/$$subchart/charts/common-"*.tgz ] || [ ! -f "charts/$$subchart/charts/seqera-common-"*.tgz ]; then \
+				echo "Missing dependencies for $$subchart, fetching..."; \
+				(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
+				echo "✓ Dependencies for $$subchart rebuilt successfully"; \
+			else \
+				echo "✓ Dependencies for $$subchart already present"; \
+			fi; \
+		fi; \
+	done
 
 # Force rebuild all external dependencies (ignores cache)
 rebuild-deps-force: clean-subchart-packages
@@ -62,8 +75,17 @@ rebuild-deps-force: clean-subchart-packages
 	@rm -f charts/common-*.tgz charts/seqera-common-*.tgz
 	@helm dependency update 2>&1 | grep -v "walk.go" || true
 	@echo "Cleaning subchart packages to prevent duplicate test runs..."
-	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz
+	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz
 	@echo "✓ External dependencies force rebuilt successfully (subcharts remain unpacked)"
+	@echo "Force rebuilding subchart dependencies..."
+	@for subchart in pipeline-optimization studios agent-backend; do \
+		if [ -d "charts/$$subchart" ]; then \
+			echo "Force rebuilding dependencies for $$subchart..."; \
+			rm -f "charts/$$subchart/charts/common-"*.tgz "charts/$$subchart/charts/seqera-common-"*.tgz; \
+			(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
+			echo "✓ Dependencies for $$subchart force rebuilt successfully"; \
+		fi; \
+	done
 
 unittests-no-build:
 	@echo "Running unit tests (without rebuilding dependencies)..."
