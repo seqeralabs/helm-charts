@@ -48,90 +48,44 @@ global:
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
 database:
+  # -- MySQL database hostname
   host: ""
+  # -- MySQL database port
   port: 3306
+  # -- MySQL database name
   name: ""
+  # -- MySQL database username
   username: ""
   # -- MySQL database password
   password: ""
-  # -- Name of an existing Secret containing credentials for the MySQL
-  # database, as an alternative to the password field. Note: the Secret must already exist in the
-  # same namespace at the time of deployment
+  # -- Name of an existing Secret containing credentials for the MySQL database, as an alternative
+  # to the password field. Note: the Secret must already exist in the  same namespace at the time of
+  # deployment
   existingSecretName: ""
   # -- Key in the existing Secret containing the password for the MySQL
   # database
   # @default -- `"DB_PASSWORD"`
   existingSecretKey: ""
-  # -- database dialect. Currently only 'mysql' is supported
-  dialect: mysql
 
-anthropicModel: "claude-sonnet-4-20250514"
 image:
-  # -- Image registry
+  # -- Container image registry
   registry: ""
-  # -- Image repository
-  repository: "private/nf-tower-enterprise/agent-backend"
-  # -- Image tag (defaults to Chart appVersion if not specified)
+  # -- Container image repository
+  repository: private/nf-tower-enterprise/agent-backend
+  # -- Container image tag
+  # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""
-  # -- Image digest (overrides tag if specified)
+  # -- Container image digest in the format `sha256:1234abcdef`
   digest: ""
-  # -- Image pull policy
+  # -- imagePullPolicy for the container
+  # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
   pullPolicy: IfNotPresent
-  # -- Image pull secrets
+  # -- List of imagePullSecrets
+  # Secrets must be created in the same namespace, for example using the .extraDeploy array
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   pullSecrets: []
-
-# -- Override the default command
-command: []
-# -- Override the default args
-args: []
-
-# -- Service configuration
-service:
-  # -- Service type
-  type: ClusterIP
-  http:
-    name: http
-    # -- Service port
-    port: 80
-    # -- Container target port
-    targetPort: 8002
-    # -- Service node port, only used when service.type is Nodeport or LoadBalancer
-    # Choose port between 30000-32767, unless the cluster was configured differently than default
-    nodePort: null
-
-# -- Extra environment variables
-extraEnvVars: []
-# extraEnvVars:
-#   - name: "CUSTOM_ENV_VAR"
-#     value: "set-a-value-here"
-
-# -- ConfigMaps to mount as environment variables
-extraEnvVarsCMs: []
-  # - my-configmap
-
-# -- Secrets to mount as environment variables
-extraEnvVarsSecrets: []
-  # - my-secret
-
-# -- Resource limits and requests
-resources: {}
-  # requests:
-  #   cpu: 100m
-  #   memory: 1000Mi
-  # limits:
-  #   memory: 1000Mi
-
-# -- Pod security context
-podSecurityContext:
-  enabled: true
-  fsGroup: 101
-  runAsNonRoot: true
-
-# -- Environment (e.g., production, development)
-environment: production
-
-# -- Log level (e.g., DEBUG, INFO, WARNING, ERROR)
-logLevel: INFO # is debug lower than info?
+  # pullSecrets:
+  #   - myRegistryKeySecretName
 
 # -- Anthropic API key (inline, not recommended for production)
 anthropicApiKey: ""
@@ -151,6 +105,45 @@ langchainApiKeyExistingSecretName: ""
 # @default -- `"LANGCHAIN_API_KEY"`
 langchainApiKeyExistingSecretKey: ""
 
+# -- Environment (e.g., production, development)
+environment: production  # TODO: what's the effect of this env var?
+
+# -- Log level (e.g., DEBUG, INFO, WARNING, ERROR)
+logLevel: INFO # TODO: is debug lower than info?
+
+# -- Anthropic model to use
+anthropicModel: "claude-sonnet-4-20250514"  # TODO: what other options are there?
+
+# -- Service configuration
+service:
+  # -- Service type.
+  # Note: ingresses using AWS ALB require the service to be NodePort
+  type: ClusterIP
+  http:
+    # -- Service name to use
+    name: http
+    # -- Service port
+    port: 80
+    # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+    # named port, distinct from the Service's external port)
+    targetPort: 8002
+    # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+    # Choose port between 30000-32767, unless the cluster was configured differently than default
+    nodePort: null
+
+  # -- Other services that should live in the Service object
+  # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  extraServices: []
+  # extraServices:
+  # - name: myspecialservice
+  #   port: 1234
+  #   targetPort: 5678
+  #   nodePort: null
+
+  # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+  # externalTrafficPolicy, externalIPs). Evaluated as a template
+  extraOptions: {}
+
 dbMigrationInitContainer:
   # -- Command to run in the init container performing DB migrations
   command: ['./init.sh']
@@ -166,6 +159,97 @@ dbMigrationInitContainer:
     capabilities:
       drop:
         - ALL
+
+# -- Additional init containers for the pod. Evaluated as a template
+initContainers: []
+
+# -- Override default container command (useful when using custom images)
+command: []
+# -- Override default container args (useful when using custom images)
+args: []
+
+# -- Additional labels for the pod. Evaluated as a template
+podLabels: {}
+# -- Additional annotations for the pod. Evaluated as a template
+podAnnotations: {}
+
+# -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+# Evaluated as a template
+extraOptionsSpec: {}
+# extraOptionsSpec:
+#   strategy:
+#     rollingUpdate:
+#       maxUnavailable: 1
+#   strategy:
+#     rollingUpdate:
+#       maxUnavailable: x
+#       maxSurge: y
+
+# -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
+# etc). Evaluated as a template
+extraOptionsTemplateSpec: {}
+# extraOptionsTemplateSpec:
+#   nodeSelector:
+#     service: myspecialnodegroup
+
+# -- Extra environment variables
+extraEnvVars: []
+# extraEnvVars:
+#   - name: "CUSTOM_ENV_VAR"
+#     value: "set-a-value-here"
+
+# -- List of ConfigMaps containing extra env vars
+extraEnvVarsCMs: []
+# -- List of Secrets containing extra env vars
+extraEnvVarsSecrets: []
+# -- List of volumes to add to the deployment (evaluated as template). Requires setting
+# `extraVolumeMounts`
+extraVolumes: []
+# -- List of volume mounts to add to the container (evaluated as template). Normally used with
+# `extraVolumes`
+extraVolumeMounts: []
+
+# Configure Pods Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# Empty map to disable Pod Security Context configuration
+podSecurityContext:
+  # -- Enable pod Security Context
+  enabled: true
+  # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+  # in the pod can share group-owned access
+  fsGroup: 101
+
+# Configure Container Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+containerSecurityContext:
+  # -- Enable container Security Context
+  enabled: true
+  # -- UID the container processes run as (overrides container image default)
+  runAsUser: 101
+  # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  runAsNonRoot: true
+  # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  readOnlyRootFilesystem: true
+  # -- Fine-grained Linux kernel privileges to add or drop for the container
+  capabilities:
+    drop:
+      - ALL
+
+# -- Container requests and limits for different resources like CPU or memory
+resources: {}
+# `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+# the kubelet then guarantees at least these resources to the pod. `.limits` are the
+# maximum resources a container is allowed to use
+# Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+# Seqera recommends tuning resources to match the expected workload. The following are
+# sensible defaults to start with:
+#
+# resources:
+#   requests:
+#     cpu: "100m"
+#     memory: "1000Mi"
+#   limits:
+#     memory: "1000Mi"
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies
@@ -186,8 +270,7 @@ initContainerDependencies:
     securityContext:
       # -- UID the container processes run as (overrides container image default)
       runAsUser: 101
-      # -- Require the container to run as a non-root UID (prevents starting if UID
-      # 0)
+      # -- Require the container to run as a non-root UID (prevents starting if UID is 0)
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
       readOnlyRootFilesystem: true
@@ -204,16 +287,13 @@ initContainerDependencies:
       limits:
         memory: "100Mi"
 
-# -- Additional init containers for the pod. Evaluated as a template
-initContainers: []
-
 # Configure extra options for the startup probe
 startupProbe:
   # -- Enable startup probe
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
-    path: "health"
+    path: "/health"
     # -- HTTP GET port for startup probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
@@ -330,52 +410,6 @@ ingress:
   #       - '{{ .Values.global.platformExternalDomain }}'
   #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
   #     secretName: my-tls
-
-# -- Container security context
-containerSecurityContext:
-  enabled: false
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 101
-
-# -- Extra volumes
-extraVolumes: []
-  # - name: my-volume
-  #   emptyDir: {}
-
-# -- Extra volume mounts
-extraVolumeMounts: []
-  # - name: my-volume
-  #   mountPath: /data
-
-# -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-# Evaluated as a template
-extraOptionsSpec: {}
-# extraOptionsSpec:
-#   strategy:
-#     rollingUpdate:
-#       maxUnavailable: 1
-#   strategy:
-#     rollingUpdate:
-#       maxUnavailable: x
-#       maxSurge: y
-
-# -- Pod labels
-podLabels: {}
-
-# -- Pod annotations
-podAnnotations: {}
-
-# -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
-# etc). Evaluated as a template
-extraOptionsTemplateSpec: {}
-# extraOptionsTemplateSpec:
-#   nodeSelector:
-#     service: myspecialnodegroup
 
 # -- Array of extra objects to deploy with the release
 extraDeploy: []

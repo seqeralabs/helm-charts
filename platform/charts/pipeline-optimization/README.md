@@ -108,10 +108,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | extraEnvVars | list | `[]` | Extra environment variables to set on the pipeline optimization pod |
-| extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | containerSecurityContext.enabled | bool | `true` | Enable container Security Context |

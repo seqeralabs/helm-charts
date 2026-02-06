@@ -393,14 +393,14 @@ backend:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
-  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
+  # -- List of volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -600,14 +600,14 @@ frontend:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -803,14 +803,14 @@ cron:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -950,14 +950,14 @@ cron:
     #   - name: "CUSTOM_ENV_VAR"
     #     value: "set-a-value-here"
 
-    # -- ConfigMap containing extra env vars
+    # -- List of ConfigMaps containing extra env vars
     extraEnvVarsCMs: []
-    # -- Secret containing extra env vars
+    # -- List of Secrets containing extra env vars
     extraEnvVarsSecrets: []
     # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
     # `extraVolumeMounts`
     extraVolumes: []
-    # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+    # -- List of volume mounts to add to the container (evaluated as template). Normally used with
     # `extraVolumes`
     extraVolumeMounts: []
 

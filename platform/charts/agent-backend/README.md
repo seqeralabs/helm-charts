@@ -63,46 +63,61 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
-| database.host | string | `""` |  |
-| database.port | int | `3306` |  |
-| database.name | string | `""` |  |
-| database.username | string | `""` |  |
+| database.host | string | `""` | MySQL database hostname |
+| database.port | int | `3306` | MySQL database port |
+| database.name | string | `""` | MySQL database name |
+| database.username | string | `""` | MySQL database username |
 | database.password | string | `""` | MySQL database password |
-| database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
 | database.existingSecretKey | string | `"DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
-| database.dialect | string | `"mysql"` | database dialect. Currently only 'mysql' is supported |
-| anthropicModel | string | `"claude-sonnet-4-20250514"` |  |
-| image.registry | string | `""` | Image registry |
-| image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Image repository |
-| image.tag | string | `""` | Image tag (defaults to Chart appVersion if not specified) |
-| image.digest | string | `""` | Image digest (overrides tag if specified) |
-| image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
-| image.pullSecrets | list | `[]` | Image pull secrets |
-| command | list | `[]` | Override the default command |
-| args | list | `[]` | Override the default args |
-| service | object | `{"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
-| service.type | string | `"ClusterIP"` | Service type |
-| service.http.port | int | `80` | Service port |
-| service.http.targetPort | int | `8002` | Container target port |
-| service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
-| extraEnvVars | list | `[]` | Extra environment variables |
-| extraEnvVarsCMs | list | `[]` | ConfigMaps to mount as environment variables |
-| extraEnvVarsSecrets | list | `[]` | Secrets to mount as environment variables |
-| resources | object | `{}` | Resource limits and requests |
-| podSecurityContext | object | `{"enabled":true,"fsGroup":101,"runAsNonRoot":true}` | Pod security context |
-| environment | string | `"production"` | Environment (e.g., production, development) |
-| logLevel | string | `"INFO"` | Log level (e.g., DEBUG, INFO, WARNING, ERROR) |
+| image.registry | string | `""` | Container image registry |
+| image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
+| image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
+| image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
+| image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
+| image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | anthropicApiKey | string | `""` | Anthropic API key (inline, not recommended for production) |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
 | langchainApiKey | string | `""` | LangChain API key (inline, not recommended for production) |
 | langchainApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the LangChain API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | langchainApiKeyExistingSecretKey | string | `"LANGCHAIN_API_KEY"` | Key in the existing Secret containing the LangChain API key |
+| environment | string | `"production"` | Environment (e.g., production, development) |
+| logLevel | string | `"INFO"` | Log level (e.g., DEBUG, INFO, WARNING, ERROR) |
+| anthropicModel | string | `"claude-sonnet-4-20250514"` | Anthropic model to use |
+| service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
+| service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
+| service.http.name | string | `"http"` | Service name to use |
+| service.http.port | int | `80` | Service port |
+| service.http.targetPort | int | `8002` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
+| service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
+| service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
 | dbMigrationInitContainer.command | list | `["./init.sh"]` | Command to run in the init container performing DB migrations |
 | dbMigrationInitContainer.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
 | dbMigrationInitContainer.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | dbMigrationInitContainer.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | dbMigrationInitContainer.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| initContainers | list | `[]` | Additional init containers for the pod. Evaluated as a template |
+| command | list | `[]` | Override default container command (useful when using custom images) |
+| args | list | `[]` | Override default container args (useful when using custom images) |
+| podLabels | object | `{}` | Additional labels for the pod. Evaluated as a template |
+| podAnnotations | object | `{}` | Additional annotations for the pod. Evaluated as a template |
+| extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
+| extraEnvVars | list | `[]` | Extra environment variables |
+| extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
+| podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
+| containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies |
 | initContainerDependencies.waitForMySQL.enabled | bool | `true` | Enable wait for MySQL init container before starting the main container |
 | initContainerDependencies.waitForMySQL.image.registry | string | `""` | Override default wait for MySQL init container image |
@@ -111,13 +126,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForMySQL.image.digest | string | `""` |  |
 | initContainerDependencies.waitForMySQL.image.pullPolicy | string | `"IfNotPresent"` |  |
 | initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
-| initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
+| initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| initContainers | list | `[]` | Additional init containers for the pod. Evaluated as a template |
 | startupProbe.enabled | bool | `false` | Enable startup probe |
-| startupProbe.httpGet.path | string | `"health"` | HTTP GET path for startup probe |
+| startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |
 | startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps |
 | startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting |
@@ -154,13 +168,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
-| containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"enabled":false,"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":101}` | Container security context |
-| extraVolumes | list | `[]` | Extra volumes |
-| extraVolumeMounts | list | `[]` | Extra volume mounts |
-| extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
-| podLabels | object | `{}` | Pod labels |
-| podAnnotations | object | `{}` | Pod annotations |
-| extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
 | commonLabels | object | `{}` | Labels to add to all deployed objects |

@@ -155,10 +155,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.extraOptionsSpec | object | `{"replicas":3}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | backend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | backend.extraEnvVars | list | `[]` | Extra environment variables to set on the backend pod |
-| backend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| backend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| backend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| backend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| backend.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| backend.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| backend.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| backend.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | backend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | backend.podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | backend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -212,10 +212,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note: the cron deployment can only run a single replica and use Recreate strategy |
 | frontend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy). Evaluated as a template |
 | frontend.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod |
-| frontend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| frontend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| frontend.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| frontend.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | frontend.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| frontend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| frontend.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | frontend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | frontend.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | frontend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -270,10 +270,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (for example, revisionHistoryLimit). Evaluated as a template Note that cron deployment needs to have a single replica with Recreate strategy |
 | cron.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy) Evaluated as a template |
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
-| cron.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| cron.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| cron.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| cron.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | cron.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| cron.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| cron.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | cron.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | cron.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -315,10 +315,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.dbMigrationInitContainer.command | list | `["/bin/sh","-c","/migrate-db.sh"]` | Override default container command (useful when using custom images) |
 | cron.dbMigrationInitContainer.args | list | `[]` | Override default container args (useful when using custom images) |
 | cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
-| cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.dbMigrationInitContainer.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |

@@ -22,7 +22,7 @@ should render a Deployment with default values:
         metadata:
           annotations:
             checksum/configmap: 56ca44a697710a7f19269a95d9e29acd4f0733c1941f797e88000bab8b4ec2b9
-            checksum/secret: f075db11f29c8f74afed5d95834ff296872f4726283c2975429d4cd672cbbf02
+            checksum/secret: 9dc75c95769bb7a5c33c013d6c9afc1e87789dca303906d8da133ec3dbea1613
           labels:
             app.kubernetes.io/component: agent-backend
             app.kubernetes.io/instance: RELEASE-NAME
@@ -75,6 +75,13 @@ should render a Deployment with default values:
                 periodSeconds: 5
                 successThreshold: 1
                 timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
@@ -140,7 +147,6 @@ should render a Deployment with default values:
                   name: tmp
           securityContext:
             fsGroup: 101
-            runAsNonRoot: true
           serviceAccountName: release-name-agent-backend-sa
           volumes:
             - emptyDir: {}

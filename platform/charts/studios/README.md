@@ -109,10 +109,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | proxy.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | proxy.extraEnvVars | list | `[]` | Extra environment variables to set on the proxy pod |
-| proxy.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| proxy.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| proxy.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| proxy.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| proxy.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| proxy.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| proxy.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| proxy.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | proxy.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | proxy.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | proxy.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
@@ -144,10 +144,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | server.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | server.extraEnvVars | list | `[]` | Extra environment variables to set on the server pod |
-| server.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| server.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| server.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| server.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| server.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| server.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| server.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| server.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | server.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | server.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | server.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
