@@ -98,6 +98,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | dbMigrationInitContainer.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | dbMigrationInitContainer.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | dbMigrationInitContainer.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| dbMigrationInitContainer.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | initContainers | list | `[]` | Additional init containers for the pod. Evaluated as a template |
 | command | list | `[]` | Override default container command (useful when using custom images) |
 | args | list | `[]` | Override default container args (useful when using custom images) |

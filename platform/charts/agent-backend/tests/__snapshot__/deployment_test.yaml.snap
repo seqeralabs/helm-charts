@@ -132,6 +132,12 @@ should render a Deployment with default values:
               image: private/nf-tower-enterprise/agent-backend:v9.9.9
               imagePullPolicy: IfNotPresent
               name: init
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
               securityContext:
                 capabilities:
                   drop:
