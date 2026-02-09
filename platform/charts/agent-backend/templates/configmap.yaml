@@ -1,0 +1,46 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+{{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
+{{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.configMapLabels $commonLabels) "context" .) -}}
+{{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
+{{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
+{{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- $labels | nindent 4 }}
+  annotations: {{- $annotations | nindent 4 }}
+data:
+  AGENT_BACKEND_PORT: {{ .Values.service.http.targetPort | quote }}
+
+  SEQERA_PLATFORM_API_URL: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain .)  | quote }}
+  SEQERA_MCP_URL: {{ printf "https://%s/mcp" (tpl .Values.global.mcpDomain .)  | quote }}
+
+  ANTHROPIC_MODEL: {{ tpl .Values.anthropicModel . | quote }}
+
+  AGENT_BACKEND_DB_HOST: {{ tpl .Values.database.host . | quote }}
+  AGENT_BACKEND_DB_PORT: {{ .Values.database.port | quote }}
+  AGENT_BACKEND_DB_NAME: {{ tpl .Values.database.name . | quote }}
+  AGENT_BACKEND_DB_USER: {{ tpl .Values.database.username . | quote }}
+
+  ENVIRONMENT: {{ .Values.environment | default "production" | quote }}
+  LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

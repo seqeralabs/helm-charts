@@ -38,9 +38,14 @@ spec:
   {{- include "common.tplvalues.render" (dict "value" (omit . "selector" "type" "ports") "context" $) | nindent 2 -}}
 {{- end }}
   ports:
-    - port: {{ .Values.proxy.service.http.port }}
-      name: {{ .Values.proxy.service.http.name }}
-      targetPort: {{ .Values.proxy.service.http.targetPort }}
+    - name: {{ tpl .Values.proxy.service.http.name . }}
+      port: {{ tpl (toString .Values.proxy.service.http.port) . | int }}
+{{- $targetPort := tpl (toString .Values.proxy.service.http.targetPort) . }}
+{{- if regexMatch "^[0-9]+$" $targetPort }}
+      targetPort: {{ $targetPort | int }}
+{{- else }}
+      targetPort: {{ $targetPort }}
+{{- end }}
 {{- if and .Values.proxy.service.http.nodePort (or (eq .Values.proxy.service.type "NodePort") (eq .Values.proxy.service.type "LoadBalancer")) }}
       nodePort: {{ .Values.proxy.service.http.nodePort }}
 {{- end }}

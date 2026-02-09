@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.1.3](https://img.shields.io/badge/Version-1.1.3-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
+![Version: 1.1.4](https://img.shields.io/badge/Version-1.1.4-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -33,7 +33,7 @@ The Helm chart comes with several requirement checks that will validate the prov
 By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `0.9.0`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
-Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
+Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
 
 ## Installing the chart
 
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.1.3 \
+  --version 1.1.4 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -109,10 +109,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | proxy.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | proxy.extraEnvVars | list | `[]` | Extra environment variables to set on the proxy pod |
-| proxy.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| proxy.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| proxy.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| proxy.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| proxy.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| proxy.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| proxy.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| proxy.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | proxy.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | proxy.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | proxy.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
@@ -144,10 +144,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | server.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
 | server.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 | server.extraEnvVars | list | `[]` | Extra environment variables to set on the server pod |
-| server.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| server.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| server.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| server.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| server.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| server.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| server.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| server.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | server.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | server.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | server.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |

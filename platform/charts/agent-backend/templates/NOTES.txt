@@ -1,0 +1,84 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+{{/* We can't put checks in _helpers.tpl, it doesn't make installation fail. */}}
+
+{{- if not .Values.image.registry -}}
+{{- $message := "Define the container registry at 'image.registry'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if not .Values.database.host -}}
+{{- $message := "Define the Agent Backend database host at 'database.host'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if not .Values.database.name -}}
+{{- $message := "Define the Agent Backend database name at 'database.name'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if not .Values.database.username -}}
+{{- $message := "Define the Agent Backend database username at 'database.username'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and (not .Values.database.password) (not .Values.database.existingSecretName) -}}
+{{- $message := "Define the Agent Backend database password at 'database.password' or provide an existing secret name at 'database.existingSecretName'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and .Values.database.password .Values.database.existingSecretName -}}
+{{- $message := "Either provide 'database.password' or an existing secret name in 'database.existingSecretName', but not both." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and (not .Values.anthropicApiKey) (not .Values.anthropicApiKeyExistingSecretName) -}}
+{{- $message := "Define the Anthropic API key at 'anthropicApiKey' or provide an existing secret name at 'anthropicApiKeyExistingSecretName'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and .Values.anthropicApiKey .Values.anthropicApiKeyExistingSecretName -}}
+{{- $message := "Either provide 'anthropicApiKey' or an existing secret name in 'anthropicApiKeyExistingSecretName', but not both." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and (not .Values.langchainApiKey) (not .Values.langchainApiKeyExistingSecretName) -}}
+{{- $message := "Define the LangChain API key at 'langchainApiKey' or provide an existing secret name at 'langchainApiKeyExistingSecretName'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and .Values.langchainApiKey .Values.langchainApiKeyExistingSecretName -}}
+{{- $message := "Either provide 'langchainApiKey' or an existing secret name in 'langchainApiKeyExistingSecretName', but not both." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and (not .Values.global.imageCredentials) (not .Values.global.imageCredentialsSecrets) -}}
+{{- $message := "Define container registry credentials at 'global.imageCredentials' or provide existing secret names at 'global.imageCredentialsSecrets'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+Thank you for installing {{ .Chart.Name | title }}!
+
+Your release is named '{{ .Release.Name }}' and was installed in the '{{ include "common.names.namespace" . }}' namespace.
+
+To check the status of your release, try:
+
+  $ helm --namespace {{ include "common.names.namespace" . }} status {{ .Release.Name }}
+  $ helm --namespace {{ include "common.names.namespace" . }} get all {{ .Release.Name }}

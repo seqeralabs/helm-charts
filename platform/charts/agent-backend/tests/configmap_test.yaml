@@ -1,0 +1,144 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Agent Backend configmap
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a ConfigMap with default values
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchSnapshot: {}
+
+  - it: should contain database configuration
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.port: 3306
+      database.name: agentdb
+      database.username: agentuser
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_HOST
+          value: mysql.default.svc.cluster.local
+      - equal:
+          path: data.AGENT_BACKEND_DB_PORT
+          value: "3306"
+      - equal:
+          path: data.AGENT_BACKEND_DB_NAME
+          value: agentdb
+      - equal:
+          path: data.AGENT_BACKEND_DB_USER
+          value: agentuser
+
+  - it: should contain platform URLs
+    set:
+      global.platformExternalDomain: prod.example.com
+      global.mcpDomain: mcp.prod.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_API_URL
+          value: "https://prod.example.com/api"
+      - equal:
+          path: data.SEQERA_MCP_URL
+          value: "https://mcp.prod.example.com/mcp"
+
+  - it: should use custom anthropic model
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      anthropicModel: claude-opus-4-20250514
+    asserts:
+      - equal:
+          path: data.ANTHROPIC_MODEL
+          value: claude-opus-4-20250514
+
+  - it: should use custom service port in configmap
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      service.http.targetPort: 9000
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_PORT
+          value: "9000"
+
+  - it: should template mcpDomain
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: "{{ .Release.Name }}-mcp.example.com"
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.SEQERA_MCP_URL
+          value: "https://RELEASE-NAME-mcp.example.com/mcp"
+
+  - it: should set custom environment and log level
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      environment: development
+      logLevel: DEBUG
+    asserts:
+      - equal:
+          path: data.ENVIRONMENT
+          value: development
+      - equal:
+          path: data.LOG_LEVEL
+          value: DEBUG
+
+  - it: should use default environment and log level
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.ENVIRONMENT
+          value: production
+      - equal:
+          path: data.LOG_LEVEL
+          value: INFO

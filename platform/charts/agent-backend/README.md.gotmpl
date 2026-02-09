@@ -9,28 +9,22 @@
 
 ## Requirements and configuration
 
-For an overview of the Seqera Studios service architecture and its requirements, refer to the [Seqera documentation](
-
-https://docs.seqera.io/platform-enterprise/enterprise/configuration/pipeline_optimization).
-
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
-- oidc token (auto set if not)
-
-
-- The `.image` and the `.dbMigrationInitContainer.image` sections to point to your container registry.
+- The `.image` section to point to your container registry.
+- The database connection details for the Agent Backend MySQL database under the `.database` section.
+- Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
+- LangChain API credentials under `.langchainApiKey` or `.langchainApiKeyExistingSecretName`.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
   * Specific pull secrets can be defined in each `.image` section to extend the global credentials.
   * Image pull secrets defined in the specific `.image` section will be added to the global ones, not replacing them.
-- The Pipeline Optimization service database connection details under the `.database` section.
-- The database connection details for the Platform MySQL database under the `.platformDatabase` section.
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `{{ template "chart.appVersion" . }}`.
+By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `{{ template "chart.appVersion" . }}`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
 Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
@@ -47,12 +41,6 @@ helm install my-release oci://public.cr.seqera.io/charts/{{ template "chart.name
 ```
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/{{ template "chart.name" . }}
-
-## Examples
-
-Refer to the [examples directory](./examples) for different scenarios of installing the Pipeline Optimization chart.
-The examples provided are showcasing possible configurations of the helm chart, and are not representative of a full installation.
-Please refer to the [Seqera Pipeline Optimization documentation](https://docs.seqera.io/platform-enterprise/enterprise/configuration/pipeline_optimization) for complete installation instructions.
 
 ## Upgrading the chart
 

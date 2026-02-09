@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 0.2.4](https://img.shields.io/badge/Version-0.2.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.7](https://img.shields.io/badge/AppVersion-0.4.7-informational?style=flat-square)
+![Version: 0.2.5](https://img.shields.io/badge/Version-0.2.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.7](https://img.shields.io/badge/AppVersion-0.4.7-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -29,7 +29,7 @@ The Helm chart comes with several requirement checks that will validate the prov
 By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `0.4.7`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
-Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
+Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
 
 ## Installing the chart
 
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 0.2.4 \
+  --version 0.2.5 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -108,10 +108,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | extraEnvVars | list | `[]` | Extra environment variables to set on the pipeline optimization pod |
-| extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | containerSecurityContext.enabled | bool | `true` | Enable container Security Context |

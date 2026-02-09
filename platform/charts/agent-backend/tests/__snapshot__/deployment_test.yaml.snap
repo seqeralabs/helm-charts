@@ -1,0 +1,156 @@
+should render a Deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: agent-backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: agent-backend-1.2.3
+      name: release-name-agent-backend
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: agent-backend
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: agent-backend
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: 56ca44a697710a7f19269a95d9e29acd4f0733c1941f797e88000bab8b4ec2b9
+            checksum/secret: 9dc75c95769bb7a5c33c013d6c9afc1e87789dca303906d8da133ec3dbea1613
+          labels:
+            app.kubernetes.io/component: agent-backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: agent-backend
+            app.kubernetes.io/version: v9.9.9
+            helm.sh/chart: agent-backend-1.2.3
+        spec:
+          containers:
+            - env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
+                - name: ANTHROPIC_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: ANTHROPIC_API_KEY
+                      name: release-name-agent-backend
+                - name: LANGCHAIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: LANGCHAIN_API_KEY
+                      name: release-name-agent-backend
+              envFrom:
+                - configMapRef:
+                    name: release-name-agent-backend
+              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 10
+                httpGet:
+                  path: /health
+                  port: 8002
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              name: agent-backend
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: 8002
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for db $AGENT_BACKEND_DB_HOST:$AGENT_BACKEND_DB_PORT"
+                  until mysql -h "$AGENT_BACKEND_DB_HOST" -P "$AGENT_BACKEND_DB_PORT" -D "$AGENT_BACKEND_DB_NAME" -u"$AGENT_BACKEND_DB_USER" -p"$AGENT_BACKEND_DB_PASSWORD" -e "SELECT VERSION()"; do
+                    echo "$(date): see you in 5 seconds"
+                    sleep 5
+                  done
+                  echo "$(date): db server ready"
+              env:
+                - name: AGENT_BACKEND_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
+              envFrom:
+                - configMapRef:
+                    name: release-name-agent-backend
+              image: mysql:9
+              imagePullPolicy: IfNotPresent
+              name: wait-for-db
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - command:
+                - ./init.sh
+              env:
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: AGENT_BACKEND_DB_PASSWORD
+                      name: release-name-agent-backend
+              envFrom:
+                - configMapRef:
+                    name: release-name-agent-backend
+              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              imagePullPolicy: IfNotPresent
+              name: init
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+          securityContext:
+            fsGroup: 101
+          serviceAccountName: release-name-agent-backend-sa
+          volumes:
+            - emptyDir: {}
+              name: tmp

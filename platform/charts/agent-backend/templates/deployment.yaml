@@ -1,0 +1,170 @@
+{{/*
+ Copyright (c) 2026 Seqera Labs
+ All rights reserved.
+
+ SPDX-License-Identifier: Apache-2.0
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/}}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.names.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
+    app.kubernetes.io/component: agent-backend
+{{- with .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
+{{- end }}
+
+spec:
+{{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels) "context" .) }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
+      app.kubernetes.io/component: agent-backend
+  template:
+    metadata:
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+        app.kubernetes.io/component: agent-backend
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+
+    spec:
+      serviceAccountName: {{ include "agent-backend.serviceAccountName" . }}
+{{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+{{- end }}
+
+      initContainers:
+{{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.waitForMySQL.enabled }}
+        - name: wait-for-db
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              echo "$(date): starting check for db $AGENT_BACKEND_DB_HOST:$AGENT_BACKEND_DB_PORT"
+              until mysql -h "$AGENT_BACKEND_DB_HOST" -P "$AGENT_BACKEND_DB_PORT" -D "$AGENT_BACKEND_DB_NAME" -u"$AGENT_BACKEND_DB_USER" -p"$AGENT_BACKEND_DB_PASSWORD" -e "SELECT VERSION()"; do
+                echo "$(date): see you in 5 seconds"
+                sleep 5
+              done
+              echo "$(date): db server ready"
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.names.fullname" . }}
+          env:
+            - name: AGENT_BACKEND_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
+          securityContext: {{- toYaml .Values.initContainerDependencies.waitForMySQL.securityContext | nindent 12 }}
+  {{- if .Values.initContainerDependencies.waitForMySQL.resources }}
+          resources: {{- toYaml .Values.initContainerDependencies.waitForMySQL.resources | nindent 12 }}
+  {{- end }}
+{{- end }}
+        - name: init
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: {{ .Values.dbMigrationInitContainer.command | toYaml | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.names.fullname" . }}
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+{{- with .Values.extraVolumeMounts }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+          securityContext: {{- toYaml .Values.dbMigrationInitContainer.securityContext | nindent 12 }}
+{{- if .Values.dbMigrationInitContainer.resources }}
+          resources: {{- toYaml .Values.dbMigrationInitContainer.resources | nindent 12 }}
+{{- end }}
+
+{{- with .Values.initContainers }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+      containers:
+        - name: agent-backend
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- with .Values.command }}
+          command: {{- toYaml . | nindent 12 }}
+{{- end }}
+{{- with .Values.args }}
+          args: {{- toYaml . | nindent 12 }}
+{{- end }}
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.anthropicApiKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.anthropicApiKey.existingSecret.secretKey" . }}
+            - name: LANGCHAIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.langchainApiKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.langchainApiKey.existingSecret.secretKey" . }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "common.names.fullname" . }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+{{- with .Values.extraVolumeMounts }}
+            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+{{- end }}
+
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.livenessProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.readinessProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.startupProbe.enabled }}
+          startupProbe: {{- include "seqera.tplvalues.render" (dict "value" (omit .Values.startupProbe "enabled") "context" $) | nindent 12 }}
+{{- end }}
+{{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+{{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- with .Values.extraVolumes }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
+{{- if .Values.image.pullSecrets }}
+      imagePullSecrets:
+  {{- range .Values.image.pullSecrets }}
+        - name: {{ . | quote }}
+  {{- end }}
+{{- end }}

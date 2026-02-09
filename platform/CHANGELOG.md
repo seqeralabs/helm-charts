@@ -5,6 +5,22 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.8] - 2026-02-09
+
+### Fixed
+
+- Fixed ingress template to properly handle `frontend.service.http.port` and `extraHosts[].paths[].portNumber` when provided as integers, string integers, or template expressions by adding `tpl (toString ...)` conversion
+- Fixed service template to properly handle port and targetPort values for cron and frontend services when provided as integers, string integers, or template expressions
+
+### Added
+
+- Added comprehensive unit tests for ingress port number handling with different input types (integer, string integer, template string)
+
+### Changed
+
+- Updated agent-backend subchart to version 0.1.1
+- Updated studios subchart to version 1.1.4
+
 ## [0.25.7] - 2026-01-30
 
 ### Changed

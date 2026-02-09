@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 - 2026 Seqera Labs
+ Copyright (c) 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -45,32 +45,17 @@ spec:
   {{- end }}
 
   rules:
-    {{/* Hostname where to expose the main service. */}}
-    - host: {{ tpl .Values.global.platformExternalDomain $ | quote }}
+    {{/* Wildcard subdomain where to expose Studios */}}
+    - host: {{ tpl .Values.global.agentBackendDomain . | quote }}
       http:
         paths:
           - path: {{ .Values.ingress.path | quote }}
             pathType: {{ .Values.ingress.defaultPathType }}
             backend:
               service:
-                name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
+                name: {{ (include "common.names.fullname" .) | quote }}
                 port:
-                  number: {{ tpl (toString .Values.frontend.service.http.port) . | int }}
-
-  {{- if (tpl .Values.global.contentDomain $) }}
-    {{/* Hostname where Tower reports are exposed to the user. */}}
-    - host: {{ tpl .Values.global.contentDomain $ | quote }}
-      http:
-        paths:
-          - path: {{ .Values.ingress.contentPath | quote }}
-            pathType: {{ .Values.ingress.defaultPathType }}
-            backend:
-              service:
-                name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
-                port:
-                  number: {{ tpl (toString .Values.frontend.service.http.port) . | int }}
-  {{- end }}
-
+                  number: {{ tpl (toString .Values.service.http.port) . | int }}
   {{- range .Values.ingress.extraHosts }}
     - host: {{ tpl .host $ | quote }}
       http:

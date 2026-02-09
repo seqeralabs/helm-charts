@@ -53,6 +53,12 @@ global:
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
   studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
 
+  # -- Domain where Seqera MCP listens. Evaluated as a template
+  mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
+
+  # -- Domain where the Agent Backend service listens. Evaluated as a template
+  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   imageCredentials: []
@@ -387,14 +393,14 @@ backend:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
-  # -- Extra volumes to be added to the deployment (evaluated as template). Requires setting
+  # -- List of volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -432,6 +438,7 @@ backend:
   # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
   # Seqera recommends tuning resources to match the expected workload. The following are
   # sensible defaults to start with:
+  #
   # resources:
   #   requests:
   #     cpu: "1"
@@ -593,14 +600,14 @@ frontend:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -796,14 +803,14 @@ cron:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
-  # -- ConfigMap containing extra env vars
+  # -- List of ConfigMaps containing extra env vars
   extraEnvVarsCMs: []
-  # -- Secret containing extra env vars
+  # -- List of Secrets containing extra env vars
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
   extraVolumes: []
-  # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+  # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
   extraVolumeMounts: []
 
@@ -943,14 +950,14 @@ cron:
     #   - name: "CUSTOM_ENV_VAR"
     #     value: "set-a-value-here"
 
-    # -- ConfigMap containing extra env vars
+    # -- List of ConfigMaps containing extra env vars
     extraEnvVarsCMs: []
-    # -- Secret containing extra env vars
+    # -- List of Secrets containing extra env vars
     extraEnvVarsSecrets: []
     # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
     # `extraVolumeMounts`
     extraVolumes: []
-    # -- Extra volume mounts to add to the container (evaluated as template). Normally used with
+    # -- List of volume mounts to add to the container (evaluated as template). Normally used with
     # `extraVolumes`
     extraVolumeMounts: []
 
@@ -1180,4 +1187,9 @@ studios:
 pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the
   # full list of configuration options
+  enabled: true
+
+agent-backend:
+  # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
+  # more details and the full list of configuration options
   enabled: true

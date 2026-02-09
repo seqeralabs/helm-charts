@@ -1,0 +1,25 @@
+should render a ConfigMap with default values:
+  1: |
+    apiVersion: v1
+    data:
+      AGENT_BACKEND_DB_HOST: mysql.default.svc.cluster.local
+      AGENT_BACKEND_DB_NAME: agentdb
+      AGENT_BACKEND_DB_PORT: "3306"
+      AGENT_BACKEND_DB_USER: agent
+      AGENT_BACKEND_PORT: "8002"
+      ANTHROPIC_MODEL: claude-sonnet-4-20250514
+      ENVIRONMENT: production
+      LOG_LEVEL: INFO
+      SEQERA_MCP_URL: https://mcp.test.example.com/mcp
+      SEQERA_PLATFORM_API_URL: https://test.example.com/api
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: agent-backend-1.2.3
+      name: release-name-agent-backend
+      namespace: NAMESPACE

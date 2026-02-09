@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.25.7](https://img.shields.io/badge/Version-0.25.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
+![Version: 0.25.8](https://img.shields.io/badge/Version-0.25.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.0](https://img.shields.io/badge/AppVersion-v25.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -33,7 +33,7 @@ By default the chart selects the Platform application images defined in the `app
 > The Platform chart requires the [unprivileged version](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#seqera-frontend-unprivileged) of the Seqera Platform frontend image (shipped with `-unprivileged` suffix until Platform v25.3, without any suffix starting from v26.1).
 
 When a sensitive value is required (e.g. the database password, the Seqera license key), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
-Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without storing copies of the sensitive value in the chart-created Secret.
+Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
 
 ## Installing the chart
 
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.25.7 \
+  --version 0.25.8 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -63,6 +63,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 1.x.x |
+| file://charts/agent-backend | agent-backend | 0.1.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 0.2.x |
 | file://charts/studios | studios | 1.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
@@ -77,6 +78,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
 | global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
+| global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
+| global.agentBackendDomain | string | `"{{ printf \"ai.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
@@ -152,10 +155,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.extraOptionsSpec | object | `{"replicas":3}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
 | backend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 | backend.extraEnvVars | list | `[]` | Extra environment variables to set on the backend pod |
-| backend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| backend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
-| backend.extraVolumes | list | `[]` | Extra volumes to be added to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| backend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| backend.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| backend.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
+| backend.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| backend.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | backend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | backend.podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | backend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -209,10 +212,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template. Note: the cron deployment can only run a single replica and use Recreate strategy |
 | frontend.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy). Evaluated as a template |
 | frontend.extraEnvVars | list | `[]` | Extra environment variables to set on the frontend pod |
-| frontend.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| frontend.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| frontend.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| frontend.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | frontend.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| frontend.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| frontend.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | frontend.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | frontend.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | frontend.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -267,10 +270,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.extraOptionsSpec | object | `{}` | Extra options to place under .spec (for example, revisionHistoryLimit). Evaluated as a template Note that cron deployment needs to have a single replica with Recreate strategy |
 | cron.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy) Evaluated as a template |
 | cron.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
-| cron.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| cron.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| cron.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| cron.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | cron.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| cron.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| cron.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
 | cron.podSecurityContext.fsGroup | int | `101` | GID that Kubernetes applies to mounted volumes and created files so processes in the pod can share group-owned access |
 | cron.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
@@ -312,10 +315,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.dbMigrationInitContainer.command | list | `["/bin/sh","-c","/migrate-db.sh"]` | Override default container command (useful when using custom images) |
 | cron.dbMigrationInitContainer.args | list | `[]` | Override default container args (useful when using custom images) |
 | cron.dbMigrationInitContainer.extraEnvVars | list | `[]` | Extra environment variables to set on the cron pod |
-| cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | ConfigMap containing extra env vars |
-| cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | Secret containing extra env vars |
+| cron.dbMigrationInitContainer.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| cron.dbMigrationInitContainer.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 | cron.dbMigrationInitContainer.extraVolumes | list | `[]` | Extra volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | Extra volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| cron.dbMigrationInitContainer.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | cron.dbMigrationInitContainer.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
 | cron.dbMigrationInitContainer.containerSecurityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
@@ -375,6 +378,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | commonLabels | object | `{}` | Labels to add to all deployed objects |
 | studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
+| agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing
 
