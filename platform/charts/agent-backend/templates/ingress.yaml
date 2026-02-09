@@ -55,7 +55,7 @@ spec:
               service:
                 name: {{ (include "common.names.fullname" .) | quote }}
                 port:
-                  number: {{ .Values.service.http.port }}
+                  number: {{ tpl (toString .Values.service.http.port) . | int }}
   {{- range .Values.ingress.extraHosts }}
     - host: {{ tpl .host $ | quote }}
       http:

@@ -101,6 +101,24 @@ tests:
           path: spec.rules[0].http.paths[0].backend.service.port.number
           value: 80
 
+  - it: should handle service.http.port as integer
+    set:
+      ingress.enabled: true
+      service.http.port: 8888
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8888
+
+  - it: should handle service.http.port as template string
+    set:
+      ingress.enabled: true
+      service.http.port: "{{ .Release.Namespace | len | add 8000 }}"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8009
+
   - it: should include both default rule and extraHosts
     set:
       global.agentBackendDomain: ai.example.com
@@ -136,3 +154,75 @@ tests:
       - equal:
           path: spec.rules[0].host
           value: RELEASE-NAME.example.com
+
+  - it: should handle portNumber as integer value
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: 8080
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: should handle portNumber as string integer
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: "9000"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 9000
+
+  - it: should handle portNumber as template string
+    set:
+      ingress.enabled: true
+      service.http.port: 7777
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: "{{ .Values.service.http.port }}"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 7777
+
+  - it: should handle multiple extraHosts with different portNumber types
+    set:
+      ingress.enabled: true
+      service.http.port: 5555
+      ingress.extraHosts:
+        - host: api.example.com
+          paths:
+            - path: /v1
+              serviceName: api-v1
+              portNumber: 8001
+            - path: /v2
+              serviceName: api-v2
+              portNumber: "8002"
+        - host: admin.example.com
+          paths:
+            - path: /
+              serviceName: admin-service
+              portNumber: "{{ .Values.service.http.port }}"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8001
+      - equal:
+          path: spec.rules[1].http.paths[1].backend.service.port.number
+          value: 8002
+      - equal:
+          path: spec.rules[2].http.paths[0].backend.service.port.number
+          value: 5555
