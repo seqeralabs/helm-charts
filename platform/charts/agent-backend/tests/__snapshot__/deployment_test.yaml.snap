@@ -87,14 +87,14 @@ should render a Deployment with default values:
                 - sh
                 - -c
                 - |
-                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+                  echo "$(date): starting check for db $AGENT_BACKEND_DB_HOST:$AGENT_BACKEND_DB_PORT"
+                  until mysql -h "$AGENT_BACKEND_DB_HOST" -P "$AGENT_BACKEND_DB_PORT" -D "$AGENT_BACKEND_DB_NAME" -u"$AGENT_BACKEND_DB_USER" -p"$AGENT_BACKEND_DB_PASSWORD" -e "SELECT VERSION()"; do
                     echo "$(date): see you in 5 seconds"
                     sleep 5
                   done
                   echo "$(date): db server ready"
               env:
-                - name: DB_PASSWORD
+                - name: AGENT_BACKEND_DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_DB_PASSWORD
