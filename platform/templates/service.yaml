@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -76,8 +76,13 @@ spec:
     app.kubernetes.io/component: cron
   ports:
     - name: {{ .Values.cron.service.http.name | default "http" }}
-      port: {{ .Values.cron.service.http.port }}
-      targetPort: {{ .Values.cron.service.http.targetPort }}
+      port: {{ tpl (toString .Values.cron.service.http.port) . | int }}
+{{- $targetPort := tpl (toString .Values.cron.service.http.targetPort) . }}
+{{- if regexMatch "^[0-9]+$" $targetPort }}
+      targetPort: {{ $targetPort | int }}
+{{- else }}
+      targetPort: {{ $targetPort }}
+{{- end }}
 {{- if and .Values.cron.service.http.nodePort (or (eq .Values.cron.service.type "NodePort") (eq .Values.cron.service.type "LoadBalancer")) }}
       nodePort: {{ .Values.cron.service.http.nodePort }}
 {{- end }}
@@ -102,8 +107,13 @@ spec:
     app.kubernetes.io/component: frontend
   ports:
     - name: {{ .Values.frontend.service.http.name | default "http" }}
-      port: {{ .Values.frontend.service.http.port }}
-      targetPort: {{ .Values.frontend.service.http.targetPort }}
+      port: {{ tpl (toString .Values.frontend.service.http.port) . | int }}
+{{- $targetPort := tpl (toString .Values.frontend.service.http.targetPort) . }}
+{{- if regexMatch "^[0-9]+$" $targetPort }}
+      targetPort: {{ $targetPort | int }}
+{{- else }}
+      targetPort: {{ $targetPort }}
+{{- end }}
 {{- if and .Values.frontend.service.http.nodePort (or (eq .Values.frontend.service.type "NodePort") (eq .Values.frontend.service.type "LoadBalancer")) }}
       nodePort: {{ .Values.frontend.service.http.nodePort }}
 {{- end }}

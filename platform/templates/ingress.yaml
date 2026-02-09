@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -55,7 +55,7 @@ spec:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
                 port:
-                  number: {{ .Values.frontend.service.http.port }}
+                  number: {{ tpl (toString .Values.frontend.service.http.port) . | int }}
 
   {{- if (tpl .Values.global.contentDomain $) }}
     {{/* Hostname where Tower reports are exposed to the user. */}}
@@ -68,7 +68,7 @@ spec:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
                 port:
-                  number: {{ .Values.frontend.service.http.port }}
+                  number: {{ tpl (toString .Values.frontend.service.http.port) . | int }}
   {{- end }}
 
   {{- range .Values.ingress.extraHosts }}
@@ -82,7 +82,7 @@ spec:
               service:
                 name: {{ tpl .serviceName $ | quote }}
                 port:
-                  number: {{ tpl .portNumber $ }}
+                  number: {{ tpl (toString .portNumber) $ | int }}
     {{- end }}
   {{- end }}
 {{- end }}

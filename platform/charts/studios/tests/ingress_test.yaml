@@ -469,6 +469,126 @@ tests:
           path: spec.rules[1].http.paths[0].pathType
           value: "ImplementationSpecific"
 
+  - it: should handle proxy.service.http.port as integer
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+      proxy:
+        service:
+          http:
+            port: 7777
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 7777
+
+  - it: should handle proxy.service.http.port as template string
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+      proxy:
+        service:
+          http:
+            port: "{{ .Release.Namespace | len | add 9000 }}"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 9009
+
+  - it: should handle extraHosts portNumber as integer value
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: test.example.com
+            paths:
+              - path: /api
+                serviceName: api-service
+                portNumber: 8080
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: should handle extraHosts portNumber as string integer
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: test.example.com
+            paths:
+              - path: /api
+                serviceName: api-service
+                portNumber: "9000"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 9000
+
+  - it: should handle extraHosts portNumber as template string
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: test.example.com
+            paths:
+              - path: /api
+                serviceName: api-service
+                portNumber: "{{ .Values.proxy.service.http.port }}"
+      proxy:
+        service:
+          http:
+            port: 6666
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 6666
+
+  - it: should handle multiple extraHosts with different portNumber types
+    set:
+      global:
+        studiosDomain: 'studios.example.com'
+      ingress:
+        enabled: true
+        extraHosts:
+          - host: api.example.com
+            paths:
+              - path: /v1
+                serviceName: api-v1
+                portNumber: 8001
+              - path: /v2
+                serviceName: api-v2
+                portNumber: "8002"
+          - host: admin.example.com
+            paths:
+              - path: /
+                serviceName: admin-service
+                portNumber: "{{ .Values.proxy.service.http.port }}"
+      proxy:
+        service:
+          http:
+            port: 5555
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8001
+      - equal:
+          path: spec.rules[1].http.paths[1].backend.service.port.number
+          value: 8002
+      - equal:
+          path: spec.rules[2].http.paths[0].backend.service.port.number
+          value: 5555
+
   - it: should render complete ingress with all features
     set:
       global:
