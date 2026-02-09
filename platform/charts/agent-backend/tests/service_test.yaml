@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-suite: test agent-backend service
+suite: test Agent Backend service
 templates:
   - service.yaml
 chart:
