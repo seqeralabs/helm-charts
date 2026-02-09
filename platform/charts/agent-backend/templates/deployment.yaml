@@ -115,9 +115,6 @@ spec:
 {{- with .Values.args }}
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.service.http.targetPort | quote }}
           env:
             - name: DB_PASSWORD
               valueFrom:

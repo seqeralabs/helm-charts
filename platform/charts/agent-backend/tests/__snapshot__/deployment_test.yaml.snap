@@ -63,9 +63,6 @@ should render a Deployment with default values:
                 successThreshold: 1
                 timeoutSeconds: 3
               name: agent-backend
-              ports:
-                - containerPort: "8002"
-                  name: http
               readinessProbe:
                 failureThreshold: 5
                 httpGet:
