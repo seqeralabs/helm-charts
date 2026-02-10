@@ -69,7 +69,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.username | string | `""` | MySQL database username |
 | database.password | string | `""` | MySQL database password |
 | database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
-| database.existingSecretKey | string | `"DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
+| database.existingSecretKey | string | `"AGENT_BACKEND_DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
 | image.registry | string | `""` | Container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |

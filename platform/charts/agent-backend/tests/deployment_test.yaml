@@ -246,6 +246,25 @@ tests:
                 name: my-db-secret
                 key: db-password
 
+  - it: should use default key when external secret is set without custom key
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      database.existingSecretName: my-db-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: AGENT_BACKEND_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: AGENT_BACKEND_DB_PASSWORD
+
   - it: should use external secret for anthropic API key
     template: deployment.yaml
     set:
