@@ -1,0 +1,46 @@
+should create extra resources as requested by the user:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: test-service
+    spec:
+      ports:
+        - name: testport
+          port: 1234
+          targetPort: 5678
+      selector:
+        app.kubernetes.io/component: whatever
+      type: ClusterIP
+should create multiple extra resources as requested by the user:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: test-service
+    spec:
+      ports:
+        - name: testport
+          port: 1234
+          targetPort: 5678
+      selector:
+        app.kubernetes.io/component: whatever
+      type: ClusterIP
+  2: |
+    apiVersion: v1
+    data:
+      key: somevalue
+    kind: ConfigMap
+    metadata:
+      name: myConfigMap
+should evaluate template strings in extraDeploy resources:
+  1: |
+    apiVersion: v1
+    data:
+      namespace: NAMESPACE
+      release: RELEASE-NAME
+    kind: ConfigMap
+    metadata:
+      labels:
+        app: agent-backend
+      name: RELEASE-NAME-dynamic-config
