@@ -85,7 +85,7 @@ spec:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
           env:
-            - name: DB_PASSWORD
+            - name: AGENT_BACKEND_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.database.existingSecret.secretName" . }}
@@ -116,7 +116,7 @@ spec:
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
           env:
-            - name: DB_PASSWORD
+            - name: AGENT_BACKEND_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.database.existingSecret.secretName" . }}

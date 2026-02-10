@@ -240,7 +240,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0]
           value:
-            name: DB_PASSWORD
+            name: AGENT_BACKEND_DB_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: my-db-secret
@@ -301,7 +301,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env
           value:
-            - name: DB_PASSWORD
+            - name: AGENT_BACKEND_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: release-name-agent-backend
@@ -360,7 +360,7 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[1].env
           value:
-            - name: DB_PASSWORD
+            - name: AGENT_BACKEND_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: release-name-agent-backend
