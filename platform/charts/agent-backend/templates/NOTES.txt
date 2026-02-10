@@ -19,11 +19,6 @@
 
 {{/* We can't put checks in _helpers.tpl, it doesn't make installation fail. */}}
 
-{{- if not .Values.image.registry -}}
-{{- $message := "Define the container registry at 'image.registry'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
 {{- if not .Values.database.host -}}
 {{- $message := "Define the Agent Backend database host at 'database.host'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
@@ -66,11 +61,6 @@
 
 {{- if and .Values.langchainApiKey .Values.langchainApiKeyExistingSecretName -}}
 {{- $message := "Either provide 'langchainApiKey' or an existing secret name in 'langchainApiKeyExistingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and (not .Values.global.imageCredentials) (not .Values.global.imageCredentialsSecrets) -}}
-{{- $message := "Define container registry credentials at 'global.imageCredentials' or provide existing secret names at 'global.imageCredentialsSecrets'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
