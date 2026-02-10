@@ -285,6 +285,25 @@ tests:
                 name: my-anthropic-secret
                 key: api-key
 
+  - it: should use default key when anthropic external secret is set without custom key
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      anthropicApiKeyExistingSecretName: my-anthropic-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[1]
+          value:
+            name: ANTHROPIC_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-anthropic-secret
+                key: ANTHROPIC_API_KEY
+
   - it: should use external secret for langchain API key
     template: deployment.yaml
     set:
@@ -304,6 +323,25 @@ tests:
               secretKeyRef:
                 name: my-langchain-secret
                 key: langchain-key
+
+  - it: should use default key when langchain external secret is set without custom key
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql.default.svc.cluster.local
+      database.name: agentdb
+      database.username: agent
+      langchainApiKeyExistingSecretName: my-langchain-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[2]
+          value:
+            name: LANGCHAIN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: my-langchain-secret
+                key: LANGCHAIN_API_KEY
 
   - it: should configure main container with env before envFrom
     template: deployment.yaml
