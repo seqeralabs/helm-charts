@@ -33,7 +33,7 @@ should render a Deployment with default values:
         spec:
           containers:
             - env:
-                - name: DB_PASSWORD
+                - name: AGENT_BACKEND_DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_DB_PASSWORD
@@ -121,7 +121,7 @@ should render a Deployment with default values:
             - command:
                 - ./init.sh
               env:
-                - name: DB_PASSWORD
+                - name: AGENT_BACKEND_DB_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_DB_PASSWORD

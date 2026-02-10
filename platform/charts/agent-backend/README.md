@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -36,7 +36,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.1.2 \
+  --version 0.1.3 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -69,7 +69,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.username | string | `""` | MySQL database username |
 | database.password | string | `""` | MySQL database password |
 | database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
-| database.existingSecretKey | string | `"DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
+| database.existingSecretKey | string | `"AGENT_BACKEND_DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
 | image.registry | string | `""` | Container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
