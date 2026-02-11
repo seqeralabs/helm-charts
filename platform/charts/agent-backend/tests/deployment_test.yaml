@@ -73,6 +73,41 @@ tests:
             - configMapRef:
                 name: release-name-agent-backend
 
+  - it: should render extraEnvVars and extraEnvVarsCMs and extraEnvVarsSecrets
+    template: deployment.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      extraEnvVars:
+      - name: EXTRA_ENV_VAR_1
+        value: set-a-value-here
+      - name: EXTRA_ENV_VAR_2
+        value: set-a-value-here
+      extraEnvVarsCMs:
+      - CMContainingExtraEnvVars
+      extraEnvVarsSecrets:
+      - SecretContainingExtraEnvVars
+    asserts:
+    - contains:
+        path: spec.template.spec.containers[0].env
+        content:
+          name: EXTRA_ENV_VAR_1
+          value: set-a-value-here
+    - contains:
+        path: spec.template.spec.containers[0].env
+        content:
+          name: EXTRA_ENV_VAR_2
+          value: set-a-value-here
+    - contains:
+        path: spec.template.spec.containers[0].envFrom
+        content:
+          configMapRef:
+            name: CMContainingExtraEnvVars
+    - contains:
+        path: spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: SecretContainingExtraEnvVars
   - it: should mount extra volumes
     template: deployment.yaml
     set:
