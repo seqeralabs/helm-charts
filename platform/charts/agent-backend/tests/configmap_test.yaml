@@ -73,19 +73,6 @@ tests:
           path: data.SEQERA_MCP_URL
           value: "https://mcp.prod.example.com/mcp"
 
-  - it: should use custom anthropic model
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      anthropicModel: claude-opus-4-20250514
-    asserts:
-      - equal:
-          path: data.ANTHROPIC_MODEL
-          value: claude-opus-4-20250514
-
   - it: should use custom service port in configmap
     set:
       global.platformExternalDomain: test.example.com
@@ -118,27 +105,8 @@ tests:
       database.host: mysql
       database.name: db
       database.username: user
-      environment: development
       logLevel: DEBUG
     asserts:
       - equal:
-          path: data.ENVIRONMENT
-          value: development
-      - equal:
           path: data.LOG_LEVEL
           value: DEBUG
-
-  - it: should use default environment and log level
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-    asserts:
-      - equal:
-          path: data.ENVIRONMENT
-          value: production
-      - equal:
-          path: data.LOG_LEVEL
-          value: INFO

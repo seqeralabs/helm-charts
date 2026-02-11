@@ -105,14 +105,26 @@ langchainApiKeyExistingSecretName: ""
 # @default -- `"LANGCHAIN_API_KEY"`
 langchainApiKeyExistingSecretKey: ""
 
-# -- Environment (e.g., production, development)
-environment: production  # TODO: what's the effect of this env var?
+# -- Posthog API key. Define the value as a String or a Secret, not both at the same time
+posthogApiKey: ""
+# -- Name of an existing Secret containing the Posthog API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+posthogApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the Posthog API key
+# @default -- `"POSTHOG_API_KEY"`
+posthogApiKeyExistingSecretKey: ""
 
-# -- Log level (e.g., DEBUG, INFO, WARNING, ERROR)
-logLevel: INFO # TODO: is debug lower than info?
+# -- Token encryption key. Define the value as a String or a Secret, not both at the same time
+tokenEncrypyionKey: ""
+# -- Name of an existing Secret containing the token encryption key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+tokenEncrypyionKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the token encryption key
+# @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
+tokenEncrypyionKeyExistingSecretKey: ""
 
-# -- Anthropic model to use
-anthropicModel: "claude-sonnet-4-20250514"  # TODO: what other options are there?
+# -- Log level (e.g., CRITICAL,ERROR,WARNING,INFO,DEBUG)
+logLevel: INFO
 
 # -- Service configuration
 service:

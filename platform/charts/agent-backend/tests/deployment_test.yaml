@@ -32,6 +32,8 @@ tests:
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
+      tokenEncrypyionKey: test-token-encryption-key
+      posthogApiKey: test-posthog-key
     asserts:
       - matchSnapshot: {}
 
@@ -290,6 +292,8 @@ tests:
     set:
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
+      tokenEncrypyionKey: test-token-encryption-key
+      posthogApiKey: test-posthog-key
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env
@@ -309,6 +313,16 @@ tests:
                 secretKeyRef:
                   name: release-name-agent-backend
                   key: LANGCHAIN_API_KEY
+            - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
+            - name: POSTHOG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: POSTHOG_API_KEY
 
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml
