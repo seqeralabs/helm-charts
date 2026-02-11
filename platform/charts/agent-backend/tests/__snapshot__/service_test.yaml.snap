@@ -3,8 +3,14 @@ should render a Service with default values:
     apiVersion: v1
     kind: Service
     metadata:
+      annotations: {}
       labels:
         app.kubernetes.io/component: agent-backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: agent-backend-1.2.3
       name: release-name-agent-backend
       namespace: NAMESPACE
     spec:
@@ -20,8 +26,14 @@ should render complete service with all options using matchSnapshot:
     apiVersion: v1
     kind: Service
     metadata:
+      annotations: {}
       labels:
         app.kubernetes.io/component: agent-backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: agent-backend-1.2.3
       name: release-name-agent-backend
       namespace: NAMESPACE
     spec:
