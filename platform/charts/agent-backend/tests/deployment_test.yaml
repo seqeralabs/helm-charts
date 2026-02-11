@@ -29,27 +29,15 @@ tests:
   - it: should render a Deployment with default values
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
     asserts:
-      - isKind:
-          of: Deployment
       - matchSnapshot: {}
 
   - it: should use custom image
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       image.registry: custom-registry.io
       image.repository: custom/agent-backend
       image.tag: v1.2.3
@@ -58,26 +46,9 @@ tests:
           path: spec.template.spec.containers[0].image
           value: custom-registry.io/custom/agent-backend:v1.2.3
 
-  - it: should include configMapRef in main container envFrom
+  - it: should render extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].envFrom
-          value:
-            - configMapRef:
-                name: release-name-agent-backend
-
-  - it: should render extraEnvVars and extraEnvVarsCMs and extraEnvVarsSecrets
-    template: deployment.yaml
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
       extraEnvVars:
       - name: EXTRA_ENV_VAR_1
         value: set-a-value-here
@@ -108,14 +79,10 @@ tests:
         content:
           secretRef:
             name: SecretContainingExtraEnvVars
+
   - it: should mount extra volumes
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       extraVolumes:
         - name: custom-volume
           emptyDir: {}
@@ -137,11 +104,6 @@ tests:
   - it: should apply custom resources
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       resources:
         limits:
           cpu: 1000m
@@ -163,11 +125,6 @@ tests:
   - it: should include init containers
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       initContainers:
         - name: wait-for-db
           image: busybox
@@ -183,11 +140,6 @@ tests:
   - it: should apply common labels
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       commonLabels:
         custom-label: custom-value
     asserts:
@@ -199,11 +151,6 @@ tests:
   - it: should include both built-in init containers by default
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.password: test-db-password
     asserts:
       - lengthEqual:
@@ -219,11 +166,6 @@ tests:
   - it: should allow disabling mysql waiting init containers
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.password: test-db-password
       initContainerDependencies.waitForMySQL.enabled: false
     asserts:
@@ -237,11 +179,6 @@ tests:
   - it: should support custom init containers alongside built-in ones
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.password: test-db-password
       initContainerDependencies.enabled: true
       initContainerDependencies.waitForMySQL.enabled: true
@@ -264,11 +201,6 @@ tests:
   - it: should use external secret for database password
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.existingSecretName: my-db-secret
       database.existingSecretKey: db-password
     asserts:
@@ -284,11 +216,6 @@ tests:
   - it: should use default key when external secret is set without custom key
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       database.existingSecretName: my-db-secret
     asserts:
       - equal:
@@ -303,11 +230,6 @@ tests:
   - it: should use external secret for anthropic API key
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       anthropicApiKeyExistingSecretName: my-anthropic-secret
       anthropicApiKeyExistingSecretKey: api-key
     asserts:
@@ -323,11 +245,6 @@ tests:
   - it: should use default key when anthropic external secret is set without custom key
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       anthropicApiKeyExistingSecretName: my-anthropic-secret
     asserts:
       - equal:
@@ -342,11 +259,6 @@ tests:
   - it: should use external secret for langchain API key
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       langchainApiKeyExistingSecretName: my-langchain-secret
       langchainApiKeyExistingSecretKey: langchain-key
     asserts:
@@ -362,11 +274,6 @@ tests:
   - it: should use default key when langchain external secret is set without custom key
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
       langchainApiKeyExistingSecretName: my-langchain-secret
     asserts:
       - equal:
@@ -381,12 +288,6 @@ tests:
   - it: should configure main container with env before envFrom
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
-      database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
     asserts:
@@ -412,12 +313,6 @@ tests:
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
-      database.password: test-db-password
       initContainerDependencies.waitForMySQL.enabled: true
     asserts:
       - equal:
@@ -436,13 +331,6 @@ tests:
 
   - it: should configure init (migration) container env vars correctly
     template: deployment.yaml
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
-      database.password: test-db-password
     asserts:
       - equal:
           path: spec.template.spec.initContainers[1].envFrom
@@ -457,3 +345,104 @@ tests:
                 secretKeyRef:
                   name: release-name-agent-backend
                   key: AGENT_BACKEND_DB_PASSWORD
+
+  - it: should render extraOptionsSpec under spec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        replicas: 3
+        revisionHistoryLimit: 5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: shouldn't obey custom selector requests in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: agent-backend
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: agent-backend
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          disktype: ssd
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - agent-backend
+              topologyKey: kubernetes.io/hostname
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - agent-backend
+                topologyKey: kubernetes.io/hostname
+
+  - it: should ignore managed fields in extraOptionsTemplateSpec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        serviceAccountName: some-other-sa
+        dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-agent-backend-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render podAnnotations on the pod template
+    template: deployment.yaml
+    set:
+      podAnnotations:
+        custom-annotation: custom-value
+        another-annotation: another-value
+    asserts:
+      - isSubset:
+          path: spec.template.metadata.annotations
+          content:
+            custom-annotation: custom-value
+            another-annotation: another-value
+
+  - it: should render image pullSecrets
+    template: deployment.yaml
+    set:
+      image.pullSecrets:
+        - myRegistrySecret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: myRegistrySecret

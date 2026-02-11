@@ -238,6 +238,26 @@ tests:
           path: spec.ports[1].targetPort
           value: 9091
 
+  - it: should apply commonLabels to service
+    set:
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should apply commonAnnotations to service
+    set:
+      commonAnnotations:
+        custom-annotation: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            custom-annotation: custom-value
+
   - it: should render complete service with all options using matchSnapshot
     set:
       service:

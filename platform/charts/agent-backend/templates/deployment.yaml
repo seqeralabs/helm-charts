@@ -34,6 +34,12 @@ spec:
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
       app.kubernetes.io/component: agent-backend
+# This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
+# already rendered explicitly in the template (selector is always rendered by the template)
+{{- $extraOptionsSpec := omit .Values.extraOptionsSpec "selector" }}
+{{- if $extraOptionsSpec }}
+  {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
+{{- end }}
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
@@ -41,11 +47,19 @@ spec:
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+{{- if or .Values.podAnnotations .Values.commonAnnotations }}
+  {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.podAnnotations .Values.commonAnnotations) "context" $) }}
+        {{- include "common.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
+{{- end }}
 
     spec:
       serviceAccountName: {{ include "agent-backend.serviceAccountName" . }}
 {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+{{- end }}
+{{- $extraOptionsTemplateSpec := omit .Values.extraOptionsTemplateSpec "serviceAccountName" "serviceAccount" "securityContext" "initContainers" "containers" "volumes" "imagePullSecrets" }}
+{{- if $extraOptionsTemplateSpec }}
+      {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
 {{- end }}
 
       initContainers:
