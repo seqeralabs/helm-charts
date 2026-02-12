@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 0.2.6](https://img.shields.io/badge/Version-0.2.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.7](https://img.shields.io/badge/AppVersion-0.4.7-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.7](https://img.shields.io/badge/AppVersion-0.4.7-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 0.2.6 \
+  --version 0.3.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -52,7 +52,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../seqera-common | seqera-common | 1.x.x |
+| file://../../../seqera-common | seqera-common | 2.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
@@ -61,6 +61,55 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
+| global.azure | object | `{"images":{"agentBackend":{"digest":null,"image":null,"registry":null,"tag":null},"pipelineOptimization":{"digest":null,"image":null,"registry":null,"tag":null},"pipelineOptimizationMigrateDB":{"digest":null,"image":null,"registry":null,"tag":null},"platformBackend":{"digest":null,"image":null,"registry":null,"tag":null},"platformCronMigrateDB":{"digest":null,"image":null,"registry":null,"tag":null},"platformFrontend":{"digest":null,"image":null,"registry":null,"tag":null},"studiosProxy":{"digest":null,"image":null,"registry":null,"tag":null},"studiosServer":{"digest":null,"image":null,"registry":null,"tag":null},"waitForCron":{"digest":null,"image":null,"registry":null,"tag":null},"waitForMySQL":{"digest":null,"image":null,"registry":null,"tag":null},"waitForPlatform":{"digest":null,"image":null,"registry":null,"tag":null},"waitForRedis":{"digest":null,"image":null,"registry":null,"tag":null}}}` | Cloud-provider-specific image overrides. When set, these values take precedence over the general ones. Evaluated as a template |
+| global.azure.images.platformBackend.registry | string | `nil` | Image registry for the Platform backend image deployed on Azure. Example: `myregistry.azurecr.io`. Evaluated as a template |
+| global.azure.images.platformBackend.image | string | `nil` | Image repository for the Platform backend image deployed on Azure. Example: `myteam/platform-backend`. Evaluated as a template |
+| global.azure.images.platformBackend.tag | string | `nil` | Image tag for the Platform backend on Azure. Defaults to the application version defined in the Chart.yaml file. Evaluated as a template |
+| global.azure.images.platformBackend.digest | string | `nil` | Image digest for the Platform backend on Azure, in the format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template |
+| global.azure.images.platformFrontend.registry | string | `nil` | Image registry for the Platform frontend image deployed on Azure. Evaluated as a template |
+| global.azure.images.platformFrontend.image | string | `nil` | Image repository for the Platform frontend image deployed on Azure. Evaluated as a template |
+| global.azure.images.platformFrontend.tag | string | `nil` | Image tag for the Platform frontend on Azure. Defaults to the application version defined in the Chart.yaml file. Evaluated as a template |
+| global.azure.images.platformFrontend.digest | string | `nil` | Image digest for the Platform frontend on Azure, in the format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template |
+| global.azure.images.platformCronMigrateDB.registry | string | `nil` | Image registry for the Platform cron migrate-db init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.platformCronMigrateDB.image | string | `nil` | Image repository for the Platform cron migrate-db init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.platformCronMigrateDB.tag | string | `nil` | Image tag for the Platform cron migrate-db init container on Azure. Defaults to the application version defined in the Chart.yaml file. Evaluated as a template |
+| global.azure.images.platformCronMigrateDB.digest | string | `nil` | Image digest for the Platform cron migrate-db init container on Azure, in the format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template |
+| global.azure.images.studiosProxy.registry | string | `nil` | Image registry for the Studios proxy image deployed on Azure. Evaluated as a template |
+| global.azure.images.studiosProxy.image | string | `nil` | Image repository for the Studios proxy image deployed on Azure. Evaluated as a template |
+| global.azure.images.studiosProxy.tag | string | `nil` | Image tag for the Studios proxy on Azure. Evaluated as a template |
+| global.azure.images.studiosProxy.digest | string | `nil` | Image digest for the Studios proxy on Azure. Evaluated as a template |
+| global.azure.images.studiosServer.registry | string | `nil` | Image registry for the Studios server image deployed on Azure. Evaluated as a template |
+| global.azure.images.studiosServer.image | string | `nil` | Image repository for the Studios server image deployed on Azure. Evaluated as a template |
+| global.azure.images.studiosServer.tag | string | `nil` | Image tag for the Studios server on Azure. Evaluated as a template |
+| global.azure.images.studiosServer.digest | string | `nil` | Image digest for the Studios server on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimization.registry | string | `nil` | Image registry for the Pipeline Optimization image deployed on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimization.image | string | `nil` | Image repository for the Pipeline Optimization image deployed on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimization.tag | string | `nil` | Image tag for the Pipeline Optimization on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimization.digest | string | `nil` | Image digest for the Pipeline Optimization on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimizationMigrateDB.registry | string | `nil` | Image registry for the Pipeline Optimization migrate-db init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimizationMigrateDB.image | string | `nil` | Image repository for the Pipeline Optimization migrate-db init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimizationMigrateDB.tag | string | `nil` | Image tag for the Pipeline Optimization migrate-db init container on Azure. Evaluated as a template |
+| global.azure.images.pipelineOptimizationMigrateDB.digest | string | `nil` | Image digest for the Pipeline Optimization migrate-db init container on Azure, in the format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template |
+| global.azure.images.agentBackend.registry | string | `nil` | Image registry for the Agent Backend image deployed on Azure. Evaluated as a template |
+| global.azure.images.agentBackend.image | string | `nil` | Image repository for the Agent Backend image deployed on Azure. Evaluated as a template |
+| global.azure.images.agentBackend.tag | string | `nil` | Image tag for the Agent Backend on Azure. Evaluated as a template |
+| global.azure.images.agentBackend.digest | string | `nil` | Image digest for the Agent Backend on Azure. Evaluated as a template |
+| global.azure.images.waitForCron.registry | string | `nil` | Image registry for the wait-for-cron init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForCron.image | string | `nil` | Image repository for the wait-for-cron init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForCron.tag | string | `nil` | Image tag for the wait-for-cron init container on Azure. Evaluated as a template |
+| global.azure.images.waitForCron.digest | string | `nil` | Image digest for the wait-for-cron init container on Azure. Evaluated as a template |
+| global.azure.images.waitForPlatform.registry | string | `nil` | Image registry for the wait-for-platform init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForPlatform.image | string | `nil` | Image repository for the wait-for-platform init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForPlatform.tag | string | `nil` | Image tag for the wait-for-platform init container on Azure. Evaluated as a template |
+| global.azure.images.waitForPlatform.digest | string | `nil` | Image digest for the wait-for-platform init container on Azure. Evaluated as a template |
+| global.azure.images.waitForMySQL.registry | string | `nil` | Image registry for the wait-for-MySQL init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForMySQL.image | string | `nil` | Image repository for the wait-for-MySQL init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForMySQL.tag | string | `nil` | Image tag for the wait-for-MySQL init container on Azure. Evaluated as a template |
+| global.azure.images.waitForMySQL.digest | string | `nil` | Image digest for the wait-for-MySQL init container on Azure. Evaluated as a template |
+| global.azure.images.waitForRedis.registry | string | `nil` | Image registry for the wait-for-Redis init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForRedis.image | string | `nil` | Image repository for the wait-for-Redis init container image deployed on Azure. Evaluated as a template |
+| global.azure.images.waitForRedis.tag | string | `nil` | Image tag for the wait-for-Redis init container on Azure. Evaluated as a template |
+| global.azure.images.waitForRedis.digest | string | `nil` | Image digest for the wait-for-Redis init container on Azure. Evaluated as a template |
 | database.host | string | `""` | Pipeline Optimization MySQL database hostname |
 | database.port | int | `3306` | Pipeline Optimization MySQL database port |
 | database.name | string | `""` | Pipeline Optimization MySQL database name |

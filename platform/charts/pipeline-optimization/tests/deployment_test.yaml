@@ -615,3 +615,141 @@ tests:
       - equal:
           path: spec.template.metadata.labels.another-label
           value: another-value
+
+  - it: should use azure-specific image for the pipeline-optimization container
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimization:
+              registry: my-azure-registry.azurecr.io
+              image: my-groundswell
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: my-azure-registry.azurecr.io/my-groundswell:1.2.3
+
+  - it: should fall back to default pipeline-optimization image when azure pipelineOptimization.image is empty
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimization:
+              registry: my-azure-registry.azurecr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: private/nf-tower-enterprise/groundswell:v9.9.9
+
+  - it: should evaluate templates in azure override fields for the pipeline-optimization container
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimization:
+              registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+              image: '{{ printf "my-%s" "groundswell" }}'
+              tag: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: my-registry-azurecr.io/my-groundswell:v9.9.9
+
+  - it: should use azure-specific image for the migrate-db initContainer
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimizationMigrateDB:
+              registry: my-azure-registry.azurecr.io
+              image: my-migrate-db
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: my-azure-registry.azurecr.io/my-migrate-db:1.2.3
+
+  - it: should fall back to default migrate-db image when azure pipelineOptimizationMigrateDB.image is empty
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimizationMigrateDB:
+              registry: my-azure-registry.azurecr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: private/nf-tower-enterprise/groundswell:v9.9.9
+
+  - it: should evaluate templates in azure override fields for migrate-db initContainer
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            pipelineOptimizationMigrateDB:
+              registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+              image: '{{ printf "my-%s" "migrate-db" }}'
+              tag: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[2].image
+          value: my-registry-azurecr.io/my-migrate-db:v9.9.9
+
+  - it: should use azure-specific image for the wait-for-MySQL initContainers
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: my-azure-registry.azurecr.io
+              image: my-mysql-wait
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-azure-registry.azurecr.io/my-mysql-wait:1.2.3
+      - equal:
+          path: spec.template.spec.initContainers[1].image
+          value: my-azure-registry.azurecr.io/my-mysql-wait:1.2.3
+
+  - it: should fall back to default wait-for-MySQL image when azure waitForMySQL.image is empty
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: my-azure-registry.azurecr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: mysql:9
+      - equal:
+          path: spec.template.spec.initContainers[1].image
+          value: mysql:9
+
+  - it: should evaluate templates in azure override fields for wait-for-MySQL initContainers
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+              image: '{{ printf "my-%s" "mysql" }}'
+              tag: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-registry-azurecr.io/my-mysql:v9.9.9
+      - equal:
+          path: spec.template.spec.initContainers[1].image
+          value: my-registry-azurecr.io/my-mysql:v9.9.9

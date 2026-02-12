@@ -47,6 +47,144 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+  # -- Cloud-provider-specific image overrides. When set, these values take precedence over the
+  # general ones. Evaluated as a template
+  azure:
+    images:
+      platformBackend:
+        # -- Image registry for the Platform backend image deployed on Azure. Example:
+        # `myregistry.azurecr.io`. Evaluated as a template
+        registry:
+        # -- Image repository for the Platform backend image deployed on Azure. Example:
+        # `myteam/platform-backend`. Evaluated as a template
+        image:
+        # -- Image tag for the Platform backend on Azure. Defaults to the application version
+        # defined in the Chart.yaml file. Evaluated as a template
+        tag:
+        # -- Image digest for the Platform backend on Azure, in the format `sha256:1234abcdef`.
+        # Takes precedence over the tag if both are set. Evaluated as a template
+        digest:
+      platformFrontend:
+        # -- Image registry for the Platform frontend image deployed on Azure. Evaluated as a template
+        registry:
+        # -- Image repository for the Platform frontend image deployed on Azure. Evaluated as a template
+        image:
+        # -- Image tag for the Platform frontend on Azure. Defaults to the application version
+        # defined in the Chart.yaml file. Evaluated as a template
+        tag:
+        # -- Image digest for the Platform frontend on Azure, in the format `sha256:1234abcdef`.
+        # Takes precedence over the tag if both are set. Evaluated as a template
+        digest:
+      platformCronMigrateDB:
+        # -- Image registry for the Platform cron migrate-db init container image deployed on Azure.
+        # Evaluated as a template
+        registry:
+        # -- Image repository for the Platform cron migrate-db init container image deployed on Azure.
+        # Evaluated as a template
+        image:
+        # -- Image tag for the Platform cron migrate-db init container on Azure. Defaults to the
+        # application version defined in the Chart.yaml file. Evaluated as a template
+        tag:
+        # -- Image digest for the Platform cron migrate-db init container on Azure, in the format
+        # `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template
+        digest:
+      studiosProxy:
+        # -- Image registry for the Studios proxy image deployed on Azure. Evaluated as a template
+        registry:
+        # -- Image repository for the Studios proxy image deployed on Azure. Evaluated as a template
+        image:
+        # -- Image tag for the Studios proxy on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the Studios proxy on Azure. Evaluated as a template
+        digest:
+      studiosServer:
+        # -- Image registry for the Studios server image deployed on Azure. Evaluated as a template
+        registry:
+        # -- Image repository for the Studios server image deployed on Azure. Evaluated as a template
+        image:
+        # -- Image tag for the Studios server on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the Studios server on Azure. Evaluated as a template
+        digest:
+      pipelineOptimization:
+        # -- Image registry for the Pipeline Optimization image deployed on Azure. Evaluated as a
+        # template
+        registry:
+        # -- Image repository for the Pipeline Optimization image deployed on Azure. Evaluated as a
+        # template
+        image:
+        # -- Image tag for the Pipeline Optimization on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the Pipeline Optimization on Azure. Evaluated as a template
+        digest:
+      pipelineOptimizationMigrateDB:
+        # -- Image registry for the Pipeline Optimization migrate-db init container image deployed
+        # on Azure. Evaluated as a template
+        registry:
+        # -- Image repository for the Pipeline Optimization migrate-db init container image deployed
+        # on Azure. Evaluated as a template
+        image:
+        # -- Image tag for the Pipeline Optimization migrate-db init container on Azure. Evaluated
+        # as a template
+        tag:
+        # -- Image digest for the Pipeline Optimization migrate-db init container on Azure, in the
+        # format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a
+        # template
+        digest:
+      agentBackend:
+        # -- Image registry for the Agent Backend image deployed on Azure. Evaluated as a template
+        registry:
+        # -- Image repository for the Agent Backend image deployed on Azure. Evaluated as a template
+        image:
+        # -- Image tag for the Agent Backend on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the Agent Backend on Azure. Evaluated as a template
+        digest:
+      waitForCron:
+        # -- Image registry for the wait-for-cron init container image deployed on Azure. Evaluated
+        # as a template
+        registry:
+        # -- Image repository for the wait-for-cron init container image deployed on Azure. Evaluated
+        # as a template
+        image:
+        # -- Image tag for the wait-for-cron init container on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the wait-for-cron init container on Azure. Evaluated as a template
+        digest:
+      waitForPlatform:
+        # -- Image registry for the wait-for-platform init container image deployed on Azure.
+        # Evaluated as a template
+        registry:
+        # -- Image repository for the wait-for-platform init container image deployed on Azure.
+        # Evaluated as a template
+        image:
+        # -- Image tag for the wait-for-platform init container on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the wait-for-platform init container on Azure. Evaluated as a template
+        digest:
+      waitForMySQL:
+        # -- Image registry for the wait-for-MySQL init container image deployed on Azure. Evaluated
+        # as a template
+        registry:
+        # -- Image repository for the wait-for-MySQL init container image deployed on Azure. Evaluated
+        # as a template
+        image:
+        # -- Image tag for the wait-for-MySQL init container on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the wait-for-MySQL init container on Azure. Evaluated as a template
+        digest:
+      waitForRedis:
+        # -- Image registry for the wait-for-Redis init container image deployed on Azure. Evaluated
+        # as a template
+        registry:
+        # -- Image repository for the wait-for-Redis init container image deployed on Azure. Evaluated
+        # as a template
+        image:
+        # -- Image tag for the wait-for-Redis init container on Azure. Evaluated as a template
+        tag:
+        # -- Image digest for the wait-for-Redis init container on Azure. Evaluated as a template
+        digest:
+
 database:
   # -- MySQL database hostname
   host: ""

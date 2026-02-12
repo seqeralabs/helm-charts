@@ -484,3 +484,104 @@ tests:
       - equal:
           path: spec.template.spec.serviceAccountName
           value: release-name-agent-backend-sa
+
+  - it: should use azure-specific image for the agent-backend container
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            agentBackend:
+              registry: my-azure-registry.azurecr.io
+              image: my-agent-backend
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: my-azure-registry.azurecr.io/my-agent-backend:1.2.3
+
+  - it: should fall back to default agent-backend image when azure agentBackend.image is empty
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            agentBackend:
+              registry: my-azure-registry.azurecr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: private/nf-tower-enterprise/agent-backend:v9.9.9
+
+  - it: should evaluate templates in azure override fields for the agent-backend container
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            agentBackend:
+              registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+              image: '{{ printf "my-%s" "agent-backend" }}'
+              tag: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: my-registry-azurecr.io/my-agent-backend:v9.9.9
+
+  - it: should use azure-specific image for the init container
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            agentBackend:
+              registry: my-azure-registry.azurecr.io
+              image: my-agent-backend
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[1].image
+          value: my-azure-registry.azurecr.io/my-agent-backend:1.2.3
+
+  - it: should use azure-specific image for the wait-for-db initContainer
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: my-azure-registry.azurecr.io
+              image: my-mysql-wait
+              tag: 1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-azure-registry.azurecr.io/my-mysql-wait:1.2.3
+
+  - it: should fall back to default wait-for-db image when azure waitForMySQL.image is empty
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: my-azure-registry.azurecr.io
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: mysql:9
+
+  - it: should evaluate templates in azure override fields for wait-for-db initContainer
+    template: deployment.yaml
+    set:
+      global:
+        azure:
+          images:
+            waitForMySQL:
+              registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+              image: '{{ printf "my-%s" "mysql" }}'
+              tag: '{{ .Chart.AppVersion }}'
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-registry-azurecr.io/my-mysql:v9.9.9

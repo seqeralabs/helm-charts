@@ -5,6 +5,22 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2026-02-20
+
+### Added
+
+- Support for cloud-provider-specific image overrides via `global.azure.images` for all container images across platform and subcharts
+- Added `global.azure.images` documentation to `values.yaml` for all charts
+
+### Changed
+
+- Updated all image references to use `seqera.images.image` instead of `common.images.image`
+- Updated `platform.frontend.image` to support cloud-provider overrides
+- Updated seqera-common to version 2.0.0
+- Updated agent-backend subchart to version 0.2.0
+- Updated pipeline-optimization subchart to version 0.3.0
+- Updated studios subchart to version 1.2.0
+
 ## [0.26.1] - 2026-02-10
 
 ### Changed

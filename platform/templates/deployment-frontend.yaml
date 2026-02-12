@@ -69,7 +69,7 @@ spec:
 
       containers:
         - name: frontend
-          image: {{ include "platform.frontend.image" (dict "imageRoot" .Values.frontend.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "platform.frontend.image" (dict "imageRoot" .Values.frontend.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "platformFrontend" "context" $) }}
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
 {{- with .Values.frontend.command }}
           command: {{- toYaml . | nindent 12 }}
