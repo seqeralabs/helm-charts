@@ -81,16 +81,16 @@ Return the name of the secret containing the LangChain API key.
 {{/*
 Return the name of the secret containing the token encryption key.
 */}}
-{{- define "agent-backend.tokenEncrypyionKey.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.tokenEncrypyionKeyExistingSecretName .) -}}
+{{- define "agent-backend.tokenEncryptionKey.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.tokenEncryptionKeyExistingSecretName .) -}}
 {{- end -}}
-{{- define "agent-backend.tokenEncrypyionKey.existingSecret.secretName" -}}
-  {{- include "agent-backend.tokenEncrypyionKey.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- define "agent-backend.tokenEncryptionKey.existingSecret.secretName" -}}
+  {{- include "agent-backend.tokenEncryptionKey.existingSecret" . | default (include "common.names.fullname" .) -}}
 {{- end -}}
 
-{{- define "agent-backend.tokenEncrypyionKey.existingSecret.secretKey" -}}
-  {{- if (include "agent-backend.tokenEncrypyionKey.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.tokenEncrypyionKeyExistingSecretKey .) | default "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
+{{- define "agent-backend.tokenEncryptionKey.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.tokenEncryptionKey.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.tokenEncryptionKeyExistingSecretKey .) | default "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
   {{- else -}}
     {{- printf "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
   {{- end -}}

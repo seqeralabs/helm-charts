@@ -32,7 +32,7 @@ tests:
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
-      tokenEncrypyionKey: test-token-encryption-key
+      tokenEncryptionKey: test-token-encryption-key
       posthogApiKey: test-posthog-key
     asserts:
       - matchSnapshot: {}
@@ -460,3 +460,27 @@ tests:
           path: spec.template.spec.imagePullSecrets
           value:
             - name: myRegistrySecret
+
+  - it: should render extraOptionsTemplateSpec with nodeSelector
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          service: tower
+          kubernetes.io/arch: amd64
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            service: tower
+            kubernetes.io/arch: amd64
+
+  - it: should ignore serviceAccountName in extraOptionsTemplateSpec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        serviceAccountName: some-other-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-agent-backend-sa

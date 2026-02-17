@@ -85,9 +85,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | posthogApiKey | string | `""` | Posthog API key. Define the value as a String or a Secret, not both at the same time |
 | posthogApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Posthog API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | posthogApiKeyExistingSecretKey | string | `"POSTHOG_API_KEY"` | Key in the existing Secret containing the Posthog API key |
-| tokenEncrypyionKey | string | `""` | Token encryption key. Define the value as a String or a Secret, not both at the same time |
-| tokenEncrypyionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| tokenEncrypyionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
+| tokenEncryptionKey | string | `""` | Token encryption key. Define the value as a String or a Secret, not both at the same time |
+| tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
 | logLevel | string | `"INFO"` | Log level (e.g., CRITICAL,ERROR,WARNING,INFO,DEBUG) |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |

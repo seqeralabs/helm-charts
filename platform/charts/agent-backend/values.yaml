@@ -115,13 +115,13 @@ posthogApiKeyExistingSecretName: ""
 posthogApiKeyExistingSecretKey: ""
 
 # -- Token encryption key. Define the value as a String or a Secret, not both at the same time
-tokenEncrypyionKey: ""
+tokenEncryptionKey: ""
 # -- Name of an existing Secret containing the token encryption key.
 # Note: the Secret must already exist in the same namespace at the time of deployment
-tokenEncrypyionKeyExistingSecretName: ""
+tokenEncryptionKeyExistingSecretName: ""
 # -- Key in the existing Secret containing the token encryption key
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
-tokenEncrypyionKeyExistingSecretKey: ""
+tokenEncryptionKeyExistingSecretKey: ""
 
 # -- Log level (e.g., CRITICAL,ERROR,WARNING,INFO,DEBUG)
 logLevel: INFO

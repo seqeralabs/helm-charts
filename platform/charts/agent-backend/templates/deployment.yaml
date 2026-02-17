@@ -148,8 +148,8 @@ spec:
             - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "agent-backend.tokenEncrypyionKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.tokenEncrypyionKey.existingSecret.secretKey" . }}
+                  name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
             - name: POSTHOG_API_KEY
               valueFrom:
                 secretKeyRef:
