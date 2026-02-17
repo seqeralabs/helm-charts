@@ -292,7 +292,7 @@ tests:
     set:
       anthropicApiKey: test-anthropic-key
       langchainApiKey: test-langchain-key
-      tokenEncrypyionKey: test-token-encryption-key
+      tokenEncryptionKey: test-token-encryption-key
       posthogApiKey: test-posthog-key
     asserts:
       - equal:
