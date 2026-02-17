@@ -7,8 +7,6 @@ should render a ConfigMap with default values:
       AGENT_BACKEND_DB_PORT: "3306"
       AGENT_BACKEND_DB_USER: agent
       AGENT_BACKEND_PORT: "8002"
-      ANTHROPIC_MODEL: claude-sonnet-4-20250514
-      ENVIRONMENT: production
       LOG_LEVEL: INFO
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
       SEQERA_PLATFORM_API_URL: https://test.example.com/api

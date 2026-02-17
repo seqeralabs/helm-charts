@@ -145,6 +145,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.langchainApiKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.langchainApiKey.existingSecret.secretKey" . }}
+            - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
+            - name: POSTHOG_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.posthogApiKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.posthogApiKey.existingSecret.secretKey" . }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

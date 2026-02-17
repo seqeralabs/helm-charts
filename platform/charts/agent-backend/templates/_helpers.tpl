@@ -77,3 +77,39 @@ Return the name of the secret containing the LangChain API key.
     {{- printf "LANGCHAIN_API_KEY" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return the name of the secret containing the token encryption key.
+*/}}
+{{- define "agent-backend.tokenEncryptionKey.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.tokenEncryptionKeyExistingSecretName .) -}}
+{{- end -}}
+{{- define "agent-backend.tokenEncryptionKey.existingSecret.secretName" -}}
+  {{- include "agent-backend.tokenEncryptionKey.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "agent-backend.tokenEncryptionKey.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.tokenEncryptionKey.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.tokenEncryptionKeyExistingSecretKey .) | default "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
+  {{- else -}}
+    {{- printf "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the Posthog API key.
+*/}}
+{{- define "agent-backend.posthogApiKey.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.posthogApiKeyExistingSecretName .) -}}
+{{- end -}}
+{{- define "agent-backend.posthogApiKey.existingSecret.secretName" -}}
+  {{- include "agent-backend.posthogApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "agent-backend.posthogApiKey.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.posthogApiKey.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.posthogApiKeyExistingSecretKey .) | default "POSTHOG_API_KEY" -}}
+  {{- else -}}
+    {{- printf "POSTHOG_API_KEY" -}}
+  {{- end -}}
+{{- end -}}
