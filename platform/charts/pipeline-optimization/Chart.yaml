@@ -37,7 +37,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.2.6
+version: 0.3.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -52,7 +52,7 @@ dependencies:
     tags:
       - bitnami-common
   - name: seqera-common
-    version: "1.x.x"
+    version: "2.x.x"
     repository: "file://../../../seqera-common"
     tags:
       - seqera-common

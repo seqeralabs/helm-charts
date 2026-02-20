@@ -4,15 +4,15 @@ dependencies:
   version: 2.36.0
 - name: seqera-common
   repository: file://../seqera-common
-  version: 1.1.1
+  version: 2.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 0.2.6
+  version: 0.3.0
 - name: studios
   repository: file://charts/studios
-  version: 1.1.5
+  version: 1.2.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 0.1.1
-digest: sha256:524b10be80719203d556a2fd956f7b0c94bfabdf72837e874849d1a49b499cf2
-generated: "2026-02-10T13:40:49.702647024+01:00"
+  version: 0.2.0
+digest: sha256:09946c9e87f76b22221303eb6eb4426f783820044fb7549b4e560789ca887bf1
+generated: "2026-02-20T16:39:39.114677304+01:00"

@@ -19,7 +19,7 @@ apiVersion: v2
 name: agent-backend
 description: Backend service for Seqera CLI AI capabilities
 type: application
-version: 0.1.7
+version: "0.2.0"
 appVersion: "0.1.0"
 maintainers:
   - name: Seqera Labs
@@ -30,8 +30,9 @@ dependencies:
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - bitnami-common
-    version: 2.x.x
-  - condition: seqera-common.enabled
-    name: seqera-common
+    version: "2.x.x"
+  - name: seqera-common
+    version: "2.x.x"
     repository: file://../../../seqera-common
-    version: 1.x.x
+    tags:
+      - seqera-common

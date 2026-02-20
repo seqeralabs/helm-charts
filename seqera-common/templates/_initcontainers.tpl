@@ -21,12 +21,12 @@
 Common initContainer to wait for MySQL database to be ready.
 
 Usage examples:
-include "seqera.initContainerWaitForMySQL" (dict "name" "pipeline-optimization-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database         "secretNameTemplate" "pipeline-optimization.database.secretName"         "secretKeyTemplate" "pipeline-optimization.database.secretKey"         "context" $)
-include "seqera.initContainerWaitForMySQL" (dict "name" "platform-db"              "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "pipeline-optimization.platformDatabase.secretName" "secretKeyTemplate" "pipeline-optimization.platformDatabase.secretKey" "context" $)
+include "seqera.initContainers.waitForMySQL" (dict "name" "pipeline-optimization-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database         "secretNameTemplate" "pipeline-optimization.database.secretName"         "secretKeyTemplate" "pipeline-optimization.database.secretKey"         "context" $)
+include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"              "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "pipeline-optimization.platformDatabase.secretName" "secretKeyTemplate" "pipeline-optimization.platformDatabase.secretKey" "context" $)
 */}}
-{{- define "seqera.initContainerWaitForMySQL" -}}
+{{- define "seqera.initContainers.waitForMySQL" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.global) }}
+  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
@@ -62,11 +62,11 @@ include "seqera.initContainerWaitForMySQL" (dict "name" "platform-db"           
 Common initContainer to wait for Redis to be ready.
 
 Usage example:
-include "seqera.initContainerWaitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "context" $)
+include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "context" $)
 */}}
-{{- define "seqera.initContainerWaitForRedis" -}}
+{{- define "seqera.initContainers.waitForRedis" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.global) }}
+  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
@@ -99,11 +99,11 @@ include "seqera.initContainerWaitForRedis" (dict "name" "redis" "waitValues" .Va
 Common initContainer to wait for Seqera Platform to be ready.
 
 Usage example:
-include "seqera.initContainerWaitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $)
+include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $)
 */}}
-{{- define "seqera.initContainerWaitForPlatform" -}}
+{{- define "seqera.initContainers.waitForPlatform" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
+  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'

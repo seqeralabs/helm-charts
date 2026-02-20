@@ -37,7 +37,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: "0.26.1"
+version: "0.27.0"
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -48,31 +48,31 @@ version: "0.26.1"
 appVersion: "v25.3.0"
 
 dependencies:
-- name: common
-  version: "2.x.x"
-  repository: oci://registry-1.docker.io/bitnamicharts
-  tags:
-    - bitnami-common
-- name: seqera-common
-  version: "1.x.x"
-  repository: "file://../seqera-common"
-  tags:
-    - seqera-common
-- name: pipeline-optimization
-  version: "0.2.x"
-  repository: "file://charts/pipeline-optimization"
-  tags:
-    - pipeline-optimization
-  condition: pipeline-optimization.enabled
-- name: studios
-  version: "1.x.x"
-  repository: "file://charts/studios"
-  tags:
-    - studios
-  condition: studios.enabled
-- name: agent-backend
-  version: "0.1.x"
-  repository: "file://charts/agent-backend"
-  tags:
-    - agent-backend
-  condition: agent-backend.enabled
+  - name: common
+    version: "2.x.x"
+    repository: oci://registry-1.docker.io/bitnamicharts
+    tags:
+      - bitnami-common
+  - name: seqera-common
+    version: "2.x.x"
+    repository: "file://../seqera-common"
+    tags:
+      - seqera-common
+  - name: pipeline-optimization
+    version: "0.3.x"
+    repository: "file://charts/pipeline-optimization"
+    tags:
+      - pipeline-optimization
+    condition: pipeline-optimization.enabled
+  - name: studios
+    version: "1.x.x"
+    repository: "file://charts/studios"
+    tags:
+      - studios
+    condition: studios.enabled
+  - name: agent-backend
+    version: "0.2.x"
+    repository: "file://charts/agent-backend"
+    tags:
+      - agent-backend
+    condition: agent-backend.enabled
