@@ -1,0 +1,568 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "config": {
+      "isWizard": true,
+      "basics": {
+        "description": "Deploy **Seqera Platform** on Azure Kubernetes Service (AKS). This wizard guides you through the essential configuration parameters.",
+        "subscription": {
+          "resourceProviders": [
+            "Microsoft.ContainerService"
+          ]
+        },
+        "location": {
+          "label": "Region",
+          "visible": true
+        }
+      }
+    },
+    "basics": [],
+    "steps": [
+      {
+        "name": "platformConfig",
+        "label": "Platform Configuration",
+        "elements": [
+          {
+            "name": "platformExternalDomain",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform External Domain",
+            "toolTip": "Domain where Seqera Platform will be accessible (e.g. seqera.example.com).",
+            "placeholder": "seqera.example.com",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-zA-Z0-9][a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+              "validationMessage": "Must be a valid domain name."
+            }
+          },
+          {
+            "name": "licenseString",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform License Key",
+            "toolTip": "License key provided by your Seqera account manager.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "contactEmail",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Support Contact Email",
+            "toolTip": "Sender email address used for user support notifications.",
+            "defaultValue": "support@yourdomain.example.com",
+            "constraints": {
+              "required": false,
+              "regex": "^[^@]+@[^@]+\\.[^@]+$",
+              "validationMessage": "Must be a valid email address."
+            }
+          }
+        ]
+      },
+      {
+        "name": "databaseConfig",
+        "label": "Database Configuration",
+        "elements": [
+          {
+            "name": "databaseHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "MySQL Host",
+            "toolTip": "Hostname of the MySQL database server.",
+            "placeholder": "mydb.mysql.database.azure.com",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "databasePort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "MySQL Port",
+            "toolTip": "Port number for the MySQL database.",
+            "defaultValue": "3306",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number."
+            }
+          },
+          {
+            "name": "databaseName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database Name",
+            "toolTip": "Name of the MySQL database for Seqera Platform.",
+            "placeholder": "tower",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "databaseUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database Username",
+            "toolTip": "MySQL database username.",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "databasePassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Database Password",
+              "confirmPassword": "Confirm Database Password"
+            },
+            "toolTip": "MySQL database password.",
+            "constraints": {
+              "required": true
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "databaseDriver",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Database Driver",
+            "toolTip": "Database driver to use. MariaDB driver is compatible with MySQL.",
+            "defaultValue": "MariaDB (compatible with MySQL)",
+            "constraints": {
+              "required": true,
+              "allowedValues": [
+                {
+                  "label": "MariaDB (compatible with MySQL)",
+                  "value": "mariadb"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "redisConfig",
+        "label": "Redis Configuration",
+        "elements": [
+          {
+            "name": "redisHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Redis Host",
+            "toolTip": "Hostname of the Redis cache server.",
+            "placeholder": "myredis.redis.cache.windows.net",
+            "constraints": {
+              "required": true
+            }
+          },
+          {
+            "name": "redisPort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Redis Port",
+            "toolTip": "Port number for the Redis server.",
+            "defaultValue": "6379",
+            "constraints": {
+              "required": true,
+              "regex": "^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number."
+            }
+          },
+          {
+            "name": "redisPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Redis Password",
+              "confirmPassword": "Confirm Redis Password"
+            },
+            "toolTip": "Redis password, if the server requires authentication.",
+            "constraints": {
+              "required": false
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "redisEnableTls",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable TLS for Redis",
+            "toolTip": "Enable TLS encryption when connecting to Redis. Recommended for Azure Cache for Redis."
+          }
+        ]
+      },
+      {
+        "name": "smtpConfig",
+        "label": "Email (SMTP) Configuration",
+        "elements": [
+          {
+            "name": "smtpInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "options": {
+              "text": "SMTP settings are required for email-based authentication and event notifications. You can leave these empty and configure them later via Helm values.",
+              "style": "Info"
+            }
+          },
+          {
+            "name": "smtpHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "SMTP Host",
+            "toolTip": "SMTP server hostname.",
+            "placeholder": "smtp.example.com",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "smtpPort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "SMTP Port",
+            "toolTip": "SMTP server port (e.g. 587 for TLS, 465 for SSL).",
+            "placeholder": "587",
+            "constraints": {
+              "required": false,
+              "regex": "^$|^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number or empty."
+            }
+          },
+          {
+            "name": "smtpUser",
+            "type": "Microsoft.Common.TextBox",
+            "label": "SMTP Username",
+            "toolTip": "Username for SMTP server authentication.",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "smtpPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "SMTP Password",
+              "confirmPassword": "Confirm SMTP Password"
+            },
+            "toolTip": "Password for SMTP server authentication.",
+            "constraints": {
+              "required": false
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "securityConfig",
+        "label": "Security Seeds",
+        "elements": [
+          {
+            "name": "securityInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "options": {
+              "text": "Security seeds are used for JWT token signing and database encryption. If left empty, Helm will auto-generate random values. For production, provide stable values that persist across upgrades.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "jwtSeedString",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "JWT Seed",
+              "confirmPassword": "Confirm JWT Seed"
+            },
+            "toolTip": "Seed used to sign authentication tokens. Leave empty for auto-generation.",
+            "constraints": {
+              "required": false
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "cryptoSeedString",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Crypto Seed",
+              "confirmPassword": "Confirm Crypto Seed"
+            },
+            "toolTip": "Seed used to encrypt sensitive data in the database. Must remain stable across upgrades. Leave empty for auto-generation.",
+            "constraints": {
+              "required": false
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "featuresConfig",
+        "label": "Extra Features",
+        "elements": [
+          {
+            "name": "studiosEnabled",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Studios",
+            "toolTip": "Enable Seqera Studios for interactive data analysis sessions (Jupyter, VS Code, RStudio).",
+            "defaultValue": true
+          },
+          {
+            "name": "studiosConfigSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Studios Configuration",
+            "visible": "[steps('featuresConfig').studiosEnabled]",
+            "elements": [
+              {
+                "name": "studiosDomain",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Studios Domain",
+                "toolTip": "Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains.",
+                "defaultValue": "[concat('studios.', steps('platformConfig').platformExternalDomain)]",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                  "validationMessage": "Must be a valid domain name."
+                }
+              },
+              {
+                "name": "studiosRedisInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "options": {
+                  "text": "Studios requires a dedicated Redis cache instance, separate from the Platform Redis.",
+                  "style": "Info"
+                }
+              },
+              {
+                "name": "studiosRedisHost",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Redis Host",
+                "toolTip": "Hostname of the Redis server for Studios.",
+                "placeholder": "myredis.redis.cache.windows.net",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "studiosRedisPort",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Redis Port",
+                "toolTip": "Port number for the Studios Redis server.",
+                "defaultValue": "6379",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[0-9]{1,5}$",
+                  "validationMessage": "Must be a valid port number."
+                }
+              },
+              {
+                "name": "studiosRedisPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Redis Password",
+                  "confirmPassword": "Confirm Redis Password"
+                },
+                "toolTip": "Redis password for Studios, if authentication is required.",
+                "constraints": {
+                  "required": false
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              },
+              {
+                "name": "studiosRedisEnableTls",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable TLS for Redis",
+                "toolTip": "Enable TLS encryption when connecting to the Studios Redis server."
+              }
+            ]
+          },
+          {
+            "name": "pipelineOptimizationEnabled",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable Pipeline Optimization",
+            "toolTip": "Enable the Pipeline Optimization service for automated resource tuning of Nextflow pipelines.",
+            "defaultValue": true
+          },
+          {
+            "name": "poDedicatedDbSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Pipeline Optimization Database",
+            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]",
+            "elements": [
+              {
+                "name": "poDedicatedDbInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "options": {
+                  "text": "Pipeline Optimization requires its own MySQL database to store optimization data.",
+                  "style": "Info"
+                }
+              },
+              {
+                "name": "poDbHost",
+                "type": "Microsoft.Common.TextBox",
+                "label": "MySQL Host",
+                "toolTip": "Hostname of the MySQL database server for Pipeline Optimization.",
+                "placeholder": "mydb.mysql.database.azure.com",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poDbPort",
+                "type": "Microsoft.Common.TextBox",
+                "label": "MySQL Port",
+                "toolTip": "Port number for the Pipeline Optimization MySQL database.",
+                "defaultValue": "3306",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[0-9]{1,5}$",
+                  "validationMessage": "Must be a valid port number."
+                }
+              },
+              {
+                "name": "poDbName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database Name",
+                "toolTip": "Name of the MySQL database for Pipeline Optimization.",
+                "placeholder": "pipeline_optimization",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poDbUsername",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Database Username",
+                "toolTip": "MySQL database username for Pipeline Optimization.",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poDbPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Database Password",
+                  "confirmPassword": "Confirm Database Password"
+                },
+                "toolTip": "MySQL database password for Pipeline Optimization.",
+                "constraints": {
+                  "required": true
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          },
+          {
+            "name": "poPlatformDbSection",
+            "type": "Microsoft.Common.Section",
+            "label": "Pipeline Optimization — Platform Database Access (read-only)",
+            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]",
+            "elements": [
+              {
+                "name": "poPlatformDbInfo",
+                "type": "Microsoft.Common.InfoBox",
+                "options": {
+                  "text": "Pipeline Optimization needs read-only access to the Platform database to read pipeline and job details.",
+                  "style": "Info"
+                }
+              },
+              {
+                "name": "poPlatformDbHost",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Platform MySQL Host",
+                "toolTip": "Hostname of the Platform MySQL database. Can be the same as the main Platform database.",
+                "placeholder": "mydb.mysql.database.azure.com",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poPlatformDbPort",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Platform MySQL Port",
+                "toolTip": "Port number for the Platform MySQL database.",
+                "defaultValue": "3306",
+                "constraints": {
+                  "required": true,
+                  "regex": "^[0-9]{1,5}$",
+                  "validationMessage": "Must be a valid port number."
+                }
+              },
+              {
+                "name": "poPlatformDbName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Platform Database Name",
+                "toolTip": "Name of the Platform MySQL database.",
+                "placeholder": "tower",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poPlatformDbUsername",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Platform Database Username",
+                "toolTip": "MySQL username for Platform database access. A read-only user is sufficient.",
+                "constraints": {
+                  "required": true
+                }
+              },
+              {
+                "name": "poPlatformDbPassword",
+                "type": "Microsoft.Common.PasswordBox",
+                "label": {
+                  "password": "Platform Database Password",
+                  "confirmPassword": "Confirm Platform Database Password"
+                },
+                "toolTip": "MySQL password for Platform database access.",
+                "constraints": {
+                  "required": true
+                },
+                "options": {
+                  "hideConfirmation": false
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "global.platformExternalDomain": "[steps('platformConfig').platformExternalDomain]",
+      "platform.licenseString": "[steps('platformConfig').licenseString]",
+      "platform.contactEmail": "[steps('platformConfig').contactEmail]",
+      "platformDatabase.host": "[steps('databaseConfig').databaseHost]",
+      "platformDatabase.port": "[int(steps('databaseConfig').databasePort)]",
+      "platformDatabase.name": "[steps('databaseConfig').databaseName]",
+      "platformDatabase.username": "[steps('databaseConfig').databaseUsername]",
+      "platformDatabase.password": "[steps('databaseConfig').databasePassword]",
+      "platformDatabase.driver": "[steps('databaseConfig').databaseDriver]",
+      "redis.host": "[steps('redisConfig').redisHost]",
+      "redis.port": "[int(steps('redisConfig').redisPort)]",
+      "redis.password": "[steps('redisConfig').redisPassword]",
+      "redis.enableTls": "[steps('redisConfig').redisEnableTls]",
+      "platform.smtp.host": "[steps('smtpConfig').smtpHost]",
+      "platform.smtp.port": "[steps('smtpConfig').smtpPort]",
+      "platform.smtp.user": "[steps('smtpConfig').smtpUser]",
+      "platform.smtp.password": "[steps('smtpConfig').smtpPassword]",
+      "platform.jwtSeedString": "[steps('securityConfig').jwtSeedString]",
+      "platform.cryptoSeedString": "[steps('securityConfig').cryptoSeedString]",
+      "studios.enabled": "[steps('featuresConfig').studiosEnabled]",
+      "global.studiosDomain": "[steps('featuresConfig').studiosConfigSection.studiosDomain]",
+      "studios.redis.host": "[steps('featuresConfig').studiosConfigSection.studiosRedisHost]",
+      "studios.redis.port": "[int(steps('featuresConfig').studiosConfigSection.studiosRedisPort)]",
+      "studios.redis.password": "[steps('featuresConfig').studiosConfigSection.studiosRedisPassword]",
+      "studios.redis.enableTls": "[steps('featuresConfig').studiosConfigSection.studiosRedisEnableTls]",
+      "pipeline-optimization.enabled": "[steps('featuresConfig').pipelineOptimizationEnabled]",
+      "pipeline-optimization.database.host": "[steps('featuresConfig').poDedicatedDbSection.poDbHost]",
+      "pipeline-optimization.database.port": "[int(steps('featuresConfig').poDedicatedDbSection.poDbPort)]",
+      "pipeline-optimization.database.name": "[steps('featuresConfig').poDedicatedDbSection.poDbName]",
+      "pipeline-optimization.database.username": "[steps('featuresConfig').poDedicatedDbSection.poDbUsername]",
+      "pipeline-optimization.database.password": "[steps('featuresConfig').poDedicatedDbSection.poDbPassword]",
+      "pipeline-optimization.platformDatabase.host": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbHost]",
+      "pipeline-optimization.platformDatabase.port": "[int(steps('featuresConfig').poPlatformDbSection.poPlatformDbPort)]",
+      "pipeline-optimization.platformDatabase.name": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbName]",
+      "pipeline-optimization.platformDatabase.username": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbUsername]",
+      "pipeline-optimization.platformDatabase.password": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbPassword]"
+    }
+  }
+}
