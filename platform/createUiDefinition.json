@@ -118,22 +118,6 @@
             "options": {
               "hideConfirmation": false
             }
-          },
-          {
-            "name": "databaseDriver",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Database Driver",
-            "toolTip": "Database driver to use. MariaDB driver is compatible with MySQL.",
-            "defaultValue": "MariaDB (compatible with MySQL)",
-            "constraints": {
-              "required": true,
-              "allowedValues": [
-                {
-                  "label": "MariaDB (compatible with MySQL)",
-                  "value": "mariadb"
-                }
-              ]
-            }
           }
         ]
       },
@@ -535,7 +519,6 @@
       "platformDatabase.name": "[steps('databaseConfig').databaseName]",
       "platformDatabase.username": "[steps('databaseConfig').databaseUsername]",
       "platformDatabase.password": "[steps('databaseConfig').databasePassword]",
-      "platformDatabase.driver": "[steps('databaseConfig').databaseDriver]",
       "redis.host": "[steps('redisConfig').redisHost]",
       "redis.port": "[int(steps('redisConfig').redisPort)]",
       "redis.password": "[steps('redisConfig').redisPassword]",
