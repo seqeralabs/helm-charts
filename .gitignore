@@ -16,3 +16,4 @@ values-*.y*ml
 
 *.sh
 *.txt
+!**/NOTES.txt

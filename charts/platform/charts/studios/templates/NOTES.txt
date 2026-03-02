@@ -1,0 +1,36 @@
+{{- /*
+This NOTES.txt file is for the 'studios' subchart.
+It contains validations that are run at install/upgrade time.
+*/ -}}
+
+{{- if not (include "studios.redis.host" .) -}}
+{{- fail "Redis host must be defined in 'redis.host'." -}}
+{{- end -}}
+
+{{- if and (include "studios.redis.isAuthEnabled" .)
+           (and .Values.redis.password (include "studios.redis.existingSecret" .)) -}}
+{{- fail "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both." -}}
+{{- end -}}
+
+{{- if and (and (include "studios.redis.isAuthEnabled" .)
+                (include "studios.redis.existingSecret" .))
+           (not (include "studios.redis.secretKey" .)) -}}
+{{- fail "An existing secret name was set for the Redis password, but an empty secret key was defined in 'redis.existingSecretKey'." }}
+{{- end -}}
+
+{{/* Check that either the OIDC token or a secret containing it are defined for the proxy, but not both */}}
+{{- if and .Values.proxy.oidcClientRegistrationToken .Values.proxy.oidcClientRegistrationTokenSecretName -}}
+{{- fail "Either define an OIDC token in .Values.proxy.oidcClientRegistrationToken or via a secret in .Values.proxy.oidcClientRegistrationTokenSecretName, but not both." -}}
+{{- end -}}
+
+{{- if not .Values.global.platformServiceAddress -}}
+{{- fail "global.platformServiceAddress must be defined." -}}
+{{- end -}}
+
+{{- if eq (toString .Values.global.platformServicePort) "" -}}
+{{- fail "global.platformServicePort must be defined." -}}
+{{- end -}}
+
+{{- if not (and .Values.global.studiosDomain .Values.global.studiosConnectionUrl) -}}
+{{- fail "Both .Values.global.studiosDomain and .Values.global.studiosConnectionUrl must be defined." -}}
+{{- end -}}

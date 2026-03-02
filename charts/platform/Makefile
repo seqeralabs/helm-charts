@@ -1,4 +1,4 @@
-.PHONY: test tests unittests unittests-no-build debug check-unittest-plugin install-unittest-plugin clean-deps clean-subchart-packages rebuild-deps rebuild-deps-force help
+.PHONY: test tests unittests unittests-no-build debug check-unittest-plugin install-unittest-plugin clean-deps clean-subchart-packages rebuild-deps rebuild-deps-and-unpack rebuild-deps-force help
 
 # Run tests (with external dependencies rebuild) - DEFAULT behavior
 test: unittests
@@ -17,6 +17,7 @@ help:
 	@echo ""
 	@echo "Dependency Management:"
 	@echo "  make rebuild-deps                - Check and rebuild missing external dependencies (fast)"
+	@echo "  make rebuild-deps-and-unpack     - Rebuild deps, unpack tarballs, and remove tgz files"
 	@echo "  make rebuild-deps-force          - Force rebuild all external dependencies (slower)"
 	@echo "  make clean-deps                  - Clean all dependency tgz packages"
 	@echo "  make clean-subchart-packages     - Clean only subchart tgz packages (pipeline-optimization, studios)"
@@ -68,6 +69,29 @@ rebuild-deps: clean-subchart-packages
 			fi; \
 		fi; \
 	done
+
+# Rebuild dependencies, unpack all tgz tarballs into charts/, then remove the tarballs
+rebuild-deps-and-unpack: rebuild-deps
+	@echo "Unpacking dependency tarballs..."
+	@for tgz in charts/*.tgz; do \
+		if [ -f "$$tgz" ]; then \
+			echo "Unpacking $$tgz..."; \
+			tar -xzf "$$tgz" -C charts/; \
+			rm -f "$$tgz"; \
+		fi; \
+	done
+	@for subchart in pipeline-optimization studios agent-backend; do \
+		if [ -d "charts/$$subchart" ]; then \
+			for tgz in "charts/$$subchart/charts/"*.tgz; do \
+				if [ -f "$$tgz" ]; then \
+					echo "Unpacking $$tgz..."; \
+					tar -xzf "$$tgz" -C "charts/$$subchart/charts/"; \
+					rm -f "$$tgz"; \
+				fi; \
+			done; \
+		fi; \
+	done
+	@echo "✓ All dependencies unpacked and tarballs removed"
 
 # Force rebuild all external dependencies (ignores cache)
 rebuild-deps-force: clean-subchart-packages
