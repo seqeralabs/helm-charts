@@ -13,23 +13,6 @@ repos:
       args: [--markdown-linebreak-ext=md]
     - id: end-of-file-fixer
 
-  - repo: local
-    hooks:
-      - id: check-changelog-updated
-        name: Check CHANGELOG.md Updated
-        entry: .github/scripts/check_changelog_updated.py
-        language: python
-        pass_filenames: false
-        always_run: false
-        stages: [commit]
-
-      - id: helm-chart-tests
-        name: Helm Chart Tests
-        entry: .github/scripts/run_chart_tests.py
-        language: python
-        pass_filenames: false
-        always_run: true
-
   - repo: https://github.com/digitalstudium/helmfmt
     rev: v0.4.2
     hooks:
@@ -55,3 +38,20 @@ repos:
         name: Fix license header on other test files in the repo
         args:
           - --config=.license-tools-config-other.json
+
+  - repo: local
+    hooks:
+      - id: check-changelog-updated
+        name: Check CHANGELOG.md Updated
+        entry: .github/scripts/check_changelog_updated.py
+        language: python
+        pass_filenames: false
+        always_run: false
+        stages: [commit]
+
+      - id: helm-chart-tests
+        name: Helm Chart Tests
+        entry: .github/scripts/run_chart_tests.py
+        language: python
+        pass_filenames: false
+        always_run: true
