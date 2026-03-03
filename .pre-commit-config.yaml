@@ -54,4 +54,5 @@ repos:
         entry: .github/scripts/run_chart_tests.py
         language: python
         pass_filenames: false
-        always_run: true
+        always_run: false
+        files: ^charts/
