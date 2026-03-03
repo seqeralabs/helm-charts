@@ -47,6 +47,7 @@ repos:
         language: python
         pass_filenames: false
         always_run: false
+        files: ^charts/
         stages: [commit]
 
       - id: helm-chart-tests
