@@ -348,3 +348,103 @@ tests:
       path: spec.template.spec.containers[0].readinessProbe
   - notExists:
       path: spec.template.spec.containers[0].startupProbe
+
+- it: should use azure-specific image defined in global.azure.images.platformFrontend
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: my-azure-registry.azurecr.io
+            image: frontend
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/frontend:1.2.3
+
+- it: should use azure-specific image with digest, overriding the tag
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: my-azure-registry.azurecr.io
+            image: frontend
+            tag: this-will-be-ignored
+            digest: sha256:abc123
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/frontend@sha256:abc123
+
+- it: should fall back to chart appVersion without -unprivileged suffix when azure override has no tag
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: my-azure-registry.azurecr.io
+            image: frontend
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/frontend:v9.9.9
+
+- it: should render azure override without registry prefix when registry is not set
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            image: frontend
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: frontend:1.2.3
+
+- it: should fall back to default frontend.image with -unprivileged suffix when azure platformFrontend.image is empty
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/frontend:v9.9.9-unprivileged
+
+- it: should prefer azure override over custom frontend.image when both are set
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: my-azure-registry.azurecr.io
+            image: azure-frontend
+            tag: 2.0.0
+    frontend:
+      image:
+        registry: custom-registry.io
+        repository: custom-repo/custom-frontend
+        tag: 3.0.0
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/azure-frontend:2.0.0
+
+- it: should evaluate templates in azure override image fields
+  set:
+    global:
+      azure:
+        images:
+          platformFrontend:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "frontend" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-registry-azurecr.io/my-frontend:v9.9.9

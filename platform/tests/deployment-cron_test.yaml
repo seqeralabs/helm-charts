@@ -865,3 +865,277 @@ tests:
       path: spec.template.spec.imagePullSecrets
       value:
       - name: my-migrate-db-pull-secret
+
+- it: should use azure-specific image defined in global.azure.images.platformBackend
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage:1.2.3
+
+- it: should use azure-specific image with digest, overriding the tag
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+            tag: this-will-be-ignored
+            digest: sha256:abc123
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage@sha256:abc123
+
+- it: should fall back to chart appVersion when azure override has no tag
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage:v9.9.9
+
+- it: should render azure override without registry prefix when registry is not set
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            image: myimage
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: myimage:1.2.3
+
+- it: should fall back to default cron.image when azure platformBackend.image is empty
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/backend:v9.9.9
+
+- it: should prefer azure override over custom cron.image when both are set
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: azure-image
+            tag: 2.0.0
+    cron:
+      image:
+        registry: custom-registry.io
+        repository: custom-repo/custom-image
+        tag: 3.0.0
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/azure-image:2.0.0
+
+- it: should evaluate templates in azure override image fields
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "image" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-registry-azurecr.io/my-image:v9.9.9
+
+- it: should use azure-specific image for the migrate-db initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformCronMigrateDB:
+            registry: my-azure-registry.azurecr.io
+            image: my-migrate-db
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: my-azure-registry.azurecr.io/my-migrate-db:1.2.3
+
+- it: should fall back to default migrate-db image when azure platformCronMigrateDB.image is empty
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformCronMigrateDB:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: private/nf-tower-enterprise/migrate-db:v9.9.9
+
+- it: should use azure override with digest for the migrate-db initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformCronMigrateDB:
+            registry: my-azure-registry.azurecr.io
+            image: my-migrate-db
+            tag: this-will-be-ignored
+            digest: sha256:migrateabc123
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: my-azure-registry.azurecr.io/my-migrate-db@sha256:migrateabc123
+
+- it: should evaluate templates in azure override fields for migrate-db initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformCronMigrateDB:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "migrate-db" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: my-registry-azurecr.io/my-migrate-db:v9.9.9
+
+- it: should allow independent azure overrides for cron and migrate-db images
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: azure-registry.azurecr.io
+            image: azure-backend
+            tag: 1.0.0
+          platformCronMigrateDB:
+            registry: azure-registry.azurecr.io
+            image: azure-migrate-db
+            tag: 2.0.0
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: azure-registry.azurecr.io/azure-backend:1.0.0
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: azure-registry.azurecr.io/azure-migrate-db:2.0.0
+
+- it: should use azure-specific image for the wait-for-MySQL initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: my-azure-registry.azurecr.io
+            image: my-mysql-wait
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: my-azure-registry.azurecr.io/my-mysql-wait:1.2.3
+
+- it: should fall back to default wait-for-MySQL image when azure waitForMySQL.image is empty
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: mysql:9
+
+- it: should evaluate templates in azure override fields for wait-for-MySQL initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "mysql" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: my-registry-azurecr.io/my-mysql:v9.9.9
+
+- it: should use azure-specific image for the wait-for-Redis initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: my-azure-registry.azurecr.io
+            image: my-redis-wait
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: my-azure-registry.azurecr.io/my-redis-wait:1.2.3
+
+- it: should fall back to default wait-for-Redis image when azure waitForRedis.image is empty
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: redis:7
+
+- it: should evaluate templates in azure override fields for wait-for-Redis initContainer
+  template: deployment-cron.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "redis" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: my-registry-azurecr.io/my-redis:v9.9.9

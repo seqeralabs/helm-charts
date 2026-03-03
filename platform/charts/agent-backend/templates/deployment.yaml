@@ -65,7 +65,7 @@ spec:
       initContainers:
 {{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.waitForMySQL.enabled }}
         - name: wait-for-db
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "waitForMySQL" "context" $) }}
           imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
           command:
             - 'sh'
@@ -92,7 +92,7 @@ spec:
   {{- end }}
 {{- end }}
         - name: init
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: {{ .Values.dbMigrationInitContainer.command | toYaml | nindent 12 }}
           envFrom:
@@ -121,7 +121,7 @@ spec:
 {{- end }}
       containers:
         - name: agent-backend
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- with .Values.command }}
           command: {{- toYaml . | nindent 12 }}

@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.1.5](https://img.shields.io/badge/Version-1.1.5-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![AppVersion: 0.9.0](https://img.shields.io/badge/AppVersion-0.9.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.1.5 \
+  --version 1.2.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -62,7 +62,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../seqera-common | seqera-common | 1.x.x |
+| file://../../../seqera-common | seqera-common | 2.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values

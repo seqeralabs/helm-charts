@@ -569,3 +569,46 @@ tests:
       value:
         whenDeleted: Retain
         whenScaled: Delete
+
+- it: should use azure-specific image for the server container
+  template: statefulset-server.yaml
+  set:
+    global:
+      azure:
+        images:
+          studiosServer:
+            registry: my-azure-registry.azurecr.io
+            image: my-server
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/my-server:1.2.3
+
+- it: should fall back to default server image when azure studiosServer.image is empty
+  template: statefulset-server.yaml
+  set:
+    global:
+      azure:
+        images:
+          studiosServer:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/data-studio/connect-server:0.9.0
+
+- it: should evaluate templates in azure override fields for the server container
+  template: statefulset-server.yaml
+  set:
+    global:
+      azure:
+        images:
+          studiosServer:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "server" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-registry-azurecr.io/my-server:0.9.0

@@ -5,6 +5,15 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-20
+
+### Changed
+
+- Add `seqera.images.image` helper to support cloud-provider-specific image overrides via `global` values
+- Rename `seqera.initContainerWaitFor*` helpers to `seqera.initContainers.waitFor*` for better organization and consistency
+- Updated `seqera.initContainers.waitFor*` helpers to use `seqera.images.image` instead of `common.images.image`, enabling cloud-provider-specific image overrides, e.g. via `global.azure.images`
+- Added `cloudProviderImageKey` parameter to all init container helpers
+
 ## [1.1.1] - 2026-01-30
 
 ### Added

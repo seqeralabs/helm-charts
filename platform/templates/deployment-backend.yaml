@@ -66,8 +66,8 @@ spec:
 
       initContainers:
 {{- if .Values.initContainerDependencies.enabled }}
-        {{- include "seqera.initContainerWaitForMySQL" (dict "name" "platform-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "platform.database.secretName" "secretKeyTemplate" "platform.database.secretKey" "context" $) | nindent 8 }}
-        {{- include "seqera.initContainerWaitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "platform.database.secretName" "secretKeyTemplate" "platform.database.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "cloudProviderImageKey" "waitForRedis" "context" $) | nindent 8 }}
         {{- include "platform.initContainerWaitForCron" . | nindent 8 }}
 {{- end }}
 {{- with .Values.backend.initContainers }}
@@ -76,7 +76,7 @@ spec:
 
       containers:
         - name: backend
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.backend.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.backend.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "platformBackend" "context" $) }}
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
 {{- with .Values.backend.command }}
           command: {{ toYaml . | nindent 12 }}

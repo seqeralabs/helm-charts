@@ -67,7 +67,7 @@ spec:
 
       containers:
         - name: server
-          image: {{ include "common.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global "chart" .Chart) }}
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.server.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "studiosServer" "context" $) }}
           imagePullPolicy: {{ .Values.server.image.pullPolicy }}
 {{- with .Values.server.command }}
           command: {{- toYaml . | nindent 12 }}

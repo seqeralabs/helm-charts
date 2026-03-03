@@ -36,3 +36,58 @@ Usage: {{ include "seqera.images.pullSecretCredentials" . }}
     {{- printf "{\"auths\":{%s}}" (join "," $regs) | b64enc -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Resolve a cloud-provider-specific image override. Returns the fully-qualified image string if an
+override is found under .global.azure.images.<cloudProviderImageKey>, or an empty string otherwise.
+Fields (registry, image, tag, digest) are evaluated as templates.
+
+{{ include "seqera.images.cloudProviderOverride" ( dict "global" .Values.global "chart" .Chart "cloudProviderImageKey" "platformBackend" "context" $ ) }}
+*/}}
+{{- define "seqera.images.cloudProviderOverride" -}}
+  {{- if and .global .cloudProviderImageKey -}}
+    {{- $azureImages := (((.global).azure).images) -}}
+    {{- if $azureImages -}}
+      {{- $candidate := index $azureImages .cloudProviderImageKey -}}
+      {{- if and $candidate ($candidate).image -}}
+        {{- $registry := $candidate.registry -}}
+        {{- $repository := $candidate.image -}}
+        {{- $tag := $candidate.tag -}}
+        {{- $digest := $candidate.digest -}}
+        {{- if .context -}}
+          {{- if $registry -}}
+            {{- $registry = tpl (toString $registry) .context -}}
+          {{- end -}}
+          {{- $repository = tpl (toString $repository) .context -}}
+          {{- if $tag -}}
+            {{- $tag = tpl (toString $tag) .context -}}
+          {{- end -}}
+          {{- if $digest -}}
+            {{- $digest = tpl (toString $digest) .context -}}
+          {{- end -}}
+        {{- end -}}
+        {{- $overrideImageRoot := dict "registry" $registry "repository" $repository "tag" $tag "digest" $digest -}}
+        {{- include "common.images.image" (dict "imageRoot" $overrideImageRoot "global" .global "chart" .chart) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper image name, giving higher priority to cloud-provider-specific values under
+.global. For example, if the user has defined .Values.global.azure.images.platformBackend.image, it
+will be used instead of .Values.backend.image when deploying on Azure.
+
+Requires a "cloudProviderImageKey" parameter to identify which cloud-provider image override to look
+up (e.g. "platformBackend").
+
+{{ include "seqera.images.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "platformBackend" "context" $ ) }}
+*/}}
+{{- define "seqera.images.image" -}}
+  {{- $cloudOverride := include "seqera.images.cloudProviderOverride" . -}}
+  {{- if $cloudOverride -}}
+    {{- $cloudOverride -}}
+  {{- else -}}
+    {{- include "common.images.image" (dict "imageRoot" .imageRoot "global" .global "chart" .chart) -}}
+  {{- end -}}
+{{- end -}}

@@ -967,3 +967,239 @@ tests:
   - equal:
       path: spec.template.spec.initContainers
       value: null
+
+- it: should use azure-specific image defined in global.azure.images.platformBackend
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage:1.2.3
+
+- it: should use azure-specific image with digest, overriding the tag
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+            tag: this-will-be-ignored
+            digest: sha256:abc123
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage@sha256:abc123
+
+- it: should fall back to chart appVersion when azure override has no tag
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: myimage
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/myimage:v9.9.9
+
+- it: should render azure override without registry prefix when registry is not set
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            image: myimage
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: myimage:1.2.3
+
+- it: should fall back to default backend.image when azure platformBackend.image is empty
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: private/nf-tower-enterprise/backend:v9.9.9
+
+- it: should prefer azure override over custom backend.image when both are set
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: my-azure-registry.azurecr.io
+            image: azure-image
+            tag: 2.0.0
+    backend:
+      image:
+        registry: custom-registry.io
+        repository: custom-repo/custom-image
+        tag: 3.0.0
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-azure-registry.azurecr.io/azure-image:2.0.0
+
+- it: should evaluate templates in azure override image fields
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          platformBackend:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "image" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: my-registry-azurecr.io/my-image:v9.9.9
+
+- it: should use azure-specific image for the wait-for-MySQL initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: my-azure-registry.azurecr.io
+            image: my-mysql-wait
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: my-azure-registry.azurecr.io/my-mysql-wait:1.2.3
+
+- it: should fall back to default wait-for-MySQL image when azure waitForMySQL.image is empty
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: mysql:9
+
+- it: should evaluate templates in azure override fields for wait-for-MySQL initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForMySQL:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "mysql" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].image
+      value: my-registry-azurecr.io/my-mysql:v9.9.9
+
+- it: should use azure-specific image for the wait-for-Redis initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: my-azure-registry.azurecr.io
+            image: my-redis-wait
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: my-azure-registry.azurecr.io/my-redis-wait:1.2.3
+
+- it: should fall back to default wait-for-Redis image when azure waitForRedis.image is empty
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: redis:7
+
+- it: should evaluate templates in azure override fields for wait-for-Redis initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForRedis:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "redis" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].image
+      value: my-registry-azurecr.io/my-redis:v9.9.9
+
+- it: should use azure-specific image for the wait-for-cron initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForCron:
+            registry: my-azure-registry.azurecr.io
+            image: my-curl
+            tag: 1.2.3
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: my-azure-registry.azurecr.io/my-curl:1.2.3
+
+- it: should fall back to default wait-for-cron image when azure waitForCron.image is empty
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForCron:
+            registry: my-azure-registry.azurecr.io
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: curlimages/curl:latest
+
+- it: should evaluate templates in azure override fields for wait-for-cron initContainer
+  template: deployment-backend.yaml
+  set:
+    global:
+      azure:
+        images:
+          waitForCron:
+            registry: '{{ printf "my-registry-%s" "azurecr.io" }}'
+            image: '{{ printf "my-%s" "curl" }}'
+            tag: '{{ .Chart.AppVersion }}'
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: my-registry-azurecr.io/my-curl:v9.9.9
