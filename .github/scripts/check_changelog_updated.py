@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Pre-commit hook to remind users to update CHANGELOG.md when chart files are modified.
+Pre-commit hook to ensure CHANGELOG.md is updated when chart files are modified.
 
-This script simply reminds users to update CHANGELOG.md files for any charts
-that have been modified. It always succeeds but prints a reminder message.
+This script checks whether modified charts also have a staged CHANGELOG.md update.
+If any modified chart is missing a staged CHANGELOG.md change, the hook fails with
+a reminder message.
 
 Exit codes:
-- 0: Always succeeds (just a reminder)
+- 0: All modified charts have a staged CHANGELOG.md update (or no charts modified)
+- 1: One or more modified charts are missing a staged CHANGELOG.md update
 """
 
 import subprocess
@@ -101,29 +103,43 @@ def main():
     if not modified_charts:
         return 0
 
-    # Just print a friendly reminder
-    print("📝 Reminder: The following charts have been modified:")
-    print()
+    # Check which modified charts are missing a staged CHANGELOG.md update
+    repo_root = Path.cwd()
+    staged_set = set(staged_files)
+    charts_missing_changelog = []
 
     for chart_dir in sorted(modified_charts):
-        relative_path = chart_dir.relative_to(Path.cwd())
+        relative_path = chart_dir.relative_to(repo_root)
+        changelog_rel = str(relative_path / "CHANGELOG.md")
+
+        if changelog_rel not in staged_set:
+            charts_missing_changelog.append((chart_dir, relative_path))
+
+    if not charts_missing_changelog:
+        return 0
+
+    print("📝 The following charts have been modified without updating CHANGELOG.md:")
+    print()
+
+    for chart_dir, relative_path in charts_missing_changelog:
         changelog_path = chart_dir / "CHANGELOG.md"
 
         if changelog_path.exists():
             print(f"  📦 {relative_path}/")
-            print(f"     Don't forget to update {relative_path}/CHANGELOG.md")
+            print(f"     Please update {relative_path}/CHANGELOG.md")
         else:
             print(f"  📦 {relative_path}/")
             print(f"     ⚠️  CHANGELOG.md does not exist - consider creating one")
         print()
 
-    print("💡 Remember to:")
+    print("💡 To fix this:")
     print("   1. Document your changes in each chart's CHANGELOG.md")
     print("   2. Follow the format in https://keepachangelog.com/")
     print("   3. Stage your CHANGELOG.md changes with: git add <chart>/CHANGELOG.md")
+    print("   4. Or skip this check with: git commit --no-verify")
     print()
 
-    return 0
+    return 1
 
 
 if __name__ == "__main__":
