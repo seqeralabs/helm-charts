@@ -59,6 +59,9 @@ global:
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
+  # -- Domain where the Portal Web frontend listens. Evaluated as a template
+  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   imageCredentials: []
@@ -1332,4 +1335,9 @@ pipeline-optimization:
 agent-backend:
   # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
   # more details and the full list of configuration options
+  enabled: true
+
+portal-web:
+  # -- Enable portal web frontend. Refer to the subchart README for more details and the full list
+  # of configuration options
   enabled: true

@@ -41,7 +41,7 @@ clean-deps:
 # This prevents helm unittest from running tests twice on subcharts
 clean-subchart-packages:
 	@echo "Cleaning subchart packages..."
-	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz
+	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz charts/portal-web-*.tgz
 
 # Rebuild only external dependencies (seqera-common, bitnami common) if missing
 # Subcharts (pipeline-optimization, studios, agent-backend) are kept unpacked to avoid duplicate test runs
@@ -51,13 +51,13 @@ rebuild-deps: clean-subchart-packages
 		echo "Missing dependencies detected, fetching..."; \
 		helm dependency update 2>&1 | grep -v "walk.go" || true; \
 		echo "Cleaning subchart packages to prevent duplicate test runs..."; \
-		rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz; \
+		rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz charts/portal-web-*.tgz; \
 		echo "✓ External dependencies rebuilt successfully (subcharts remain unpacked)"; \
 	else \
 		echo "✓ All external dependencies already present (use 'make rebuild-deps-force' to force refresh)"; \
 	fi
 	@echo "Checking subchart dependencies..."
-	@for subchart in pipeline-optimization studios agent-backend; do \
+	@for subchart in pipeline-optimization studios agent-backend portal-web; do \
 		if [ -d "charts/$$subchart" ]; then \
 			echo "Checking dependencies for $$subchart..."; \
 			if [ ! -f "charts/$$subchart/charts/common-"*.tgz ] || [ ! -f "charts/$$subchart/charts/seqera-common-"*.tgz ]; then \
@@ -102,7 +102,7 @@ rebuild-deps-force: clean-subchart-packages
 	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz
 	@echo "✓ External dependencies force rebuilt successfully (subcharts remain unpacked)"
 	@echo "Force rebuilding subchart dependencies..."
-	@for subchart in pipeline-optimization studios agent-backend; do \
+	@for subchart in pipeline-optimization studios agent-backend portal-web; do \
 		if [ -d "charts/$$subchart" ]; then \
 			echo "Force rebuilding dependencies for $$subchart..."; \
 			rm -f "charts/$$subchart/charts/common-"*.tgz "charts/$$subchart/charts/seqera-common-"*.tgz; \

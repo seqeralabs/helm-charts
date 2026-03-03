@@ -1,0 +1,86 @@
+should render a Deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: portal-web
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: portal-web
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: portal-web-1.2.3
+      name: release-name-portal-web
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: portal-web
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: portal-web
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: e2ce75acbeb6ee599dbfa8528f3752325cf0bdba8ee3819da20f1b9b686d6ccf
+            checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+          labels:
+            app.kubernetes.io/component: portal-web
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: portal-web
+            app.kubernetes.io/version: v9.9.9
+            helm.sh/chart: portal-web-1.2.3
+        spec:
+          containers:
+            - envFrom:
+                - configMapRef:
+                    name: release-name-portal-web
+              image: private/nf-tower-enterprise/portal-web:v9.9.9
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: ""
+                  port: 3000
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 5
+              name: portal-web
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: ""
+                  port: 3000
+                initialDelaySeconds: 10
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              resources:
+                limits:
+                  memory: 500Mi
+                requests:
+                  cpu: 100m
+                  memory: 500Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 1001
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /app/.next/cache
+                  name: nextjs-cache
+          securityContext:
+            fsGroup: 1001
+          serviceAccountName: release-name-portal-web-sa
+          volumes:
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: tmp
+            - emptyDir:
+                sizeLimit: 500Mi
+              name: nextjs-cache

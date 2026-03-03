@@ -1,0 +1,26 @@
+should render when ingress.enabled is true:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: portal-web
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: portal-web-1.2.3
+      name: release-name-portal-web
+      namespace: NAMESPACE
+    spec:
+      rules:
+        - host: portal.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-portal-web
+                    port:
+                      number: 80
+                path: /
+                pathType: ImplementationSpecific
