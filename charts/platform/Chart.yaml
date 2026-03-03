@@ -43,9 +43,7 @@ version: "0.27.3"
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-#
-# Maintainers: make sure to keep the Platform images tags in the values.yaml file in sync.
-appVersion: "v25.3.4"
+appVersion: "v25.3.3"
 
 dependencies:
   - name: common

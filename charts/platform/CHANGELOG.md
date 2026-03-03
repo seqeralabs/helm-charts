@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated platform chart version to 0.27.3
-- Updated platform app version to v25.3.4
+- Updated platform app version to v25.3.3
 - Updated studios subchart to version 1.2.1
 - Updated pipeline-optimization subchart to version 1.0.1
 
