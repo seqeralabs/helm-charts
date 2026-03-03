@@ -1,7 +1,48 @@
 CHARTS_DIR := ../../../charts
 LOCAL_CHART_DIR := platform
+SRC_REGISTRY ?= cr.seqera.io
 
-.PHONY: package-azure-cnab
+.PHONY: package-azure-cnab copy-images
+
+# Copy all Seqera container images from the source registry to the Azure registry.
+# Source image paths are taken from the helm values files; versions from each Chart.yaml.
+# The frontend image is pulled with the -unprivileged tag suffix from the source and pushed
+# without it to match the Azure override convention.
+# Usage: make copy-images REGISTRY=myregistry.azurecr.io IMAGE_PREFIX=images [SRC_REGISTRY=cr.seqera.io]
+copy-images:
+	@if [ -z "$(REGISTRY)" ]; then \
+		echo "Error: REGISTRY is required. Usage: make copy-images REGISTRY=myregistry.azurecr.io IMAGE_PREFIX=images"; \
+		exit 1; \
+	fi
+	@if [ -z "$(IMAGE_PREFIX)" ]; then \
+		echo "Error: IMAGE_PREFIX is required. Usage: make copy-images REGISTRY=myregistry.azurecr.io IMAGE_PREFIX=images"; \
+		exit 1; \
+	fi
+	@PLATFORM_TAG=$$(yq '.appVersion' $(CHARTS_DIR)/platform/Chart.yaml) && \
+	 STUDIOS_TAG=$$(yq '.appVersion' $(CHARTS_DIR)/platform/charts/studios/Chart.yaml) && \
+	 PIPEOPT_TAG=$$(yq '.appVersion' $(CHARTS_DIR)/platform/charts/pipeline-optimization/Chart.yaml) && \
+	 echo "Copying images from $(SRC_REGISTRY) to $(REGISTRY)/$(IMAGE_PREFIX)..." && \
+	 echo "  Platform: $${PLATFORM_TAG}, Studios: $${STUDIOS_TAG}, Pipeline Optimization: $${PIPEOPT_TAG}" && \
+	 set -e && \
+	 echo -n "[1/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/backend:$${PLATFORM_TAG} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/backend:$${PLATFORM_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/backend:$${PLATFORM_TAG}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/backend:$${PLATFORM_TAG}" && \
+	 echo "✓" && \
+	 echo -n "[2/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/frontend:$${PLATFORM_TAG}-unprivileged → $(REGISTRY)/$(IMAGE_PREFIX)/platform/frontend:$${PLATFORM_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/frontend:$${PLATFORM_TAG}-unprivileged" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/frontend:$${PLATFORM_TAG}" && \
+	 echo "✓" && \
+	 echo -n "[3/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/migrate-db:$${PLATFORM_TAG} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/migrate-db:$${PLATFORM_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/migrate-db:$${PLATFORM_TAG}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/migrate-db:$${PLATFORM_TAG}" && \
+	 echo "✓" && \
+	 echo -n "[4/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-proxy:$${STUDIOS_TAG} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${STUDIOS_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-proxy:$${STUDIOS_TAG}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${STUDIOS_TAG}" && \
+	 echo "✓" && \
+	 echo -n "[5/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-server:$${STUDIOS_TAG} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${STUDIOS_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-server:$${STUDIOS_TAG}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${STUDIOS_TAG}" && \
+	 echo "✓" && \
+	 echo -n "[6/6] $(SRC_REGISTRY)/private/nf-tower-enterprise/groundswell:$${PIPEOPT_TAG} → $(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${PIPEOPT_TAG} ... " && \
+	 skopeo copy --quiet "docker://$(SRC_REGISTRY)/private/nf-tower-enterprise/groundswell:$${PIPEOPT_TAG}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${PIPEOPT_TAG}" && \
+	 echo "✓" && \
+	 echo "✓ All images copied successfully"
 
 # Package CNAB for Azure, replacing all azure image registries, repositories, and tags.
 # Registries are set to REGISTRY, repositories to IMAGE_PREFIX/<chart>/<component>,
