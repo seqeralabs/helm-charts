@@ -7,7 +7,7 @@ PURPOSE:
   Reminds developers to update parent chart when subchart versions change outside the range.
 
 USAGE:
-  charts_to_package="platform platform/charts/pipeline-optimization" \\
+  charts_to_package="charts/platform charts/platform/charts/pipeline-optimization" \\
   python3 check_subchart_version_coverage.py
 
 REQUIRED ENVIRONMENT VARIABLES:
@@ -33,7 +33,7 @@ SUPPORTED VERSION CONSTRAINTS:
   - Exact: "0.1.0" matches only 0.1.0
 
 EXAMPLE:
-  Chart path: platform/charts/pipeline-optimization
+  Chart path: charts/platform/charts/pipeline-optimization
   Subchart version: 0.2.0
   Parent dependency constraint: "0.1.x"
   Result: ❌ ERROR - version 0.2.0 not covered by constraint "0.1.x" (exit 1)
@@ -111,13 +111,13 @@ def main():
         if '/charts/' not in chart_path:
             continue
 
-        # Parse the subchart path: parent/charts/subchart
+        # Parse the subchart path: charts/parent/charts/subchart
         parts = chart_path.split('/')
-        if len(parts) < 3 or parts[1] != 'charts':
+        if len(parts) < 4 or parts[0] != 'charts' or parts[2] != 'charts':
             continue
 
-        parent_dir = parts[0]
-        subchart_name = parts[2]
+        parent_dir = '/'.join(parts[:2])   # e.g., charts/platform
+        subchart_name = parts[3]           # e.g., pipeline-optimization
 
         # Read subchart version
         subchart_yaml_path = os.path.join(chart_path, 'Chart.yaml')
