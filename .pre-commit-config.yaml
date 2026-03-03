@@ -48,7 +48,6 @@ repos:
         pass_filenames: false
         always_run: false
         files: ^charts/
-        stages: [commit]
 
       - id: helm-chart-tests
         name: Helm Chart Tests
