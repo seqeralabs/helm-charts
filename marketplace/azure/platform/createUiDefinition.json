@@ -630,6 +630,20 @@
                 "options": {
                   "hideConfirmation": false
                 }
+              },
+              {
+                "name": "poDbEnableTls",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable TLS for MySQL",
+                "toolTip": "Enable TLS encryption when connecting to the Pipeline Optimization MySQL database. Recommended for Azure Database for MySQL.",
+                "defaultValue": true
+              },
+              {
+                "name": "poDbSslNoverify",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Skip TLS certificate verification",
+                "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
+                "defaultValue": false
               }
             ]
           },
@@ -702,6 +716,20 @@
                 "options": {
                   "hideConfirmation": false
                 }
+              },
+              {
+                "name": "poPlatformDbEnableTls",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Enable TLS for MySQL",
+                "toolTip": "Enable TLS encryption when connecting to the Platform MySQL database. Recommended for Azure Database for MySQL.",
+                "defaultValue": true
+              },
+              {
+                "name": "poPlatformDbSslNoverify",
+                "type": "Microsoft.Common.CheckBox",
+                "label": "Skip TLS certificate verification",
+                "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
+                "defaultValue": false
               }
             ]
           }
@@ -748,11 +776,15 @@
       "pipeline-optimization.database.name": "[steps('featuresConfig').poDedicatedDbSection.poDbName]",
       "pipeline-optimization.database.username": "[steps('featuresConfig').poDedicatedDbSection.poDbUsername]",
       "pipeline-optimization.database.password": "[steps('featuresConfig').poDedicatedDbSection.poDbPassword]",
+      "pipeline-optimization.database.enableTls": "[steps('featuresConfig').poDedicatedDbSection.poDbEnableTls]",
+      "pipeline-optimization.database.sslNoverify": "[steps('featuresConfig').poDedicatedDbSection.poDbSslNoverify]",
       "pipeline-optimization.platformDatabase.host": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbHost]",
       "pipeline-optimization.platformDatabase.port": "[int(steps('featuresConfig').poPlatformDbSection.poPlatformDbPort)]",
       "pipeline-optimization.platformDatabase.name": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbName]",
       "pipeline-optimization.platformDatabase.username": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbUsername]",
-      "pipeline-optimization.platformDatabase.password": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbPassword]"
+      "pipeline-optimization.platformDatabase.password": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbPassword]",
+      "pipeline-optimization.platformDatabase.enableTls": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbEnableTls]",
+      "pipeline-optimization.platformDatabase.sslNoverify": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbSslNoverify]"
     }
   }
 }
