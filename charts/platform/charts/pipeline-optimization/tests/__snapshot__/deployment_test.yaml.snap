@@ -188,7 +188,7 @@ should render the deployment with the correct checksums, labels and annotations:
       template:
         metadata:
           annotations:
-            checksum/configmap: 14783ca340d4e3d299784e3eda36c48ff104b722cca92fa2984f7ffaf3314f85
+            checksum/configmap: cc930a7234eedb6328eee9395d0e02464afec5b83d3837fe1ebf43c515be2416
             checksum/secret: f59a1d0d289e868d0798b3208847cb1baec2a550ec01d1fc04be946b6903b8ab
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value

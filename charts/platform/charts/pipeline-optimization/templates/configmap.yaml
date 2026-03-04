@@ -34,9 +34,39 @@ data:
   SWELL_DB_URL: {{ printf "mysql://%s:%s/%s" (tpl .Values.database.host .) (tpl (.Values.database.port | toString) .) (tpl .Values.database.name .) | quote }}
   SWELL_DB_USER: {{ tpl .Values.database.username . | quote }}
   SWELL_DB_DIALECT: mysql
+{{- if .Values.database.enableTls }}
+  SWELL_DB_SSL_ENABLED: "true"
+{{- end }}
+{{- if .Values.database.sslNoverify }}
+  SWELL_DB_SSL_NOVERIFY: "true"
+{{- end }}
+{{- if .Values.database.sslCa }}
+  SWELL_DB_SSL_CA: {{ tpl .Values.database.sslCa . | quote }}
+{{- end }}
+{{- if .Values.database.sslCert }}
+  SWELL_DB_SSL_CERT: {{ tpl .Values.database.sslCert . | quote }}
+{{- end }}
+{{- if .Values.database.sslKey }}
+  SWELL_DB_SSL_KEY: {{ tpl .Values.database.sslKey . | quote }}
+{{- end }}
 
   SWELL_SERVER_HOST: "0.0.0.0"
   SWELL_SERVER_PORT: {{ tpl (.Values.service.http.targetPort | toString) . | quote }}
 
   TOWER_DB_URL: {{ include "pipeline-optimization.platformDatabase.url" . | quote }}
   TOWER_DB_USER: {{ tpl .Values.platformDatabase.username . | quote }}
+{{- if .Values.platformDatabase.enableTls }}
+  TOWER_DB_SSL_ENABLED: "true"
+{{- end }}
+{{- if .Values.platformDatabase.sslNoverify }}
+  TOWER_DB_SSL_NOVERIFY: "true"
+{{- end }}
+{{- if .Values.platformDatabase.sslCa }}
+  TOWER_DB_SSL_CA: {{ tpl .Values.platformDatabase.sslCa . | quote }}
+{{- end }}
+{{- if .Values.platformDatabase.sslCert }}
+  TOWER_DB_SSL_CERT: {{ tpl .Values.platformDatabase.sslCert . | quote }}
+{{- end }}
+{{- if .Values.platformDatabase.sslKey }}
+  TOWER_DB_SSL_KEY: {{ tpl .Values.platformDatabase.sslKey . | quote }}
+{{- end }}

@@ -68,6 +68,16 @@ database:
   existingSecretKey: ""
   # -- Pipeline Optimization database dialect. Currently only 'mysql' is supported
   dialect: mysql
+  # -- Enable TLS for the Pipeline Optimization MySQL database connection
+  enableTls: true
+  # -- Skip TLS certificate verification (insecure, for development/testing only)
+  sslNoverify: false
+  # -- Path to a CA certificate file for server certificate verification
+  sslCa: ""
+  # -- Path to a client certificate file for mutual TLS authentication
+  sslCert: ""
+  # -- Path to a client key file for mutual TLS authentication
+  sslKey: ""
 
 # Platform Optimization communicates with the main Platform database to read pipeline and job
 # details to optimize. Only read-only access is required.
@@ -90,6 +100,16 @@ platformDatabase:
   # -- Key in the existing Secret containing the password for the Platform MySQL database
   # @default -- `"TOWER_DB_PASSWORD"`
   existingSecretKey: ""
+  # -- Enable TLS for the Platform MySQL database connection
+  enableTls: true
+  # -- Skip TLS certificate verification (insecure, for development/testing only)
+  sslNoverify: false
+  # -- Path to a CA certificate file for server certificate verification
+  sslCa: ""
+  # -- Path to a client certificate file for mutual TLS authentication
+  sslCert: ""
+  # -- Path to a client key file for mutual TLS authentication
+  sslKey: ""
 
 image:
   # -- Pipeline Optimization container image registry

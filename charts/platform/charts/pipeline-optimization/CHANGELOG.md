@@ -5,6 +5,17 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-04
+
+### Added
+
+- TLS support for MySQL database connections via new `database.enableTls`, `database.sslNoverify`,
+  `database.sslCa`, `database.sslCert`, `database.sslKey` values (maps to `SWELL_DB_SSL_*` env vars)
+- TLS support for Platform database connections via new `platformDatabase.enableTls`,
+  `platformDatabase.sslNoverify`, `platformDatabase.sslCa`, `platformDatabase.sslCert`,
+  `platformDatabase.sslKey` values (maps to `TOWER_DB_SSL_*` env vars)
+- Updated app version to 0.4.13
+
 ## [1.0.1] - 2026-03-03
 
 ### Changed
