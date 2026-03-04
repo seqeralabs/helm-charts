@@ -44,7 +44,7 @@ should produce a Deployment resource with minimal values:
               - ALL
           readOnlyRootFilesystem: true
           runAsNonRoot: true
-          runAsUser: 101
+          runAsUser: 1000
         volumeMounts:
           - mountPath: /tmp/
             name: tmp-volume
@@ -154,7 +154,7 @@ should produce a Deployment resource with minimal values:
         imagePullPolicy: IfNotPresent
         name: migrate-db
     securityContext:
-      fsGroup: 101
+      fsGroup: 1000
     serviceAccountName: release-name-pipeline-optimization-sa
     volumes:
       - emptyDir:
@@ -248,7 +248,7 @@ should render the deployment with the correct checksums, labels and annotations:
                     - ALL
                 readOnlyRootFilesystem: true
                 runAsNonRoot: true
-                runAsUser: 101
+                runAsUser: 1000
               volumeMounts:
                 - mountPath: /tmp/
                   name: tmp-volume
@@ -358,7 +358,7 @@ should render the deployment with the correct checksums, labels and annotations:
               imagePullPolicy: IfNotPresent
               name: migrate-db
           securityContext:
-            fsGroup: 101
+            fsGroup: 1000
           serviceAccountName: release-name-pipeline-optimization-sa
           volumes:
             - emptyDir:

@@ -246,7 +246,7 @@ podSecurityContext:
   enabled: true
   # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
   # in the pod can share group-owned access
-  fsGroup: 101
+  fsGroup: 1000
 
 # Configure Container Security Context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
@@ -254,7 +254,7 @@ containerSecurityContext:
   # -- Enable container Security Context
   enabled: true
   # -- UID the container processes run as (overrides container image default)
-  runAsUser: 101
+  runAsUser: 1000
   # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
   runAsNonRoot: true
   # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering

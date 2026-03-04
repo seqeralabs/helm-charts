@@ -123,9 +123,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
 | extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
-| podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| podSecurityContext.fsGroup | int | `1000` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
-| containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| containerSecurityContext.runAsUser | int | `1000` | UID the container processes run as (overrides container image default) |
 | containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
