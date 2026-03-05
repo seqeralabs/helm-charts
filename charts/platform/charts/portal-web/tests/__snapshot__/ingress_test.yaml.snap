@@ -7,30 +7,20 @@ should render when ingress.enabled is true:
       labels:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/name: portal-web
         app.kubernetes.io/version: v9.9.9
-        helm.sh/chart: agent-backend-1.2.3
-      name: release-name-agent-backend
+        helm.sh/chart: portal-web-1.2.3
+      name: release-name-portal-web
       namespace: NAMESPACE
     spec:
       rules:
-        - host: ai-api.example.com
+        - host: portal.example.com
           http:
             paths:
               - backend:
                   service:
-                    name: release-name-agent-backend
+                    name: release-name-portal-web
                     port:
                       number: 80
-                path: /
-                pathType: ImplementationSpecific
-        - host: agent.example.com
-          http:
-            paths:
-              - backend:
-                  service:
-                    name: agent-backend-svc
-                    port:
-                      number: 8002
                 path: /
                 pathType: ImplementationSpecific

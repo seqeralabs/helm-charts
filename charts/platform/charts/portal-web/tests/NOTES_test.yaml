@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Portal Web NOTES.txt
+templates:
+  - NOTES.txt
+chart:
+  version: 9.9.9
+  appVersion: "v9.8.7"
+tests:
+  - it: should fail when auth0.domain is explicitly set to empty string
+    set:
+      auth0.domain: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Auth0 domain at 'auth0.domain'\\."
+
+  - it: should fail when auth0.clientId is explicitly set to empty string
+    set:
+      auth0.domain: myorg.auth0.com
+      auth0.clientId: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Auth0 client ID at 'auth0.clientId'\\."
+
+  - it: should pass when auth0.domain and auth0.clientId are set
+    set:
+      auth0.domain: myorg.auth0.com
+      auth0.clientId: myclientid
+    asserts:
+      - hasDocuments:
+          count: 1
