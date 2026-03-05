@@ -423,6 +423,13 @@
                 "description": "Name of the Pipeline Optimization database to create on the MySQL server."
             }
         },
+        "createNewPoDatabase": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Auto-provision a Pipeline Optimization database on the MySQL server. Set to false to provide your own database credentials."
+            }
+        },
         "createNewRedis": {
             "type": "Bool",
             "defaultValue": false,
@@ -509,15 +516,15 @@
         "redisEffectiveLocation": "[if(empty(parameters('redisLocation')), parameters('location'), parameters('redisLocation'))]",
         "studiosRedisEffectiveLocation": "[if(empty(parameters('studiosRedisLocation')), parameters('location'), parameters('studiosRedisLocation'))]",
         "provisionPlatformDatabase": "[parameters('createNewDatabase')]",
-        "provisionPoDB": "[and(parameters('createNewDatabase'), parameters('pipeline-optimization.enabled'))]",
+        "provisionPoDB": "[and(parameters('createNewDatabase'), parameters('createNewPoDatabase'), parameters('pipeline-optimization.enabled'))]",
         "platformDbHost": "[if(parameters('createNewDatabase'), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('platformDatabase.host'))]",
         "platformDbUsername": "[if(parameters('createNewDatabase'), parameters('mysqlAdminUsername'), parameters('platformDatabase.username'))]",
         "platformDbPassword": "[if(parameters('createNewDatabase'), parameters('mysqlAdminPassword'), parameters('platformDatabase.password'))]",
         "platformDbName": "[if(parameters('createNewDatabase'), parameters('mysqlPlatformDatabaseName'), parameters('platformDatabase.name'))]",
-        "poDbHost": "[if(parameters('createNewDatabase'), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
-        "poDbName": "[if(parameters('createNewDatabase'), parameters('mysqlPoDatabaseName'), parameters('pipeline-optimization.database.name'))]",
-        "poDbUsername": "[if(parameters('createNewDatabase'), parameters('mysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
-        "poDbPassword": "[if(parameters('createNewDatabase'), parameters('mysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
+        "poDbHost": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
+        "poDbName": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlPoDatabaseName'), parameters('pipeline-optimization.database.name'))]",
+        "poDbUsername": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
+        "poDbPassword": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
         "redisHost": "[if(parameters('createNewRedis'), reference(parameters('redisServerName'), '2024-10-01').hostName, parameters('redis.host'))]",
         "redisPort": "[if(parameters('createNewRedis'), 10000, parameters('redis.port'))]",
         "redisEnableTls": "[if(parameters('createNewRedis'), true, parameters('redis.enableTls'))]",
@@ -716,10 +723,10 @@
                     "studios.redis.enableTls": "[variables('studiosRedisEnableTls')]",
                     "pipeline-optimization.enabled": "[parameters('pipeline-optimization.enabled')]",
                     "pipeline-optimization.database.host": "[variables('poDbHost')]",
-                    "pipeline-optimization.database.port": "[if(parameters('createNewDatabase'), 3306, parameters('pipeline-optimization.database.port'))]",
+                    "pipeline-optimization.database.port": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), 3306, parameters('pipeline-optimization.database.port'))]",
                     "pipeline-optimization.database.name": "[variables('poDbName')]",
                     "pipeline-optimization.database.username": "[variables('poDbUsername')]",
-                    "pipeline-optimization.database.enableTls": "[if(parameters('createNewDatabase'), true, parameters('pipeline-optimization.database.enableTls'))]",
+                    "pipeline-optimization.database.enableTls": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), true, parameters('pipeline-optimization.database.enableTls'))]",
                     "pipeline-optimization.database.sslNoverify": "[parameters('pipeline-optimization.database.sslNoverify')]",
                     "pipeline-optimization.platformDatabase.host": "[variables('platformDbHost')]",
                     "pipeline-optimization.platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",

@@ -1002,11 +1002,19 @@
             "defaultValue": true
           },
           {
+            "name": "createNewPoDatabase",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Auto-provision Pipeline Optimization database",
+            "toolTip": "Create a dedicated Pipeline Optimization database on the MySQL server. Uncheck to provide your own database credentials.",
+            "defaultValue": true,
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]"
+          },
+          {
             "name": "poAutoProvisionedDbInfo",
             "type": "Microsoft.Common.InfoBox",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]",
             "options": {
-              "text": "Pipeline Optimization will use the auto-provisioned MySQL server. A dedicated database will be created for its data.",
+              "text": "A dedicated Pipeline Optimization database will be created on the auto-provisioned MySQL server.",
               "style": "Info"
             }
           },
@@ -1016,17 +1024,17 @@
             "label": "Pipeline Optimization Database Name",
             "toolTip": "Name of the database to create for Pipeline Optimization on the auto-provisioned MySQL server.",
             "defaultValue": "pipeline_optimization",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]"
             }
           },
           {
             "name": "poDedicatedDbInfo",
             "type": "Microsoft.Common.InfoBox",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "options": {
-              "text": "Pipeline Optimization requires its own MySQL database to store optimization data.",
+              "text": "Pipeline Optimization requires its own dedicated MySQL database. Provide the connection details below.",
               "style": "Info"
             }
           },
@@ -1036,9 +1044,9 @@
             "label": "Pipeline Optimization MySQL Host",
             "toolTip": "Hostname of the MySQL database server for Pipeline Optimization.",
             "placeholder": "mydb.mysql.database.azure.com",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
             }
           },
           {
@@ -1047,9 +1055,9 @@
             "label": "Pipeline Optimization MySQL Port",
             "toolTip": "Port number for the Pipeline Optimization MySQL database.",
             "defaultValue": "3306",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
               "regex": "^[0-9]{1,5}$",
               "validationMessage": "Must be a valid port number."
             }
@@ -1060,9 +1068,9 @@
             "label": "Pipeline Optimization Database Name",
             "toolTip": "Name of the MySQL database for Pipeline Optimization.",
             "placeholder": "pipeline_optimization",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
             }
           },
           {
@@ -1070,9 +1078,9 @@
             "type": "Microsoft.Common.TextBox",
             "label": "Pipeline Optimization Database Username",
             "toolTip": "MySQL database username for Pipeline Optimization.",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
             }
           },
           {
@@ -1083,9 +1091,9 @@
               "confirmPassword": "Confirm Pipeline Optimization Database Password"
             },
             "toolTip": "MySQL database password for Pipeline Optimization.",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
             },
             "options": {
               "hideConfirmation": false
@@ -1097,7 +1105,7 @@
             "label": "Enable TLS for Pipeline Optimization MySQL",
             "toolTip": "Enable TLS encryption when connecting to the Pipeline Optimization MySQL database. Recommended for Azure Database for MySQL.",
             "defaultValue": true,
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
           },
           {
             "name": "poDbSslNoverify",
@@ -1105,7 +1113,7 @@
             "label": "Skip TLS certificate verification (Pipeline Optimization MySQL)",
             "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
             "defaultValue": false,
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
           },
           {
             "name": "poPlatformDbAutoInfo",
@@ -1164,7 +1172,7 @@
             "name": "poPlatformDbUsername",
             "type": "Microsoft.Common.TextBox",
             "label": "Platform Database Username (for Pipeline Optimization)",
-            "toolTip": "MySQL username for Platform database access.",
+            "toolTip": "MySQL username for Platform database access. A read-only user is sufficient.",
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
             "constraints": {
               "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
@@ -1175,7 +1183,7 @@
             "type": "Microsoft.Common.PasswordBox",
             "label": {
               "password": "Platform Database Password (for Pipeline Optimization)",
-              "confirmPassword": "Confirm Platform Database Password (for Pipeline Optimization)"
+              "confirmPassword": "Confirm Platform Database Password"
             },
             "toolTip": "MySQL password for Platform database access.",
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
@@ -1189,15 +1197,15 @@
           {
             "name": "poPlatformDbEnableTls",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Enable TLS for Platform MySQL (Pipeline Optimization access)",
-            "toolTip": "Enable TLS encryption when connecting to the Platform MySQL database. Recommended for Azure Database for MySQL.",
+            "label": "Enable TLS for Platform MySQL (Pipeline Optimization)",
+            "toolTip": "Enable TLS encryption when connecting to the Platform MySQL database for Pipeline Optimization.",
             "defaultValue": true,
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
           },
           {
             "name": "poPlatformDbSslNoverify",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Skip TLS certificate verification (Platform MySQL, Pipeline Optimization access)",
+            "label": "Skip TLS certificate verification (Platform MySQL for Pipeline Optimization)",
             "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
             "defaultValue": false,
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
@@ -1227,6 +1235,7 @@
       "mysqlStorageSizeGB": "[steps('databaseConfig').mysqlStorageSizeGB]",
       "mysqlPlatformDatabaseName": "[steps('databaseConfig').mysqlPlatformDatabaseName]",
       "mysqlPoDatabaseName": "[steps('featuresConfig').mysqlPoDatabaseName]",
+      "createNewPoDatabase": "[steps('featuresConfig').createNewPoDatabase]",
       "platformDatabase.host": "[steps('databaseConfig').databaseHost]",
       "platformDatabase.port": "[int(steps('databaseConfig').databasePort)]",
       "platformDatabase.name": "[steps('databaseConfig').databaseName]",
@@ -1265,13 +1274,13 @@
       "pipeline-optimization.database.password": "[steps('featuresConfig').poDbPassword]",
       "pipeline-optimization.database.enableTls": "[steps('featuresConfig').poDbEnableTls]",
       "pipeline-optimization.database.sslNoverify": "[steps('featuresConfig').poDbSslNoverify]",
-      "pipeline-optimization.platformDatabase.host": "[steps('featuresConfig').poPlatformDbHost]",
-      "pipeline-optimization.platformDatabase.port": "[int(steps('featuresConfig').poPlatformDbPort)]",
-      "pipeline-optimization.platformDatabase.name": "[steps('featuresConfig').poPlatformDbName]",
-      "pipeline-optimization.platformDatabase.username": "[steps('featuresConfig').poPlatformDbUsername]",
-      "pipeline-optimization.platformDatabase.password": "[steps('featuresConfig').poPlatformDbPassword]",
-      "pipeline-optimization.platformDatabase.enableTls": "[steps('featuresConfig').poPlatformDbEnableTls]",
-      "pipeline-optimization.platformDatabase.sslNoverify": "[steps('featuresConfig').poPlatformDbSslNoverify]"
+      "pipeline-optimization.platformDatabase.host": "[if(steps('databaseConfig').createNewDatabase, '', steps('featuresConfig').poPlatformDbHost)]",
+      "pipeline-optimization.platformDatabase.port": "[if(steps('databaseConfig').createNewDatabase, 3306, int(steps('featuresConfig').poPlatformDbPort))]",
+      "pipeline-optimization.platformDatabase.name": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlPlatformDatabaseName, steps('featuresConfig').poPlatformDbName)]",
+      "pipeline-optimization.platformDatabase.username": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlAdminUsername, steps('featuresConfig').poPlatformDbUsername)]",
+      "pipeline-optimization.platformDatabase.password": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlAdminPassword, steps('featuresConfig').poPlatformDbPassword)]",
+      "pipeline-optimization.platformDatabase.enableTls": "[if(steps('databaseConfig').createNewDatabase, true, steps('featuresConfig').poPlatformDbEnableTls)]",
+      "pipeline-optimization.platformDatabase.sslNoverify": "[if(steps('databaseConfig').createNewDatabase, false, steps('featuresConfig').poPlatformDbSslNoverify)]"
     }
   }
 }
