@@ -350,22 +350,62 @@
             "name": "mysqlSkuName",
             "type": "Microsoft.Common.DropDown",
             "label": "MySQL SKU",
-            "toolTip": "Compute SKU for the MySQL Flexible Server.",
-            "defaultValue": "Standard_D2ds_v4",
+            "toolTip": "Compute SKU for the MySQL Flexible Server. General Purpose SKUs use 4 GiB RAM per vCore; Memory Optimized SKUs use 8 GiB RAM per vCore.",
+            "defaultValue": "Standard_D4ds_v4",
             "visible": "[steps('databaseConfig').createNewDatabase]",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "Standard_D2ds_v4 (2 vCores, 8 GiB RAM)",
-                  "value": "Standard_D2ds_v4"
-                },
-                {
-                  "label": "Standard_D4ds_v4 (4 vCores, 16 GiB RAM)",
+                  "label": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
                   "value": "Standard_D4ds_v4"
                 },
                 {
-                  "label": "Standard_D8ds_v4 (8 vCores, 32 GiB RAM)",
+                  "label": "General Purpose – D8ds_v4 (8 vCores, 32 GiB RAM)",
                   "value": "Standard_D8ds_v4"
+                },
+                {
+                  "label": "General Purpose – D16ds_v4 (16 vCores, 64 GiB RAM)",
+                  "value": "Standard_D16ds_v4"
+                },
+                {
+                  "label": "General Purpose – D32ds_v4 (32 vCores, 128 GiB RAM)",
+                  "value": "Standard_D32ds_v4"
+                },
+                {
+                  "label": "General Purpose – D48ds_v4 (48 vCores, 192 GiB RAM)",
+                  "value": "Standard_D48ds_v4"
+                },
+                {
+                  "label": "General Purpose – D64ds_v4 (64 vCores, 256 GiB RAM)",
+                  "value": "Standard_D64ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E2ds_v4 (2 vCores, 16 GiB RAM)",
+                  "value": "Standard_E2ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E4ds_v4 (4 vCores, 32 GiB RAM)",
+                  "value": "Standard_E4ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E8ds_v4 (8 vCores, 64 GiB RAM)",
+                  "value": "Standard_E8ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E16ds_v4 (16 vCores, 128 GiB RAM)",
+                  "value": "Standard_E16ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E32ds_v4 (32 vCores, 256 GiB RAM)",
+                  "value": "Standard_E32ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E48ds_v4 (48 vCores, 384 GiB RAM)",
+                  "value": "Standard_E48ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E64ds_v4 (64 vCores, 504 GiB RAM)",
+                  "value": "Standard_E64ds_v4"
                 }
               ],
               "required": true

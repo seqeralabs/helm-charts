@@ -380,11 +380,21 @@
         },
         "mysqlSkuName": {
             "type": "String",
-            "defaultValue": "Standard_D2ds_v4",
+            "defaultValue": "Standard_D4ds_v4",
             "allowedValues": [
-                "Standard_D2ds_v4",
                 "Standard_D4ds_v4",
-                "Standard_D8ds_v4"
+                "Standard_D8ds_v4",
+                "Standard_D16ds_v4",
+                "Standard_D32ds_v4",
+                "Standard_D48ds_v4",
+                "Standard_D64ds_v4",
+                "Standard_E2ds_v4",
+                "Standard_E4ds_v4",
+                "Standard_E8ds_v4",
+                "Standard_E16ds_v4",
+                "Standard_E32ds_v4",
+                "Standard_E48ds_v4",
+                "Standard_E64ds_v4"
             ],
             "metadata": {
                 "description": "SKU for the MySQL Flexible Server compute tier."
@@ -495,6 +505,7 @@
         "releaseTrain": "DONOTMODIFY",
         "clusterExtensionTypeName": "DONOTMODIFY",
         "mysqlEffectiveLocation": "[if(empty(parameters('mysqlLocation')), parameters('location'), parameters('mysqlLocation'))]",
+        "mysqlSkuTier": "[if(startsWith(parameters('mysqlSkuName'), 'Standard_E'), 'MemoryOptimized', 'GeneralPurpose')]",
         "redisEffectiveLocation": "[if(empty(parameters('redisLocation')), parameters('location'), parameters('redisLocation'))]",
         "studiosRedisEffectiveLocation": "[if(empty(parameters('studiosRedisLocation')), parameters('location'), parameters('studiosRedisLocation'))]",
         "provisionPlatformDatabase": "[parameters('createNewDatabase')]",
@@ -575,7 +586,7 @@
             "location": "[variables('mysqlEffectiveLocation')]",
             "sku": {
                 "name": "[parameters('mysqlSkuName')]",
-                "tier": "GeneralPurpose"
+                "tier": "[variables('mysqlSkuTier')]"
             },
             "properties": {
                 "administratorLogin": "[parameters('mysqlAdminUsername')]",
