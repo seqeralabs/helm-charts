@@ -457,3 +457,161 @@ tests:
           path: data.TOWER_DB_URL
       - isNotEmpty:
           path: data.TOWER_DB_USER
+
+  # SSL/TLS — database (SWELL)
+  - it: should set SWELL_DB_SSL_ENABLED by default
+    asserts:
+      - equal:
+          path: data.SWELL_DB_SSL_ENABLED
+          value: "true"
+      - notExists:
+          path: data.SWELL_DB_SSL_NOVERIFY
+      - notExists:
+          path: data.SWELL_DB_SSL_CA
+      - notExists:
+          path: data.SWELL_DB_SSL_CERT
+      - notExists:
+          path: data.SWELL_DB_SSL_KEY
+
+  - it: should not set SWELL_DB_SSL_ENABLED when database.enableTls is false
+    set:
+      database.enableTls: false
+    asserts:
+      - notExists:
+          path: data.SWELL_DB_SSL_ENABLED
+
+  - it: should set SWELL_DB_SSL_NOVERIFY when database.sslNoverify is true
+    set:
+      database.sslNoverify: true
+    asserts:
+      - equal:
+          path: data.SWELL_DB_SSL_NOVERIFY
+          value: "true"
+
+  - it: should set SWELL_DB_SSL_CA when database.sslCa is provided
+    set:
+      database.sslCa: /etc/ssl/ca.pem
+    asserts:
+      - equal:
+          path: data.SWELL_DB_SSL_CA
+          value: /etc/ssl/ca.pem
+
+  - it: should set SWELL_DB_SSL_CERT and SWELL_DB_SSL_KEY when provided
+    set:
+      database.sslCert: /etc/ssl/client-cert.pem
+      database.sslKey: /etc/ssl/client-key.pem
+    asserts:
+      - equal:
+          path: data.SWELL_DB_SSL_CERT
+          value: /etc/ssl/client-cert.pem
+      - equal:
+          path: data.SWELL_DB_SSL_KEY
+          value: /etc/ssl/client-key.pem
+
+  - it: should set all SWELL SSL env vars when full TLS config is provided
+    set:
+      database:
+        enableTls: true
+        sslCa: /etc/ssl/ca.pem
+        sslCert: /etc/ssl/client-cert.pem
+        sslKey: /etc/ssl/client-key.pem
+    asserts:
+      - equal:
+          path: data.SWELL_DB_SSL_ENABLED
+          value: "true"
+      - equal:
+          path: data.SWELL_DB_SSL_CA
+          value: /etc/ssl/ca.pem
+      - equal:
+          path: data.SWELL_DB_SSL_CERT
+          value: /etc/ssl/client-cert.pem
+      - equal:
+          path: data.SWELL_DB_SSL_KEY
+          value: /etc/ssl/client-key.pem
+      - matchSnapshot: {}
+
+  - it: should not set SWELL_DB_SSL_CA when database.sslCa is empty
+    set:
+      database.sslCa: ""
+    asserts:
+      - notExists:
+          path: data.SWELL_DB_SSL_CA
+
+  # SSL/TLS — platformDatabase (TOWER)
+  - it: should set TOWER_DB_SSL_ENABLED by default
+    asserts:
+      - equal:
+          path: data.TOWER_DB_SSL_ENABLED
+          value: "true"
+      - notExists:
+          path: data.TOWER_DB_SSL_NOVERIFY
+      - notExists:
+          path: data.TOWER_DB_SSL_CA
+      - notExists:
+          path: data.TOWER_DB_SSL_CERT
+      - notExists:
+          path: data.TOWER_DB_SSL_KEY
+
+  - it: should not set TOWER_DB_SSL_ENABLED when platformDatabase.enableTls is false
+    set:
+      platformDatabase.enableTls: false
+    asserts:
+      - notExists:
+          path: data.TOWER_DB_SSL_ENABLED
+
+  - it: should set TOWER_DB_SSL_NOVERIFY when platformDatabase.sslNoverify is true
+    set:
+      platformDatabase.sslNoverify: true
+    asserts:
+      - equal:
+          path: data.TOWER_DB_SSL_NOVERIFY
+          value: "true"
+
+  - it: should set TOWER_DB_SSL_CA when platformDatabase.sslCa is provided
+    set:
+      platformDatabase.sslCa: /etc/ssl/ca.pem
+    asserts:
+      - equal:
+          path: data.TOWER_DB_SSL_CA
+          value: /etc/ssl/ca.pem
+
+  - it: should set TOWER_DB_SSL_CERT and TOWER_DB_SSL_KEY when provided
+    set:
+      platformDatabase.sslCert: /etc/ssl/client-cert.pem
+      platformDatabase.sslKey: /etc/ssl/client-key.pem
+    asserts:
+      - equal:
+          path: data.TOWER_DB_SSL_CERT
+          value: /etc/ssl/client-cert.pem
+      - equal:
+          path: data.TOWER_DB_SSL_KEY
+          value: /etc/ssl/client-key.pem
+
+  - it: should set all TOWER SSL env vars when full TLS config is provided
+    set:
+      platformDatabase:
+        enableTls: true
+        sslCa: /etc/ssl/ca.pem
+        sslCert: /etc/ssl/client-cert.pem
+        sslKey: /etc/ssl/client-key.pem
+    asserts:
+      - equal:
+          path: data.TOWER_DB_SSL_ENABLED
+          value: "true"
+      - equal:
+          path: data.TOWER_DB_SSL_CA
+          value: /etc/ssl/ca.pem
+      - equal:
+          path: data.TOWER_DB_SSL_CERT
+          value: /etc/ssl/client-cert.pem
+      - equal:
+          path: data.TOWER_DB_SSL_KEY
+          value: /etc/ssl/client-key.pem
+      - matchSnapshot: {}
+
+  - it: should not set TOWER_DB_SSL_CA when platformDatabase.sslCa is empty
+    set:
+      platformDatabase.sslCa: ""
+    asserts:
+      - notExists:
+          path: data.TOWER_DB_SSL_CA

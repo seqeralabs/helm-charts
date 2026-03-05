@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.11](https://img.shields.io/badge/AppVersion-0.4.11-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -26,7 +26,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `0.4.11`.
+By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `0.4.13`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
 Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 1.0.1 \
+  --version 1.1.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -69,6 +69,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the Pipeline Optimization MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing Secret containing the password for the Pipeline Optimization MySQL database |
 | database.dialect | string | `"mysql"` | Pipeline Optimization database dialect. Currently only 'mysql' is supported |
+| database.enableTls | bool | `true` | Enable TLS for the Pipeline Optimization MySQL database connection |
+| database.sslNoverify | bool | `false` | Skip TLS certificate verification (insecure, for development/testing only) |
+| database.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
+| database.sslCert | string | `""` | Path to a client certificate file for mutual TLS authentication |
+| database.sslKey | string | `""` | Path to a client key file for mutual TLS authentication |
 | platformDatabase.host | string | `""` | Platform MySQL database hostname |
 | platformDatabase.port | int | `3306` | Platform MySQL database port |
 | platformDatabase.name | string | `""` | Platform MySQL database name |
@@ -76,6 +81,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platformDatabase.password | string | `""` | Platform MySQL database password |
 | platformDatabase.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the Platform MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing Secret containing the password for the Platform MySQL database |
+| platformDatabase.enableTls | bool | `true` | Enable TLS for the Platform MySQL database connection |
+| platformDatabase.sslNoverify | bool | `false` | Skip TLS certificate verification (insecure, for development/testing only) |
+| platformDatabase.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
+| platformDatabase.sslCert | string | `""` | Path to a client certificate file for mutual TLS authentication |
+| platformDatabase.sslKey | string | `""` | Path to a client key file for mutual TLS authentication |
 | image.registry | string | `""` | Pipeline Optimization container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/groundswell"` | Pipeline Optimization container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag |
@@ -113,9 +123,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
 | extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
 | podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
-| podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| podSecurityContext.fsGroup | int | `1000` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
 | containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
-| containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| containerSecurityContext.runAsUser | int | `1000` | UID the container processes run as (overrides container image default) |
 | containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |

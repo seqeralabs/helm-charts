@@ -7,7 +7,7 @@ dependencies:
   version: 2.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 1.0.1
+  version: 1.1.0
 - name: studios
   repository: file://charts/studios
   version: 1.2.1
