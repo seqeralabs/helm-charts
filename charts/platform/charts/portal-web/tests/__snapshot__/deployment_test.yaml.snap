@@ -40,7 +40,7 @@ should render a Deployment with default values:
               livenessProbe:
                 failureThreshold: 3
                 httpGet:
-                  path: ""
+                  path: /
                   port: 3000
                 initialDelaySeconds: 30
                 periodSeconds: 10
@@ -50,7 +50,7 @@ should render a Deployment with default values:
               readinessProbe:
                 failureThreshold: 3
                 httpGet:
-                  path: ""
+                  path: /
                   port: 3000
                 initialDelaySeconds: 10
                 periodSeconds: 5

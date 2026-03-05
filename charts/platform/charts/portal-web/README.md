@@ -35,7 +35,6 @@ Portal web frontend for Seqera Platform
 | auth0.domain | string | `"{{ printf \"%s/api\" .Values.global.platformExternalDomain }}"` | Auth0 domain (e.g. myorg.auth0.com) - defaults to Platform as the Identity Provider |
 | auth0.audience | string | `"platform"` | Auth0 audience |
 | auth0.clientId | string | `"seqera_ai_web"` | Auth0 app client id` |
-| nextjsBasePath | string | `""` | Set to deploy the Next.js application under a sub-path of the domain. Changing this necesitates an image rebuild with _BASE_PATH updated as well. |
 | nodeEnv | string | `"development"` | Possible values "development" or "production" - changes logging and error messaging |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":3000},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
@@ -68,7 +67,7 @@ Portal web frontend for Seqera Platform
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | resources | object | `{"limits":{"memory":"500Mi"},"requests":{"cpu":"100m","memory":"500Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | startupProbe.enabled | bool | `false` | Enable startup probe |
-| startupProbe.httpGet.path | string | `"{{ .Values.nextjsBasePath }}"` | HTTP GET path for startup probe |
+| startupProbe.httpGet.path | string | `"/"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |
 | startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps |
 | startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting |
@@ -76,7 +75,7 @@ Portal web frontend for Seqera Platform
 | startupProbe.failureThreshold | int | `5` | Consecutive failures during startup before killing the container (instead of immediate restarts) |
 | startupProbe.successThreshold | int | `1` | Number of consecutive successes required to consider startup complete and enable liveness/readiness |
 | readinessProbe.enabled | bool | `true` | Enable readiness probe |
-| readinessProbe.httpGet.path | string | `"{{ .Values.nextjsBasePath }}"` | HTTP GET path for readiness probe |
+| readinessProbe.httpGet.path | string | `"/"` | HTTP GET path for readiness probe |
 | readinessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for readiness probe. Evaluated as a template |
 | readinessProbe.initialDelaySeconds | int | `10` | Delay before first check |
 | readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation |
@@ -84,7 +83,7 @@ Portal web frontend for Seqera Platform
 | readinessProbe.failureThreshold | int | `3` | Consecutive failures before marking the container Unready (no restart) |
 | readinessProbe.successThreshold | int | `1` | Number of consecutive successes required to mark the container Ready after failures |
 | livenessProbe.enabled | bool | `true` | Enable liveness probe |
-| livenessProbe.httpGet.path | string | `"{{ .Values.nextjsBasePath }}"` | HTTP GET path for liveness probe |
+| livenessProbe.httpGet.path | string | `"/"` | HTTP GET path for liveness probe |
 | livenessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for liveness probe. Evaluated as a template |
 | livenessProbe.initialDelaySeconds | int | `30` | Delay before first check |
 | livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation |

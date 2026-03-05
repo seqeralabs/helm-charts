@@ -76,10 +76,6 @@ auth0:
   # -- Auth0 app client id`
   clientId: "seqera_ai_web"
 
-# -- Set to deploy the Next.js application under a sub-path of the domain.
-# Changing this necesitates an image rebuild with _BASE_PATH updated as well.
-nextjsBasePath: ""
-
 # -- Possible values "development" or "production" - changes logging and error messaging
 nodeEnv: development
 
@@ -209,7 +205,7 @@ startupProbe:
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
-    path: "{{ .Values.nextjsBasePath }}"
+    path: "/"
     # -- HTTP GET port for startup probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
@@ -231,7 +227,7 @@ readinessProbe:
   enabled: true
   httpGet:
     # -- HTTP GET path for readiness probe
-    path: "{{ .Values.nextjsBasePath }}"
+    path: "/"
     # -- HTTP GET port for readiness probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check
@@ -251,7 +247,7 @@ livenessProbe:
   enabled: true
   httpGet:
     # -- HTTP GET path for liveness probe
-    path: "{{ .Values.nextjsBasePath }}"
+    path: "/"
     # -- HTTP GET port for liveness probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check
