@@ -21,10 +21,9 @@ suite: test Portal Web NOTES.txt
 templates:
   - NOTES.txt
 chart:
-  version: 1.0.0
-  appVersion: "v1.0.0"
+  version: 9.9.9
+  appVersion: "v9.8.7"
 tests:
-  # auth0.domain tests
   - it: should fail when auth0.domain is explicitly set to empty string
     set:
       auth0.domain: ""
