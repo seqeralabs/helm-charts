@@ -6,7 +6,7 @@ should render a ConfigMap with default values:
       AUTH0_CLIENT_ID: seqera_ai_web
       AUTH0_DOMAIN: example.com/api
       NODE_ENV: development
-      SEQERA_AGENT_BACKEND_URL: https://ai.example.com
+      SEQERA_AGENT_BACKEND_URL: https://ai-api.example.com
       SEQERA_PLATFORM_API_URL: https://example.com/api
     kind: ConfigMap
     metadata:
