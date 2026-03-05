@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0
@@ -22,9 +22,8 @@
 {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
 {{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.configMapAnnotations .Values.commonAnnotations) "context" .) -}}
 {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
----
-kind: ConfigMap
 apiVersion: v1
+kind: ConfigMap
 metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
