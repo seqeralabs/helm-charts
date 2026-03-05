@@ -37,7 +37,6 @@ Portal web frontend for Seqera Platform
 | auth0.clientId | string | `"seqera_ai_web"` | Auth0 app client id` |
 | nextjsBasePath | string | `""` | Set to deploy the Next.js application under a sub-path of the domain. Changing this necesitates an image rebuild with _BASE_PATH updated as well. |
 | nodeEnv | string | `"development"` | Possible values "development" or "production" - changes logging and error messaging |
-| existingSecretName | string | `""` | Name of an existing Secret to inject as environment variables via envFrom. Useful for providing runtime secrets (e.g. Auth0 client credentials). Note: the Secret must already exist in the same namespace at the time of deployment |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":3000},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | service.http.name | string | `"http"` | Service name to use |

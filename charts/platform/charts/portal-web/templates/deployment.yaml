@@ -83,10 +83,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "common.names.fullname" . }}
-{{- if .Values.existingSecretName }}
-            - secretRef:
-                name: {{ include "common.tplvalues.render" (dict "value" .Values.existingSecretName "context" $) }}
-{{- end }}
 {{- range .Values.extraEnvVarsCMs }}
             - configMapRef:
                 name: {{ include "common.tplvalues.render" (dict "value" . "context" $) }}

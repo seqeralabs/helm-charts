@@ -102,37 +102,6 @@ tests:
             configMapRef:
               name: release-name-portal-web
 
-  - it: should inject existingSecretName via envFrom when set
-    template: deployment.yaml
-    set:
-      existingSecretName: my-runtime-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: my-runtime-secret
-
-  - it: should NOT inject a secretRef when existingSecretName is not set
-    template: deployment.yaml
-    asserts:
-      - notContains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: ""
-
-  - it: should template existingSecretName
-    template: deployment.yaml
-    set:
-      existingSecretName: "{{ .Release.Name }}-runtime-secret"
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            secretRef:
-              name: RELEASE-NAME-runtime-secret
-
   - it: should render extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
     template: deployment.yaml
     set:

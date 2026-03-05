@@ -83,11 +83,6 @@ nextjsBasePath: ""
 # -- Possible values "development" or "production" - changes logging and error messaging
 nodeEnv: development
 
-# -- Name of an existing Secret to inject as environment variables via envFrom.
-# Useful for providing runtime secrets (e.g. Auth0 client credentials).
-# Note: the Secret must already exist in the same namespace at the time of deployment
-existingSecretName: ""
-
 # -- Service configuration
 service:
   # -- Service type.
