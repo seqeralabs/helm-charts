@@ -30,14 +30,6 @@ tests:
           of: ConfigMap
       - matchSnapshot: {}
 
-  - it: should set NODE_ENV from nodeEnv value
-    set:
-      nodeEnv: production
-    asserts:
-      - equal:
-          path: data.NODE_ENV
-          value: "production"
-
   - it: should set SEQERA_PLATFORM_API_URL from platformExternalDomain
     set:
       global.platformExternalDomain: prod.example.com

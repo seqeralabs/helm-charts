@@ -76,9 +76,6 @@ auth0:
   # -- Auth0 app client id`
   clientId: "seqera_ai_web"
 
-# -- Possible values "development" or "production" - changes logging and error messaging
-nodeEnv: development
-
 # -- Service configuration
 service:
   # -- Service type.

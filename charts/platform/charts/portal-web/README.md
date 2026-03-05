@@ -35,7 +35,6 @@ Portal web frontend for Seqera Platform
 | auth0.domain | string | `"{{ printf \"%s/api\" .Values.global.platformExternalDomain }}"` | Auth0 domain (e.g. myorg.auth0.com) - defaults to Platform as the Identity Provider |
 | auth0.audience | string | `"platform"` | Auth0 audience |
 | auth0.clientId | string | `"seqera_ai_web"` | Auth0 app client id` |
-| nodeEnv | string | `"development"` | Possible values "development" or "production" - changes logging and error messaging |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":3000},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | service.http.name | string | `"http"` | Service name to use |
