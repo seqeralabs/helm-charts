@@ -20,7 +20,7 @@ help:
 	@echo "  make rebuild-deps-and-unpack     - Rebuild deps, unpack tarballs, and remove tgz files"
 	@echo "  make rebuild-deps-force          - Force rebuild all external dependencies (slower)"
 	@echo "  make clean-deps                  - Clean all dependency tgz packages"
-	@echo "  make clean-subchart-packages     - Clean only subchart tgz packages (pipeline-optimization, studios)"
+	@echo "  make clean-subchart-packages     - Clean only subchart tgz packages (auto-detected from charts/ subdir)"
 	@echo ""
 	@echo "Building:"
 	@echo "  make build                       - Package the chart"
@@ -37,36 +37,38 @@ clean-deps:
 	@echo "Cleaning all dependency packages..."
 	@rm -f charts/*.tgz
 
-# Clean only subchart packages (pipeline-optimization, studios, agent-backend)
+# Clean only subchart packages (all subdirectories under charts/)
 # This prevents helm unittest from running tests twice on subcharts
 clean-subchart-packages:
 	@echo "Cleaning subchart packages..."
-	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz charts/portal-web-*.tgz
+	@for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+		rm -f charts/$$subchart-*.tgz; \
+	done
 
 # Rebuild only external dependencies (seqera-common, bitnami common) if missing
-# Subcharts (pipeline-optimization, studios, agent-backend) are kept unpacked to avoid duplicate test runs
+# Subcharts are kept unpacked to avoid duplicate test runs
 rebuild-deps: clean-subchart-packages
 	@echo "Checking external dependencies..."
 	@if [ ! -f charts/common-*.tgz ] || [ ! -f charts/seqera-common-*.tgz ]; then \
 		echo "Missing dependencies detected, fetching..."; \
 		helm dependency update 2>&1 | grep -v "walk.go" || true; \
 		echo "Cleaning subchart packages to prevent duplicate test runs..."; \
-		rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz charts/portal-web-*.tgz; \
+		for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+			rm -f charts/$$subchart-*.tgz; \
+		done; \
 		echo "✓ External dependencies rebuilt successfully (subcharts remain unpacked)"; \
 	else \
 		echo "✓ All external dependencies already present (use 'make rebuild-deps-force' to force refresh)"; \
 	fi
 	@echo "Checking subchart dependencies..."
-	@for subchart in pipeline-optimization studios agent-backend portal-web; do \
-		if [ -d "charts/$$subchart" ]; then \
-			echo "Checking dependencies for $$subchart..."; \
-			if [ ! -f "charts/$$subchart/charts/common-"*.tgz ] || [ ! -f "charts/$$subchart/charts/seqera-common-"*.tgz ]; then \
-				echo "Missing dependencies for $$subchart, fetching..."; \
-				(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
-				echo "✓ Dependencies for $$subchart rebuilt successfully"; \
-			else \
-				echo "✓ Dependencies for $$subchart already present"; \
-			fi; \
+	@for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+		echo "Checking dependencies for $$subchart..."; \
+		if [ ! -f "charts/$$subchart/charts/common-"*.tgz ] || [ ! -f "charts/$$subchart/charts/seqera-common-"*.tgz ]; then \
+			echo "Missing dependencies for $$subchart, fetching..."; \
+			(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
+			echo "✓ Dependencies for $$subchart rebuilt successfully"; \
+		else \
+			echo "✓ Dependencies for $$subchart already present"; \
 		fi; \
 	done
 
@@ -80,16 +82,14 @@ rebuild-deps-and-unpack: rebuild-deps
 			rm -f "$$tgz"; \
 		fi; \
 	done
-	@for subchart in pipeline-optimization studios agent-backend; do \
-		if [ -d "charts/$$subchart" ]; then \
-			for tgz in "charts/$$subchart/charts/"*.tgz; do \
-				if [ -f "$$tgz" ]; then \
-					echo "Unpacking $$tgz..."; \
-					tar -xzf "$$tgz" -C "charts/$$subchart/charts/"; \
-					rm -f "$$tgz"; \
-				fi; \
-			done; \
-		fi; \
+	@for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+		for tgz in "charts/$$subchart/charts/"*.tgz; do \
+			if [ -f "$$tgz" ]; then \
+				echo "Unpacking $$tgz..."; \
+				tar -xzf "$$tgz" -C "charts/$$subchart/charts/"; \
+				rm -f "$$tgz"; \
+			fi; \
+		done; \
 	done
 	@echo "✓ All dependencies unpacked and tarballs removed"
 
@@ -99,16 +99,16 @@ rebuild-deps-force: clean-subchart-packages
 	@rm -f charts/common-*.tgz charts/seqera-common-*.tgz
 	@helm dependency update 2>&1 | grep -v "walk.go" || true
 	@echo "Cleaning subchart packages to prevent duplicate test runs..."
-	@rm -f charts/pipeline-optimization-*.tgz charts/studios-*.tgz charts/agent-backend-*.tgz
+	@for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+		rm -f charts/$$subchart-*.tgz; \
+	done
 	@echo "✓ External dependencies force rebuilt successfully (subcharts remain unpacked)"
 	@echo "Force rebuilding subchart dependencies..."
-	@for subchart in pipeline-optimization studios agent-backend portal-web; do \
-		if [ -d "charts/$$subchart" ]; then \
-			echo "Force rebuilding dependencies for $$subchart..."; \
-			rm -f "charts/$$subchart/charts/common-"*.tgz "charts/$$subchart/charts/seqera-common-"*.tgz; \
-			(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
-			echo "✓ Dependencies for $$subchart force rebuilt successfully"; \
-		fi; \
+	@for subchart in $$(ls -d charts/*/  2>/dev/null | xargs -I{} basename {}); do \
+		echo "Force rebuilding dependencies for $$subchart..."; \
+		rm -f "charts/$$subchart/charts/common-"*.tgz "charts/$$subchart/charts/seqera-common-"*.tgz; \
+		(cd "charts/$$subchart" && helm dependency update 2>&1 | grep -v "walk.go" || true); \
+		echo "✓ Dependencies for $$subchart force rebuilt successfully"; \
 	done
 
 unittests-no-build:
