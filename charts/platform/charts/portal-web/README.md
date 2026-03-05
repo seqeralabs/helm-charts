@@ -22,8 +22,8 @@ Portal web frontend for Seqera Platform
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
-| global.portalWebDomain | string | `"{{ printf \"portal.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
+| global.portalWebDomain | string | `"{{ printf \"portal.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | image.registry | string | `""` | Container image registry |

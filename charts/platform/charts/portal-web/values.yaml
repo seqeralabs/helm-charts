@@ -21,11 +21,11 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
-  # -- Domain where the Portal Web frontend listens. Evaluated as a template
-  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
-
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
+
+  # -- Domain where the Portal Web frontend listens. Evaluated as a template
+  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically

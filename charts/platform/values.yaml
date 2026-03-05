@@ -57,7 +57,7 @@ global:
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Agent Backend service listens. Evaluated as a template
-  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
+  agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Portal Web frontend listens. Evaluated as a template
   portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
