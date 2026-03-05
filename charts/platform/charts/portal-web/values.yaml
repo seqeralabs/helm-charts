@@ -67,16 +67,12 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-# Auth0 configuration
 auth0:
-  # -- Auth0 domain (e.g. myorg.auth0.com) - defaults to Platform as the Identity Provider
-  domain: '{{ printf "%s/api" .Values.global.platformExternalDomain }}'
-  # -- Auth0 audience
-  audience: "platform"
-  # -- Auth0 app client id`
-  clientId: "seqera_ai_web"
+  # -- Required Auth0 domain (e.g. myorg.auth0.com)
+  domain: ""
+  # -- Required Auth0 app client id
+  clientId: ""
 
-# -- Service configuration
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort

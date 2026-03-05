@@ -34,5 +34,4 @@ data:
   SEQERA_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain .) | quote }}
 
   AUTH0_DOMAIN: {{ tpl .Values.auth0.domain . | quote }}
-  AUTH0_AUDIENCE: {{ tpl .Values.auth0.audience . | quote }}
   AUTH0_CLIENT_ID: {{ tpl .Values.auth0.clientId . | quote }}

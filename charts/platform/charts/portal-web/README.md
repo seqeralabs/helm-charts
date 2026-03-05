@@ -32,10 +32,8 @@ Portal web frontend for Seqera Platform
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| auth0.domain | string | `"{{ printf \"%s/api\" .Values.global.platformExternalDomain }}"` | Auth0 domain (e.g. myorg.auth0.com) - defaults to Platform as the Identity Provider |
-| auth0.audience | string | `"platform"` | Auth0 audience |
-| auth0.clientId | string | `"seqera_ai_web"` | Auth0 app client id` |
-| service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":3000},"type":"ClusterIP"}` | Service configuration |
+| auth0.domain | string | `""` | Required Auth0 domain (e.g. myorg.auth0.com) |
+| auth0.clientId | string | `""` | Required Auth0 app client id |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | service.http.name | string | `"http"` | Service name to use |
 | service.http.port | int | `80` | Service port |

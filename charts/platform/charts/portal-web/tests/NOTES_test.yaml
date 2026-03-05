@@ -31,16 +31,18 @@ tests:
       - failedTemplate:
           errorPattern: "Define the Auth0 domain at 'auth0.domain'\\."
 
-  - it: should pass when auth0.domain is set to a literal value
+  - it: should fail when auth0.clientId is explicitly set to empty string
     set:
       auth0.domain: myorg.auth0.com
+      auth0.clientId: ""
     asserts:
-      - hasDocuments:
-          count: 1
+      - failedTemplate:
+          errorPattern: "Define the Auth0 client ID at 'auth0.clientId'\\."
 
-  - it: should pass with the default templated auth0.domain value
+  - it: should pass when auth0.domain and auth0.clientId are set
     set:
-      global.platformExternalDomain: prod.example.com
+      auth0.domain: myorg.auth0.com
+      auth0.clientId: myclientid
     asserts:
       - hasDocuments:
           count: 1
