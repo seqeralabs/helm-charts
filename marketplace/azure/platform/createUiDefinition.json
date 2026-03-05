@@ -563,38 +563,38 @@
             "name": "redisSkuName",
             "type": "Microsoft.Common.DropDown",
             "label": "Azure Managed Redis SKU",
-            "toolTip": "SKU for the Azure Managed Redis instance. Balanced SKUs provide a good price/performance ratio; Memory Optimized SKUs are suited for cache-heavy workloads.",
-            "defaultValue": "Balanced_B1",
+            "toolTip": "SKU for the Azure Managed Redis instance. Balanced SKUs provide a good price/performance ratio.",
+            "defaultValue": "Balanced_B5",
             "visible": "[steps('redisConfig').createNewRedis]",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "Balanced B0 (1 GB)",
-                  "value": "Balanced_B0"
-                },
-                {
-                  "label": "Balanced B1 (2 GB, recommended)",
-                  "value": "Balanced_B1"
-                },
-                {
-                  "label": "Balanced B3 (8 GB)",
-                  "value": "Balanced_B3"
-                },
-                {
-                  "label": "Balanced B5 (16 GB)",
+                  "label": "Balanced B5 (6 GB, minimum)",
                   "value": "Balanced_B5"
                 },
                 {
-                  "label": "Memory Optimized M10 (12 GB)",
-                  "value": "MemoryOptimized_M10"
+                  "label": "Balanced B10 (12 GB)",
+                  "value": "Balanced_B10"
                 },
                 {
-                  "label": "Memory Optimized M20 (25 GB)",
-                  "value": "MemoryOptimized_M20"
+                  "label": "Balanced B20 (24 GB)",
+                  "value": "Balanced_B20"
                 },
                 {
-                  "label": "Memory Optimized M50 (62 GB)",
-                  "value": "MemoryOptimized_M50"
+                  "label": "Balanced B50 (60 GB)",
+                  "value": "Balanced_B50"
+                },
+                {
+                  "label": "Balanced B100 (120 GB)",
+                  "value": "Balanced_B100"
+                },
+                {
+                  "label": "Balanced B150 (175 GB)",
+                  "value": "Balanced_B150"
+                },
+                {
+                  "label": "Balanced B250 (235 GB)",
+                  "value": "Balanced_B250"
                 }
               ],
               "required": true
@@ -871,37 +871,37 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Studios Azure Managed Redis SKU",
             "toolTip": "SKU for the Studios Azure Managed Redis instance.",
-            "defaultValue": "Balanced_B1",
+            "defaultValue": "Balanced_B5",
             "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "Balanced B0 (1 GB)",
-                  "value": "Balanced_B0"
-                },
-                {
-                  "label": "Balanced B1 (2 GB, recommended)",
-                  "value": "Balanced_B1"
-                },
-                {
-                  "label": "Balanced B3 (8 GB)",
-                  "value": "Balanced_B3"
-                },
-                {
-                  "label": "Balanced B5 (16 GB)",
+                  "label": "Balanced B5 (6 GB, minimum)",
                   "value": "Balanced_B5"
                 },
                 {
-                  "label": "Memory Optimized M10 (12 GB)",
-                  "value": "MemoryOptimized_M10"
+                  "label": "Balanced B10 (12 GB)",
+                  "value": "Balanced_B10"
                 },
                 {
-                  "label": "Memory Optimized M20 (25 GB)",
-                  "value": "MemoryOptimized_M20"
+                  "label": "Balanced B20 (24 GB)",
+                  "value": "Balanced_B20"
                 },
                 {
-                  "label": "Memory Optimized M50 (62 GB)",
-                  "value": "MemoryOptimized_M50"
+                  "label": "Balanced B50 (60 GB)",
+                  "value": "Balanced_B50"
+                },
+                {
+                  "label": "Balanced B100 (120 GB)",
+                  "value": "Balanced_B100"
+                },
+                {
+                  "label": "Balanced B150 (175 GB)",
+                  "value": "Balanced_B150"
+                },
+                {
+                  "label": "Balanced B250 (235 GB)",
+                  "value": "Balanced_B250"
                 }
               ],
               "required": true

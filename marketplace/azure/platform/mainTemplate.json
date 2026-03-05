@@ -436,15 +436,15 @@
         },
         "redisSkuName": {
             "type": "String",
-            "defaultValue": "Balanced_B1",
+            "defaultValue": "Balanced_B5",
             "allowedValues": [
-                "Balanced_B0",
-                "Balanced_B1",
-                "Balanced_B3",
                 "Balanced_B5",
-                "MemoryOptimized_M10",
-                "MemoryOptimized_M20",
-                "MemoryOptimized_M50"
+                "Balanced_B10",
+                "Balanced_B20",
+                "Balanced_B50",
+                "Balanced_B100",
+                "Balanced_B150",
+                "Balanced_B250"
             ],
             "metadata": {
                 "description": "SKU for the Platform Azure Managed Redis instance."
@@ -473,15 +473,15 @@
         },
         "studiosRedisSkuName": {
             "type": "String",
-            "defaultValue": "Balanced_B1",
+            "defaultValue": "Balanced_B5",
             "allowedValues": [
-                "Balanced_B0",
-                "Balanced_B1",
-                "Balanced_B3",
                 "Balanced_B5",
-                "MemoryOptimized_M10",
-                "MemoryOptimized_M20",
-                "MemoryOptimized_M50"
+                "Balanced_B10",
+                "Balanced_B20",
+                "Balanced_B50",
+                "Balanced_B100",
+                "Balanced_B150",
+                "Balanced_B250"
             ],
             "metadata": {
                 "description": "SKU for the Studios Azure Managed Redis instance."
