@@ -374,11 +374,11 @@
           {
             "name": "mysqlStorageSizeGB",
             "type": "Microsoft.Common.Slider",
-            "min": 20,
+            "min": 30,
             "max": 1024,
             "label": "Storage Size (GiB)",
             "subLabel": "GiB",
-            "defaultValue": 20,
+            "defaultValue": 30,
             "showStepMarkers": false,
             "toolTip": "Storage size for the MySQL server in GiB.",
             "visible": "[steps('databaseConfig').createNewDatabase]",

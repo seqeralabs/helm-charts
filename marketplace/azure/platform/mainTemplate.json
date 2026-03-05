@@ -392,8 +392,8 @@
         },
         "mysqlStorageSizeGB": {
             "type": "Int",
-            "defaultValue": 20,
-            "minValue": 20,
+            "defaultValue": 30,
+            "minValue": 30,
             "maxValue": 1024,
             "metadata": {
                 "description": "Storage size in GiB for the MySQL Flexible Server."
