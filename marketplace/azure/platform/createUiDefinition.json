@@ -485,6 +485,14 @@
         "label": "Redis Configuration",
         "elements": [
           {
+            "name": "redisClusteringWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "options": {
+              "text": "Platform requires a non-clustered Redis endpoint. The auto-provisioned Azure Managed Redis instance uses the NoCluster topology. If you bring your own Redis, ensure it is non-clustered.",
+              "style": "Warning"
+            }
+          },
+          {
             "name": "createNewRedis",
             "type": "Microsoft.Common.CheckBox",
             "label": "Automatically provision Azure Cache for Redis (Platform)",
@@ -554,48 +562,39 @@
           {
             "name": "redisSkuName",
             "type": "Microsoft.Common.DropDown",
-            "label": "Redis SKU",
-            "toolTip": "SKU for the Redis cache. Standard provides replication and failover.",
-            "defaultValue": "Standard",
+            "label": "Azure Managed Redis SKU",
+            "toolTip": "SKU for the Azure Managed Redis instance. Balanced SKUs provide a good price/performance ratio; Memory Optimized SKUs are suited for cache-heavy workloads.",
+            "defaultValue": "Balanced_B1",
             "visible": "[steps('redisConfig').createNewRedis]",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "Basic (no replication, development use)",
-                  "value": "Basic"
+                  "label": "Balanced B0 (1 GB)",
+                  "value": "Balanced_B0"
                 },
                 {
-                  "label": "Standard (replicated, recommended)",
-                  "value": "Standard"
-                }
-              ],
-              "required": true
-            }
-          },
-          {
-            "name": "redisCapacity",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Cache Size",
-            "toolTip": "Cache size for the Redis instance.",
-            "defaultValue": "C1 (1 GB)",
-            "visible": "[steps('redisConfig').createNewRedis]",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "C0 (250 MB)",
-                  "value": 0
+                  "label": "Balanced B1 (2 GB, recommended)",
+                  "value": "Balanced_B1"
                 },
                 {
-                  "label": "C1 (1 GB)",
-                  "value": 1
+                  "label": "Balanced B3 (8 GB)",
+                  "value": "Balanced_B3"
                 },
                 {
-                  "label": "C2 (2.5 GB)",
-                  "value": 2
+                  "label": "Balanced B5 (16 GB)",
+                  "value": "Balanced_B5"
                 },
                 {
-                  "label": "C3 (6 GB)",
-                  "value": 3
+                  "label": "Memory Optimized M10 (12 GB)",
+                  "value": "MemoryOptimized_M10"
+                },
+                {
+                  "label": "Memory Optimized M20 (25 GB)",
+                  "value": "MemoryOptimized_M20"
+                },
+                {
+                  "label": "Memory Optimized M50 (62 GB)",
+                  "value": "MemoryOptimized_M50"
                 }
               ],
               "required": true
@@ -795,8 +794,8 @@
             "type": "Microsoft.Common.InfoBox",
             "visible": "[steps('featuresConfig').studiosEnabled]",
             "options": {
-              "text": "Studios requires a dedicated Redis cache instance, separate from the Platform Redis.",
-              "style": "Info"
+              "text": "Studios requires a dedicated Redis instance, separate from the Platform Redis. Like Platform, Studios only supports a non-clustered Redis endpoint. The auto-provisioned Azure Managed Redis instance uses the NoCluster topology.",
+              "style": "Warning"
             }
           },
           {
@@ -870,48 +869,39 @@
           {
             "name": "studiosRedisSkuName",
             "type": "Microsoft.Common.DropDown",
-            "label": "Studios Redis SKU",
-            "toolTip": "SKU for the Studios Redis cache.",
-            "defaultValue": "Standard",
+            "label": "Studios Azure Managed Redis SKU",
+            "toolTip": "SKU for the Studios Azure Managed Redis instance.",
+            "defaultValue": "Balanced_B1",
             "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
             "constraints": {
               "allowedValues": [
                 {
-                  "label": "Basic (no replication, development use)",
-                  "value": "Basic"
+                  "label": "Balanced B0 (1 GB)",
+                  "value": "Balanced_B0"
                 },
                 {
-                  "label": "Standard (replicated, recommended)",
-                  "value": "Standard"
-                }
-              ],
-              "required": true
-            }
-          },
-          {
-            "name": "studiosRedisCapacity",
-            "type": "Microsoft.Common.DropDown",
-            "label": "Studios Cache Size",
-            "toolTip": "Cache size for the Studios Redis instance.",
-            "defaultValue": "C1 (1 GB)",
-            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
-            "constraints": {
-              "allowedValues": [
-                {
-                  "label": "C0 (250 MB)",
-                  "value": 0
+                  "label": "Balanced B1 (2 GB, recommended)",
+                  "value": "Balanced_B1"
                 },
                 {
-                  "label": "C1 (1 GB)",
-                  "value": 1
+                  "label": "Balanced B3 (8 GB)",
+                  "value": "Balanced_B3"
                 },
                 {
-                  "label": "C2 (2.5 GB)",
-                  "value": 2
+                  "label": "Balanced B5 (16 GB)",
+                  "value": "Balanced_B5"
                 },
                 {
-                  "label": "C3 (6 GB)",
-                  "value": 3
+                  "label": "Memory Optimized M10 (12 GB)",
+                  "value": "MemoryOptimized_M10"
+                },
+                {
+                  "label": "Memory Optimized M20 (25 GB)",
+                  "value": "MemoryOptimized_M20"
+                },
+                {
+                  "label": "Memory Optimized M50 (62 GB)",
+                  "value": "MemoryOptimized_M50"
                 }
               ],
               "required": true
@@ -1207,7 +1197,6 @@
       "redisServerName": "[steps('redisConfig').redisServerName]",
       "redisLocation": "[steps('redisConfig').redisLocation]",
       "redisSkuName": "[steps('redisConfig').redisSkuName]",
-      "redisCapacity": "[steps('redisConfig').redisCapacity]",
       "redis.host": "[steps('redisConfig').redisHost]",
       "redis.port": "[int(steps('redisConfig').redisPort)]",
       "redis.password": "[steps('redisConfig').redisPassword]",
@@ -1224,7 +1213,6 @@
       "studiosRedisServerName": "[steps('featuresConfig').studiosRedisServerName]",
       "studiosRedisLocation": "[steps('featuresConfig').studiosRedisLocation]",
       "studiosRedisSkuName": "[steps('featuresConfig').studiosRedisSkuName]",
-      "studiosRedisCapacity": "[steps('featuresConfig').studiosRedisCapacity]",
       "studios.redis.host": "[steps('featuresConfig').studiosRedisHost]",
       "studios.redis.port": "[int(steps('featuresConfig').studiosRedisPort)]",
       "studios.redis.password": "[steps('featuresConfig').studiosRedisPassword]",
