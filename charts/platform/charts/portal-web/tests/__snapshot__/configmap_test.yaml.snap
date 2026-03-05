@@ -1,0 +1,19 @@
+should render a ConfigMap with default values:
+  1: |
+    apiVersion: v1
+    data:
+      AUTH0_CLIENT_ID: ""
+      AUTH0_DOMAIN: ""
+      SEQERA_AGENT_BACKEND_URL: https://ai-api.example.com
+      SEQERA_PLATFORM_API_URL: https://example.com/api
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: portal-web
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: portal-web-1.2.3
+      name: release-name-portal-web
+      namespace: NAMESPACE

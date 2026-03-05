@@ -1,0 +1,308 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Portal Web deployment
+templates:
+  - deployment.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a Deployment with default values
+    template: deployment.yaml
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should have no built-in init containers by default
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers
+
+  - it: should use custom image
+    template: deployment.yaml
+    set:
+      image.registry: custom-registry.io
+      image.repository: custom/portal-web
+      image.tag: v1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: custom-registry.io/custom/portal-web:v1.2.3
+
+  - it: should mount /tmp and /app/.next/cache volumes by default
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir:
+              sizeLimit: 500Mi
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: nextjs-cache
+            emptyDir:
+              sizeLimit: 500Mi
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: tmp
+            mountPath: /tmp
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: nextjs-cache
+            mountPath: /app/.next/cache
+
+  - it: should configure volume size limits from values
+    template: deployment.yaml
+    set:
+      tmpDirSizeLimit: "1Gi"
+      nextjsCacheSizeLimit: "2Gi"
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir:
+              sizeLimit: 1Gi
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: nextjs-cache
+            emptyDir:
+              sizeLimit: 2Gi
+
+  - it: should inject configmap via envFrom by default
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: release-name-portal-web
+
+  - it: should render extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
+    template: deployment.yaml
+    set:
+      extraEnvVars:
+        - name: EXTRA_ENV_VAR_1
+          value: set-a-value-here
+        - name: EXTRA_ENV_VAR_2
+          value: set-a-value-here
+      extraEnvVarsCMs:
+        - CMContainingExtraEnvVars
+      extraEnvVarsSecrets:
+        - SecretContainingExtraEnvVars
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EXTRA_ENV_VAR_1
+            value: set-a-value-here
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EXTRA_ENV_VAR_2
+            value: set-a-value-here
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: CMContainingExtraEnvVars
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: SecretContainingExtraEnvVars
+
+  - it: should mount extra volumes
+    template: deployment.yaml
+    set:
+      extraVolumes:
+        - name: custom-volume
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: custom-volume
+          mountPath: /custom
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: custom-volume
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: custom-volume
+            mountPath: /custom
+
+  - it: should apply custom resources
+    template: deployment.yaml
+    set:
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 500m
+          memory: 512Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+
+  - it: should include user-provided init containers
+    template: deployment.yaml
+    set:
+      initContainers:
+        - name: custom-init
+          image: busybox
+          command: ['sh', '-c', 'echo waiting']
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: custom-init
+            image: busybox
+            command: ['sh', '-c', 'echo waiting']
+
+  - it: should apply common labels
+    template: deployment.yaml
+    set:
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should render podAnnotations on the pod template
+    template: deployment.yaml
+    set:
+      podAnnotations:
+        custom-annotation: custom-value
+        another-annotation: another-value
+    asserts:
+      - isSubset:
+          path: spec.template.metadata.annotations
+          content:
+            custom-annotation: custom-value
+            another-annotation: another-value
+
+  - it: should render extraOptionsSpec under spec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        replicas: 3
+        revisionHistoryLimit: 5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: shouldn't obey custom selector requests in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: portal-web
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: portal-web
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          service: tower
+          kubernetes.io/arch: amd64
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - portal-web
+                topologyKey: kubernetes.io/hostname
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            service: tower
+            kubernetes.io/arch: amd64
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - portal-web
+                  topologyKey: kubernetes.io/hostname
+
+  - it: should ignore managed fields in extraOptionsTemplateSpec
+    template: deployment.yaml
+    set:
+      extraOptionsTemplateSpec:
+        serviceAccountName: some-other-sa
+        dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-portal-web-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render image pullSecrets
+    template: deployment.yaml
+    set:
+      image.pullSecrets:
+        - myRegistrySecret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: myRegistrySecret
