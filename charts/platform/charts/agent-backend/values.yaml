@@ -22,7 +22,7 @@ global:
   platformExternalDomain: example.com
 
   # -- Domain where the Agent Backend service listens. Evaluated as a template
-  agentBackendDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
+  agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where Seqera MCP listens. Evaluated as a template
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'

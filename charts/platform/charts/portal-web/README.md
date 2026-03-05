@@ -14,7 +14,7 @@ Portal web frontend for Seqera Platform
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../seqera-common | seqera-common | 1.x.x |
+| file://../../../seqera-common | seqera-common | 2.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
