@@ -1,0 +1,46 @@
+name: Package Azure CNAB
+
+on:
+  workflow_dispatch: {}
+
+# Required for Azure OIDC authentication.
+# 'id-token: write' allows the runner to request an OIDC token from GitHub,
+# which Azure then exchanges for an access token (no stored secrets needed).
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  package-azure-cnab:
+    name: Package Azure CNAB bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6.0.2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # ratchet:azure/setup-helm@v4.3.1
+        with:
+          version: v3.19.0
+
+      - name: Login to Seqera CR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # ratchet:docker/login-action@v3.7.0
+        with:
+          username: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_USERNAME }}
+          password: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_PASSWORD }}
+
+      - name: Log in to Azure
+        uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # ratchet:azure/login@v2.3.0
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install Skopeo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo
+
+      - name: Package Azure CNAB
+        run: make -C marketplace/azure/platform package-azure-cnab REGISTRY=${{ secrets.AZURE_MARKETPLACE_REPO }} IMAGE_PREFIX=images

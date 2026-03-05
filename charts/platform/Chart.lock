@@ -7,12 +7,12 @@ dependencies:
   version: 2.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 0.3.0
+  version: 1.0.1
 - name: studios
   repository: file://charts/studios
-  version: 1.2.0
+  version: 1.2.1
 - name: agent-backend
   repository: file://charts/agent-backend
   version: 0.2.0
-digest: sha256:09946c9e87f76b22221303eb6eb4426f783820044fb7549b4e560789ca887bf1
-generated: "2026-02-20T16:39:39.114677304+01:00"
+digest: sha256:dcb2857e3fe5f8fe1940afe5326bedea62c89029f2a0f2e5307680e33043e10b
+generated: "2026-03-03T16:00:43.427654809+01:00"

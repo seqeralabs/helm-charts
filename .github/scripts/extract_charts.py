@@ -15,23 +15,24 @@ INPUTS:
 
 OUTPUTS:
   - Sets GitHub environment variable: charts_to_package
-    Space-separated list of chart paths (e.g., "platform platform/charts/pipeline-optimization")
+    Space-separated list of chart paths (e.g., "charts/platform charts/platform/charts/pipeline-optimization")
   - Prints: "Charts to package: <list>"
 
 BEHAVIOR:
-  - Subcharts (*/charts/*): Always included when their files change
-  - Parent charts: Only included when files outside charts/ subdirectory change
+  - All charts live under the top-level charts/ directory (e.g., charts/platform/).
+  - Subcharts (charts/<parent>/charts/<subchart>): Always included when their files change
+  - Parent charts: Only included when files outside their charts/ subdirectory change
   - This prevents parent chart rebuilds when only subcharts are modified
 
 EXAMPLES:
-  Changed files: platform/charts/pipeline-optimization/values.yaml
-  Output: platform/charts/pipeline-optimization
+  Changed files: charts/platform/charts/pipeline-optimization/values.yaml
+  Output: charts/platform/charts/pipeline-optimization
 
-  Changed files: platform/values.yaml, platform/templates/deployment.yaml
-  Output: platform
+  Changed files: charts/platform/values.yaml, charts/platform/templates/deployment.yaml
+  Output: charts/platform
 
-  Changed files: platform/values.yaml, platform/charts/pipeline-optimization/Chart.yaml
-  Output: platform platform/charts/pipeline-optimization
+  Changed files: charts/platform/values.yaml, charts/platform/charts/pipeline-optimization/Chart.yaml
+  Output: charts/platform charts/platform/charts/pipeline-optimization
 """
 import json
 import os
@@ -55,19 +56,26 @@ def main():
     parent_charts = set()
 
     for file_path in changed_files:
-        # Exclude files in top directories starting with a dot
-        if '/' in file_path and not file_path.startswith('.'):
-            parts = file_path.split('/')
+        # Only process files under the top-level charts/ directory
+        if not file_path.startswith('charts/'):
+            continue
+        parts = file_path.split('/')
 
-            # Check if this is a subchart (e.g., platform/charts/pipeline-optimization/...)
-            if len(parts) >= 3 and parts[1] == 'charts':
-                # This is a subchart path like: parent/charts/subchart/...
-                subchart_dir = '/'.join(parts[:3])  # e.g., platform/charts/pipeline-optimization
-                subcharts.add(subchart_dir)
-            else:
-                # This is a top-level/parent chart file (not in charts/ subdir)
-                chart_dir = parts[0]
-                parent_charts.add(chart_dir)
+        # Path structure: charts/<parent>[/charts/<subchart>/...]
+        # parts[0] = "charts", parts[1] = parent chart name
+        if len(parts) < 2:
+            continue
+
+        # Check if this is a subchart (e.g., charts/platform/charts/pipeline-optimization/...)
+        # parts: ['charts', 'platform', 'charts', 'pipeline-optimization', ...]
+        if len(parts) >= 5 and parts[2] == 'charts':
+            # This is a subchart path: charts/parent/charts/subchart/...
+            subchart_dir = '/'.join(parts[:4])  # e.g., charts/platform/charts/pipeline-optimization
+            subcharts.add(subchart_dir)
+        else:
+            # This is a parent chart file: charts/platform/...
+            chart_dir = '/'.join(parts[:2])  # e.g., charts/platform
+            parent_charts.add(chart_dir)
 
     # Combine: include all subcharts and only parent charts with direct changes
     potential_charts = subcharts | parent_charts

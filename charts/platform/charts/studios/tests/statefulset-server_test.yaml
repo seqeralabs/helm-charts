@@ -21,6 +21,9 @@ suite: test Studios server statefulset
 templates:
 - statefulset-server.yaml
 - secret.yaml
+chart:
+  version: 8.7.6+test
+  appVersion: 9.9.9
 tests:
 - it: should set the statefulset server image using the chart version and use sane defaults
   template: statefulset-server.yaml
@@ -596,7 +599,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/data-studio/connect-server:0.9.0
+      value: private/nf-tower-enterprise/data-studio/connect-server:9.9.9
 
 - it: should evaluate templates in azure override fields for the server container
   template: statefulset-server.yaml
@@ -611,4 +614,4 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: my-registry-azurecr.io/my-server:0.9.0
+      value: my-registry-azurecr.io/my-server:9.9.9

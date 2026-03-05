@@ -72,7 +72,7 @@ Production-grade Helm charts for deploying Seqera Platform (formerly Tower) on K
 - `matchSnapshot`: Full object validation, integration tests
 - `equal`: Specific fields, conditional logic, computed values
 
-**Update snapshots:** `helm unittest -u platform/`
+**Update snapshots:** `helm unittest -u charts/platform/`
 
 ## Architecture
 
@@ -86,19 +86,20 @@ Production-grade Helm charts for deploying Seqera Platform (formerly Tower) on K
 ## File Structure
 
 ```
-platform/
-├── Chart.yaml                    # Metadata, version, dependencies
-├── values.yaml                   # Default config (comment with # -- for docs)
-├── CHANGELOG.md                  # Version history (required on version bump)
-├── templates/                    # K8s templates
-│   ├── _helpers.tpl             # Template helpers
-│   ├── deployment-*.yaml        # Pod deployments
-│   ├── service.yaml             # Services
-│   ├── secret.yaml              # Secrets
-│   └── ...
-└── tests/                        # Unit tests (MANDATORY)
-    ├── *_test.yaml              # One test per template
-    └── __snapshot__/            # Snapshot outputs
+charts/
+└── platform/
+    ├── Chart.yaml                    # Metadata, version, dependencies
+    ├── values.yaml                   # Default config (comment with # -- for docs)
+    ├── CHANGELOG.md                  # Version history (required on version bump)
+    ├── templates/                    # K8s templates
+    │   ├── _helpers.tpl             # Template helpers
+    │   ├── deployment-*.yaml        # Pod deployments
+    │   ├── service.yaml             # Services
+    │   ├── secret.yaml              # Secrets
+    │   └── ...
+    └── tests/                        # Unit tests (MANDATORY)
+        ├── *_test.yaml              # One test per template
+        └── __snapshot__/            # Snapshot outputs
 ```
 
 **RULE**: Every template MUST have a corresponding test file:
@@ -112,9 +113,9 @@ platform/
 
 ### Run Tests
 ```bash
-make -C platform test              # Run all tests
-helm unittest -u platform/         # Update snapshots
-helm unittest -d -f tests/configmap_test.yaml platform/  # Debug specific test
+make -C charts/platform test              # Run all tests
+helm unittest -u charts/platform/         # Update snapshots
+helm unittest -d -f tests/configmap_test.yaml charts/platform/  # Debug specific test
 ```
 
 **IMPORTANT**: Always use unit tests to verify changes. DO NOT use `helm template` during development.
@@ -161,7 +162,7 @@ data:
 2. Secret NOT included when using `existingSecretName`
 3. Data block is `null` when all secrets are external
 
-See [platform/templates/secret.yaml](platform/templates/secret.yaml) for examples.
+See [charts/platform/templates/secret.yaml](charts/platform/templates/secret.yaml) for examples.
 
 ### Template Rendering with `tpl`
 
@@ -178,16 +179,16 @@ commonLabels:
 ## Common Workflows
 
 ### Adding a New Template
-1. Create template in `platform/templates/`
-2. **MUST**: Create test file in `platform/tests/` with comprehensive coverage
-3. Run `make -C platform test`
+1. Create template in `charts/platform/templates/`
+2. **MUST**: Create test file in `charts/platform/tests/` with comprehensive coverage
+3. Run `make -C charts/platform test`
 4. Run `pre-commit run --all-files`
 
 ### Modifying Templates
 1. Update template
 2. Update corresponding test file
-3. Run `make -C platform test`
-4. Update snapshots if needed: `helm unittest -u platform/`
+3. Run `make -C charts/platform test`
+4. Update snapshots if needed: `helm unittest -u charts/platform/`
 
 ### Version Bumping
 1. Update `version` in `Chart.yaml` (or subchart's `Chart.yaml`)
@@ -209,15 +210,15 @@ commonLabels:
 
 ```bash
 # Testing
-make -C platform test
-helm unittest -u platform/
+make -C charts/platform test
+helm unittest -u charts/platform/
 
 # Building
-make -C platform build
-helm lint platform/
+make -C charts/platform build
+helm lint charts/platform/
 
 # Dependencies
-helm dependency update platform/
+helm dependency update charts/platform/
 ```
 
 ## Important Notes

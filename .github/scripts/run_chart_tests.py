@@ -10,9 +10,9 @@ USAGE:
   python3 run_chart_tests.py
 
 INPUTS:
-  - Scans repository root directory for Chart.yaml files
-  - Only tests root-level charts (e.g., platform/)
-  - Does NOT test subcharts (e.g., platform/charts/subchart/)
+  - Scans charts/ directory for Chart.yaml files
+  - Only tests top-level charts (e.g., charts/platform/)
+  - Does NOT test subcharts (e.g., charts/platform/charts/subchart/)
 
 OUTPUTS:
   - Exit code 0: All chart tests pass
@@ -22,7 +22,7 @@ OUTPUTS:
 BEHAVIOR:
   - Checks if helm-unittest plugin is installed
   - If not installed, runs: helm plugin install (does not require Makefile)
-  - Finds all root-level directories containing Chart.yaml
+  - Finds all directories under charts/ containing Chart.yaml
   - For each chart directory with a Makefile, runs: make -C <chart_dir> tests
   - Skips charts without a Makefile (e.g., library charts with no tests)
   - Subcharts are tested through their parent chart's test suite
@@ -33,12 +33,12 @@ REQUIREMENTS:
   - helm-unittest plugin v1.0.1 (installed automatically if missing)
 
 EXAMPLES:
-  Found charts: platform, seqera-common
-  platform has Makefile - runs: make -C platform tests
-  seqera-common has no Makefile - skipped
+  Found charts: charts/platform, charts/seqera-common
+  charts/platform has Makefile - runs: make -C charts/platform tests
+  charts/seqera-common has no Makefile - skipped
 
 NOTE:
-  Subcharts (e.g., platform/charts/pipeline-optimization/) are NOT tested
+  Subcharts (e.g., charts/platform/charts/pipeline-optimization/) are NOT tested
   independently. They should be tested as part of the parent chart's tests.
   Library charts without tests (no Makefile) are automatically skipped.
 """
@@ -48,7 +48,7 @@ import os
 
 def main():
     """
-    This script checks if the helm-unittest plugin is installed, installs it if it is not, and runs the helm chart tests in every directory in the root of the repository containing a Chart.yaml file and a Makefile.
+    This script checks if the helm-unittest plugin is installed, installs it if it is not, and runs the helm chart tests in every directory under charts/ containing a Chart.yaml file and a Makefile.
     """
 
     # Check if the helm-unittest plugin is installed
@@ -66,14 +66,17 @@ def main():
             sys.exit(1)
         print("helm-unittest plugin installed successfully.")
 
-    # Find all directories in the root containing a Chart.yaml file
+    # Find all chart directories under charts/
+    charts_base = "charts"
     chart_dirs = []
-    for item in os.listdir("."):
-        if os.path.isdir(item) and "Chart.yaml" in os.listdir(item):
-            chart_dirs.append(item)
+    if os.path.isdir(charts_base):
+        for item in os.listdir(charts_base):
+            chart_path = os.path.join(charts_base, item)
+            if os.path.isdir(chart_path) and "Chart.yaml" in os.listdir(chart_path):
+                chart_dirs.append(chart_path)
 
     if not chart_dirs:
-        print("No charts found in the root of the repository.")
+        print("No charts found under charts/ directory.")
         sys.exit(0)
 
     print(f"Found charts in the following directories: {', '.join(chart_dirs)}")

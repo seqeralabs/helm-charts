@@ -1,0 +1,477 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "extensionResourceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the extension."
+            }
+        },
+        "clusterResourceName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the Managed Cluster resource."
+            }
+        },
+        "createNewCluster": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "When set to 'true', creates new AKS cluster. Otherwise, an existing cluster is used."
+            }
+        },
+        "location": {
+            "type": "String",
+            "metadata": {
+                "description": "The location of AKS resource."
+            }
+        },
+        "vmSize": {
+            "type": "String",
+            "defaultValue": "Standard_DS2_v2",
+            "metadata": {
+                "description": "VM size"
+            }
+        },
+        "vmEnableAutoScale": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "enable auto scaling"
+            }
+        },
+        "vmCount": {
+            "type": "Int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "VM count"
+            }
+        },
+        "dnsPrefix": {
+            "defaultValue": "[concat(parameters('clusterResourceName'),'-dns')]",
+            "type": "String",
+            "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+            }
+        },
+        "osDiskSizeGB": {
+            "defaultValue": 0,
+            "minValue": 0,
+            "maxValue": 1023,
+            "type": "Int",
+            "metadata": {
+                "description": "Disk size (in GiB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+            }
+        },
+        "kubernetesVersion": {
+            "type": "String",
+            "defaultValue": "1.32.6",
+            "metadata": {
+                "description": "The version of Kubernetes."
+            }
+        },
+        "networkPlugin": {
+            "defaultValue": "azure",
+            "allowedValues": [
+                "azure",
+                "kubenet"
+            ],
+            "type": "String",
+            "metadata": {
+                "description": "Network plugin used for building Kubernetes network."
+            }
+        },
+        "enableRBAC": {
+            "defaultValue": true,
+            "type": "Bool",
+            "metadata": {
+                "description": "Boolean flag to turn on and off of RBAC."
+            }
+        },
+        "enablePrivateCluster": {
+            "defaultValue": false,
+            "type": "Bool",
+            "metadata": {
+                "description": "Enable private network access to the Kubernetes cluster."
+            }
+        },
+        "osSKU": {
+            "type": "string",
+            "defaultValue": "AzureLinux",
+            "allowedValues": [
+                "AzureLinux",
+                "Ubuntu"
+            ],
+            "metadata": {
+                "description": "The Linux SKU to use."
+            }
+        },
+        "enableFIPS": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable FIPS. https://learn.microsoft.com/en-us/azure/aks/create-node-pools#fips-enabled-node-pools"
+            }
+        },
+        "global.platformExternalDomain": {
+            "type": "String",
+            "metadata": {
+                "description": "Domain where Seqera Platform will be accessible."
+            }
+        },
+        "platform.licenseString": {
+            "type": "securestring",
+            "metadata": {
+                "description": "License key provided by your Seqera account manager."
+            }
+        },
+        "platform.contactEmail": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Sender email address used for user support notifications."
+            }
+        },
+        "platformDatabase.host": {
+            "type": "String",
+            "metadata": {
+                "description": "Hostname of the MySQL database server."
+            }
+        },
+        "platformDatabase.port": {
+            "type": "Int",
+            "defaultValue": 3306,
+            "metadata": {
+                "description": "Port number for the MySQL database."
+            }
+        },
+        "platformDatabase.name": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the MySQL database for Seqera Platform."
+            }
+        },
+        "platformDatabase.username": {
+            "type": "String",
+            "metadata": {
+                "description": "MySQL database username."
+            }
+        },
+        "platformDatabase.password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "MySQL database password."
+            }
+        },
+        "redis.host": {
+            "type": "String",
+            "metadata": {
+                "description": "Hostname of the Redis cache server."
+            }
+        },
+        "redis.port": {
+            "type": "Int",
+            "defaultValue": 6379,
+            "metadata": {
+                "description": "Port number for the Redis server."
+            }
+        },
+        "redis.password": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Redis password, if the server requires authentication."
+            }
+        },
+        "redis.enableTls": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable TLS encryption when connecting to Redis."
+            }
+        },
+        "platform.smtp.host": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMTP server hostname."
+            }
+        },
+        "platform.smtp.port": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "SMTP server port."
+            }
+        },
+        "platform.smtp.user": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Username for SMTP server authentication."
+            }
+        },
+        "platform.smtp.password": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Password for SMTP server authentication."
+            }
+        },
+        "platform.jwtSeedString": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Seed used to sign authentication tokens. Leave empty for auto-generation."
+            }
+        },
+        "platform.cryptoSeedString": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Seed used to encrypt sensitive data in the database. Must remain stable across upgrades."
+            }
+        },
+        "studios.enabled": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable Seqera Studios for interactive data analysis sessions."
+            }
+        },
+        "global.studiosDomain": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Domain where the Studios service listens."
+            }
+        },
+        "studios.redis.host": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Hostname of the Redis server for Studios."
+            }
+        },
+        "studios.redis.port": {
+            "type": "Int",
+            "defaultValue": 6379,
+            "metadata": {
+                "description": "Port number for the Studios Redis server."
+            }
+        },
+        "studios.redis.password": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Redis password for Studios."
+            }
+        },
+        "studios.redis.enableTls": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable TLS encryption when connecting to the Studios Redis server."
+            }
+        },
+        "pipeline-optimization.enabled": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable the Pipeline Optimization service."
+            }
+        },
+        "pipeline-optimization.database.host": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Hostname of the MySQL database server for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.database.port": {
+            "type": "Int",
+            "defaultValue": 3306,
+            "metadata": {
+                "description": "Port number for the Pipeline Optimization MySQL database."
+            }
+        },
+        "pipeline-optimization.database.name": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the MySQL database for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.database.username": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "MySQL database username for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.database.password": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "MySQL database password for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.platformDatabase.host": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Hostname of the Platform MySQL database for Pipeline Optimization read-only access."
+            }
+        },
+        "pipeline-optimization.platformDatabase.port": {
+            "type": "Int",
+            "defaultValue": 3306,
+            "metadata": {
+                "description": "Port number for the Platform MySQL database."
+            }
+        },
+        "pipeline-optimization.platformDatabase.name": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the Platform MySQL database."
+            }
+        },
+        "pipeline-optimization.platformDatabase.username": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "MySQL username for Platform database access."
+            }
+        },
+        "pipeline-optimization.platformDatabase.password": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "MySQL password for Platform database access."
+            }
+        }
+    },
+    "variables": {
+        "plan-name": "DONOTMODIFY",
+        "plan-publisher": "DONOTMODIFY",
+        "plan-offerID": "DONOTMODIFY",
+        "releaseTrain": "DONOTMODIFY",
+        "clusterExtensionTypeName": "DONOTMODIFY"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "condition": "[parameters('createNewCluster')]",
+            "apiVersion": "2025-05-01",
+            "name": "[parameters('clusterResourceName')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "tags": {},
+            "sku": {
+                "name": "Base",
+                "tier": "Free"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "enableRBAC": "[parameters('enableRBAC')]",
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "autoUpgradeProfile": {
+                    "upgradeChannel": "patch",
+                    "nodeOSUpgradeChannel": "NodeImage"
+                },
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[parameters('vmCount')]",
+                        "enableAutoScaling": "[parameters('vmEnableAutoScale')]",
+                        "enableFIPS": "[parameters('enableFIPS')]",
+                        "minCount": "[if(parameters('vmEnableAutoScale'), 1, json('null'))]",
+                        "maxCount": "[if(parameters('vmEnableAutoScale'), 10, json('null'))]",
+                        "vmSize": "[parameters('vmSize')]",
+                        "osType": "Linux",
+                        "osSKU": "[parameters('osSKU')]",
+                        "type": "VirtualMachineScaleSets",
+                        "mode": "System",
+                        "maxPods": 110,
+                        "availabilityZones": [],
+                        "enableNodePublicIP": false,
+                        "tags": {}
+                    }
+                ],
+                "networkProfile": {
+                    "loadBalancerSku": "standard",
+                    "networkPlugin": "[parameters('networkPlugin')]"
+                },
+                "apiServerAccessProfile": {
+                    "enablePrivateCluster": "[parameters('enablePrivateCluster')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KubernetesConfiguration/extensions",
+            "apiVersion": "2024-11-01",
+            "name": "[parameters('extensionResourceName')]",
+            "properties": {
+                "extensionType": "[variables('clusterExtensionTypeName')]",
+                "autoUpgradeMinorVersion": true,
+                "releaseTrain": "[variables('releaseTrain')]",
+                "configurationSettings": {
+                    "global.platformExternalDomain": "[parameters('global.platformExternalDomain')]",
+                    "platform.contactEmail": "[parameters('platform.contactEmail')]",
+                    "platformDatabase.host": "[parameters('platformDatabase.host')]",
+                    "platformDatabase.port": "[parameters('platformDatabase.port')]",
+                    "platformDatabase.name": "[parameters('platformDatabase.name')]",
+                    "platformDatabase.username": "[parameters('platformDatabase.username')]",
+                    "redis.host": "[parameters('redis.host')]",
+                    "redis.port": "[parameters('redis.port')]",
+                    "redis.enableTls": "[parameters('redis.enableTls')]",
+                    "platform.smtp.host": "[parameters('platform.smtp.host')]",
+                    "platform.smtp.port": "[parameters('platform.smtp.port')]",
+                    "platform.smtp.user": "[parameters('platform.smtp.user')]",
+                    "studios.enabled": "[parameters('studios.enabled')]",
+                    "global.studiosDomain": "[parameters('global.studiosDomain')]",
+                    "studios.redis.host": "[parameters('studios.redis.host')]",
+                    "studios.redis.port": "[parameters('studios.redis.port')]",
+                    "studios.redis.enableTls": "[parameters('studios.redis.enableTls')]",
+                    "pipeline-optimization.enabled": "[parameters('pipeline-optimization.enabled')]",
+                    "pipeline-optimization.database.host": "[parameters('pipeline-optimization.database.host')]",
+                    "pipeline-optimization.database.port": "[parameters('pipeline-optimization.database.port')]",
+                    "pipeline-optimization.database.name": "[parameters('pipeline-optimization.database.name')]",
+                    "pipeline-optimization.database.username": "[parameters('pipeline-optimization.database.username')]",
+                    "pipeline-optimization.platformDatabase.host": "[parameters('pipeline-optimization.platformDatabase.host')]",
+                    "pipeline-optimization.platformDatabase.port": "[parameters('pipeline-optimization.platformDatabase.port')]",
+                    "pipeline-optimization.platformDatabase.name": "[parameters('pipeline-optimization.platformDatabase.name')]",
+                    "pipeline-optimization.platformDatabase.username": "[parameters('pipeline-optimization.platformDatabase.username')]"
+                },
+                "configurationProtectedSettings": {
+                    "platform.licenseString": "[parameters('platform.licenseString')]",
+                    "platformDatabase.password": "[parameters('platformDatabase.password')]",
+                    "redis.password": "[parameters('redis.password')]",
+                    "platform.smtp.password": "[parameters('platform.smtp.password')]",
+                    "platform.jwtSeedString": "[parameters('platform.jwtSeedString')]",
+                    "platform.cryptoSeedString": "[parameters('platform.cryptoSeedString')]",
+                    "studios.redis.password": "[parameters('studios.redis.password')]",
+                    "pipeline-optimization.database.password": "[parameters('pipeline-optimization.database.password')]",
+                    "pipeline-optimization.platformDatabase.password": "[parameters('pipeline-optimization.platformDatabase.password')]"
+                }
+            },
+            "plan": {
+                "name": "[variables('plan-name')]",
+                "publisher": "[variables('plan-publisher')]",
+                "product": "[variables('plan-offerID')]"
+            },
+            "scope": "[concat('Microsoft.ContainerService/managedClusters/', parameters('clusterResourceName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters/', parameters('clusterResourceName'))]"
+            ]
+        }
+    ],
+    "outputs": {
+    }
+}

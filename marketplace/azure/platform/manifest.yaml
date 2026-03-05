@@ -1,0 +1,10 @@
+applicationName: "io.seqera.platform"
+publisher: "Seqera"
+description: "Seqera Platform deploys and manages Nextflow data pipelines"
+version: 0.0.0 # Semver format #.#.#, updated by Makefile to match the platform Helm chart version
+helmChart: "./platform"
+clusterArmTemplate: "./mainTemplate.json"
+uiDefinition: "./createUiDefinition.json"
+registryServer: "seqeramarketplace.azurecr.io"
+extensionRegistrationParameters:
+  defaultScope: "namespace"
