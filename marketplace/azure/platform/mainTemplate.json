@@ -343,6 +343,20 @@
                 "description": "Skip TLS certificate verification for the Pipeline Optimization MySQL database."
             }
         },
+        "pipeline-optimization.platformDatabase.enableTls": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable TLS when connecting to the Platform MySQL database for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.platformDatabase.sslNoverify": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Skip TLS certificate verification for the Platform MySQL database used by Pipeline Optimization."
+            }
+        },
         "createNewDatabase": {
             "type": "Bool",
             "defaultValue": false,
@@ -804,11 +818,13 @@
                     "pipeline-optimization.database.name": "[variables('poDbName')]",
                     "pipeline-optimization.database.username": "[variables('poDbUsername')]",
                     "pipeline-optimization.database.enableTls": "[if(parameters('createNewPoDatabase'), true, parameters('pipeline-optimization.database.enableTls'))]",
-                    "pipeline-optimization.database.sslNoverify": "[parameters('pipeline-optimization.database.sslNoverify')]",
+                    "pipeline-optimization.database.sslNoverify": "[if(parameters('createNewPoDatabase'), false, parameters('pipeline-optimization.database.sslNoverify'))]",
                     "pipeline-optimization.platformDatabase.host": "[variables('platformDbHost')]",
                     "pipeline-optimization.platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",
                     "pipeline-optimization.platformDatabase.name": "[variables('platformDbName')]",
-                    "pipeline-optimization.platformDatabase.username": "[variables('platformDbUsername')]"
+                    "pipeline-optimization.platformDatabase.username": "[variables('platformDbUsername')]",
+                    "pipeline-optimization.platformDatabase.enableTls": "[if(parameters('createNewDatabase'), true, parameters('pipeline-optimization.platformDatabase.enableTls'))]",
+                    "pipeline-optimization.platformDatabase.sslNoverify": "[if(parameters('createNewDatabase'), false, parameters('pipeline-optimization.platformDatabase.sslNoverify'))]"
                 },
                 "configurationProtectedSettings": {
                     "platform.licenseString": "[parameters('platform.licenseString')]",
