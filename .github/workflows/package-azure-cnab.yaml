@@ -1,7 +1,36 @@
 name: Package Azure CNAB
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      image_backend:
+        description: "Platform backend image override (registry/repository:tag)"
+        required: false
+        default: ""
+      image_frontend:
+        description: "Platform frontend image override (registry/repository:tag)"
+        required: false
+        default: ""
+      image_cron_migratedb:
+        description: "Platform cron/migrate-db image override (registry/repository:tag)"
+        required: false
+        default: ""
+      image_studios_proxy:
+        description: "Studios connect-proxy image override (registry/repository:tag)"
+        required: false
+        default: ""
+      image_studios_server:
+        description: "Studios connect-server image override (registry/repository:tag)"
+        required: false
+        default: ""
+      image_pipeline_optimization:
+        description: "Pipeline optimization (groundswell) image override (registry/repository:tag)"
+        required: false
+        default: ""
+      bundle_version:
+        description: "CNAB bundle version override (defaults to Chart.yaml version)"
+        required: false
+        default: ""
 
 # Required for Azure OIDC authentication.
 # 'id-token: write' allows the runner to request an OIDC token from GitHub,
@@ -43,4 +72,13 @@ jobs:
           sudo apt-get install -y skopeo
 
       - name: Package Azure CNAB
-        run: make -C marketplace/azure/platform package-azure-cnab REGISTRY=${{ secrets.AZURE_MARKETPLACE_REPO }} IMAGE_PREFIX=images
+        run: |
+          MAKE_ARGS="REGISTRY=${{ secrets.AZURE_MARKETPLACE_REPO }} IMAGE_PREFIX=images"
+          [ -n "${{ inputs.image_backend }}" ]              && MAKE_ARGS="$MAKE_ARGS IMAGE_BACKEND=${{ inputs.image_backend }}"
+          [ -n "${{ inputs.image_frontend }}" ]             && MAKE_ARGS="$MAKE_ARGS IMAGE_FRONTEND=${{ inputs.image_frontend }}"
+          [ -n "${{ inputs.image_cron_migratedb }}" ]       && MAKE_ARGS="$MAKE_ARGS IMAGE_CRON_MIGRATEDB=${{ inputs.image_cron_migratedb }}"
+          [ -n "${{ inputs.image_studios_proxy }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_PROXY=${{ inputs.image_studios_proxy }}"
+          [ -n "${{ inputs.image_studios_server }}" ]       && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_SERVER=${{ inputs.image_studios_server }}"
+          [ -n "${{ inputs.image_pipeline_optimization }}" ] && MAKE_ARGS="$MAKE_ARGS IMAGE_PIPELINE_OPTIMIZATION=${{ inputs.image_pipeline_optimization }}"
+          [ -n "${{ inputs.bundle_version }}" ]              && MAKE_ARGS="$MAKE_ARGS BUNDLE_VERSION=${{ inputs.bundle_version }}"
+          make -C marketplace/azure/platform package-azure-cnab $MAKE_ARGS
