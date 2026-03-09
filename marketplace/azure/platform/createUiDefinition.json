@@ -351,7 +351,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "MySQL SKU",
             "toolTip": "Compute SKU for the MySQL Flexible Server. General Purpose SKUs use 4 GiB RAM per vCore; Memory Optimized SKUs use 8 GiB RAM per vCore.",
-            "defaultValue": "Standard_D4ds_v4",
+            "defaultValue": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
             "visible": "[steps('databaseConfig').createNewDatabase]",
             "constraints": {
               "allowedValues": [
@@ -604,7 +604,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Azure Managed Redis SKU",
             "toolTip": "SKU for the Azure Managed Redis instance. Balanced SKUs provide a good price/performance ratio.",
-            "defaultValue": "Balanced_B5",
+            "defaultValue": "Balanced B5 (6 GB, minimum)",
             "visible": "[steps('redisConfig').createNewRedis]",
             "constraints": {
               "allowedValues": [
@@ -911,7 +911,7 @@
             "type": "Microsoft.Common.DropDown",
             "label": "Studios Azure Managed Redis SKU",
             "toolTip": "SKU for the Studios Azure Managed Redis instance.",
-            "defaultValue": "Balanced_B5",
+            "defaultValue": "Balanced B5 (6 GB, minimum)",
             "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
             "constraints": {
               "allowedValues": [
