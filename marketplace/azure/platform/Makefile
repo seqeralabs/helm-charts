@@ -11,6 +11,8 @@ IMAGE_CRON_MIGRATEDB ?=
 IMAGE_STUDIOS_PROXY ?=
 IMAGE_STUDIOS_SERVER ?=
 IMAGE_PIPELINE_OPTIMIZATION ?=
+# Optional CNAB bundle version override. When set, takes precedence over the version from Chart.yaml.
+BUNDLE_VERSION ?=
 
 .PHONY: package-azure-cnab copy-images
 
@@ -207,6 +209,10 @@ package-azure-cnab:
 	@find . -name NOTES.txt -delete    # Remove NOTES.txt files to prevent the static helm analyzer to report failures due to missing requirements at packaging time
 	@echo "✓ Local chart prepared with Azure image overrides"
 	@echo "Updating manifest version..."
-	@export CHART_VERSION=$$(yq '.version' $(CHARTS_DIR)/platform/Chart.yaml) && \
+	@if [ -n "$(BUNDLE_VERSION)" ]; then \
+	   export CHART_VERSION="$(BUNDLE_VERSION)"; \
+	 else \
+	   export CHART_VERSION=$$(yq '.version' $(CHARTS_DIR)/platform/Chart.yaml); \
+	 fi && \
 	 yq -i '.version = strenv(CHART_VERSION)' manifest.yaml
 	/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $$(pwd):/data -v ~/.azure:/root/.azure -w /data mcr.microsoft.com/container-package-app:1.3.41 bash -c "az acr login -n $(REGISTRY) && cpa buildbundle; chmod -R o+X .cnab"

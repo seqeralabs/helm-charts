@@ -27,6 +27,10 @@ on:
         description: "Pipeline optimization (groundswell) image override (registry/repository:tag)"
         required: false
         default: ""
+      bundle_version:
+        description: "CNAB bundle version override (defaults to Chart.yaml version)"
+        required: false
+        default: ""
 
 # Required for Azure OIDC authentication.
 # 'id-token: write' allows the runner to request an OIDC token from GitHub,
@@ -76,4 +80,5 @@ jobs:
           [ -n "${{ inputs.image_studios_proxy }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_PROXY=${{ inputs.image_studios_proxy }}"
           [ -n "${{ inputs.image_studios_server }}" ]       && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_SERVER=${{ inputs.image_studios_server }}"
           [ -n "${{ inputs.image_pipeline_optimization }}" ] && MAKE_ARGS="$MAKE_ARGS IMAGE_PIPELINE_OPTIMIZATION=${{ inputs.image_pipeline_optimization }}"
+          [ -n "${{ inputs.bundle_version }}" ]              && MAKE_ARGS="$MAKE_ARGS BUNDLE_VERSION=${{ inputs.bundle_version }}"
           make -C marketplace/azure/platform package-azure-cnab $MAKE_ARGS
