@@ -24,7 +24,7 @@ metadata:
   name: {{ include "common.names.fullname" . }}
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | nindent 4 }}
-    app.kubernetes.io/component: agent-backend
+    app.kubernetes.io/component: portal-web
 {{- with .Values.commonAnnotations }}
   annotations: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
 {{- end }}
@@ -33,7 +33,7 @@ spec:
 {{- $podLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels) "context" .) }}
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
-      app.kubernetes.io/component: agent-backend
+      app.kubernetes.io/component: portal-web
 # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
 # already rendered explicitly in the template (selector is always rendered by the template)
 {{- $extraOptionsSpec := omit .Values.extraOptionsSpec "selector" }}
@@ -43,7 +43,7 @@ spec:
   template:
     metadata:
       labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
-        app.kubernetes.io/component: agent-backend
+        app.kubernetes.io/component: portal-web
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
@@ -53,7 +53,7 @@ spec:
 {{- end }}
 
     spec:
-      serviceAccountName: {{ include "agent-backend.serviceAccountName" . }}
+      serviceAccountName: {{ include "portal-web.serviceAccountName" . }}
 {{- if .Values.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
 {{- end }}
@@ -62,66 +62,13 @@ spec:
       {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsTemplateSpec "context" $) | nindent 6 }}
 {{- end }}
 
-      initContainers:
-{{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.waitForMySQL.enabled }}
-        - name: wait-for-db
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "waitForMySQL" "context" $) }}
-          imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              echo "$(date): starting check for db $AGENT_BACKEND_DB_HOST:$AGENT_BACKEND_DB_PORT"
-              until mysql -h "$AGENT_BACKEND_DB_HOST" -P "$AGENT_BACKEND_DB_PORT" -D "$AGENT_BACKEND_DB_NAME" -u"$AGENT_BACKEND_DB_USER" -p"$AGENT_BACKEND_DB_PASSWORD" -e "SELECT VERSION()"; do
-                echo "$(date): see you in 5 seconds"
-                sleep 5
-              done
-              echo "$(date): db server ready"
-          envFrom:
-            - configMapRef:
-                name: {{ include "common.names.fullname" . }}
-          env:
-            - name: AGENT_BACKEND_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
-          securityContext: {{- toYaml .Values.initContainerDependencies.waitForMySQL.securityContext | nindent 12 }}
-  {{- if .Values.initContainerDependencies.waitForMySQL.resources }}
-          resources: {{- toYaml .Values.initContainerDependencies.waitForMySQL.resources | nindent 12 }}
-  {{- end }}
-{{- end }}
-        - name: init
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: {{ .Values.dbMigrationInitContainer.command | toYaml | nindent 12 }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "common.names.fullname" . }}
-          env:
-            - name: AGENT_BACKEND_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
-
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-{{- with .Values.extraVolumeMounts }}
-            {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
-{{- end }}
-          securityContext: {{- toYaml .Values.dbMigrationInitContainer.securityContext | nindent 12 }}
-{{- if .Values.dbMigrationInitContainer.resources }}
-          resources: {{- toYaml .Values.dbMigrationInitContainer.resources | nindent 12 }}
-{{- end }}
-
 {{- with .Values.initContainers }}
+      initContainers:
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
       containers:
-        - name: agent-backend
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
+        - name: portal-web
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- with .Values.command }}
           command: {{- toYaml . | nindent 12 }}
@@ -129,38 +76,8 @@ spec:
 {{- with .Values.args }}
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
-          env:
-            - name: AGENT_BACKEND_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
-            - name: ANTHROPIC_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.anthropicApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.anthropicApiKey.existingSecret.secretKey" . }}
-            - name: LANGCHAIN_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.langchainApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.langchainApiKey.existingSecret.secretKey" . }}
-            - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
-            - name: POSTHOG_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.posthogApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.posthogApiKey.existingSecret.secretKey" . }}
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.openaiApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.openaiApiKey.existingSecret.secretKey" . }}
 {{- with .Values.extraEnvVars }}
+          env:
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
           envFrom:
@@ -177,6 +94,8 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: nextjs-cache
+              mountPath: /app/.next/cache
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -198,7 +117,11 @@ spec:
 {{- end }}
       volumes:
         - name: tmp
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: {{ .Values.tmpDirSizeLimit }}
+        - name: nextjs-cache
+          emptyDir:
+            sizeLimit: {{ .Values.nextjsCacheSizeLimit }}
 {{- with .Values.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

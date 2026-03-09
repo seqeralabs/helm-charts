@@ -24,8 +24,8 @@ global:
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
-  # -- Domain where Seqera MCP listens. Evaluated as a template
-  mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
+  # -- Domain where the Portal Web frontend listens. Evaluated as a template
+  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
@@ -47,31 +47,11 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
-database:
-  # -- MySQL database hostname
-  host: ""
-  # -- MySQL database port
-  port: 3306
-  # -- MySQL database name
-  name: ""
-  # -- MySQL database username
-  username: ""
-  # -- MySQL database password
-  password: ""
-  # -- Name of an existing Secret containing credentials for the MySQL database, as an alternative
-  # to the password field. Note: the Secret must already exist in the  same namespace at the time of
-  # deployment
-  existingSecretName: ""
-  # -- Key in the existing Secret containing the password for the MySQL
-  # database
-  # @default -- `"AGENT_BACKEND_DB_PASSWORD"`
-  existingSecretKey: ""
-
 image:
   # -- Container image registry
   registry: ""
   # -- Container image repository
-  repository: private/nf-tower-enterprise/agent-backend
+  repository: private/nf-tower-enterprise/portal-web
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""
@@ -87,55 +67,12 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-# -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
-anthropicApiKey: ""
-# -- Name of an existing Secret containing the Anthropic API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-anthropicApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the Anthropic API key
-# @default -- `"ANTHROPIC_API_KEY"`
-anthropicApiKeyExistingSecretKey: ""
+auth0:
+  # -- Required Auth0 domain (e.g. myorg.auth0.com)
+  domain: ""
+  # -- Required Auth0 app client id
+  clientId: ""
 
-# -- LangChain API key. Define the value as a String or a Secret, not both at the same time
-langchainApiKey: ""
-# -- Name of an existing Secret containing the LangChain API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-langchainApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the LangChain API key
-# @default -- `"LANGCHAIN_API_KEY"`
-langchainApiKeyExistingSecretKey: ""
-
-# -- Posthog API key. Define the value as a String or a Secret, not both at the same time
-posthogApiKey: ""
-# -- Name of an existing Secret containing the Posthog API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-posthogApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the Posthog API key
-# @default -- `"POSTHOG_API_KEY"`
-posthogApiKeyExistingSecretKey: ""
-
-# -- OpanAI API key. Define the value as a String or a Secret, not both at the same time
-openaiApiKey: ""
-# -- Name of an existing Secret containing the OpenAI API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-openaiApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the OpenAI API key
-# @default -- `"OPENAI_API_KEY"`
-openaiApiKeyExistingSecretKey: ""
-
-# -- Token encryption key. Define the value as a String or a Secret, not both at the same time
-tokenEncryptionKey: ""
-# -- Name of an existing Secret containing the token encryption key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-tokenEncryptionKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the token encryption key
-# @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
-tokenEncryptionKeyExistingSecretKey: ""
-
-# -- Log level (e.g., CRITICAL,ERROR,WARNING,INFO,DEBUG)
-logLevel: INFO
-
-# -- Service configuration
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort
@@ -147,7 +84,7 @@ service:
     port: 80
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port)
-    targetPort: 8002
+    targetPort: 3000
     # -- Service node port, only used when service.type is Nodeport or LoadBalancer
     # Choose port between 30000-32767, unless the cluster was configured differently than default
     nodePort: null
@@ -165,29 +102,11 @@ service:
   # externalTrafficPolicy, externalIPs). Evaluated as a template
   extraOptions: {}
 
-dbMigrationInitContainer:
-  # -- Command to run in the init container performing DB migrations
-  command: ['./init.sh']
+# -- Size limit for the /tmp emptyDir volume
+tmpDirSizeLimit: "500Mi"
 
-  securityContext:
-    # -- UID the container processes run as (overrides container image default)
-    runAsUser: 101
-    # -- Require the container to run as a non-root UID (prevents starting if UID 0)
-    runAsNonRoot: true
-    # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
-    readOnlyRootFilesystem: true
-    # -- Fine-grained Linux kernel privileges to add or drop for the container
-    capabilities:
-      drop:
-        - ALL
-
-  # -- Container requests and limits for different resources like CPU or memory
-  resources:
-    requests:
-      cpu: "0.5"
-      memory: "50Mi"
-    limits:
-      memory: "100Mi"
+# -- Size limit for the /app/.next/cache emptyDir volume
+nextjsCacheSizeLimit: "500Mi"
 
 # -- Additional init containers for the pod. Evaluated as a template
 initContainers: []
@@ -209,10 +128,7 @@ extraOptionsSpec: {}
 #   strategy:
 #     rollingUpdate:
 #       maxUnavailable: 1
-#   strategy:
-#     rollingUpdate:
-#       maxUnavailable: x
-#       maxSurge: y
+#       maxSurge: 1
 
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template
@@ -246,7 +162,7 @@ podSecurityContext:
   enabled: true
   # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
   # in the pod can share group-owned access
-  fsGroup: 101
+  fsGroup: 1001
 
 # Configure Container Security Context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
@@ -254,7 +170,7 @@ containerSecurityContext:
   # -- Enable container Security Context
   enabled: true
   # -- UID the container processes run as (overrides container image default)
-  runAsUser: 101
+  runAsUser: 1001
   # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
   runAsNonRoot: true
   # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
@@ -265,56 +181,16 @@ containerSecurityContext:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
-resources: {}
+resources:
+  requests:
+    cpu: "100m"
+    memory: "500Mi"
+  limits:
+    memory: "500Mi"
 # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
 # the kubelet then guarantees at least these resources to the pod. `.limits` are the
 # maximum resources a container is allowed to use
 # Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
-# Seqera recommends tuning resources to match the expected workload. The following are
-# sensible defaults to start with:
-#
-# resources:
-#   requests:
-#     cpu: "100m"
-#     memory: "1000Mi"
-#   limits:
-#     memory: "1000Mi"
-
-initContainerDependencies:
-  # -- Enable init containers that coordinate startup dependencies
-  enabled: true
-
-  waitForMySQL:
-    # -- Enable wait for MySQL init container before starting the main container
-    enabled: true
-    image:
-      # -- Override default wait for MySQL init container image
-      registry: ""
-      repository: "mysql"
-      tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
-      digest: ""
-      pullPolicy: IfNotPresent
-
-    securityContext:
-      # -- UID the container processes run as (overrides container image default)
-      runAsUser: 101
-      # -- Require the container to run as a non-root UID (prevents starting if UID is 0)
-      runAsNonRoot: true
-      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
-      readOnlyRootFilesystem: true
-      # -- Fine-grained Linux kernel privileges to add or drop for the container
-      capabilities:
-        drop:
-          - ALL
-
-    # -- Container requests and limits for different resources like CPU or memory
-    resources:
-      requests:
-        cpu: "0.5"
-        memory: "50Mi"
-      limits:
-        memory: "100Mi"
 
 # Configure extra options for the startup probe
 startupProbe:
@@ -322,7 +198,7 @@ startupProbe:
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
-    path: "/health"
+    path: "/"
     # -- HTTP GET port for startup probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
@@ -344,17 +220,17 @@ readinessProbe:
   enabled: true
   httpGet:
     # -- HTTP GET path for readiness probe
-    path: "/health"
+    path: "/"
     # -- HTTP GET port for readiness probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
-  # -- Delay before first check (normal start timing)
-  initialDelaySeconds: 5
+  # -- Delay before first check
+  initialDelaySeconds: 10
   # -- Regular check interval during normal operation
   periodSeconds: 5
   # -- Short timeout to detect unresponsive containers for readiness
   timeoutSeconds: 3
   # -- Consecutive failures before marking the container Unready (no restart)
-  failureThreshold: 5
+  failureThreshold: 3
   # -- Number of consecutive successes required to mark the container Ready after failures
   successThreshold: 1
 
@@ -364,17 +240,17 @@ livenessProbe:
   enabled: true
   httpGet:
     # -- HTTP GET path for liveness probe
-    path: "/health"
+    path: "/"
     # -- HTTP GET port for liveness probe. Evaluated as a template
     port: "{{ .Values.service.http.targetPort }}"
-  # -- Delay before first check (normal start timing)
-  initialDelaySeconds: 5
+  # -- Delay before first check
+  initialDelaySeconds: 30
   # -- Regular check interval during normal operation
   periodSeconds: 10
   # -- Short timeout to detect hung containers quickly
-  timeoutSeconds: 3
+  timeoutSeconds: 5
   # -- Consecutive failures before restarting the container
-  failureThreshold: 10
+  failureThreshold: 3
   # -- Typically 1 (usually ignored)
   successThreshold: 1
 
@@ -387,10 +263,10 @@ serviceAccount:
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
   # -- Automatically mount service account token
-  automountServiceAccountToken: true
+  automountServiceAccountToken: false
 
 ingress:
-  # -- Enable ingress for Agent Backend
+  # -- Enable ingress for Portal Web
   enabled: false
 
   # -- Path for the main ingress rule
@@ -404,27 +280,16 @@ ingress:
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
   # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
   defaultBackend: {}
-  # defaultBackend:
-  #   service:
-  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
-  #     port:
-  #       number: '{{ .Values.frontend.service.http.port }}'
 
   # -- Additional hosts you want to include. Evaluated as a template
   extraHosts: []
   # extraHosts:
-  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+  #   - host: '{{ printf "portal2.%s" .Values.global.platformExternalDomain }}'
   #     paths:
   #       - path: /*
-  #         pathType: Prefix  # Optional, defaults to defaultPathType
-  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
-  #         portNumber: '{{ .Values.global.platformServicePort }}'
-  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
-  #     paths:
-  #       - path: /*
-  #         pathType: Prefix  # Optional, defaults to defaultPathType
-  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
-  #         portNumber: '{{ .Values.frontend.service.http.port }}'
+  #         pathType: Prefix
+  #         serviceName: '{{ include "common.names.fullname" . }}'
+  #         portNumber: '{{ .Values.service.http.port }}'
 
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
   annotations: {}
@@ -436,8 +301,7 @@ ingress:
   tls: []
   # tls:
   #   - hosts:
-  #       - '{{ .Values.global.platformExternalDomain }}'
-  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  #       - '{{ tpl .Values.global.portalWebDomain . }}'
   #     secretName: my-tls
 
 # -- Array of extra objects to deploy with the release
@@ -445,9 +309,6 @@ extraDeploy: []
 # extraDeploy:
 #   - apiVersion: v1
 #     kind: MyExtraObjectKind
-#     ...
-#   - apiVersion: v1
-#     kind: AnotherExtraObjectKind
 #     ...
 
 # -- Annotations to add to all deployed objects

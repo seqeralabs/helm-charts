@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Portal Web configmap
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should render a ConfigMap with default values
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchSnapshot: {}
+
+  - it: should set SEQERA_PLATFORM_API_URL from platformExternalDomain
+    set:
+      global.platformExternalDomain: prod.example.com
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_API_URL
+          value: "https://prod.example.com/api"
+
+  - it: should set SEQERA_AGENT_BACKEND_URL from agentBackendDomain
+    set:
+      global.agentBackendDomain: ai.prod.example.com
+    asserts:
+      - equal:
+          path: data.SEQERA_AGENT_BACKEND_URL
+          value: "https://ai.prod.example.com"
+
+  - it: should template agentBackendDomain using platformExternalDomain
+    set:
+      global.platformExternalDomain: prod.example.com
+      global.agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
+    asserts:
+      - equal:
+          path: data.SEQERA_AGENT_BACKEND_URL
+          value: "https://ai-api.prod.example.com"
+
+  - it: should set AUTH0_DOMAIN from auth0.domain
+    set:
+      auth0.domain: myorg.auth0.com
+    asserts:
+      - equal:
+          path: data.AUTH0_DOMAIN
+          value: myorg.auth0.com
+
+  - it: should template auth0.domain
+    set:
+      global.platformExternalDomain: prod.example.com
+      auth0.domain: '{{ .Values.global.platformExternalDomain }}'
+    asserts:
+      - equal:
+          path: data.AUTH0_DOMAIN
+          value: prod.example.com
+
+  - it: should template complex auth0.domain
+    set:
+      global.platformExternalDomain: prod.example.com
+      auth0.domain: '{{ printf "%d.%s" 4 .Values.global.platformExternalDomain }}'
+    asserts:
+      - equal:
+          path: data.AUTH0_DOMAIN
+          value: 4.prod.example.com
+
+  - it: should set AUTH0_CLIENT_ID from auth0.clientId
+    set:
+      auth0.clientId: my-client-id
+    asserts:
+      - equal:
+          path: data.AUTH0_CLIENT_ID
+          value: my-client-id
+
+  - it: should template AUTH0_CLIENT_ID from auth0.clientId
+    set:
+      global.platformExternalDomain: prod.example.com
+      auth0.clientId: '{{ printf "%s-client-id" .Values.global.platformExternalDomain }}'
+    asserts:
+      - equal:
+          path: data.AUTH0_CLIENT_ID
+          value: prod.example.com-client-id
+
+  - it: should apply commonLabels
+    set:
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should apply configMapLabels
+    set:
+      configMapLabels:
+        config-label: config-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            config-label: config-value
+
+  - it: should apply configMapAnnotations
+    set:
+      configMapAnnotations:
+        config-annotation: config-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            config-annotation: config-value

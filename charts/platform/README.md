@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.27.4](https://img.shields.io/badge/Version-0.27.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.3](https://img.shields.io/badge/AppVersion-v25.3.3-informational?style=flat-square)
+![Version: 0.27.5](https://img.shields.io/badge/Version-0.27.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.3](https://img.shields.io/badge/AppVersion-v25.3.3-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.27.4 \
+  --version 0.27.5 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -65,6 +65,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | file://../seqera-common | seqera-common | 2.x.x |
 | file://charts/agent-backend | agent-backend | 0.2.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 1.x.x |
+| file://charts/portal-web | portal-web | 0.1.x |
 | file://charts/studios | studios | 1.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
@@ -79,7 +80,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
-| global.agentBackendDomain | string | `"{{ printf \"ai.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
+| global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
+| global.portalWebDomain | string | `"{{ printf \"portal.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | global.azure.images.platformBackend.registry | string | `nil` | Image registry for the Platform backend image deployed on Azure. Example: `myregistry.azurecr.io`. Evaluated as a template |
@@ -427,6 +429,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
 | agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
+| portal-web.enabled | bool | `true` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing
 
