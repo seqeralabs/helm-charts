@@ -114,6 +114,15 @@ posthogApiKeyExistingSecretName: ""
 # @default -- `"POSTHOG_API_KEY"`
 posthogApiKeyExistingSecretKey: ""
 
+# -- OpanAI API key. Define the value as a String or a Secret, not both at the same time
+openaiApiKey: ""
+# -- Name of an existing Secret containing the OpenAI API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+openaiApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the OpenAI API key
+# @default -- `"OPENAI_API_KEY"`
+openaiApiKeyExistingSecretKey: ""
+
 # -- Token encryption key. Define the value as a String or a Secret, not both at the same time
 tokenEncryptionKey: ""
 # -- Name of an existing Secret containing the token encryption key.

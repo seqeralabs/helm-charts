@@ -323,7 +323,11 @@ tests:
                 secretKeyRef:
                   name: release-name-agent-backend
                   key: POSTHOG_API_KEY
-
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: OPENAI_API_KEY
+                  name: release-name-agent-backend
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml
     set:
