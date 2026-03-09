@@ -786,7 +786,7 @@
                     "platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",
                     "platformDatabase.name": "[variables('platformDbName')]",
                     "platformDatabase.username": "[variables('platformDbUsername')]",
-                    "platformDatabase.connectionOptions.mariadb[0]": "[parameters('platformDatabase.connectionOptions.mariadb[0]')]",
+                    "platformDatabase.connectionOptions.mariadb[0]": "[if(parameters('createNewDatabase'), 'permitMysqlScheme=true&sslMode=verify-ca', parameters('platformDatabase.connectionOptions.mariadb[0]'))]",
                     "redis.host": "[variables('redisHost')]",
                     "redis.port": "[string(variables('redisPort'))]",
                     "redis.enableTls": "[variables('redisEnableTls')]",
