@@ -113,3 +113,21 @@ Return the name of the secret containing the Posthog API key.
     {{- printf "POSTHOG_API_KEY" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return the name of the secret containing the OpenAI API key.
+*/}}
+{{- define "agent-backend.openaiApiKey.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.openaiApiKeyExistingSecretName .) -}}
+{{- end -}}
+{{- define "agent-backend.openaiApiKey.existingSecret.secretName" -}}
+  {{- include "agent-backend.openaiApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "agent-backend.openaiApiKey.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.openaiApiKey.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.openaiApiKeyExistingSecretKey .) | default "OPENAI_API_KEY" -}}
+  {{- else -}}
+    {{- printf "OPENAI_API_KEY" -}}
+  {{- end -}}
+{{- end -}}

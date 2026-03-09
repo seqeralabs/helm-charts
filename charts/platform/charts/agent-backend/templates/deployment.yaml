@@ -155,6 +155,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.posthogApiKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.posthogApiKey.existingSecret.secretKey" . }}
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.openaiApiKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.openaiApiKey.existingSecret.secretKey" . }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
