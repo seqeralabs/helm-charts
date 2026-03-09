@@ -58,6 +58,11 @@ should render a Deployment with default values:
                     secretKeyRef:
                       key: POSTHOG_API_KEY
                       name: release-name-agent-backend
+                - name: OPENAI_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: OPENAI_API_KEY
+                      name: release-name-agent-backend
               envFrom:
                 - configMapRef:
                     name: release-name-agent-backend
