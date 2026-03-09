@@ -343,6 +343,20 @@
                 "description": "Skip TLS certificate verification for the Pipeline Optimization MySQL database."
             }
         },
+        "pipeline-optimization.platformDatabase.enableTls": {
+            "type": "Bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable TLS when connecting to the Platform MySQL database for Pipeline Optimization."
+            }
+        },
+        "pipeline-optimization.platformDatabase.sslNoverify": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Skip TLS certificate verification for the Platform MySQL database used by Pipeline Optimization."
+            }
+        },
         "createNewDatabase": {
             "type": "Bool",
             "defaultValue": false,
@@ -380,11 +394,21 @@
         },
         "mysqlSkuName": {
             "type": "String",
-            "defaultValue": "Standard_D2ds_v4",
+            "defaultValue": "Standard_D4ds_v4",
             "allowedValues": [
-                "Standard_D2ds_v4",
                 "Standard_D4ds_v4",
-                "Standard_D8ds_v4"
+                "Standard_D8ds_v4",
+                "Standard_D16ds_v4",
+                "Standard_D32ds_v4",
+                "Standard_D48ds_v4",
+                "Standard_D64ds_v4",
+                "Standard_E2ds_v4",
+                "Standard_E4ds_v4",
+                "Standard_E8ds_v4",
+                "Standard_E16ds_v4",
+                "Standard_E32ds_v4",
+                "Standard_E48ds_v4",
+                "Standard_E64ds_v4"
             ],
             "metadata": {
                 "description": "SKU for the MySQL Flexible Server compute tier."
@@ -392,8 +416,8 @@
         },
         "mysqlStorageSizeGB": {
             "type": "Int",
-            "defaultValue": 20,
-            "minValue": 20,
+            "defaultValue": 30,
+            "minValue": 30,
             "maxValue": 1024,
             "metadata": {
                 "description": "Storage size in GiB for the MySQL Flexible Server."
@@ -406,11 +430,67 @@
                 "description": "Name of the Platform database to create on the MySQL server."
             }
         },
-        "mysqlPoDatabaseName": {
+        "createNewPoDatabase": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "When true, provisions a new Azure Database for MySQL Flexible Server for Pipeline Optimization."
+            }
+        },
+        "poMysqlServerName": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name for the new Pipeline Optimization MySQL Flexible Server resource."
+            }
+        },
+        "poMysqlLocation": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Region for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlAdminUsername": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Administrator login name for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Administrator password for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlSkuName": {
+            "type": "String",
+            "defaultValue": "Standard_D2ds_v4",
+            "allowedValues": [
+                "Standard_D2ds_v4",
+                "Standard_D4ds_v4",
+                "Standard_D8ds_v4"
+            ],
+            "metadata": {
+                "description": "SKU for the Pipeline Optimization MySQL Flexible Server compute tier."
+            }
+        },
+        "poMysqlStorageSizeGB": {
+            "type": "Int",
+            "defaultValue": 20,
+            "minValue": 20,
+            "maxValue": 1024,
+            "metadata": {
+                "description": "Storage size in GiB for the Pipeline Optimization MySQL Flexible Server."
+            }
+        },
+        "poMysqlDatabaseName": {
             "type": "String",
             "defaultValue": "pipeline_optimization",
             "metadata": {
-                "description": "Name of the Pipeline Optimization database to create on the MySQL server."
+                "description": "Name of the database to create on the Pipeline Optimization MySQL server."
             }
         },
         "createNewRedis": {
@@ -436,22 +516,18 @@
         },
         "redisSkuName": {
             "type": "String",
-            "defaultValue": "Standard",
+            "defaultValue": "Balanced_B5",
             "allowedValues": [
-                "Basic",
-                "Standard"
+                "Balanced_B5",
+                "Balanced_B10",
+                "Balanced_B20",
+                "Balanced_B50",
+                "Balanced_B100",
+                "Balanced_B150",
+                "Balanced_B250"
             ],
             "metadata": {
-                "description": "SKU for the Platform Redis cache."
-            }
-        },
-        "redisCapacity": {
-            "type": "Int",
-            "defaultValue": 1,
-            "minValue": 0,
-            "maxValue": 6,
-            "metadata": {
-                "description": "Cache size for the Platform Redis cache (0=250MB, 1=1GB, 2=2.5GB, ...)."
+                "description": "SKU for the Platform Azure Managed Redis instance."
             }
         },
         "createNewStudiosRedis": {
@@ -477,22 +553,18 @@
         },
         "studiosRedisSkuName": {
             "type": "String",
-            "defaultValue": "Standard",
+            "defaultValue": "Balanced_B5",
             "allowedValues": [
-                "Basic",
-                "Standard"
+                "Balanced_B5",
+                "Balanced_B10",
+                "Balanced_B20",
+                "Balanced_B50",
+                "Balanced_B100",
+                "Balanced_B150",
+                "Balanced_B250"
             ],
             "metadata": {
-                "description": "SKU for the Studios Redis cache."
-            }
-        },
-        "studiosRedisCapacity": {
-            "type": "Int",
-            "defaultValue": 1,
-            "minValue": 0,
-            "maxValue": 6,
-            "metadata": {
-                "description": "Cache size for the Studios Redis cache (0=250MB, 1=1GB, 2=2.5GB, ...)."
+                "description": "SKU for the Studios Azure Managed Redis instance."
             }
         }
     },
@@ -503,23 +575,25 @@
         "releaseTrain": "DONOTMODIFY",
         "clusterExtensionTypeName": "DONOTMODIFY",
         "mysqlEffectiveLocation": "[if(empty(parameters('mysqlLocation')), parameters('location'), parameters('mysqlLocation'))]",
+        "mysqlSkuTier": "[if(startsWith(parameters('mysqlSkuName'), 'Standard_E'), 'MemoryOptimized', 'GeneralPurpose')]",
         "redisEffectiveLocation": "[if(empty(parameters('redisLocation')), parameters('location'), parameters('redisLocation'))]",
         "studiosRedisEffectiveLocation": "[if(empty(parameters('studiosRedisLocation')), parameters('location'), parameters('studiosRedisLocation'))]",
+        "poMysqlEffectiveLocation": "[if(empty(parameters('poMysqlLocation')), parameters('location'), parameters('poMysqlLocation'))]",
         "provisionPlatformDatabase": "[parameters('createNewDatabase')]",
-        "provisionPoDB": "[and(parameters('createNewDatabase'), parameters('pipeline-optimization.enabled'))]",
+        "provisionPoServer": "[and(parameters('createNewPoDatabase'), parameters('pipeline-optimization.enabled'))]",
         "platformDbHost": "[if(parameters('createNewDatabase'), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('platformDatabase.host'))]",
         "platformDbUsername": "[if(parameters('createNewDatabase'), parameters('mysqlAdminUsername'), parameters('platformDatabase.username'))]",
         "platformDbPassword": "[if(parameters('createNewDatabase'), parameters('mysqlAdminPassword'), parameters('platformDatabase.password'))]",
         "platformDbName": "[if(parameters('createNewDatabase'), parameters('mysqlPlatformDatabaseName'), parameters('platformDatabase.name'))]",
-        "poDbHost": "[if(parameters('createNewDatabase'), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
-        "poDbName": "[if(parameters('createNewDatabase'), parameters('mysqlPoDatabaseName'), parameters('pipeline-optimization.database.name'))]",
-        "poDbUsername": "[if(parameters('createNewDatabase'), parameters('mysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
-        "poDbPassword": "[if(parameters('createNewDatabase'), parameters('mysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
-        "redisHost": "[if(parameters('createNewRedis'), reference(parameters('redisServerName'), '2024-03-01').hostName, parameters('redis.host'))]",
-        "redisPort": "[if(parameters('createNewRedis'), 6380, parameters('redis.port'))]",
+        "poDbHost": "[if(parameters('createNewPoDatabase'), reference(parameters('poMysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
+        "poDbName": "[if(parameters('createNewPoDatabase'), parameters('poMysqlDatabaseName'), parameters('pipeline-optimization.database.name'))]",
+        "poDbUsername": "[if(parameters('createNewPoDatabase'), parameters('poMysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
+        "poDbPassword": "[if(parameters('createNewPoDatabase'), parameters('poMysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
+        "redisHost": "[if(parameters('createNewRedis'), reference(parameters('redisServerName'), '2024-10-01').hostName, parameters('redis.host'))]",
+        "redisPort": "[if(parameters('createNewRedis'), 10000, parameters('redis.port'))]",
         "redisEnableTls": "[if(parameters('createNewRedis'), true, parameters('redis.enableTls'))]",
-        "studiosRedisHost": "[if(parameters('createNewStudiosRedis'), reference(parameters('studiosRedisServerName'), '2024-03-01').hostName, parameters('studios.redis.host'))]",
-        "studiosRedisPort": "[if(parameters('createNewStudiosRedis'), 6380, parameters('studios.redis.port'))]",
+        "studiosRedisHost": "[if(parameters('createNewStudiosRedis'), reference(parameters('studiosRedisServerName'), '2024-10-01').hostName, parameters('studios.redis.host'))]",
+        "studiosRedisPort": "[if(parameters('createNewStudiosRedis'), 10000, parameters('studios.redis.port'))]",
         "studiosRedisEnableTls": "[if(parameters('createNewStudiosRedis'), true, parameters('studios.redis.enableTls'))]"
     },
     "resources": [
@@ -583,7 +657,7 @@
             "location": "[variables('mysqlEffectiveLocation')]",
             "sku": {
                 "name": "[parameters('mysqlSkuName')]",
-                "tier": "GeneralPurpose"
+                "tier": "[variables('mysqlSkuTier')]"
             },
             "properties": {
                 "administratorLogin": "[parameters('mysqlAdminUsername')]",
@@ -616,12 +690,39 @@
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
-            "condition": "[variables('provisionPoDB')]",
+            "type": "Microsoft.DBforMySQL/flexibleServers",
+            "condition": "[variables('provisionPoServer')]",
             "apiVersion": "2023-12-30",
-            "name": "[concat(parameters('mysqlServerName'), '/', parameters('mysqlPoDatabaseName'))]",
+            "name": "[parameters('poMysqlServerName')]",
+            "location": "[variables('poMysqlEffectiveLocation')]",
+            "sku": {
+                "name": "[parameters('poMysqlSkuName')]",
+                "tier": "GeneralPurpose"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('poMysqlAdminUsername')]",
+                "administratorLoginPassword": "[parameters('poMysqlAdminPassword')]",
+                "storage": {
+                    "storageSizeGB": "[parameters('poMysqlStorageSizeGB')]",
+                    "autoGrow": "Enabled"
+                },
+                "backup": {
+                    "backupRetentionDays": 7,
+                    "geoRedundantBackup": "Disabled"
+                },
+                "highAvailability": {
+                    "mode": "Disabled"
+                },
+                "version": "8.0.21"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "condition": "[variables('provisionPoServer')]",
+            "apiVersion": "2023-12-30",
+            "name": "[concat(parameters('poMysqlServerName'), '/', parameters('poMysqlDatabaseName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('poMysqlServerName'))]"
             ],
             "properties": {
                 "charset": "utf8mb4",
@@ -629,37 +730,59 @@
             }
         },
         {
-            "type": "Microsoft.Cache/redis",
+            "type": "Microsoft.Cache/redisEnterprise",
             "condition": "[parameters('createNewRedis')]",
-            "apiVersion": "2024-03-01",
+            "apiVersion": "2024-10-01",
             "name": "[parameters('redisServerName')]",
             "location": "[variables('redisEffectiveLocation')]",
+            "sku": {
+                "name": "[parameters('redisSkuName')]"
+            },
             "properties": {
-                "sku": {
-                    "name": "[parameters('redisSkuName')]",
-                    "family": "C",
-                    "capacity": "[parameters('redisCapacity')]"
-                },
-                "enableNonSslPort": false,
-                "minimumTlsVersion": "1.2",
-                "redisConfiguration": {}
+                "minimumTlsVersion": "1.2"
             }
         },
         {
-            "type": "Microsoft.Cache/redis",
+            "type": "Microsoft.Cache/redisEnterprise/databases",
+            "condition": "[parameters('createNewRedis')]",
+            "apiVersion": "2024-10-01",
+            "name": "[concat(parameters('redisServerName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cache/redisEnterprise', parameters('redisServerName'))]"
+            ],
+            "properties": {
+                "clientProtocol": "Encrypted",
+                "clusteringPolicy": "NoCluster",
+                "evictionPolicy": "VolatileLRU",
+                "port": 10000
+            }
+        },
+        {
+            "type": "Microsoft.Cache/redisEnterprise",
             "condition": "[and(parameters('createNewStudiosRedis'), parameters('studios.enabled'))]",
-            "apiVersion": "2024-03-01",
+            "apiVersion": "2024-10-01",
             "name": "[parameters('studiosRedisServerName')]",
             "location": "[variables('studiosRedisEffectiveLocation')]",
+            "sku": {
+                "name": "[parameters('studiosRedisSkuName')]"
+            },
             "properties": {
-                "sku": {
-                    "name": "[parameters('studiosRedisSkuName')]",
-                    "family": "C",
-                    "capacity": "[parameters('studiosRedisCapacity')]"
-                },
-                "enableNonSslPort": false,
-                "minimumTlsVersion": "1.2",
-                "redisConfiguration": {}
+                "minimumTlsVersion": "1.2"
+            }
+        },
+        {
+            "type": "Microsoft.Cache/redisEnterprise/databases",
+            "condition": "[and(parameters('createNewStudiosRedis'), parameters('studios.enabled'))]",
+            "apiVersion": "2024-10-01",
+            "name": "[concat(parameters('studiosRedisServerName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Cache/redisEnterprise', parameters('studiosRedisServerName'))]"
+            ],
+            "properties": {
+                "clientProtocol": "Encrypted",
+                "clusteringPolicy": "NoCluster",
+                "evictionPolicy": "VolatileLRU",
+                "port": 10000
             }
         },
         {
@@ -677,7 +800,7 @@
                     "platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",
                     "platformDatabase.name": "[variables('platformDbName')]",
                     "platformDatabase.username": "[variables('platformDbUsername')]",
-                    "platformDatabase.connectionOptions.mariadb[0]": "[parameters('platformDatabase.connectionOptions.mariadb[0]')]",
+                    "platformDatabase.connectionOptions.mariadb[0]": "[if(parameters('createNewDatabase'), 'permitMysqlScheme=true&sslMode=verify-ca', parameters('platformDatabase.connectionOptions.mariadb[0]'))]",
                     "redis.host": "[variables('redisHost')]",
                     "redis.port": "[string(variables('redisPort'))]",
                     "redis.enableTls": "[variables('redisEnableTls')]",
@@ -691,24 +814,26 @@
                     "studios.redis.enableTls": "[variables('studiosRedisEnableTls')]",
                     "pipeline-optimization.enabled": "[parameters('pipeline-optimization.enabled')]",
                     "pipeline-optimization.database.host": "[variables('poDbHost')]",
-                    "pipeline-optimization.database.port": "[if(parameters('createNewDatabase'), 3306, parameters('pipeline-optimization.database.port'))]",
+                    "pipeline-optimization.database.port": "[if(parameters('createNewPoDatabase'), 3306, parameters('pipeline-optimization.database.port'))]",
                     "pipeline-optimization.database.name": "[variables('poDbName')]",
                     "pipeline-optimization.database.username": "[variables('poDbUsername')]",
-                    "pipeline-optimization.database.enableTls": "[if(parameters('createNewDatabase'), true, parameters('pipeline-optimization.database.enableTls'))]",
-                    "pipeline-optimization.database.sslNoverify": "[parameters('pipeline-optimization.database.sslNoverify')]",
+                    "pipeline-optimization.database.enableTls": "[if(parameters('createNewPoDatabase'), true, parameters('pipeline-optimization.database.enableTls'))]",
+                    "pipeline-optimization.database.sslNoverify": "[if(parameters('createNewPoDatabase'), false, parameters('pipeline-optimization.database.sslNoverify'))]",
                     "pipeline-optimization.platformDatabase.host": "[variables('platformDbHost')]",
                     "pipeline-optimization.platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",
                     "pipeline-optimization.platformDatabase.name": "[variables('platformDbName')]",
-                    "pipeline-optimization.platformDatabase.username": "[variables('platformDbUsername')]"
+                    "pipeline-optimization.platformDatabase.username": "[variables('platformDbUsername')]",
+                    "pipeline-optimization.platformDatabase.enableTls": "[if(parameters('createNewDatabase'), true, parameters('pipeline-optimization.platformDatabase.enableTls'))]",
+                    "pipeline-optimization.platformDatabase.sslNoverify": "[if(parameters('createNewDatabase'), false, parameters('pipeline-optimization.platformDatabase.sslNoverify'))]"
                 },
                 "configurationProtectedSettings": {
                     "platform.licenseString": "[parameters('platform.licenseString')]",
                     "platformDatabase.password": "[variables('platformDbPassword')]",
-                    "redis.password": "[if(parameters('createNewRedis'), listKeys(resourceId('Microsoft.Cache/redis', parameters('redisServerName')), '2024-03-01').primaryKey, parameters('redis.password'))]",
+                    "redis.password": "[if(parameters('createNewRedis'), listKeys(resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('redisServerName'), 'default'), '2024-10-01').primaryKey, parameters('redis.password'))]",
                     "platform.smtp.password": "[parameters('platform.smtp.password')]",
                     "platform.jwtSeedString": "[parameters('platform.jwtSeedString')]",
                     "platform.cryptoSeedString": "[parameters('platform.cryptoSeedString')]",
-                    "studios.redis.password": "[if(parameters('createNewStudiosRedis'), listKeys(resourceId('Microsoft.Cache/redis', parameters('studiosRedisServerName')), '2024-03-01').primaryKey, parameters('studios.redis.password'))]",
+                    "studios.redis.password": "[if(parameters('createNewStudiosRedis'), listKeys(resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('studiosRedisServerName'), 'default'), '2024-10-01').primaryKey, parameters('studios.redis.password'))]",
                     "pipeline-optimization.database.password": "[variables('poDbPassword')]",
                     "pipeline-optimization.platformDatabase.password": "[variables('platformDbPassword')]"
                 }
@@ -723,9 +848,10 @@
                 "[resourceId('Microsoft.ContainerService/managedClusters/', parameters('clusterResourceName'))]",
                 "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]",
                 "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('mysqlPlatformDatabaseName'))]",
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('mysqlPoDatabaseName'))]",
-                "[resourceId('Microsoft.Cache/redis', parameters('redisServerName'))]",
-                "[resourceId('Microsoft.Cache/redis', parameters('studiosRedisServerName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('poMysqlServerName'))]",
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('poMysqlServerName'), parameters('poMysqlDatabaseName'))]",
+                "[resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('redisServerName'), 'default')]",
+                "[resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('studiosRedisServerName'), 'default')]"
             ]
         }
     ],
