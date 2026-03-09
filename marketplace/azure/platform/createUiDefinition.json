@@ -317,6 +317,15 @@
             }
           },
           {
+            "name": "mysqlLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('databaseConfig').createNewDatabase, not(equals(steps('databaseConfig').mysqlLocation, location())))]",
+            "options": {
+              "text": "The selected MySQL region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
             "name": "mysqlAdminUsername",
             "type": "Microsoft.Common.TextBox",
             "label": "MySQL Admin Username",
@@ -597,6 +606,15 @@
                 { "label": "Korea South", "value": "koreasouth" }
               ],
               "required": true
+            }
+          },
+          {
+            "name": "redisLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('redisConfig').createNewRedis, not(equals(steps('redisConfig').redisLocation, location())))]",
+            "options": {
+              "text": "The selected Redis region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
             }
           },
           {
@@ -907,6 +925,15 @@
             }
           },
           {
+            "name": "studiosRedisLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis, not(equals(steps('featuresConfig').studiosRedisLocation, location())))]",
+            "options": {
+              "text": "The selected Studios Redis region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
             "name": "studiosRedisSkuName",
             "type": "Microsoft.Common.DropDown",
             "label": "Studios Azure Managed Redis SKU",
@@ -1076,6 +1103,15 @@
                 { "label": "Korea South", "value": "koreasouth" }
               ],
               "required": true
+            }
+          },
+          {
+            "name": "poMysqlLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase, not(equals(steps('featuresConfig').poMysqlLocation, location())))]",
+            "options": {
+              "text": "The selected Pipeline Optimization MySQL region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
             }
           },
           {
