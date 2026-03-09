@@ -250,13 +250,211 @@
         "label": "Database Configuration",
         "elements": [
           {
+            "name": "createNewDatabase",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Automatically provision Azure Database for MySQL",
+            "toolTip": "When checked, a new Azure Database for MySQL Flexible Server will be created with separate databases for Platform and Pipeline Optimization.",
+            "defaultValue": false
+          },
+          {
+            "name": "mysqlServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "MySQL Server Name",
+            "toolTip": "Globally unique name for the MySQL Flexible Server (3-63 lowercase alphanumeric characters and hyphens).",
+            "placeholder": "seqera-mysql",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "required": "[steps('databaseConfig').createNewDatabase]",
+              "regex": "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+              "validationMessage": "Must be 3-63 characters: lowercase letters, numbers, and hyphens only, starting and ending with a letter or number."
+            }
+          },
+          {
+            "name": "mysqlLocation",
+            "type": "Microsoft.Common.DropDown",
+            "label": "MySQL Server Region",
+            "toolTip": "Azure region for the MySQL Flexible Server. Defaults to the deployment region (same as AKS cluster).",
+            "defaultValue": "[location()]",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "East US", "value": "eastus" },
+                { "label": "East US 2", "value": "eastus2" },
+                { "label": "Central US", "value": "centralus" },
+                { "label": "North Central US", "value": "northcentralus" },
+                { "label": "West Central US", "value": "westcentralus" },
+                { "label": "South Central US", "value": "southcentralus" },
+                { "label": "West US", "value": "westus" },
+                { "label": "West US 2", "value": "westus2" },
+                { "label": "West US 3", "value": "westus3" },
+                { "label": "Canada Central", "value": "canadacentral" },
+                { "label": "Canada East", "value": "canadaeast" },
+                { "label": "Brazil South", "value": "brazilsouth" },
+                { "label": "North Europe", "value": "northeurope" },
+                { "label": "West Europe", "value": "westeurope" },
+                { "label": "UK South", "value": "uksouth" },
+                { "label": "UK West", "value": "ukwest" },
+                { "label": "France Central", "value": "francecentral" },
+                { "label": "France South", "value": "francesouth" },
+                { "label": "Germany West Central", "value": "germanywestcentral" },
+                { "label": "Norway East", "value": "norwayeast" },
+                { "label": "Switzerland North", "value": "switzerlandnorth" },
+                { "label": "Sweden Central", "value": "swedencentral" },
+                { "label": "UAE North", "value": "uaenorth" },
+                { "label": "South Africa North", "value": "southafricanorth" },
+                { "label": "Australia East", "value": "australiaeast" },
+                { "label": "Australia Southeast", "value": "australiasoutheast" },
+                { "label": "Southeast Asia", "value": "southeastasia" },
+                { "label": "East Asia", "value": "eastasia" },
+                { "label": "South India", "value": "southindia" },
+                { "label": "Central India", "value": "centralindia" },
+                { "label": "Japan East", "value": "japaneast" },
+                { "label": "Japan West", "value": "japanwest" },
+                { "label": "Korea Central", "value": "koreacentral" },
+                { "label": "Korea South", "value": "koreasouth" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "mysqlLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('databaseConfig').createNewDatabase, not(equals(steps('databaseConfig').mysqlLocation, location())))]",
+            "options": {
+              "text": "The selected MySQL region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "mysqlAdminUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "MySQL Admin Username",
+            "toolTip": "Administrator login for the MySQL server.",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "required": "[steps('databaseConfig').createNewDatabase]",
+              "regex": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$",
+              "validationMessage": "Must start with a letter and contain only letters, numbers, and underscores (max 32 characters)."
+            }
+          },
+          {
+            "name": "mysqlAdminPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "MySQL Admin Password",
+              "confirmPassword": "Confirm MySQL Admin Password"
+            },
+            "toolTip": "Administrator password for the MySQL server.",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "required": "[steps('databaseConfig').createNewDatabase]",
+              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,128}$",
+              "validationMessage": "Must be 8-128 characters and include uppercase, lowercase, a digit, and a special character."
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "mysqlSkuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "MySQL SKU",
+            "toolTip": "Compute SKU for the MySQL Flexible Server. General Purpose SKUs use 4 GiB RAM per vCore; Memory Optimized SKUs use 8 GiB RAM per vCore.",
+            "defaultValue": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+                  "value": "Standard_D4ds_v4"
+                },
+                {
+                  "label": "General Purpose – D8ds_v4 (8 vCores, 32 GiB RAM)",
+                  "value": "Standard_D8ds_v4"
+                },
+                {
+                  "label": "General Purpose – D16ds_v4 (16 vCores, 64 GiB RAM)",
+                  "value": "Standard_D16ds_v4"
+                },
+                {
+                  "label": "General Purpose – D32ds_v4 (32 vCores, 128 GiB RAM)",
+                  "value": "Standard_D32ds_v4"
+                },
+                {
+                  "label": "General Purpose – D48ds_v4 (48 vCores, 192 GiB RAM)",
+                  "value": "Standard_D48ds_v4"
+                },
+                {
+                  "label": "General Purpose – D64ds_v4 (64 vCores, 256 GiB RAM)",
+                  "value": "Standard_D64ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E2ds_v4 (2 vCores, 16 GiB RAM)",
+                  "value": "Standard_E2ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E4ds_v4 (4 vCores, 32 GiB RAM)",
+                  "value": "Standard_E4ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E8ds_v4 (8 vCores, 64 GiB RAM)",
+                  "value": "Standard_E8ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E16ds_v4 (16 vCores, 128 GiB RAM)",
+                  "value": "Standard_E16ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E32ds_v4 (32 vCores, 256 GiB RAM)",
+                  "value": "Standard_E32ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E48ds_v4 (48 vCores, 384 GiB RAM)",
+                  "value": "Standard_E48ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E64ds_v4 (64 vCores, 504 GiB RAM)",
+                  "value": "Standard_E64ds_v4"
+                }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "mysqlStorageSizeGB",
+            "type": "Microsoft.Common.Slider",
+            "min": 30,
+            "max": 1024,
+            "label": "Storage Size (GiB)",
+            "subLabel": "GiB",
+            "defaultValue": 30,
+            "showStepMarkers": false,
+            "toolTip": "Storage size for the MySQL server in GiB.",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "mysqlPlatformDatabaseName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform Database Name",
+            "toolTip": "Name of the database to create for Seqera Platform.",
+            "defaultValue": "platform",
+            "visible": "[steps('databaseConfig').createNewDatabase]",
+            "constraints": {
+              "required": "[steps('databaseConfig').createNewDatabase]"
+            }
+          },
+          {
             "name": "databaseHost",
             "type": "Microsoft.Common.TextBox",
             "label": "MySQL Host",
             "toolTip": "Hostname of the MySQL database server.",
             "placeholder": "mydb.mysql.database.azure.com",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
             "constraints": {
-              "required": true
+              "required": "[not(steps('databaseConfig').createNewDatabase)]"
             }
           },
           {
@@ -265,8 +463,9 @@
             "label": "MySQL Port",
             "toolTip": "Port number for the MySQL database.",
             "defaultValue": "3306",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
             "constraints": {
-              "required": true,
+              "required": "[not(steps('databaseConfig').createNewDatabase)]",
               "regex": "^[0-9]{1,5}$",
               "validationMessage": "Must be a valid port number."
             }
@@ -277,8 +476,9 @@
             "label": "Database Name",
             "toolTip": "Name of the MySQL database for Seqera Platform.",
             "placeholder": "tower",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
             "constraints": {
-              "required": true
+              "required": "[not(steps('databaseConfig').createNewDatabase)]"
             }
           },
           {
@@ -286,8 +486,9 @@
             "type": "Microsoft.Common.TextBox",
             "label": "Database Username",
             "toolTip": "MySQL database username.",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
             "constraints": {
-              "required": true
+              "required": "[not(steps('databaseConfig').createNewDatabase)]"
             }
           },
           {
@@ -298,11 +499,32 @@
               "confirmPassword": "Confirm Database Password"
             },
             "toolTip": "MySQL database password.",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
             "constraints": {
-              "required": true
+              "required": "[not(steps('databaseConfig').createNewDatabase)]"
             },
             "options": {
               "hideConfirmation": false
+            }
+          },
+          {
+            "name": "databaseConnectionOptionsInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
+            "options": {
+              "text": "Additional JDBC connection options for the MariaDB driver, formatted as key=value pairs separated by '&'. See the <a href='https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j' target='_blank'>MariaDB Connector/J documentation</a> for all available options.",
+              "style": "Info"
+            }
+          },
+          {
+            "name": "databaseConnectionOptions",
+            "type": "Microsoft.Common.TextBox",
+            "label": "MySQL Connection Options",
+            "toolTip": "JDBC connection options passed to the MariaDB driver, formatted as key=value pairs separated by '&'.",
+            "defaultValue": "permitMysqlScheme=true&sslMode=verify-ca",
+            "visible": "[not(steps('databaseConfig').createNewDatabase)]",
+            "constraints": {
+              "required": false
             }
           }
         ]
@@ -312,13 +534,139 @@
         "label": "Redis Configuration",
         "elements": [
           {
+            "name": "redisClusteringWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "options": {
+              "text": "Platform requires a non-clustered Redis endpoint. The auto-provisioned Azure Managed Redis instance uses the NoCluster topology. If you bring your own Redis, ensure it is non-clustered.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "createNewRedis",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Automatically provision Azure Cache for Redis (Platform)",
+            "toolTip": "When checked, a new Azure Cache for Redis (Standard tier, non-clustered) will be created for Platform.",
+            "defaultValue": false
+          },
+          {
+            "name": "redisServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Redis Cache Name",
+            "toolTip": "Globally unique name for the Azure Cache for Redis (3-63 lowercase alphanumeric characters and hyphens).",
+            "placeholder": "seqera-redis",
+            "visible": "[steps('redisConfig').createNewRedis]",
+            "constraints": {
+              "required": "[steps('redisConfig').createNewRedis]",
+              "regex": "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+              "validationMessage": "Must be 3-63 characters: lowercase letters, numbers, and hyphens only, starting and ending with a letter or number."
+            }
+          },
+          {
+            "name": "redisLocation",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Redis Region",
+            "toolTip": "Azure region for the Platform Redis cache. Defaults to the deployment region (same as AKS cluster).",
+            "defaultValue": "[location()]",
+            "visible": "[steps('redisConfig').createNewRedis]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "East US", "value": "eastus" },
+                { "label": "East US 2", "value": "eastus2" },
+                { "label": "Central US", "value": "centralus" },
+                { "label": "North Central US", "value": "northcentralus" },
+                { "label": "West Central US", "value": "westcentralus" },
+                { "label": "South Central US", "value": "southcentralus" },
+                { "label": "West US", "value": "westus" },
+                { "label": "West US 2", "value": "westus2" },
+                { "label": "West US 3", "value": "westus3" },
+                { "label": "Canada Central", "value": "canadacentral" },
+                { "label": "Canada East", "value": "canadaeast" },
+                { "label": "Brazil South", "value": "brazilsouth" },
+                { "label": "North Europe", "value": "northeurope" },
+                { "label": "West Europe", "value": "westeurope" },
+                { "label": "UK South", "value": "uksouth" },
+                { "label": "UK West", "value": "ukwest" },
+                { "label": "France Central", "value": "francecentral" },
+                { "label": "France South", "value": "francesouth" },
+                { "label": "Germany West Central", "value": "germanywestcentral" },
+                { "label": "Norway East", "value": "norwayeast" },
+                { "label": "Switzerland North", "value": "switzerlandnorth" },
+                { "label": "Sweden Central", "value": "swedencentral" },
+                { "label": "UAE North", "value": "uaenorth" },
+                { "label": "South Africa North", "value": "southafricanorth" },
+                { "label": "Australia East", "value": "australiaeast" },
+                { "label": "Australia Southeast", "value": "australiasoutheast" },
+                { "label": "Southeast Asia", "value": "southeastasia" },
+                { "label": "East Asia", "value": "eastasia" },
+                { "label": "South India", "value": "southindia" },
+                { "label": "Central India", "value": "centralindia" },
+                { "label": "Japan East", "value": "japaneast" },
+                { "label": "Japan West", "value": "japanwest" },
+                { "label": "Korea Central", "value": "koreacentral" },
+                { "label": "Korea South", "value": "koreasouth" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "redisLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('redisConfig').createNewRedis, not(equals(steps('redisConfig').redisLocation, location())))]",
+            "options": {
+              "text": "The selected Redis region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "redisSkuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Azure Managed Redis SKU",
+            "toolTip": "SKU for the Azure Managed Redis instance. Balanced SKUs provide a good price/performance ratio.",
+            "defaultValue": "Balanced B5 (6 GB, minimum)",
+            "visible": "[steps('redisConfig').createNewRedis]",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Balanced B5 (6 GB, minimum)",
+                  "value": "Balanced_B5"
+                },
+                {
+                  "label": "Balanced B10 (12 GB)",
+                  "value": "Balanced_B10"
+                },
+                {
+                  "label": "Balanced B20 (24 GB)",
+                  "value": "Balanced_B20"
+                },
+                {
+                  "label": "Balanced B50 (60 GB)",
+                  "value": "Balanced_B50"
+                },
+                {
+                  "label": "Balanced B100 (120 GB)",
+                  "value": "Balanced_B100"
+                },
+                {
+                  "label": "Balanced B150 (175 GB)",
+                  "value": "Balanced_B150"
+                },
+                {
+                  "label": "Balanced B250 (235 GB)",
+                  "value": "Balanced_B250"
+                }
+              ],
+              "required": true
+            }
+          },
+          {
             "name": "redisHost",
             "type": "Microsoft.Common.TextBox",
             "label": "Redis Host",
             "toolTip": "Hostname of the Redis cache server.",
             "placeholder": "myredis.redis.cache.windows.net",
+            "visible": "[not(steps('redisConfig').createNewRedis)]",
             "constraints": {
-              "required": true
+              "required": "[not(steps('redisConfig').createNewRedis)]"
             }
           },
           {
@@ -327,8 +675,9 @@
             "label": "Redis Port",
             "toolTip": "Port number for the Redis server.",
             "defaultValue": "6379",
+            "visible": "[not(steps('redisConfig').createNewRedis)]",
             "constraints": {
-              "required": true,
+              "required": "[not(steps('redisConfig').createNewRedis)]",
               "regex": "^[0-9]{1,5}$",
               "validationMessage": "Must be a valid port number."
             }
@@ -341,6 +690,7 @@
               "confirmPassword": "Confirm Redis Password"
             },
             "toolTip": "Redis password, if the server requires authentication.",
+            "visible": "[not(steps('redisConfig').createNewRedis)]",
             "constraints": {
               "required": false
             },
@@ -352,7 +702,8 @@
             "name": "redisEnableTls",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable TLS for Redis",
-            "toolTip": "Enable TLS encryption when connecting to Redis. Recommended for Azure Cache for Redis."
+            "toolTip": "Enable TLS encryption when connecting to Redis. Recommended for Azure Cache for Redis.",
+            "visible": "[not(steps('redisConfig').createNewRedis)]"
           }
         ]
       },
@@ -484,75 +835,191 @@
             "defaultValue": true
           },
           {
-            "name": "studiosConfigSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Studios Configuration",
+            "name": "studiosDomain",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Studios Domain",
+            "toolTip": "Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains.",
+            "defaultValue": "[concat('studios.', steps('platformConfig').platformExternalDomain)]",
             "visible": "[steps('featuresConfig').studiosEnabled]",
-            "elements": [
-              {
-                "name": "studiosDomain",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Studios Domain",
-                "toolTip": "Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains.",
-                "defaultValue": "[concat('studios.', steps('platformConfig').platformExternalDomain)]",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[a-zA-Z0-9][a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-                  "validationMessage": "Must be a valid domain name."
-                }
-              },
-              {
-                "name": "studiosRedisInfo",
-                "type": "Microsoft.Common.InfoBox",
-                "options": {
-                  "text": "Studios requires a dedicated Redis cache instance, separate from the Platform Redis.",
-                  "style": "Info"
-                }
-              },
-              {
-                "name": "studiosRedisHost",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Redis Host",
-                "toolTip": "Hostname of the Redis server for Studios.",
-                "placeholder": "myredis.redis.cache.windows.net",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "studiosRedisPort",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Redis Port",
-                "toolTip": "Port number for the Studios Redis server.",
-                "defaultValue": "6379",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[0-9]{1,5}$",
-                  "validationMessage": "Must be a valid port number."
-                }
-              },
-              {
-                "name": "studiosRedisPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Redis Password",
-                  "confirmPassword": "Confirm Redis Password"
+            "constraints": {
+              "required": "[steps('featuresConfig').studiosEnabled]",
+              "regex": "^[a-zA-Z0-9][a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+              "validationMessage": "Must be a valid domain name."
+            }
+          },
+          {
+            "name": "studiosRedisInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('featuresConfig').studiosEnabled]",
+            "options": {
+              "text": "Studios requires a dedicated Redis instance, separate from the Platform Redis. Like Platform, Studios only supports a non-clustered Redis endpoint. The auto-provisioned Azure Managed Redis instance uses the NoCluster topology.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "createNewStudiosRedis",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Automatically provision Azure Cache for Redis (Studios)",
+            "toolTip": "When checked, a new Azure Cache for Redis (Standard tier, non-clustered) will be created for Studios.",
+            "defaultValue": false,
+            "visible": "[steps('featuresConfig').studiosEnabled]"
+          },
+          {
+            "name": "studiosRedisServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Studios Redis Cache Name",
+            "toolTip": "Globally unique name for the Studios Azure Cache for Redis.",
+            "placeholder": "seqera-studios-redis",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
+              "regex": "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+              "validationMessage": "Must be 3-63 characters: lowercase letters, numbers, and hyphens only, starting and ending with a letter or number."
+            }
+          },
+          {
+            "name": "studiosRedisLocation",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Studios Redis Region",
+            "toolTip": "Azure region for the Studios Redis cache. Defaults to the deployment region (same as AKS cluster).",
+            "defaultValue": "[location()]",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "East US", "value": "eastus" },
+                { "label": "East US 2", "value": "eastus2" },
+                { "label": "Central US", "value": "centralus" },
+                { "label": "North Central US", "value": "northcentralus" },
+                { "label": "West Central US", "value": "westcentralus" },
+                { "label": "South Central US", "value": "southcentralus" },
+                { "label": "West US", "value": "westus" },
+                { "label": "West US 2", "value": "westus2" },
+                { "label": "West US 3", "value": "westus3" },
+                { "label": "Canada Central", "value": "canadacentral" },
+                { "label": "Canada East", "value": "canadaeast" },
+                { "label": "Brazil South", "value": "brazilsouth" },
+                { "label": "North Europe", "value": "northeurope" },
+                { "label": "West Europe", "value": "westeurope" },
+                { "label": "UK South", "value": "uksouth" },
+                { "label": "UK West", "value": "ukwest" },
+                { "label": "France Central", "value": "francecentral" },
+                { "label": "France South", "value": "francesouth" },
+                { "label": "Germany West Central", "value": "germanywestcentral" },
+                { "label": "Norway East", "value": "norwayeast" },
+                { "label": "Switzerland North", "value": "switzerlandnorth" },
+                { "label": "Sweden Central", "value": "swedencentral" },
+                { "label": "UAE North", "value": "uaenorth" },
+                { "label": "South Africa North", "value": "southafricanorth" },
+                { "label": "Australia East", "value": "australiaeast" },
+                { "label": "Australia Southeast", "value": "australiasoutheast" },
+                { "label": "Southeast Asia", "value": "southeastasia" },
+                { "label": "East Asia", "value": "eastasia" },
+                { "label": "South India", "value": "southindia" },
+                { "label": "Central India", "value": "centralindia" },
+                { "label": "Japan East", "value": "japaneast" },
+                { "label": "Japan West", "value": "japanwest" },
+                { "label": "Korea Central", "value": "koreacentral" },
+                { "label": "Korea South", "value": "koreasouth" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "studiosRedisLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis, not(equals(steps('featuresConfig').studiosRedisLocation, location())))]",
+            "options": {
+              "text": "The selected Studios Redis region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "studiosRedisSkuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Studios Azure Managed Redis SKU",
+            "toolTip": "SKU for the Studios Azure Managed Redis instance.",
+            "defaultValue": "Balanced B5 (6 GB, minimum)",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, steps('featuresConfig').createNewStudiosRedis)]",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Balanced B5 (6 GB, minimum)",
+                  "value": "Balanced_B5"
                 },
-                "toolTip": "Redis password for Studios, if authentication is required.",
-                "constraints": {
-                  "required": false
+                {
+                  "label": "Balanced B10 (12 GB)",
+                  "value": "Balanced_B10"
                 },
-                "options": {
-                  "hideConfirmation": false
+                {
+                  "label": "Balanced B20 (24 GB)",
+                  "value": "Balanced_B20"
+                },
+                {
+                  "label": "Balanced B50 (60 GB)",
+                  "value": "Balanced_B50"
+                },
+                {
+                  "label": "Balanced B100 (120 GB)",
+                  "value": "Balanced_B100"
+                },
+                {
+                  "label": "Balanced B150 (175 GB)",
+                  "value": "Balanced_B150"
+                },
+                {
+                  "label": "Balanced B250 (235 GB)",
+                  "value": "Balanced_B250"
                 }
-              },
-              {
-                "name": "studiosRedisEnableTls",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable TLS for Redis",
-                "toolTip": "Enable TLS encryption when connecting to the Studios Redis server."
-              }
-            ]
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "studiosRedisHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Studios Redis Host",
+            "toolTip": "Hostname of the Redis server for Studios.",
+            "placeholder": "myredis.redis.cache.windows.net",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]"
+            }
+          },
+          {
+            "name": "studiosRedisPort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Studios Redis Port",
+            "toolTip": "Port number for the Studios Redis server.",
+            "defaultValue": "6379",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]",
+              "regex": "^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number."
+            }
+          },
+          {
+            "name": "studiosRedisPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Studios Redis Password",
+              "confirmPassword": "Confirm Studios Redis Password"
+            },
+            "toolTip": "Redis password for Studios, if authentication is required.",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]",
+            "constraints": {
+              "required": false
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "studiosRedisEnableTls",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable TLS for Studios Redis",
+            "toolTip": "Enable TLS encryption when connecting to the Studios Redis server.",
+            "visible": "[and(steps('featuresConfig').studiosEnabled, not(steps('featuresConfig').createNewStudiosRedis))]"
           },
           {
             "name": "pipelineOptimizationEnabled",
@@ -562,176 +1029,383 @@
             "defaultValue": true
           },
           {
-            "name": "poDedicatedDbSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Pipeline Optimization Database",
+            "name": "poDbInfo",
+            "type": "Microsoft.Common.InfoBox",
             "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]",
-            "elements": [
-              {
-                "name": "poDedicatedDbInfo",
-                "type": "Microsoft.Common.InfoBox",
-                "options": {
-                  "text": "Pipeline Optimization requires its own MySQL database to store optimization data.",
-                  "style": "Info"
-                }
-              },
-              {
-                "name": "poDbHost",
-                "type": "Microsoft.Common.TextBox",
-                "label": "MySQL Host",
-                "toolTip": "Hostname of the MySQL database server for Pipeline Optimization.",
-                "placeholder": "mydb.mysql.database.azure.com",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poDbPort",
-                "type": "Microsoft.Common.TextBox",
-                "label": "MySQL Port",
-                "toolTip": "Port number for the Pipeline Optimization MySQL database.",
-                "defaultValue": "3306",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[0-9]{1,5}$",
-                  "validationMessage": "Must be a valid port number."
-                }
-              },
-              {
-                "name": "poDbName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Database Name",
-                "toolTip": "Name of the MySQL database for Pipeline Optimization.",
-                "placeholder": "pipeline_optimization",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poDbUsername",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Database Username",
-                "toolTip": "MySQL database username for Pipeline Optimization.",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poDbPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Database Password",
-                  "confirmPassword": "Confirm Database Password"
-                },
-                "toolTip": "MySQL database password for Pipeline Optimization.",
-                "constraints": {
-                  "required": true
-                },
-                "options": {
-                  "hideConfirmation": false
-                }
-              },
-              {
-                "name": "poDbEnableTls",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable TLS for MySQL",
-                "toolTip": "Enable TLS encryption when connecting to the Pipeline Optimization MySQL database. Recommended for Azure Database for MySQL.",
-                "defaultValue": true
-              },
-              {
-                "name": "poDbSslNoverify",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Skip TLS certificate verification",
-                "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
-                "defaultValue": false
-              }
-            ]
+            "options": {
+              "text": "Pipeline Optimization requires its own dedicated MySQL database, separate from the Platform database.",
+              "style": "Info"
+            }
           },
           {
-            "name": "poPlatformDbSection",
-            "type": "Microsoft.Common.Section",
-            "label": "Pipeline Optimization — Platform Database Access (read-only)",
-            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]",
-            "elements": [
-              {
-                "name": "poPlatformDbInfo",
-                "type": "Microsoft.Common.InfoBox",
-                "options": {
-                  "text": "Pipeline Optimization needs read-only access to the Platform database to read pipeline and job details.",
-                  "style": "Info"
-                }
-              },
-              {
-                "name": "poPlatformDbHost",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Platform MySQL Host",
-                "toolTip": "Hostname of the Platform MySQL database. Can be the same as the main Platform database.",
-                "placeholder": "mydb.mysql.database.azure.com",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poPlatformDbPort",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Platform MySQL Port",
-                "toolTip": "Port number for the Platform MySQL database.",
-                "defaultValue": "3306",
-                "constraints": {
-                  "required": true,
-                  "regex": "^[0-9]{1,5}$",
-                  "validationMessage": "Must be a valid port number."
-                }
-              },
-              {
-                "name": "poPlatformDbName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Platform Database Name",
-                "toolTip": "Name of the Platform MySQL database.",
-                "placeholder": "tower",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poPlatformDbUsername",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Platform Database Username",
-                "toolTip": "MySQL username for Platform database access. A read-only user is sufficient.",
-                "constraints": {
-                  "required": true
-                }
-              },
-              {
-                "name": "poPlatformDbPassword",
-                "type": "Microsoft.Common.PasswordBox",
-                "label": {
-                  "password": "Platform Database Password",
-                  "confirmPassword": "Confirm Platform Database Password"
+            "name": "createNewPoDatabase",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Automatically provision Azure Database for MySQL (Pipeline Optimization)",
+            "toolTip": "When checked, a new Azure Database for MySQL Flexible Server will be created for Pipeline Optimization.",
+            "defaultValue": false,
+            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]"
+          },
+          {
+            "name": "poMysqlServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "PO MySQL Server Name",
+            "toolTip": "Globally unique name for the Pipeline Optimization MySQL Flexible Server (3-63 lowercase alphanumeric characters and hyphens).",
+            "placeholder": "seqera-po-mysql",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+              "validationMessage": "Must be 3-63 characters: lowercase letters, numbers, and hyphens only, starting and ending with a letter or number."
+            }
+          },
+          {
+            "name": "poMysqlLocation",
+            "type": "Microsoft.Common.DropDown",
+            "label": "PO MySQL Server Region",
+            "toolTip": "Azure region for the Pipeline Optimization MySQL Flexible Server.",
+            "defaultValue": "[location()]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "East US", "value": "eastus" },
+                { "label": "East US 2", "value": "eastus2" },
+                { "label": "Central US", "value": "centralus" },
+                { "label": "North Central US", "value": "northcentralus" },
+                { "label": "West Central US", "value": "westcentralus" },
+                { "label": "South Central US", "value": "southcentralus" },
+                { "label": "West US", "value": "westus" },
+                { "label": "West US 2", "value": "westus2" },
+                { "label": "West US 3", "value": "westus3" },
+                { "label": "Canada Central", "value": "canadacentral" },
+                { "label": "Canada East", "value": "canadaeast" },
+                { "label": "Brazil South", "value": "brazilsouth" },
+                { "label": "North Europe", "value": "northeurope" },
+                { "label": "West Europe", "value": "westeurope" },
+                { "label": "UK South", "value": "uksouth" },
+                { "label": "UK West", "value": "ukwest" },
+                { "label": "France Central", "value": "francecentral" },
+                { "label": "France South", "value": "francesouth" },
+                { "label": "Germany West Central", "value": "germanywestcentral" },
+                { "label": "Norway East", "value": "norwayeast" },
+                { "label": "Switzerland North", "value": "switzerlandnorth" },
+                { "label": "Sweden Central", "value": "swedencentral" },
+                { "label": "UAE North", "value": "uaenorth" },
+                { "label": "South Africa North", "value": "southafricanorth" },
+                { "label": "Australia East", "value": "australiaeast" },
+                { "label": "Australia Southeast", "value": "australiasoutheast" },
+                { "label": "Southeast Asia", "value": "southeastasia" },
+                { "label": "East Asia", "value": "eastasia" },
+                { "label": "South India", "value": "southindia" },
+                { "label": "Central India", "value": "centralindia" },
+                { "label": "Japan East", "value": "japaneast" },
+                { "label": "Japan West", "value": "japanwest" },
+                { "label": "Korea Central", "value": "koreacentral" },
+                { "label": "Korea South", "value": "koreasouth" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "poMysqlLocationWarning",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase, not(equals(steps('featuresConfig').poMysqlLocation, location())))]",
+            "options": {
+              "text": "The selected Pipeline Optimization MySQL region differs from the AKS cluster region. This may increase network latency and incur cross-region data transfer costs.",
+              "style": "Warning"
+            }
+          },
+          {
+            "name": "poMysqlAdminUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "PO MySQL Admin Username",
+            "toolTip": "Administrator login for the Pipeline Optimization MySQL server.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$",
+              "validationMessage": "Must start with a letter and contain only letters, numbers, and underscores (max 32 characters)."
+            }
+          },
+          {
+            "name": "poMysqlAdminPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "PO MySQL Admin Password",
+              "confirmPassword": "Confirm PO MySQL Admin Password"
+            },
+            "toolTip": "Administrator password for the Pipeline Optimization MySQL server.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,128}$",
+              "validationMessage": "Must be 8-128 characters and include uppercase, lowercase, a digit, and a special character."
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "poMysqlSkuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "PO MySQL SKU",
+            "toolTip": "Compute SKU for the Pipeline Optimization MySQL Flexible Server. General Purpose SKUs use 4 GiB RAM per vCore; Memory Optimized SKUs use 8 GiB RAM per vCore.",
+            "defaultValue": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+                  "value": "Standard_D4ds_v4"
                 },
-                "toolTip": "MySQL password for Platform database access.",
-                "constraints": {
-                  "required": true
+                {
+                  "label": "General Purpose – D8ds_v4 (8 vCores, 32 GiB RAM)",
+                  "value": "Standard_D8ds_v4"
                 },
-                "options": {
-                  "hideConfirmation": false
+                {
+                  "label": "General Purpose – D16ds_v4 (16 vCores, 64 GiB RAM)",
+                  "value": "Standard_D16ds_v4"
+                },
+                {
+                  "label": "General Purpose – D32ds_v4 (32 vCores, 128 GiB RAM)",
+                  "value": "Standard_D32ds_v4"
+                },
+                {
+                  "label": "General Purpose – D48ds_v4 (48 vCores, 192 GiB RAM)",
+                  "value": "Standard_D48ds_v4"
+                },
+                {
+                  "label": "General Purpose – D64ds_v4 (64 vCores, 256 GiB RAM)",
+                  "value": "Standard_D64ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E2ds_v4 (2 vCores, 16 GiB RAM)",
+                  "value": "Standard_E2ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E4ds_v4 (4 vCores, 32 GiB RAM)",
+                  "value": "Standard_E4ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E8ds_v4 (8 vCores, 64 GiB RAM)",
+                  "value": "Standard_E8ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E16ds_v4 (16 vCores, 128 GiB RAM)",
+                  "value": "Standard_E16ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E32ds_v4 (32 vCores, 256 GiB RAM)",
+                  "value": "Standard_E32ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E48ds_v4 (48 vCores, 384 GiB RAM)",
+                  "value": "Standard_E48ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E64ds_v4 (64 vCores, 504 GiB RAM)",
+                  "value": "Standard_E64ds_v4"
                 }
-              },
-              {
-                "name": "poPlatformDbEnableTls",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Enable TLS for MySQL",
-                "toolTip": "Enable TLS encryption when connecting to the Platform MySQL database. Recommended for Azure Database for MySQL.",
-                "defaultValue": true
-              },
-              {
-                "name": "poPlatformDbSslNoverify",
-                "type": "Microsoft.Common.CheckBox",
-                "label": "Skip TLS certificate verification",
-                "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
-                "defaultValue": false
-              }
-            ]
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "poMysqlStorageSizeGB",
+            "type": "Microsoft.Common.Slider",
+            "min": 20,
+            "max": 1024,
+            "label": "PO Storage Size (GiB)",
+            "subLabel": "GiB",
+            "defaultValue": 20,
+            "showStepMarkers": false,
+            "toolTip": "Storage size for the Pipeline Optimization MySQL server in GiB.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "poMysqlDatabaseName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Pipeline Optimization Database Name",
+            "toolTip": "Name of the database to create on the Pipeline Optimization MySQL server.",
+            "defaultValue": "pipeline_optimization",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]"
+            }
+          },
+          {
+            "name": "poDbHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Pipeline Optimization MySQL Host",
+            "toolTip": "Hostname of the MySQL database server for Pipeline Optimization.",
+            "placeholder": "mydb.mysql.database.azure.com",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+            }
+          },
+          {
+            "name": "poDbPort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Pipeline Optimization MySQL Port",
+            "toolTip": "Port number for the Pipeline Optimization MySQL database.",
+            "defaultValue": "3306",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+              "regex": "^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number."
+            }
+          },
+          {
+            "name": "poDbName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Pipeline Optimization Database Name",
+            "toolTip": "Name of the MySQL database for Pipeline Optimization.",
+            "placeholder": "pipeline_optimization",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+            }
+          },
+          {
+            "name": "poDbUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Pipeline Optimization Database Username",
+            "toolTip": "MySQL database username for Pipeline Optimization.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+            }
+          },
+          {
+            "name": "poDbPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Pipeline Optimization Database Password",
+              "confirmPassword": "Confirm Pipeline Optimization Database Password"
+            },
+            "toolTip": "MySQL database password for Pipeline Optimization.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "poDbEnableTls",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable TLS for Pipeline Optimization MySQL",
+            "toolTip": "Enable TLS encryption when connecting to the Pipeline Optimization MySQL database. Recommended for Azure Database for MySQL.",
+            "defaultValue": true,
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+          },
+          {
+            "name": "poDbSslNoverify",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Skip TLS certificate verification (Pipeline Optimization MySQL)",
+            "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
+            "defaultValue": false,
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
+          },
+          {
+            "name": "poPlatformDbAutoInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]",
+            "options": {
+              "text": "Pipeline Optimization also needs read access to the Platform database. The auto-provisioned MySQL server credentials from the Database Configuration step will be reused automatically.",
+              "style": "Info"
+            }
+          },
+          {
+            "name": "poPlatformDbInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "options": {
+              "text": "Pipeline Optimization also needs read access to the Platform database to read pipeline and job details. A separate user with read-only permissions is recommended, but not required.",
+              "style": "Info"
+            }
+          },
+          {
+            "name": "poPlatformDbHost",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform MySQL Host (for Pipeline Optimization)",
+            "toolTip": "Hostname of the Platform MySQL database. Can be the same as the main Platform database.",
+            "placeholder": "mydb.mysql.database.azure.com",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            }
+          },
+          {
+            "name": "poPlatformDbPort",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform MySQL Port (for Pipeline Optimization)",
+            "toolTip": "Port number for the Platform MySQL database.",
+            "defaultValue": "3306",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+              "regex": "^[0-9]{1,5}$",
+              "validationMessage": "Must be a valid port number."
+            }
+          },
+          {
+            "name": "poPlatformDbName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform Database Name (for Pipeline Optimization)",
+            "toolTip": "Name of the Platform MySQL database.",
+            "placeholder": "tower",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            }
+          },
+          {
+            "name": "poPlatformDbUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Platform Database Username (for Pipeline Optimization)",
+            "toolTip": "MySQL username for Platform database access. A read-only user is sufficient.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            }
+          },
+          {
+            "name": "poPlatformDbPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Platform Database Password (for Pipeline Optimization)",
+              "confirmPassword": "Confirm Platform Database Password"
+            },
+            "toolTip": "MySQL password for Platform database access.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "poPlatformDbEnableTls",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Enable TLS for Platform MySQL (Pipeline Optimization)",
+            "toolTip": "Enable TLS encryption when connecting to the Platform MySQL database for Pipeline Optimization.",
+            "defaultValue": true,
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
+          },
+          {
+            "name": "poPlatformDbSslNoverify",
+            "type": "Microsoft.Common.CheckBox",
+            "label": "Skip TLS certificate verification (Platform MySQL for Pipeline Optimization)",
+            "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
+            "defaultValue": false,
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]"
           }
         ]
       }
@@ -749,11 +1423,32 @@
       "global.platformExternalDomain": "[steps('platformConfig').platformExternalDomain]",
       "platform.licenseString": "[steps('platformConfig').licenseString]",
       "platform.contactEmail": "[steps('smtpConfig').contactEmail]",
+      "createNewDatabase": "[steps('databaseConfig').createNewDatabase]",
+      "mysqlServerName": "[steps('databaseConfig').mysqlServerName]",
+      "mysqlLocation": "[steps('databaseConfig').mysqlLocation]",
+      "mysqlAdminUsername": "[steps('databaseConfig').mysqlAdminUsername]",
+      "mysqlAdminPassword": "[steps('databaseConfig').mysqlAdminPassword]",
+      "mysqlSkuName": "[steps('databaseConfig').mysqlSkuName]",
+      "mysqlStorageSizeGB": "[steps('databaseConfig').mysqlStorageSizeGB]",
+      "mysqlPlatformDatabaseName": "[steps('databaseConfig').mysqlPlatformDatabaseName]",
+      "createNewPoDatabase": "[steps('featuresConfig').createNewPoDatabase]",
+      "poMysqlServerName": "[steps('featuresConfig').poMysqlServerName]",
+      "poMysqlLocation": "[steps('featuresConfig').poMysqlLocation]",
+      "poMysqlAdminUsername": "[steps('featuresConfig').poMysqlAdminUsername]",
+      "poMysqlAdminPassword": "[steps('featuresConfig').poMysqlAdminPassword]",
+      "poMysqlSkuName": "[steps('featuresConfig').poMysqlSkuName]",
+      "poMysqlStorageSizeGB": "[steps('featuresConfig').poMysqlStorageSizeGB]",
+      "poMysqlDatabaseName": "[steps('featuresConfig').poMysqlDatabaseName]",
       "platformDatabase.host": "[steps('databaseConfig').databaseHost]",
       "platformDatabase.port": "[int(steps('databaseConfig').databasePort)]",
       "platformDatabase.name": "[steps('databaseConfig').databaseName]",
       "platformDatabase.username": "[steps('databaseConfig').databaseUsername]",
       "platformDatabase.password": "[steps('databaseConfig').databasePassword]",
+      "platformDatabase.connectionOptions.mariadb[0]": "[steps('databaseConfig').databaseConnectionOptions]",
+      "createNewRedis": "[steps('redisConfig').createNewRedis]",
+      "redisServerName": "[steps('redisConfig').redisServerName]",
+      "redisLocation": "[steps('redisConfig').redisLocation]",
+      "redisSkuName": "[steps('redisConfig').redisSkuName]",
       "redis.host": "[steps('redisConfig').redisHost]",
       "redis.port": "[int(steps('redisConfig').redisPort)]",
       "redis.password": "[steps('redisConfig').redisPassword]",
@@ -765,26 +1460,30 @@
       "platform.jwtSeedString": "[steps('securityConfig').jwtSeedString]",
       "platform.cryptoSeedString": "[steps('securityConfig').cryptoSeedString]",
       "studios.enabled": "[steps('featuresConfig').studiosEnabled]",
-      "global.studiosDomain": "[steps('featuresConfig').studiosConfigSection.studiosDomain]",
-      "studios.redis.host": "[steps('featuresConfig').studiosConfigSection.studiosRedisHost]",
-      "studios.redis.port": "[int(steps('featuresConfig').studiosConfigSection.studiosRedisPort)]",
-      "studios.redis.password": "[steps('featuresConfig').studiosConfigSection.studiosRedisPassword]",
-      "studios.redis.enableTls": "[steps('featuresConfig').studiosConfigSection.studiosRedisEnableTls]",
+      "global.studiosDomain": "[steps('featuresConfig').studiosDomain]",
+      "createNewStudiosRedis": "[steps('featuresConfig').createNewStudiosRedis]",
+      "studiosRedisServerName": "[steps('featuresConfig').studiosRedisServerName]",
+      "studiosRedisLocation": "[steps('featuresConfig').studiosRedisLocation]",
+      "studiosRedisSkuName": "[steps('featuresConfig').studiosRedisSkuName]",
+      "studios.redis.host": "[steps('featuresConfig').studiosRedisHost]",
+      "studios.redis.port": "[int(steps('featuresConfig').studiosRedisPort)]",
+      "studios.redis.password": "[steps('featuresConfig').studiosRedisPassword]",
+      "studios.redis.enableTls": "[steps('featuresConfig').studiosRedisEnableTls]",
       "pipeline-optimization.enabled": "[steps('featuresConfig').pipelineOptimizationEnabled]",
-      "pipeline-optimization.database.host": "[steps('featuresConfig').poDedicatedDbSection.poDbHost]",
-      "pipeline-optimization.database.port": "[int(steps('featuresConfig').poDedicatedDbSection.poDbPort)]",
-      "pipeline-optimization.database.name": "[steps('featuresConfig').poDedicatedDbSection.poDbName]",
-      "pipeline-optimization.database.username": "[steps('featuresConfig').poDedicatedDbSection.poDbUsername]",
-      "pipeline-optimization.database.password": "[steps('featuresConfig').poDedicatedDbSection.poDbPassword]",
-      "pipeline-optimization.database.enableTls": "[steps('featuresConfig').poDedicatedDbSection.poDbEnableTls]",
-      "pipeline-optimization.database.sslNoverify": "[steps('featuresConfig').poDedicatedDbSection.poDbSslNoverify]",
-      "pipeline-optimization.platformDatabase.host": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbHost]",
-      "pipeline-optimization.platformDatabase.port": "[int(steps('featuresConfig').poPlatformDbSection.poPlatformDbPort)]",
-      "pipeline-optimization.platformDatabase.name": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbName]",
-      "pipeline-optimization.platformDatabase.username": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbUsername]",
-      "pipeline-optimization.platformDatabase.password": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbPassword]",
-      "pipeline-optimization.platformDatabase.enableTls": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbEnableTls]",
-      "pipeline-optimization.platformDatabase.sslNoverify": "[steps('featuresConfig').poPlatformDbSection.poPlatformDbSslNoverify]"
+      "pipeline-optimization.database.host": "[steps('featuresConfig').poDbHost]",
+      "pipeline-optimization.database.port": "[int(steps('featuresConfig').poDbPort)]",
+      "pipeline-optimization.database.name": "[steps('featuresConfig').poDbName]",
+      "pipeline-optimization.database.username": "[steps('featuresConfig').poDbUsername]",
+      "pipeline-optimization.database.password": "[steps('featuresConfig').poDbPassword]",
+      "pipeline-optimization.database.enableTls": "[steps('featuresConfig').poDbEnableTls]",
+      "pipeline-optimization.database.sslNoverify": "[steps('featuresConfig').poDbSslNoverify]",
+      "pipeline-optimization.platformDatabase.host": "[if(steps('databaseConfig').createNewDatabase, '', steps('featuresConfig').poPlatformDbHost)]",
+      "pipeline-optimization.platformDatabase.port": "[if(steps('databaseConfig').createNewDatabase, 3306, int(steps('featuresConfig').poPlatformDbPort))]",
+      "pipeline-optimization.platformDatabase.name": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlPlatformDatabaseName, steps('featuresConfig').poPlatformDbName)]",
+      "pipeline-optimization.platformDatabase.username": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlAdminUsername, steps('featuresConfig').poPlatformDbUsername)]",
+      "pipeline-optimization.platformDatabase.password": "[if(steps('databaseConfig').createNewDatabase, steps('databaseConfig').mysqlAdminPassword, steps('featuresConfig').poPlatformDbPassword)]",
+      "pipeline-optimization.platformDatabase.enableTls": "[if(steps('databaseConfig').createNewDatabase, true, steps('featuresConfig').poPlatformDbEnableTls)]",
+      "pipeline-optimization.platformDatabase.sslNoverify": "[if(steps('databaseConfig').createNewDatabase, false, steps('featuresConfig').poPlatformDbSslNoverify)]"
     }
   }
 }
