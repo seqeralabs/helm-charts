@@ -416,18 +416,67 @@
                 "description": "Name of the Platform database to create on the MySQL server."
             }
         },
-        "mysqlPoDatabaseName": {
+        "createNewPoDatabase": {
+            "type": "Bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "When true, provisions a new Azure Database for MySQL Flexible Server for Pipeline Optimization."
+            }
+        },
+        "poMysqlServerName": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name for the new Pipeline Optimization MySQL Flexible Server resource."
+            }
+        },
+        "poMysqlLocation": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Region for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlAdminUsername": {
+            "type": "String",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Administrator login name for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Administrator password for the Pipeline Optimization MySQL server."
+            }
+        },
+        "poMysqlSkuName": {
+            "type": "String",
+            "defaultValue": "Standard_D2ds_v4",
+            "allowedValues": [
+                "Standard_D2ds_v4",
+                "Standard_D4ds_v4",
+                "Standard_D8ds_v4"
+            ],
+            "metadata": {
+                "description": "SKU for the Pipeline Optimization MySQL Flexible Server compute tier."
+            }
+        },
+        "poMysqlStorageSizeGB": {
+            "type": "Int",
+            "defaultValue": 20,
+            "minValue": 20,
+            "maxValue": 1024,
+            "metadata": {
+                "description": "Storage size in GiB for the Pipeline Optimization MySQL Flexible Server."
+            }
+        },
+        "poMysqlDatabaseName": {
             "type": "String",
             "defaultValue": "pipeline_optimization",
             "metadata": {
-                "description": "Name of the Pipeline Optimization database to create on the MySQL server."
-            }
-        },
-        "createNewPoDatabase": {
-            "type": "Bool",
-            "defaultValue": true,
-            "metadata": {
-                "description": "Auto-provision a Pipeline Optimization database on the MySQL server. Set to false to provide your own database credentials."
+                "description": "Name of the database to create on the Pipeline Optimization MySQL server."
             }
         },
         "createNewRedis": {
@@ -515,16 +564,17 @@
         "mysqlSkuTier": "[if(startsWith(parameters('mysqlSkuName'), 'Standard_E'), 'MemoryOptimized', 'GeneralPurpose')]",
         "redisEffectiveLocation": "[if(empty(parameters('redisLocation')), parameters('location'), parameters('redisLocation'))]",
         "studiosRedisEffectiveLocation": "[if(empty(parameters('studiosRedisLocation')), parameters('location'), parameters('studiosRedisLocation'))]",
+        "poMysqlEffectiveLocation": "[if(empty(parameters('poMysqlLocation')), parameters('location'), parameters('poMysqlLocation'))]",
         "provisionPlatformDatabase": "[parameters('createNewDatabase')]",
-        "provisionPoDB": "[and(parameters('createNewDatabase'), parameters('createNewPoDatabase'), parameters('pipeline-optimization.enabled'))]",
+        "provisionPoServer": "[and(parameters('createNewPoDatabase'), parameters('pipeline-optimization.enabled'))]",
         "platformDbHost": "[if(parameters('createNewDatabase'), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('platformDatabase.host'))]",
         "platformDbUsername": "[if(parameters('createNewDatabase'), parameters('mysqlAdminUsername'), parameters('platformDatabase.username'))]",
         "platformDbPassword": "[if(parameters('createNewDatabase'), parameters('mysqlAdminPassword'), parameters('platformDatabase.password'))]",
         "platformDbName": "[if(parameters('createNewDatabase'), parameters('mysqlPlatformDatabaseName'), parameters('platformDatabase.name'))]",
-        "poDbHost": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), reference(parameters('mysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
-        "poDbName": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlPoDatabaseName'), parameters('pipeline-optimization.database.name'))]",
-        "poDbUsername": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
-        "poDbPassword": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), parameters('mysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
+        "poDbHost": "[if(parameters('createNewPoDatabase'), reference(parameters('poMysqlServerName'), '2023-12-30').fullyQualifiedDomainName, parameters('pipeline-optimization.database.host'))]",
+        "poDbName": "[if(parameters('createNewPoDatabase'), parameters('poMysqlDatabaseName'), parameters('pipeline-optimization.database.name'))]",
+        "poDbUsername": "[if(parameters('createNewPoDatabase'), parameters('poMysqlAdminUsername'), parameters('pipeline-optimization.database.username'))]",
+        "poDbPassword": "[if(parameters('createNewPoDatabase'), parameters('poMysqlAdminPassword'), parameters('pipeline-optimization.database.password'))]",
         "redisHost": "[if(parameters('createNewRedis'), reference(parameters('redisServerName'), '2024-10-01').hostName, parameters('redis.host'))]",
         "redisPort": "[if(parameters('createNewRedis'), 10000, parameters('redis.port'))]",
         "redisEnableTls": "[if(parameters('createNewRedis'), true, parameters('redis.enableTls'))]",
@@ -626,12 +676,39 @@
             }
         },
         {
-            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
-            "condition": "[variables('provisionPoDB')]",
+            "type": "Microsoft.DBforMySQL/flexibleServers",
+            "condition": "[variables('provisionPoServer')]",
             "apiVersion": "2023-12-30",
-            "name": "[concat(parameters('mysqlServerName'), '/', parameters('mysqlPoDatabaseName'))]",
+            "name": "[parameters('poMysqlServerName')]",
+            "location": "[variables('poMysqlEffectiveLocation')]",
+            "sku": {
+                "name": "[parameters('poMysqlSkuName')]",
+                "tier": "GeneralPurpose"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('poMysqlAdminUsername')]",
+                "administratorLoginPassword": "[parameters('poMysqlAdminPassword')]",
+                "storage": {
+                    "storageSizeGB": "[parameters('poMysqlStorageSizeGB')]",
+                    "autoGrow": "Enabled"
+                },
+                "backup": {
+                    "backupRetentionDays": 7,
+                    "geoRedundantBackup": "Disabled"
+                },
+                "highAvailability": {
+                    "mode": "Disabled"
+                },
+                "version": "8.0.21"
+            }
+        },
+        {
+            "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+            "condition": "[variables('provisionPoServer')]",
+            "apiVersion": "2023-12-30",
+            "name": "[concat(parameters('poMysqlServerName'), '/', parameters('poMysqlDatabaseName'))]",
             "dependsOn": [
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]"
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('poMysqlServerName'))]"
             ],
             "properties": {
                 "charset": "utf8mb4",
@@ -723,10 +800,10 @@
                     "studios.redis.enableTls": "[variables('studiosRedisEnableTls')]",
                     "pipeline-optimization.enabled": "[parameters('pipeline-optimization.enabled')]",
                     "pipeline-optimization.database.host": "[variables('poDbHost')]",
-                    "pipeline-optimization.database.port": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), 3306, parameters('pipeline-optimization.database.port'))]",
+                    "pipeline-optimization.database.port": "[if(parameters('createNewPoDatabase'), 3306, parameters('pipeline-optimization.database.port'))]",
                     "pipeline-optimization.database.name": "[variables('poDbName')]",
                     "pipeline-optimization.database.username": "[variables('poDbUsername')]",
-                    "pipeline-optimization.database.enableTls": "[if(and(parameters('createNewDatabase'), parameters('createNewPoDatabase')), true, parameters('pipeline-optimization.database.enableTls'))]",
+                    "pipeline-optimization.database.enableTls": "[if(parameters('createNewPoDatabase'), true, parameters('pipeline-optimization.database.enableTls'))]",
                     "pipeline-optimization.database.sslNoverify": "[parameters('pipeline-optimization.database.sslNoverify')]",
                     "pipeline-optimization.platformDatabase.host": "[variables('platformDbHost')]",
                     "pipeline-optimization.platformDatabase.port": "[if(parameters('createNewDatabase'), 3306, parameters('platformDatabase.port'))]",
@@ -755,7 +832,8 @@
                 "[resourceId('Microsoft.ContainerService/managedClusters/', parameters('clusterResourceName'))]",
                 "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('mysqlServerName'))]",
                 "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('mysqlPlatformDatabaseName'))]",
-                "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('mysqlServerName'), parameters('mysqlPoDatabaseName'))]",
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('poMysqlServerName'))]",
+                "[resourceId('Microsoft.DBforMySQL/flexibleServers/databases', parameters('poMysqlServerName'), parameters('poMysqlDatabaseName'))]",
                 "[resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('redisServerName'), 'default')]",
                 "[resourceId('Microsoft.Cache/redisEnterprise/databases', parameters('studiosRedisServerName'), 'default')]"
             ]

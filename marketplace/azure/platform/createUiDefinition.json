@@ -1002,40 +1002,201 @@
             "defaultValue": true
           },
           {
+            "name": "poDbInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]",
+            "options": {
+              "text": "Pipeline Optimization requires its own dedicated MySQL database, separate from the Platform database.",
+              "style": "Info"
+            }
+          },
+          {
             "name": "createNewPoDatabase",
             "type": "Microsoft.Common.CheckBox",
-            "label": "Auto-provision Pipeline Optimization database",
-            "toolTip": "Create a dedicated Pipeline Optimization database on the MySQL server. Uncheck to provide your own database credentials.",
-            "defaultValue": true,
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]"
+            "label": "Automatically provision Azure Database for MySQL (Pipeline Optimization)",
+            "toolTip": "When checked, a new Azure Database for MySQL Flexible Server will be created for Pipeline Optimization.",
+            "defaultValue": false,
+            "visible": "[steps('featuresConfig').pipelineOptimizationEnabled]"
           },
           {
-            "name": "poAutoProvisionedDbInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]",
-            "options": {
-              "text": "A dedicated Pipeline Optimization database will be created on the auto-provisioned MySQL server.",
-              "style": "Info"
+            "name": "poMysqlServerName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "PO MySQL Server Name",
+            "toolTip": "Globally unique name for the Pipeline Optimization MySQL Flexible Server (3-63 lowercase alphanumeric characters and hyphens).",
+            "placeholder": "seqera-po-mysql",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$",
+              "validationMessage": "Must be 3-63 characters: lowercase letters, numbers, and hyphens only, starting and ending with a letter or number."
             }
           },
           {
-            "name": "mysqlPoDatabaseName",
+            "name": "poMysqlLocation",
+            "type": "Microsoft.Common.DropDown",
+            "label": "PO MySQL Server Region",
+            "toolTip": "Azure region for the Pipeline Optimization MySQL Flexible Server.",
+            "defaultValue": "[location()]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "allowedValues": [
+                { "label": "East US", "value": "eastus" },
+                { "label": "East US 2", "value": "eastus2" },
+                { "label": "Central US", "value": "centralus" },
+                { "label": "North Central US", "value": "northcentralus" },
+                { "label": "West Central US", "value": "westcentralus" },
+                { "label": "South Central US", "value": "southcentralus" },
+                { "label": "West US", "value": "westus" },
+                { "label": "West US 2", "value": "westus2" },
+                { "label": "West US 3", "value": "westus3" },
+                { "label": "Canada Central", "value": "canadacentral" },
+                { "label": "Canada East", "value": "canadaeast" },
+                { "label": "Brazil South", "value": "brazilsouth" },
+                { "label": "North Europe", "value": "northeurope" },
+                { "label": "West Europe", "value": "westeurope" },
+                { "label": "UK South", "value": "uksouth" },
+                { "label": "UK West", "value": "ukwest" },
+                { "label": "France Central", "value": "francecentral" },
+                { "label": "France South", "value": "francesouth" },
+                { "label": "Germany West Central", "value": "germanywestcentral" },
+                { "label": "Norway East", "value": "norwayeast" },
+                { "label": "Switzerland North", "value": "switzerlandnorth" },
+                { "label": "Sweden Central", "value": "swedencentral" },
+                { "label": "UAE North", "value": "uaenorth" },
+                { "label": "South Africa North", "value": "southafricanorth" },
+                { "label": "Australia East", "value": "australiaeast" },
+                { "label": "Australia Southeast", "value": "australiasoutheast" },
+                { "label": "Southeast Asia", "value": "southeastasia" },
+                { "label": "East Asia", "value": "eastasia" },
+                { "label": "South India", "value": "southindia" },
+                { "label": "Central India", "value": "centralindia" },
+                { "label": "Japan East", "value": "japaneast" },
+                { "label": "Japan West", "value": "japanwest" },
+                { "label": "Korea Central", "value": "koreacentral" },
+                { "label": "Korea South", "value": "koreasouth" }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "poMysqlAdminUsername",
+            "type": "Microsoft.Common.TextBox",
+            "label": "PO MySQL Admin Username",
+            "toolTip": "Administrator login for the Pipeline Optimization MySQL server.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^[a-zA-Z][a-zA-Z0-9_]{0,31}$",
+              "validationMessage": "Must start with a letter and contain only letters, numbers, and underscores (max 32 characters)."
+            }
+          },
+          {
+            "name": "poMysqlAdminPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "PO MySQL Admin Password",
+              "confirmPassword": "Confirm PO MySQL Admin Password"
+            },
+            "toolTip": "Administrator password for the Pipeline Optimization MySQL server.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,128}$",
+              "validationMessage": "Must be 8-128 characters and include uppercase, lowercase, a digit, and a special character."
+            },
+            "options": {
+              "hideConfirmation": false
+            }
+          },
+          {
+            "name": "poMysqlSkuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "PO MySQL SKU",
+            "toolTip": "Compute SKU for the Pipeline Optimization MySQL Flexible Server. General Purpose SKUs use 4 GiB RAM per vCore; Memory Optimized SKUs use 8 GiB RAM per vCore.",
+            "defaultValue": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "General Purpose – D4ds_v4 (4 vCores, 16 GiB RAM)",
+                  "value": "Standard_D4ds_v4"
+                },
+                {
+                  "label": "General Purpose – D8ds_v4 (8 vCores, 32 GiB RAM)",
+                  "value": "Standard_D8ds_v4"
+                },
+                {
+                  "label": "General Purpose – D16ds_v4 (16 vCores, 64 GiB RAM)",
+                  "value": "Standard_D16ds_v4"
+                },
+                {
+                  "label": "General Purpose – D32ds_v4 (32 vCores, 128 GiB RAM)",
+                  "value": "Standard_D32ds_v4"
+                },
+                {
+                  "label": "General Purpose – D48ds_v4 (48 vCores, 192 GiB RAM)",
+                  "value": "Standard_D48ds_v4"
+                },
+                {
+                  "label": "General Purpose – D64ds_v4 (64 vCores, 256 GiB RAM)",
+                  "value": "Standard_D64ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E2ds_v4 (2 vCores, 16 GiB RAM)",
+                  "value": "Standard_E2ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E4ds_v4 (4 vCores, 32 GiB RAM)",
+                  "value": "Standard_E4ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E8ds_v4 (8 vCores, 64 GiB RAM)",
+                  "value": "Standard_E8ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E16ds_v4 (16 vCores, 128 GiB RAM)",
+                  "value": "Standard_E16ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E32ds_v4 (32 vCores, 256 GiB RAM)",
+                  "value": "Standard_E32ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E48ds_v4 (48 vCores, 384 GiB RAM)",
+                  "value": "Standard_E48ds_v4"
+                },
+                {
+                  "label": "Memory Optimized – E64ds_v4 (64 vCores, 504 GiB RAM)",
+                  "value": "Standard_E64ds_v4"
+                }
+              ],
+              "required": true
+            }
+          },
+          {
+            "name": "poMysqlStorageSizeGB",
+            "type": "Microsoft.Common.Slider",
+            "min": 20,
+            "max": 1024,
+            "label": "PO Storage Size (GiB)",
+            "subLabel": "GiB",
+            "defaultValue": 20,
+            "showStepMarkers": false,
+            "toolTip": "Storage size for the Pipeline Optimization MySQL server in GiB.",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
+            "constraints": {
+              "required": false
+            }
+          },
+          {
+            "name": "poMysqlDatabaseName",
             "type": "Microsoft.Common.TextBox",
             "label": "Pipeline Optimization Database Name",
-            "toolTip": "Name of the database to create for Pipeline Optimization on the auto-provisioned MySQL server.",
+            "toolTip": "Name of the database to create on the Pipeline Optimization MySQL server.",
             "defaultValue": "pipeline_optimization",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)]"
-            }
-          },
-          {
-            "name": "poDedicatedDbInfo",
-            "type": "Microsoft.Common.InfoBox",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
-            "options": {
-              "text": "Pipeline Optimization requires its own dedicated MySQL database. Provide the connection details below.",
-              "style": "Info"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('featuresConfig').createNewPoDatabase)]"
             }
           },
           {
@@ -1044,9 +1205,9 @@
             "label": "Pipeline Optimization MySQL Host",
             "toolTip": "Hostname of the MySQL database server for Pipeline Optimization.",
             "placeholder": "mydb.mysql.database.azure.com",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
             }
           },
           {
@@ -1055,9 +1216,9 @@
             "label": "Pipeline Optimization MySQL Port",
             "toolTip": "Port number for the Pipeline Optimization MySQL database.",
             "defaultValue": "3306",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
               "regex": "^[0-9]{1,5}$",
               "validationMessage": "Must be a valid port number."
             }
@@ -1068,9 +1229,9 @@
             "label": "Pipeline Optimization Database Name",
             "toolTip": "Name of the MySQL database for Pipeline Optimization.",
             "placeholder": "pipeline_optimization",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
             }
           },
           {
@@ -1078,9 +1239,9 @@
             "type": "Microsoft.Common.TextBox",
             "label": "Pipeline Optimization Database Username",
             "toolTip": "MySQL database username for Pipeline Optimization.",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
             }
           },
           {
@@ -1091,9 +1252,9 @@
               "confirmPassword": "Confirm Pipeline Optimization Database Password"
             },
             "toolTip": "MySQL database password for Pipeline Optimization.",
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]",
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]",
             "constraints": {
-              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+              "required": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
             },
             "options": {
               "hideConfirmation": false
@@ -1105,7 +1266,7 @@
             "label": "Enable TLS for Pipeline Optimization MySQL",
             "toolTip": "Enable TLS encryption when connecting to the Pipeline Optimization MySQL database. Recommended for Azure Database for MySQL.",
             "defaultValue": true,
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
           },
           {
             "name": "poDbSslNoverify",
@@ -1113,14 +1274,14 @@
             "label": "Skip TLS certificate verification (Pipeline Optimization MySQL)",
             "toolTip": "Disable TLS certificate verification. Insecure — for development or testing only.",
             "defaultValue": false,
-            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(and(steps('databaseConfig').createNewDatabase, steps('featuresConfig').createNewPoDatabase)))]"
+            "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('featuresConfig').createNewPoDatabase))]"
           },
           {
             "name": "poPlatformDbAutoInfo",
             "type": "Microsoft.Common.InfoBox",
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, steps('databaseConfig').createNewDatabase)]",
             "options": {
-              "text": "Pipeline Optimization will use the same MySQL server credentials as Platform for database access.",
+              "text": "Pipeline Optimization also needs read access to the Platform database. The auto-provisioned MySQL server credentials from the Database Configuration step will be reused automatically.",
               "style": "Info"
             }
           },
@@ -1129,7 +1290,7 @@
             "type": "Microsoft.Common.InfoBox",
             "visible": "[and(steps('featuresConfig').pipelineOptimizationEnabled, not(steps('databaseConfig').createNewDatabase))]",
             "options": {
-              "text": "Pipeline Optimization needs access to the Platform database to read pipeline and job details. Provide the same credentials as the Platform database, or a dedicated user with read access.",
+              "text": "Pipeline Optimization also needs read access to the Platform database to read pipeline and job details. A separate user with read-only permissions is recommended, but not required.",
               "style": "Info"
             }
           },
@@ -1234,8 +1395,14 @@
       "mysqlSkuName": "[steps('databaseConfig').mysqlSkuName]",
       "mysqlStorageSizeGB": "[steps('databaseConfig').mysqlStorageSizeGB]",
       "mysqlPlatformDatabaseName": "[steps('databaseConfig').mysqlPlatformDatabaseName]",
-      "mysqlPoDatabaseName": "[steps('featuresConfig').mysqlPoDatabaseName]",
       "createNewPoDatabase": "[steps('featuresConfig').createNewPoDatabase]",
+      "poMysqlServerName": "[steps('featuresConfig').poMysqlServerName]",
+      "poMysqlLocation": "[steps('featuresConfig').poMysqlLocation]",
+      "poMysqlAdminUsername": "[steps('featuresConfig').poMysqlAdminUsername]",
+      "poMysqlAdminPassword": "[steps('featuresConfig').poMysqlAdminPassword]",
+      "poMysqlSkuName": "[steps('featuresConfig').poMysqlSkuName]",
+      "poMysqlStorageSizeGB": "[steps('featuresConfig').poMysqlStorageSizeGB]",
+      "poMysqlDatabaseName": "[steps('featuresConfig').poMysqlDatabaseName]",
       "platformDatabase.host": "[steps('databaseConfig').databaseHost]",
       "platformDatabase.port": "[int(steps('databaseConfig').databasePort)]",
       "platformDatabase.name": "[steps('databaseConfig').databaseName]",
