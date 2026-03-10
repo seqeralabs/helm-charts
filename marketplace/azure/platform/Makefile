@@ -46,8 +46,10 @@ copy-images:
 	 fi && \
 	 DST_BACKEND_TAG=$$(echo "$${SRC_BACKEND}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[1/6] $${SRC_BACKEND} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/backend:$${DST_BACKEND_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_BACKEND}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_BACKEND}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/backend:$${DST_BACKEND_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 \
 	 if [ -n "$(IMAGE_FRONTEND)" ]; then \
 	   SRC_FRONTEND="$(IMAGE_FRONTEND)"; \
@@ -57,8 +59,10 @@ copy-images:
 	   DST_FRONTEND_TAG="$${PLATFORM_TAG}"; \
 	 fi && \
 	 echo -n "[2/6] $${SRC_FRONTEND} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/frontend:$${DST_FRONTEND_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_FRONTEND}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_FRONTEND}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/frontend:$${DST_FRONTEND_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 \
 	 if [ -n "$(IMAGE_CRON_MIGRATEDB)" ]; then \
 	   SRC_MIGRATEDB="$(IMAGE_CRON_MIGRATEDB)"; \
@@ -67,8 +71,10 @@ copy-images:
 	 fi && \
 	 DST_MIGRATEDB_TAG=$$(echo "$${SRC_MIGRATEDB}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[3/6] $${SRC_MIGRATEDB} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/migrate-db:$${DST_MIGRATEDB_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_MIGRATEDB}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_MIGRATEDB}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/platform/migrate-db:$${DST_MIGRATEDB_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 \
 	 if [ -n "$(IMAGE_STUDIOS_PROXY)" ]; then \
 	   SRC_STUDIOS_PROXY="$(IMAGE_STUDIOS_PROXY)"; \
@@ -77,8 +83,10 @@ copy-images:
 	 fi && \
 	 DST_STUDIOS_PROXY_TAG=$$(echo "$${SRC_STUDIOS_PROXY}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[4/6] $${SRC_STUDIOS_PROXY} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${DST_STUDIOS_PROXY_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_STUDIOS_PROXY}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_STUDIOS_PROXY}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${DST_STUDIOS_PROXY_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 \
 	 if [ -n "$(IMAGE_STUDIOS_SERVER)" ]; then \
 	   SRC_STUDIOS_SERVER="$(IMAGE_STUDIOS_SERVER)"; \
@@ -87,8 +95,10 @@ copy-images:
 	 fi && \
 	 DST_STUDIOS_SERVER_TAG=$$(echo "$${SRC_STUDIOS_SERVER}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[5/6] $${SRC_STUDIOS_SERVER} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${DST_STUDIOS_SERVER_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_STUDIOS_SERVER}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_STUDIOS_SERVER}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${DST_STUDIOS_SERVER_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 \
 	 if [ -n "$(IMAGE_PIPELINE_OPTIMIZATION)" ]; then \
 	   SRC_PIPEOPT="$(IMAGE_PIPELINE_OPTIMIZATION)"; \
@@ -97,8 +107,10 @@ copy-images:
 	 fi && \
 	 DST_PIPEOPT_TAG=$$(echo "$${SRC_PIPEOPT}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[6/6] $${SRC_PIPEOPT} → $(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${DST_PIPEOPT_TAG} ... " && \
+	 IMG_SIZE=$$(skopeo inspect --raw "docker://$${SRC_PIPEOPT}" 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print('%.0fMB' % (sum(l.get('size',0) for l in d.get('layers',[])) / 1048576))" 2>/dev/null || echo "?") && \
+	 T_START=$$(date +%s) && \
 	 skopeo copy --quiet "docker://$${SRC_PIPEOPT}" "docker://$(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${DST_PIPEOPT_TAG}" && \
-	 echo "✓" && \
+	 echo "✓ ($${IMG_SIZE}, $$(( $$(date +%s) - T_START ))s)" && \
 	 echo "✓ All images copied successfully"
 
 # Package CNAB for Azure, replacing all azure image registries, repositories, and tags.
