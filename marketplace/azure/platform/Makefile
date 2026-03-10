@@ -227,4 +227,4 @@ package-azure-cnab:
 	   export CHART_VERSION=$$(yq '.version' $(CHARTS_DIR)/platform/Chart.yaml); \
 	 fi && \
 	 yq -i '.version = strenv(CHART_VERSION)' manifest.yaml
-	/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $$(pwd):/data -v ~/.azure:/root/.azure -w /data mcr.microsoft.com/container-package-app:1.3.41 bash -c "az acr login -n $(REGISTRY) && cpa buildbundle"
+	/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $$(pwd):/data -v ~/.azure:/root/.azure -v ~/.docker:/root/.docker -w /data mcr.microsoft.com/container-package-app:1.3.41 bash -c "az acr login -n $(REGISTRY) && cpa buildbundle"
