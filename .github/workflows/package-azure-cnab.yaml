@@ -58,6 +58,7 @@ jobs:
         with:
           username: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_USERNAME }}
           password: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_PASSWORD }}
+          registry: cr.seqera.io
 
       - name: Log in to Azure
         uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # ratchet:azure/login@v2.3.0
