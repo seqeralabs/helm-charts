@@ -81,7 +81,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y skopeo
 
-      - name: Package Azure CNAB
+      - name: Copy images to Azure registry and package Azure CNAB
         run: |
           MAKE_ARGS="REGISTRY=${{ secrets.AZURE_MARKETPLACE_REPO }} IMAGE_PREFIX=images"
           [ -n "${{ inputs.image_backend }}" ]               && MAKE_ARGS="$MAKE_ARGS IMAGE_BACKEND=${{ inputs.image_backend }}"
@@ -91,4 +91,6 @@ jobs:
           [ -n "${{ inputs.image_studios_server }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_SERVER=${{ inputs.image_studios_server }}"
           [ -n "${{ inputs.image_pipeline_optimization }}" ] && MAKE_ARGS="$MAKE_ARGS IMAGE_PIPELINE_OPTIMIZATION=${{ inputs.image_pipeline_optimization }}"
           [ -n "${{ inputs.bundle_version }}" ]              && MAKE_ARGS="$MAKE_ARGS BUNDLE_VERSION=${{ inputs.bundle_version }}"
+
+          make -C marketplace/azure/platform copy-images $MAKE_ARGS
           make -C marketplace/azure/platform package-azure-cnab $MAKE_ARGS
