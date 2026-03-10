@@ -378,7 +378,8 @@
             "name": "redisEnableTls",
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable TLS for Redis",
-            "toolTip": "Enable TLS encryption when connecting to Redis. Recommended for Azure Cache for Redis."
+            "toolTip": "Enable TLS encryption when connecting to Redis. Recommended.",
+            "defaultValue": true
           }
         ]
       },
@@ -576,7 +577,8 @@
             "type": "Microsoft.Common.CheckBox",
             "label": "Enable TLS for Studios Redis",
             "toolTip": "Enable TLS encryption when connecting to the Studios Redis server.",
-            "visible": "[steps('featuresConfig').studiosEnabled]"
+            "visible": "[steps('featuresConfig').studiosEnabled]",
+            "defaultValue": true
           },
           {
             "name": "pipelineOptimizationEnabled",
