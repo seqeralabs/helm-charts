@@ -66,6 +66,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # ratchet:aws-actions/configure-aws-credentials@v6.0.0
+        with:
+          role-to-assume: arn:aws:iam::195996028523:role/helm-charts-ecr-pull-role
+          aws-region: eu-west-1
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # ratchet:aws-actions/amazon-ecr-login@v2.0.1
+        with:
+          registry-type: public
+
       - name: Install Skopeo
         run: |
           sudo apt-get update
@@ -74,11 +85,11 @@ jobs:
       - name: Package Azure CNAB
         run: |
           MAKE_ARGS="REGISTRY=${{ secrets.AZURE_MARKETPLACE_REPO }} IMAGE_PREFIX=images"
-          [ -n "${{ inputs.image_backend }}" ]              && MAKE_ARGS="$MAKE_ARGS IMAGE_BACKEND=${{ inputs.image_backend }}"
-          [ -n "${{ inputs.image_frontend }}" ]             && MAKE_ARGS="$MAKE_ARGS IMAGE_FRONTEND=${{ inputs.image_frontend }}"
-          [ -n "${{ inputs.image_cron_migratedb }}" ]       && MAKE_ARGS="$MAKE_ARGS IMAGE_CRON_MIGRATEDB=${{ inputs.image_cron_migratedb }}"
-          [ -n "${{ inputs.image_studios_proxy }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_PROXY=${{ inputs.image_studios_proxy }}"
-          [ -n "${{ inputs.image_studios_server }}" ]       && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_SERVER=${{ inputs.image_studios_server }}"
+          [ -n "${{ inputs.image_backend }}" ]               && MAKE_ARGS="$MAKE_ARGS IMAGE_BACKEND=${{ inputs.image_backend }}"
+          [ -n "${{ inputs.image_frontend }}" ]              && MAKE_ARGS="$MAKE_ARGS IMAGE_FRONTEND=${{ inputs.image_frontend }}"
+          [ -n "${{ inputs.image_cron_migratedb }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_CRON_MIGRATEDB=${{ inputs.image_cron_migratedb }}"
+          [ -n "${{ inputs.image_studios_proxy }}" ]         && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_PROXY=${{ inputs.image_studios_proxy }}"
+          [ -n "${{ inputs.image_studios_server }}" ]        && MAKE_ARGS="$MAKE_ARGS IMAGE_STUDIOS_SERVER=${{ inputs.image_studios_server }}"
           [ -n "${{ inputs.image_pipeline_optimization }}" ] && MAKE_ARGS="$MAKE_ARGS IMAGE_PIPELINE_OPTIMIZATION=${{ inputs.image_pipeline_optimization }}"
           [ -n "${{ inputs.bundle_version }}" ]              && MAKE_ARGS="$MAKE_ARGS BUNDLE_VERSION=${{ inputs.bundle_version }}"
           make -C marketplace/azure/platform package-azure-cnab $MAKE_ARGS
