@@ -96,33 +96,6 @@ anthropicApiKeyExistingSecretName: ""
 # @default -- `"ANTHROPIC_API_KEY"`
 anthropicApiKeyExistingSecretKey: ""
 
-# -- LangChain API key. Define the value as a String or a Secret, not both at the same time
-langchainApiKey: ""
-# -- Name of an existing Secret containing the LangChain API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-langchainApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the LangChain API key
-# @default -- `"LANGCHAIN_API_KEY"`
-langchainApiKeyExistingSecretKey: ""
-
-# -- Posthog API key. Define the value as a String or a Secret, not both at the same time
-posthogApiKey: ""
-# -- Name of an existing Secret containing the Posthog API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-posthogApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the Posthog API key
-# @default -- `"POSTHOG_API_KEY"`
-posthogApiKeyExistingSecretKey: ""
-
-# -- OpanAI API key. Define the value as a String or a Secret, not both at the same time
-openaiApiKey: ""
-# -- Name of an existing Secret containing the OpenAI API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-openaiApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the OpenAI API key
-# @default -- `"OPENAI_API_KEY"`
-openaiApiKeyExistingSecretKey: ""
-
 # -- Token encryption key. Define the value as a String or a Secret, not both at the same time
 tokenEncryptionKey: ""
 # -- Name of an existing Secret containing the token encryption key.
@@ -132,7 +105,34 @@ tokenEncryptionKeyExistingSecretName: ""
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
 tokenEncryptionKeyExistingSecretKey: ""
 
-# -- Log level (e.g., CRITICAL,ERROR,WARNING,INFO,DEBUG)
+# -- Optional LangChain API key.
+langchainApiKey: ""
+# -- Name of an existing Secret containing the LangChain API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+langchainApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the LangChain API key
+# @default -- `"LANGCHAIN_API_KEY"`
+langchainApiKeyExistingSecretKey: ""
+
+# -- Optional PostHog API key.
+posthogApiKey: ""
+# -- Name of an existing Secret containing the PostHog API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+posthogApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the PostHog API key
+# @default -- `"POSTHOG_API_KEY"`
+posthogApiKeyExistingSecretKey: ""
+
+# -- Optional OpenAI API key.
+openaiApiKey: ""
+# -- Name of an existing Secret containing the OpenAI API key.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+openaiApiKeyExistingSecretName: ""
+# -- Key in the existing Secret containing the OpenAI API key
+# @default -- `"OPENAI_API_KEY"`
+openaiApiKeyExistingSecretKey: ""
+
+# -- Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 logLevel: INFO
 
 # -- Service configuration

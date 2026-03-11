@@ -140,26 +140,32 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.anthropicApiKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.anthropicApiKey.existingSecret.secretKey" . }}
-            - name: LANGCHAIN_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.langchainApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.langchainApiKey.existingSecret.secretKey" . }}
             - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
+{{- if or .Values.langchainApiKey (include "agent-backend.langchainApiKey.existingSecret" .) }}
+            - name: LANGCHAIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.langchainApiKey.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.langchainApiKey.existingSecret.secretKey" . }}
+{{- end }}
+{{- if or .Values.posthogApiKey (include "agent-backend.posthogApiKey.existingSecret" .) }}
             - name: POSTHOG_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.posthogApiKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.posthogApiKey.existingSecret.secretKey" . }}
+{{- end }}
+{{- if or .Values.openaiApiKey (include "agent-backend.openaiApiKey.existingSecret" .) }}
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.openaiApiKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.openaiApiKey.existingSecret.secretKey" . }}
+{{- end }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
