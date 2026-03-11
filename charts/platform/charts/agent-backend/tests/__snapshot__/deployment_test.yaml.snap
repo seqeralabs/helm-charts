@@ -43,25 +43,20 @@ should render a Deployment with default values:
                     secretKeyRef:
                       key: ANTHROPIC_API_KEY
                       name: release-name-agent-backend
-                - name: LANGCHAIN_API_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: LANGCHAIN_API_KEY
-                      name: release-name-agent-backend
                 - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
                       name: release-name-agent-backend
+                - name: LANGCHAIN_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: LANGCHAIN_API_KEY
+                      name: release-name-agent-backend
                 - name: POSTHOG_API_KEY
                   valueFrom:
                     secretKeyRef:
                       key: POSTHOG_API_KEY
-                      name: release-name-agent-backend
-                - name: OPENAI_API_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: OPENAI_API_KEY
                       name: release-name-agent-backend
               envFrom:
                 - configMapRef:
