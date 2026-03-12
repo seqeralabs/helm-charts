@@ -33,7 +33,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database host at 'database.host'\\."
@@ -45,7 +44,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database host at 'database.host'\\."
@@ -59,7 +57,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database name at 'database.name'\\."
@@ -71,7 +68,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database name at 'database.name'\\."
@@ -85,7 +81,6 @@ tests:
         username: ""
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database username at 'database.username'\\."
@@ -97,7 +92,6 @@ tests:
         name: "agent_backend"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database username at 'database.username'\\."
@@ -112,7 +106,6 @@ tests:
         password: ""
         existingSecretName: ""
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database password at 'database.password' or provide an existing secret name at 'database.existingSecretName'\\."
@@ -126,7 +119,6 @@ tests:
         password: "test-password"
         existingSecretName: "my-secret"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Either provide 'database.password' or an existing secret name in 'database.existingSecretName', but not both\\."
@@ -139,7 +131,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - hasDocuments:
           count: 1
@@ -152,7 +143,6 @@ tests:
         username: "agent"
         existingSecretName: "my-secret"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - hasDocuments:
           count: 1
@@ -167,7 +157,6 @@ tests:
         password: "test-password"
       anthropicApiKey: ""
       anthropicApiKeyExistingSecretName: ""
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Anthropic API key at 'anthropicApiKey' or provide an existing secret name at 'anthropicApiKeyExistingSecretName'\\."
@@ -181,7 +170,6 @@ tests:
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - failedTemplate:
           errorPattern: "Either provide 'anthropicApiKey' or an existing secret name in 'anthropicApiKeyExistingSecretName', but not both\\."
@@ -194,7 +182,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - hasDocuments:
           count: 1
@@ -207,62 +194,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
-      langchainApiKey: "test-langchain-key"
-    asserts:
-      - hasDocuments:
-          count: 1
-
-  # LangChain API key tests
-  - it: should fail when langchainApiKey is not defined and no existingSecretName
-    set:
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: ""
-      langchainApiKeyExistingSecretName: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the LangChain API key at 'langchainApiKey' or provide an existing secret name at 'langchainApiKeyExistingSecretName'\\."
-
-  - it: should fail when both langchainApiKey and langchainApiKeyExistingSecretName are defined
-    set:
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
-      langchainApiKeyExistingSecretName: "my-langchain-secret"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Either provide 'langchainApiKey' or an existing secret name in 'langchainApiKeyExistingSecretName', but not both\\."
-
-  - it: should pass when only langchainApiKey is set
-    set:
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
-    asserts:
-      - hasDocuments:
-          count: 1
-
-  - it: should pass when only langchainApiKeyExistingSecretName is set
-    set:
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      langchainApiKeyExistingSecretName: "my-langchain-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -276,7 +207,6 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
-      langchainApiKey: "test-langchain-key"
     asserts:
       - hasDocuments:
           count: 1
@@ -290,7 +220,6 @@ tests:
         username: "agent"
         existingSecretName: "db-secret"
       anthropicApiKeyExistingSecretName: "anthropic-secret"
-      langchainApiKeyExistingSecretName: "langchain-secret"
     asserts:
       - hasDocuments:
           count: 1

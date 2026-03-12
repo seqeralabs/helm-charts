@@ -54,15 +54,6 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if and (not .Values.langchainApiKey) (not .Values.langchainApiKeyExistingSecretName) -}}
-{{- $message := "Define the LangChain API key at 'langchainApiKey' or provide an existing secret name at 'langchainApiKeyExistingSecretName'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and .Values.langchainApiKey .Values.langchainApiKeyExistingSecretName -}}
-{{- $message := "Either provide 'langchainApiKey' or an existing secret name in 'langchainApiKeyExistingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
 
 Thank you for installing {{ .Chart.Name | title }}!
 
