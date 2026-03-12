@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.27.8] - 2026-03-12
+
+### Changed
+
+- Updated agent-backend subchart to version 0.2.5
+
 ## [0.27.7] - 2026-03-11
 
 ### Changed
