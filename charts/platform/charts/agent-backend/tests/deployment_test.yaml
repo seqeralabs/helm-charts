@@ -32,6 +32,7 @@ tests:
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       tokenEncryptionKey: test-token-encryption-key
+      newSecretVar: test-new-secret-var
     asserts:
       - matchSnapshot: {}
 
@@ -280,6 +281,40 @@ tests:
                 secretKeyRef:
                   name: release-name-agent-backend
                   key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
+            - name: NEW_SECRET_VAR
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-agent-backend
+                  key: NEW_SECRET_VAR
+
+  - it: should use external secret for new secret var
+    template: deployment.yaml
+    set:
+      newSecretVarExistingSecretName: my-new-secret
+      newSecretVarExistingSecretKey: secret-key
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[3]
+          value:
+            name: NEW_SECRET_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-new-secret
+                key: secret-key
+
+  - it: should use default key when new secret var external secret is set without custom key
+    template: deployment.yaml
+    set:
+      newSecretVarExistingSecretName: my-new-secret
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[3]
+          value:
+            name: NEW_SECRET_VAR
+            valueFrom:
+              secretKeyRef:
+                name: my-new-secret
+                key: NEW_SECRET_VAR
 
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml

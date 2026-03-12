@@ -145,6 +145,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
+            - name: NEW_SECRET_VAR
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.newSecretVar.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.newSecretVar.existingSecret.secretKey" . }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

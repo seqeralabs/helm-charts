@@ -21,8 +21,8 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: af1429753c545ff6a2af95ca85fa9849ce880777b0f8137d00063425d53f89d7
-            checksum/secret: ac4ca92760ab83180bef6b3504a9f7b2663f3c2972a4b7e57a8e3173c6092172
+            checksum/configmap: 6483168ec26e8a552869635a29b829b3153a2db7c3a5fa792f6d69b3dc07ac3b
+            checksum/secret: 27609404dd54643eaa6117a334ed921bd7b2546d31a98db9fdeafc9aef6cc187
           labels:
             app.kubernetes.io/component: agent-backend
             app.kubernetes.io/instance: RELEASE-NAME
@@ -47,6 +47,11 @@ should render a Deployment with default values:
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
+                      name: release-name-agent-backend
+                - name: NEW_SECRET_VAR
+                  valueFrom:
+                    secretKeyRef:
+                      key: NEW_SECRET_VAR
                       name: release-name-agent-backend
               envFrom:
                 - configMapRef:

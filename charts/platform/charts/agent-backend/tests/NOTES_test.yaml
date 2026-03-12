@@ -131,6 +131,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -143,6 +144,7 @@ tests:
         username: "agent"
         existingSecretName: "my-secret"
       anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -182,6 +184,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -194,6 +197,62 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
+      newSecretVar: "test-new-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # newSecretVar validation tests
+  - it: should fail when newSecretVar is not defined and no existingSecretName
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      newSecretVar: ""
+      newSecretVarExistingSecretName: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the new secret var at 'newSecretVar' or provide an existing secret name at 'newSecretVarExistingSecretName'\\."
+
+  - it: should fail when both newSecretVar and newSecretVarExistingSecretName are defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
+      newSecretVarExistingSecretName: "my-new-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'newSecretVar' or an existing secret name in 'newSecretVarExistingSecretName', but not both\\."
+
+  - it: should pass when only newSecretVar is set
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only newSecretVarExistingSecretName is set
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      newSecretVarExistingSecretName: "my-new-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -207,6 +266,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      newSecretVar: "test-new-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -220,6 +280,7 @@ tests:
         username: "agent"
         existingSecretName: "db-secret"
       anthropicApiKeyExistingSecretName: "anthropic-secret"
+      newSecretVarExistingSecretName: "new-secret"
     asserts:
       - hasDocuments:
           count: 1

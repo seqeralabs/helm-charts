@@ -54,6 +54,16 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
+{{- if and (not .Values.newSecretVar) (not .Values.newSecretVarExistingSecretName) -}}
+{{- $message := "Define the new secret var at 'newSecretVar' or provide an existing secret name at 'newSecretVarExistingSecretName'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and .Values.newSecretVar .Values.newSecretVarExistingSecretName -}}
+{{- $message := "Either provide 'newSecretVar' or an existing secret name in 'newSecretVarExistingSecretName', but not both." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
 
 Thank you for installing {{ .Chart.Name | title }}!
 

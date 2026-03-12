@@ -105,6 +105,18 @@ tokenEncryptionKeyExistingSecretName: ""
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
 tokenEncryptionKeyExistingSecretKey: ""
 
+# -- New public variable exposed via ConfigMap
+newPublicVar: ""
+
+# -- New secret var. Define the value as a String or a Secret, not both at the same time
+newSecretVar: ""
+# -- Name of an existing Secret containing the new secret var.
+# Note: the Secret must already exist in the same namespace at the time of deployment
+newSecretVarExistingSecretName: ""
+# -- Key in the existing Secret containing the new secret var
+# @default -- `"NEW_SECRET_VAR"`
+newSecretVarExistingSecretKey: ""
+
 # -- Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 logLevel: INFO
 

@@ -40,4 +40,6 @@ data:
   AGENT_BACKEND_DB_NAME: {{ tpl .Values.database.name . | quote }}
   AGENT_BACKEND_DB_USER: {{ tpl .Values.database.username . | quote }}
 
+  NEW_PUBLIC_VAR: {{ .Values.newPublicVar | quote }}
+
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

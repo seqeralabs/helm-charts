@@ -77,3 +77,21 @@ Return the name of the secret containing the token encryption key.
     {{- printf "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return the name of the secret containing the new secret var.
+*/}}
+{{- define "agent-backend.newSecretVar.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.newSecretVarExistingSecretName .) -}}
+{{- end -}}
+{{- define "agent-backend.newSecretVar.existingSecret.secretName" -}}
+  {{- include "agent-backend.newSecretVar.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "agent-backend.newSecretVar.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.newSecretVar.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.newSecretVarExistingSecretKey .) | default "NEW_SECRET_VAR" -}}
+  {{- else -}}
+    {{- printf "NEW_SECRET_VAR" -}}
+  {{- end -}}
+{{- end -}}

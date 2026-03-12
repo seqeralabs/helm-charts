@@ -110,3 +110,28 @@ tests:
       - equal:
           path: data.LOG_LEVEL
           value: DEBUG
+
+  - it: should contain new public var
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      newPublicVar: my-public-value
+    asserts:
+      - equal:
+          path: data.NEW_PUBLIC_VAR
+          value: "my-public-value"
+
+  - it: should render empty string for new public var when not set
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.NEW_PUBLIC_VAR
+          value: ""
