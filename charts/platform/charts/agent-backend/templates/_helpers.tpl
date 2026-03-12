@@ -61,24 +61,6 @@ Return the name of the secret containing the Anthropic API key.
 {{- end -}}
 
 {{/*
-Return the name of the secret containing the LangChain API key.
-*/}}
-{{- define "agent-backend.langchainApiKey.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.langchainApiKeyExistingSecretName .) -}}
-{{- end -}}
-{{- define "agent-backend.langchainApiKey.existingSecret.secretName" -}}
-  {{- include "agent-backend.langchainApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
-{{- end -}}
-
-{{- define "agent-backend.langchainApiKey.existingSecret.secretKey" -}}
-  {{- if (include "agent-backend.langchainApiKey.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.langchainApiKeyExistingSecretKey .) | default "LANGCHAIN_API_KEY" -}}
-  {{- else -}}
-    {{- printf "LANGCHAIN_API_KEY" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Return the name of the secret containing the token encryption key.
 */}}
 {{- define "agent-backend.tokenEncryptionKey.existingSecret" -}}
@@ -93,41 +75,5 @@ Return the name of the secret containing the token encryption key.
     {{- printf "%s" (tpl .Values.tokenEncryptionKeyExistingSecretKey .) | default "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
   {{- else -}}
     {{- printf "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Return the name of the secret containing the Posthog API key.
-*/}}
-{{- define "agent-backend.posthogApiKey.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.posthogApiKeyExistingSecretName .) -}}
-{{- end -}}
-{{- define "agent-backend.posthogApiKey.existingSecret.secretName" -}}
-  {{- include "agent-backend.posthogApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
-{{- end -}}
-
-{{- define "agent-backend.posthogApiKey.existingSecret.secretKey" -}}
-  {{- if (include "agent-backend.posthogApiKey.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.posthogApiKeyExistingSecretKey .) | default "POSTHOG_API_KEY" -}}
-  {{- else -}}
-    {{- printf "POSTHOG_API_KEY" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Return the name of the secret containing the OpenAI API key.
-*/}}
-{{- define "agent-backend.openaiApiKey.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.openaiApiKeyExistingSecretName .) -}}
-{{- end -}}
-{{- define "agent-backend.openaiApiKey.existingSecret.secretName" -}}
-  {{- include "agent-backend.openaiApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
-{{- end -}}
-
-{{- define "agent-backend.openaiApiKey.existingSecret.secretKey" -}}
-  {{- if (include "agent-backend.openaiApiKey.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.openaiApiKeyExistingSecretKey .) | default "OPENAI_API_KEY" -}}
-  {{- else -}}
-    {{- printf "OPENAI_API_KEY" -}}
   {{- end -}}
 {{- end -}}

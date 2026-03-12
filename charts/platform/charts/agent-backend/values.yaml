@@ -105,33 +105,6 @@ tokenEncryptionKeyExistingSecretName: ""
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
 tokenEncryptionKeyExistingSecretKey: ""
 
-# -- Optional LangChain API key.
-langchainApiKey: ""
-# -- Name of an existing Secret containing the LangChain API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-langchainApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the LangChain API key
-# @default -- `"LANGCHAIN_API_KEY"`
-langchainApiKeyExistingSecretKey: ""
-
-# -- Optional PostHog API key.
-posthogApiKey: ""
-# -- Name of an existing Secret containing the PostHog API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-posthogApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the PostHog API key
-# @default -- `"POSTHOG_API_KEY"`
-posthogApiKeyExistingSecretKey: ""
-
-# -- Optional OpenAI API key.
-openaiApiKey: ""
-# -- Name of an existing Secret containing the OpenAI API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-openaiApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the OpenAI API key
-# @default -- `"OPENAI_API_KEY"`
-openaiApiKeyExistingSecretKey: ""
-
 # -- Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 logLevel: INFO
 

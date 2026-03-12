@@ -22,7 +22,7 @@ should render a Deployment with default values:
         metadata:
           annotations:
             checksum/configmap: af1429753c545ff6a2af95ca85fa9849ce880777b0f8137d00063425d53f89d7
-            checksum/secret: ecb262e51c38ee3ebe170e2acdbbacc16da64b760a8ff7ec001237805ed267a1
+            checksum/secret: ac4ca92760ab83180bef6b3504a9f7b2663f3c2972a4b7e57a8e3173c6092172
           labels:
             app.kubernetes.io/component: agent-backend
             app.kubernetes.io/instance: RELEASE-NAME
@@ -47,16 +47,6 @@ should render a Deployment with default values:
                   valueFrom:
                     secretKeyRef:
                       key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
-                      name: release-name-agent-backend
-                - name: LANGCHAIN_API_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: LANGCHAIN_API_KEY
-                      name: release-name-agent-backend
-                - name: POSTHOG_API_KEY
-                  valueFrom:
-                    secretKeyRef:
-                      key: POSTHOG_API_KEY
                       name: release-name-agent-backend
               envFrom:
                 - configMapRef:

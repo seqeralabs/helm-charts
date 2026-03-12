@@ -31,9 +31,7 @@ tests:
     set:
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
-      langchainApiKey: test-langchain-key
       tokenEncryptionKey: test-token-encryption-key
-      posthogApiKey: test-posthog-key
     asserts:
       - matchSnapshot: {}
 
@@ -258,43 +256,11 @@ tests:
                 name: my-anthropic-secret
                 key: ANTHROPIC_API_KEY
 
-  - it: should use external secret for langchain API key
-    template: deployment.yaml
-    set:
-      langchainApiKeyExistingSecretName: my-langchain-secret
-      langchainApiKeyExistingSecretKey: langchain-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-langchain-secret
-                key: langchain-key
-
-  - it: should use default key when langchain external secret is set without custom key
-    template: deployment.yaml
-    set:
-      langchainApiKeyExistingSecretName: my-langchain-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-langchain-secret
-                key: LANGCHAIN_API_KEY
-
   - it: should configure main container with env before envFrom
     template: deployment.yaml
     set:
       anthropicApiKey: test-anthropic-key
-      langchainApiKey: test-langchain-key
       tokenEncryptionKey: test-token-encryption-key
-      posthogApiKey: test-posthog-key
-      openaiApiKey: test-openai-key
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env
@@ -314,174 +280,6 @@ tests:
                 secretKeyRef:
                   name: release-name-agent-backend
                   key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
-            - name: LANGCHAIN_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: release-name-agent-backend
-                  key: LANGCHAIN_API_KEY
-            - name: POSTHOG_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: release-name-agent-backend
-                  key: POSTHOG_API_KEY
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: release-name-agent-backend
-                  key: OPENAI_API_KEY
-
-  - it: should NOT inject LANGCHAIN_API_KEY env var when not provided
-    template: deployment.yaml
-    asserts:
-      - notContains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-
-  - it: should inject LANGCHAIN_API_KEY env var when provided inline
-    template: deployment.yaml
-    set:
-      langchainApiKey: lc-test123
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: release-name-agent-backend
-                key: LANGCHAIN_API_KEY
-
-  - it: should inject LANGCHAIN_API_KEY env var when using external secret
-    template: deployment.yaml
-    set:
-      langchainApiKeyExistingSecretName: my-langchain-secret
-      langchainApiKeyExistingSecretKey: lc-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-langchain-secret
-                key: lc-key
-
-  - it: should inject LANGCHAIN_API_KEY env var when using external secret with default key
-    template: deployment.yaml
-    set:
-      langchainApiKeyExistingSecretName: my-langchain-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: LANGCHAIN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-langchain-secret
-                key: LANGCHAIN_API_KEY
-
-  - it: should NOT inject POSTHOG_API_KEY env var when not provided
-    template: deployment.yaml
-    asserts:
-      - notContains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: POSTHOG_API_KEY
-
-  - it: should inject POSTHOG_API_KEY env var when provided inline
-    template: deployment.yaml
-    set:
-      posthogApiKey: ph-test123
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: POSTHOG_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: release-name-agent-backend
-                key: POSTHOG_API_KEY
-
-  - it: should inject POSTHOG_API_KEY env var when using external secret
-    template: deployment.yaml
-    set:
-      posthogApiKeyExistingSecretName: my-posthog-secret
-      posthogApiKeyExistingSecretKey: ph-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: POSTHOG_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-posthog-secret
-                key: ph-key
-
-  - it: should inject POSTHOG_API_KEY env var when using external secret with default key
-    template: deployment.yaml
-    set:
-      posthogApiKeyExistingSecretName: my-posthog-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: POSTHOG_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-posthog-secret
-                key: POSTHOG_API_KEY
-
-  - it: should NOT inject OPENAI_API_KEY env var when not provided
-    template: deployment.yaml
-    asserts:
-      - notContains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OPENAI_API_KEY
-
-  - it: should inject OPENAI_API_KEY env var when provided inline
-    template: deployment.yaml
-    set:
-      openaiApiKey: sk-test123
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OPENAI_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: release-name-agent-backend
-                key: OPENAI_API_KEY
-
-  - it: should inject OPENAI_API_KEY env var when using external secret
-    template: deployment.yaml
-    set:
-      openaiApiKeyExistingSecretName: my-openai-secret
-      openaiApiKeyExistingSecretKey: oai-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OPENAI_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-openai-secret
-                key: oai-key
-
-  - it: should inject OPENAI_API_KEY env var when using external secret with default key
-    template: deployment.yaml
-    set:
-      openaiApiKeyExistingSecretName: my-openai-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OPENAI_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: my-openai-secret
-                key: OPENAI_API_KEY
 
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml
