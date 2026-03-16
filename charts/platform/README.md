@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.27.9](https://img.shields.io/badge/Version-0.27.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.3](https://img.shields.io/badge/AppVersion-v25.3.3-informational?style=flat-square)
+![Version: 0.28.0](https://img.shields.io/badge/Version-0.28.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -27,7 +27,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v25.3.3`.
+By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v25.3.4`.
 
 > [!NOTE]
 > The Platform chart requires the [unprivileged version](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#seqera-frontend-unprivileged) of the Seqera Platform frontend image (shipped with `-unprivileged` suffix until Platform v25.3, without any suffix starting from v26.1).
@@ -41,7 +41,11 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
+<<<<<<< HEAD
   --version 0.27.9 \
+=======
+  --version 0.28.0 \
+>>>>>>> ac5952f (First pass at mcp chart, missing oidc initial token rework)
   --namespace my-namespace \
   --create-namespace
 ```
@@ -64,6 +68,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 2.x.x |
 | file://charts/agent-backend | agent-backend | 0.2.x |
+| file://charts/mcp | mcp | 0.1.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 1.x.x |
 | file://charts/portal-web | portal-web | 0.1.x |
 | file://charts/studios | studios | 1.x.x |
@@ -428,6 +433,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | commonLabels | object | `{}` | Labels to add to all deployed objects |
 | studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
+| mcp.enabled | bool | `true` | Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more details and the full list of configuration options |
 | agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
 | portal-web.enabled | bool | `true` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
 

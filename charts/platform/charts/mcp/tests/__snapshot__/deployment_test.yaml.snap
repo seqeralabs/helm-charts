@@ -1,0 +1,81 @@
+should render a Deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: mcp
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mcp
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: mcp-1.2.3
+      name: release-name-mcp
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: mcp
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: mcp
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: 9faaf193c13a25cb67d6a44f9b0611b0a1a770528c78dfa54b82b4e51e71a27b
+            checksum/secret: c02f86a51632209a540a8a0e36bd7bf3aadaf054e628be683b4c60c100b3e3b5
+          labels:
+            app.kubernetes.io/component: mcp
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: mcp
+            app.kubernetes.io/version: v9.9.9
+            helm.sh/chart: mcp-1.2.3
+        spec:
+          containers:
+            - env:
+                - name: OAUTH_JWT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: jwt-seed-key
+                      name: my-jwt-secret
+              envFrom:
+                - configMapRef:
+                    name: release-name-mcp
+              image: private/nf-tower-enterprise/mcp:v9.9.9
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 10
+                httpGet:
+                  path: /health
+                  port: 6010
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              name: mcp
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: 6010
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+          initContainers: null
+          securityContext:
+            fsGroup: 101
+          serviceAccountName: release-name-mcp-sa
+          volumes:
+            - emptyDir: {}
+              name: tmp

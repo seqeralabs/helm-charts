@@ -4,11 +4,14 @@ This repository contains Helm charts for deploying Seqera products on Kubernetes
 
 Currently, it includes charts for:
 - [Platform](./charts/platform/README.md): Seqera Platform for workflow orchestration and management.
-- [Studios](./charts/platform/charts/studios/README.md): Studios is a unified platform for interactive analysis.
-- [Pipeline Optimization](./charts/platform/charts/pipeline-optimization/README.md): A service to optimize
+- [Studios](./platform/charts/studios/README.md): Studios is a unified platform for interactive
+  analysis.
+- [Pipeline Optimization](./platform/charts/pipeline-optimization/README.md): A service to optimize
   Nextflow pipelines running on Platform - internally referred to as Groundswell.
-- [Seqera AI Backend](./charts/platform/charts/agent-backend/README.md): Backend service for Seqera
-  CLI AI capabilities
+- [Seqera AI Backend](./platform/charts/agent-backend/README.md): Backend service for Seqera CLI AI
+  capabilities.
+- [Seqera MCP](./platform/charts/mcp/README.md): Model Context Protocol (MCP) server to allow LLMs to
+  interact with Seqera products.
 - [Seqera Common](./charts/common/README.md): Library chart with shared resources and configurations
 
 The Platform chart is the main chart, and other charts can be deployed as sub-charts of Platform.

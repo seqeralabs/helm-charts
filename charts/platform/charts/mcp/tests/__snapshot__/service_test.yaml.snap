@@ -1,0 +1,57 @@
+should render a Service with default values:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: mcp
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mcp
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: mcp-1.2.3
+      name: release-name-mcp
+      namespace: NAMESPACE
+    spec:
+      ports:
+        - name: http
+          port: 6010
+          targetPort: 6010
+      selector:
+        app.kubernetes.io/component: mcp
+      type: ClusterIP
+should render complete service with all options using matchSnapshot:
+  1: |
+    apiVersion: v1
+    kind: Service
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/component: mcp
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mcp
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: mcp-1.2.3
+      name: release-name-mcp
+      namespace: NAMESPACE
+    spec:
+      externalTrafficPolicy: Local
+      ports:
+        - name: custom-http
+          nodePort: 30080
+          port: 8080
+          targetPort: 8002
+        - name: metrics
+          nodePort: 30090
+          port: 9090
+          targetPort: 9091
+        - name: admin
+          nodePort: 30888
+          port: 8888
+          targetPort: 8889
+      selector:
+        app.kubernetes.io/component: mcp
+      sessionAffinity: ClientIP
+      type: NodePort

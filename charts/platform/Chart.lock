@@ -11,11 +11,14 @@ dependencies:
 - name: studios
   repository: file://charts/studios
   version: 1.2.1
+- name: mcp
+  repository: file://charts/mcp
+  version: 0.1.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 0.2.3
+  version: 0.2.5
 - name: portal-web
   repository: file://charts/portal-web
   version: 0.1.0
-digest: sha256:43920f248b06772249d60c2eebdd02983929b8977f42ac7eecd91c0453126713
-generated: "2026-03-09T12:30:09.158005+01:00"
+digest: sha256:77ea8ad24924e38df919bd998c995af0541b8c4da9219ff562ae6dc3444ed0eb
+generated: "2026-03-16T22:07:22.508142486+01:00"
