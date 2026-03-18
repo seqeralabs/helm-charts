@@ -77,7 +77,7 @@ spec:
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
           env:
-            - name: OIDC_CLIENT_REGISTRATION_TOKEN
+            - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mcp.oidcToken.secretName" . }}

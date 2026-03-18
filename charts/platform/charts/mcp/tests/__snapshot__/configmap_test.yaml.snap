@@ -4,7 +4,7 @@ should render a ConfigMap with default values:
     data:
       HUB_API_ENDPOINT: https://hub.seqera.io
       MCP_SERVER_URL: https://mcp.test.example.com
-      MICRONAUT_ENVIRONMENTS: oauth-platform,prod
+      MICRONAUT_ENVIRONMENTS: oauth-platform
       MICRONAUT_SERVER_PORT: "6010"
       OAUTH_AUDIENCE: platform
       OAUTH_ISSUER_URL: https://test.example.com/api

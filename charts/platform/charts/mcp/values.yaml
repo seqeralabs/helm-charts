@@ -48,7 +48,6 @@ global:
 micronautEnvironments:
   - oauth-platform # Replace with 'oauth' if using a custom OAuth server instead of Platform
   # - oauth        # To be used in place of 'oauth-platform' if using a custom OAuth server
-  - prod
 
 hubApiEndpoint: https://hub.seqera.io
 waveApiEndpoint: https://wave.seqera.io

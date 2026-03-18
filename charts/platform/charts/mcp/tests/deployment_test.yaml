@@ -44,7 +44,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0]
           value:
-            name: OIDC_CLIENT_REGISTRATION_TOKEN
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: release-name-mcp
@@ -59,7 +59,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0]
           value:
-            name: OIDC_CLIENT_REGISTRATION_TOKEN
+            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: my-platform-backend

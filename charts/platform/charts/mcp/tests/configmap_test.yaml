@@ -62,7 +62,7 @@ tests:
           value:
             MICRONAUT_SERVER_PORT: "6010"
             MCP_SERVER_URL: "https://mcp.example.com"
-            MICRONAUT_ENVIRONMENTS: "oauth-platform,prod"
+            MICRONAUT_ENVIRONMENTS: "oauth-platform"
             TOWER_API_ENDPOINT: "https://example.com/api"
             HUB_API_ENDPOINT: "https://hub.seqera.io"
             WAVE_API_ENDPOINT: "https://wave.seqera.io"
@@ -89,7 +89,7 @@ tests:
           value:
             MICRONAUT_SERVER_PORT: "6010"
             MCP_SERVER_URL: "https://mcp.example.com"
-            MICRONAUT_ENVIRONMENTS: "oauth-platform,prod"
+            MICRONAUT_ENVIRONMENTS: "oauth-platform"
             TOWER_API_ENDPOINT: "https://example.com/api"
             HUB_API_ENDPOINT: "https://hub.example.com"
             WAVE_API_ENDPOINT: "https://wave.example.com"

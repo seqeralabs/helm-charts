@@ -61,7 +61,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | micronautEnvironments[0] | string | `"oauth-platform"` |  |
-| micronautEnvironments[1] | string | `"prod"` |  |
 | hubApiEndpoint | string | `"https://hub.seqera.io"` |  |
 | waveApiEndpoint | string | `"https://wave.seqera.io"` |  |
 | registryApiEndpoint | string | `"https://registry.nextflow.io"` |  |
