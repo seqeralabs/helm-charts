@@ -54,6 +54,24 @@ hubApiEndpoint: https://hub.seqera.io
 waveApiEndpoint: https://wave.seqera.io
 registryApiEndpoint: https://registry.nextflow.io
 
+oidcToken:
+  # -- OIDC client registration token as a string. Used to dynamically register an OAuth client
+  # with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random
+  # value is generated. When deployed via the platform parent chart, this is auto-wired to the
+  # platform backend secret and this value should not be set.
+  # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
+  # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
+  # regenerate a new random value on each upgrade, which will break authentication. Always
+  # explicitly set this value or use an existing secret when using Kustomize
+  tokenString: ""
+  # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
+  # to the string field. Note: the Secret must already exist in the same namespace at the time of
+  # deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the OIDC client registration token
+  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  existingSecretKey: ""
+
 oauth:
   # -- OAuth issuer URL for MCP to authenticate with. This is the URL of the OAuth provider that MCP
   # uses to authenticate and obtain tokens. It is used to discover the provider's public keys and

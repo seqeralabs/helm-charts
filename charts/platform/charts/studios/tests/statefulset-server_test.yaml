@@ -80,7 +80,7 @@ tests:
   - equal:
       path: spec.template.metadata.annotations
       value:
-        checksum/secret: 07f59012286ce98a15a3872ddd71f50df6a93068fb9cd958e16d11a44e40e856
+        checksum/secret: a41b091d75333e0876e6c90366fb95b69620d3ccf3e0ad646ae0d263df246c10
   - equal:
       path: spec.template.metadata.labels
       value:

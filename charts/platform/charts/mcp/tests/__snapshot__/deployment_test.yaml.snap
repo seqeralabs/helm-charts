@@ -33,6 +33,11 @@ should render a Deployment with default values:
         spec:
           containers:
             - env:
+                - name: OIDC_CLIENT_REGISTRATION_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: MY_OIDC_TOKEN
+                      name: my-oidc-secret
                 - name: OAUTH_JWT_SECRET
                   valueFrom:
                     secretKeyRef:

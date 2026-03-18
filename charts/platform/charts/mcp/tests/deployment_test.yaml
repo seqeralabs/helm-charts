@@ -31,8 +31,39 @@ tests:
     set:
       oauth.jwtSeedSecretName: my-jwt-secret
       oauth.jwtSeedSecretKey: jwt-seed-key
+      oidcToken.existingSecretName: my-oidc-secret
+      oidcToken.existingSecretKey: MY_OIDC_TOKEN
     asserts:
       - matchSnapshot: {}
+
+  - it: should inject OIDC_CLIENT_REGISTRATION_TOKEN from standalone secret by default
+    template: deployment.yaml
+    set:
+      oidcToken.existingSecretName: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: OIDC_CLIENT_REGISTRATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: release-name-mcp
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
+
+  - it: should inject OIDC_CLIENT_REGISTRATION_TOKEN from existing secret when set
+    template: deployment.yaml
+    set:
+      oidcToken.existingSecretName: my-platform-backend
+      oidcToken.existingSecretKey: MY_OIDC_KEY
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: OIDC_CLIENT_REGISTRATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-platform-backend
+                key: MY_OIDC_KEY
 
   - it: should use custom image
     template: deployment.yaml
@@ -168,9 +199,9 @@ tests:
       oauth.jwtSeedSecretName: my-jwt-secret
       oauth.jwtSeedSecretKey: jwt-seed-key
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[0]
-          value:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
             name: OAUTH_JWT_SECRET
             valueFrom:
               secretKeyRef:
@@ -182,9 +213,9 @@ tests:
     set:
       oauth.jwtSeedSecretName: my-jwt-secret
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[0]
-          value:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
             name: OAUTH_JWT_SECRET
             valueFrom:
               secretKeyRef:
@@ -197,9 +228,9 @@ tests:
       oauth.clientSecretExistingSecretName: my-oauth-client-secret
       oauth.clientSecretExistingSecretKey: oauth-client-key
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[1]
-          value:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
             name: OAUTH_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
@@ -211,9 +242,9 @@ tests:
     set:
       oauth.clientSecretExistingSecretName: my-oauth-client-secret
     asserts:
-      - equal:
-          path: spec.template.spec.containers[0].env[1]
-          value:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
             name: OAUTH_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
@@ -223,14 +254,14 @@ tests:
   - it: should configure main container with env before envFrom
     template: deployment.yaml
     asserts:
-      - equal:
+      - contains:
           path: spec.template.spec.containers[0].env
-          value:
-            - name: OAUTH_JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  key: OAUTH_JWT_SECRET
-                  name: release-name-mcp
+          content:
+            name: OAUTH_JWT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: OAUTH_JWT_SECRET
+                name: release-name-mcp
 
   - it: should render extraOptionsSpec under spec
     template: deployment.yaml

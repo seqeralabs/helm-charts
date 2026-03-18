@@ -43,6 +43,23 @@ Return the name of the secret containing the MCP OAuth JWT seed.
 {{- end -}}
 
 {{/*
+Return the name of the secret containing the OIDC client registration token.
+*/}}
+{{- define "mcp.oidcToken.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.oidcToken.existingSecretName .) -}}
+{{- end -}}
+{{- define "mcp.oidcToken.secretName" -}}
+  {{- include "mcp.oidcToken.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+{{- define "mcp.oidcToken.secretKey" -}}
+  {{- if (include "mcp.oidcToken.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.oidcToken.existingSecretKey .) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- else -}}
+    {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the name of the secret containing the MCP OAuth client secret.
 */}}
 {{- define "mcp.oauth.client.existingSecret" -}}

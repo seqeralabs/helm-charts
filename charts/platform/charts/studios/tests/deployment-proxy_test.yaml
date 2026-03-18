@@ -82,7 +82,7 @@ tests:
   - equal:
       path: spec.template.metadata.annotations
       value:
-        checksum/secret: d5b47d6acae424280cfbd1dc8df12b36612aff6d949782e03dc58d0458c775e8
+        checksum/secret: cf2e486d918e7aa4728f9c3db088ffd3b7072ecb519195791af6316520aa98b9
   - equal:
       path: spec.template.metadata.labels
       value:

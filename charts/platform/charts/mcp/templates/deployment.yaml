@@ -77,6 +77,11 @@ spec:
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
           env:
+            - name: OIDC_CLIENT_REGISTRATION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mcp.oidcToken.secretName" . }}
+                  key: {{ include "mcp.oidcToken.secretKey" . }}
             - name: OAUTH_JWT_SECRET
               valueFrom:
                 secretKeyRef:

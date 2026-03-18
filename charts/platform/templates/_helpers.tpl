@@ -336,6 +336,23 @@ Return the name of the secret containing the SMTP password.
 {{- end -}}
 
 {{/*
+Return the name of the secret containing the OIDC client registration token.
+*/}}
+{{- define "platform.oidcToken.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.platform.oidcClientRegistrationTokenSecretName $) -}}
+{{- end -}}
+{{- define "platform.oidcToken.secretName" -}}
+  {{- include "platform.oidcToken.existingSecret" . | default (printf "%s-backend" (include "common.names.fullname" .)) -}}
+{{- end -}}
+{{- define "platform.oidcToken.secretKey" -}}
+  {{- if (include "platform.oidcToken.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.platform.oidcClientRegistrationTokenSecretKey $) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- else -}}
+    {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the name of the secret containing the OIDC private key.
 */}}
 {{- define "platform.oidc.existingSecret" -}}

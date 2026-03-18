@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated platform chart version to 0.28.0
 - Added new `mcp` subchart to install the Model Context Protocol server
+- Restructured OIDC initial access token functions into Platform chart
 
 ## [0.27.9] - 2026-03-19
 

@@ -23,7 +23,7 @@ description: |
   RAG-based natural language interactions.
 type: application
 version: 0.1.0
-appVersion: "0.12.4"
+appVersion: "1.0.0"
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io
