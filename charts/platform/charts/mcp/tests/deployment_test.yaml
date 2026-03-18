@@ -36,7 +36,7 @@ tests:
     asserts:
       - matchSnapshot: {}
 
-  - it: should inject OIDC_CLIENT_REGISTRATION_TOKEN from standalone secret by default
+  - it: should inject TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN from standalone secret by default
     template: deployment.yaml
     set:
       oidcToken.existingSecretName: ""
@@ -48,9 +48,9 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: release-name-mcp
-                key: OIDC_CLIENT_REGISTRATION_TOKEN
+                key: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
 
-  - it: should inject OIDC_CLIENT_REGISTRATION_TOKEN from existing secret when set
+  - it: should inject TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN from existing secret when set
     template: deployment.yaml
     set:
       oidcToken.existingSecretName: my-platform-backend

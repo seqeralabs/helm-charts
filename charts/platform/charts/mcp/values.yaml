@@ -68,7 +68,7 @@ oidcToken:
   # deployment
   existingSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
-  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  # @default -- `"TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN"`
   existingSecretKey: ""
 
 oauth:

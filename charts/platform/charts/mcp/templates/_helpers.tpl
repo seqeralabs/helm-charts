@@ -53,9 +53,9 @@ Return the name of the secret containing the OIDC client registration token.
 {{- end -}}
 {{- define "mcp.oidcToken.secretKey" -}}
   {{- if (include "mcp.oidcToken.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.oidcToken.existingSecretKey .) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+    {{- printf "%s" (tpl .Values.oidcToken.existingSecretKey .) | default "TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN" -}}
   {{- else -}}
-    {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+    {{- printf "TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN" -}}
   {{- end -}}
 {{- end -}}
 
