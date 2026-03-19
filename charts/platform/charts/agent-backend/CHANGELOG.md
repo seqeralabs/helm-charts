@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.2.6] - 2026-03-19
+
+### Changed
+
+- Auto-generate a valid Fernet-compatible token encryption key (URL-safe base64 of 32 random bytes) when `tokenEncryptionKey` is not provided, instead of falling back to a random alphanumeric password
+
 ## [0.2.5] - 2026-03-12
 
 ### Changed
