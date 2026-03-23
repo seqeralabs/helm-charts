@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.27.9](https://img.shields.io/badge/Version-0.27.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.3](https://img.shields.io/badge/AppVersion-v25.3.3-informational?style=flat-square)
+![Version: 0.28.0](https://img.shields.io/badge/Version-0.28.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -27,7 +27,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v25.3.3`.
+By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v25.3.4`.
 
 > [!NOTE]
 > The Platform chart requires the [unprivileged version](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#seqera-frontend-unprivileged) of the Seqera Platform frontend image (shipped with `-unprivileged` suffix until Platform v25.3, without any suffix starting from v26.1).
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.27.9 \
+  --version 0.28.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -64,6 +64,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 2.x.x |
 | file://charts/agent-backend | agent-backend | 0.2.x |
+| file://charts/mcp | mcp | 0.1.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 1.x.x |
 | file://charts/portal-web | portal-web | 0.1.x |
 | file://charts/studios | studios | 1.x.x |
@@ -161,6 +162,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platform.oidcPrivateKeyBase64 | string | `""` | OIDC private key in PEM format, base64-encoded. Define the value as a String or a Secret, not both at the same time. If neither is defined, Helm generates a random private key. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always explicitly set this value or use an existing secret when using Kustomize |
 | platform.oidcPrivateKeySecretName | string | `""` | Name of an existing Secret containing the OIDC private key in PEM format, as an alternative to the base64-encoded string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | platform.oidcPrivateKeySecretKey | string | `"oidc.pem"` | Key in the existing Secret containing the OIDC private key in PEM format |
+| platform.oidcClientRegistrationToken | string | `""` | OIDC client registration token as a string. Used by Studios and MCP to dynamically register OAuth clients with Seqera Platform's OIDC provider. If neither this nor oidcClientRegistrationTokenSecretName is set, a random value is generated. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always explicitly set this value or use an existing secret when using Kustomize |
+| platform.oidcClientRegistrationTokenSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| platform.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 | platform.smtp.host | string | `""` | SMTP server hostname to let users authenticate through email, and to send email notifications for events |
 | platform.smtp.port | string | `""` | SMTP server port |
 | platform.smtp.user | string | `""` | SMTP server username |
@@ -427,7 +431,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
 | commonLabels | object | `{}` | Labels to add to all deployed objects |
 | studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
+| studios.proxy.oidcClientRegistrationTokenSecretName | string | `"{{ printf \"%s-platform-backend\" .Release.Name }}"` |  |
+| studios.proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` |  |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
+| mcp.enabled | bool | `true` | Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more details and the full list of configuration options |
+| mcp.oidcToken.existingSecretName | string | `"{{ printf \"%s-platform-backend\" .Release.Name }}"` |  |
+| mcp.oidcToken.existingSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` |  |
 | agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
 | portal-web.enabled | bool | `true` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
 

@@ -9,7 +9,7 @@ should run using config requested by the user:
     template:
       metadata:
         annotations:
-          checksum/secret: 9070109ee8297c2e2a96e796e188be651141f35cd2360ad8e4edfc30d465cce5
+          checksum/secret: b80b1bc08c14341170ea8cd5f96a038d7c2e9fd40f00761cd9c165f9dbe90249
         labels:
           app.kubernetes.io/component: proxy
           app.kubernetes.io/instance: RELEASE-NAME
@@ -29,7 +29,7 @@ should run using config requested by the user:
                 valueFrom:
                   secretKeyRef:
                     key: OIDC_CLIENT_REGISTRATION_TOKEN
-                    name: release-name-studios
+                    name: RELEASE-NAME-platform-backend
               - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
                 value: set-a-value-here
             envFrom:
@@ -132,7 +132,7 @@ should set the proxy deployment image using the chart version and use sane defau
       template:
         metadata:
           annotations:
-            checksum/secret: 9070109ee8297c2e2a96e796e188be651141f35cd2360ad8e4edfc30d465cce5
+            checksum/secret: b80b1bc08c14341170ea8cd5f96a038d7c2e9fd40f00761cd9c165f9dbe90249
           labels:
             app.kubernetes.io/component: proxy
             app.kubernetes.io/instance: RELEASE-NAME
@@ -147,7 +147,7 @@ should set the proxy deployment image using the chart version and use sane defau
                   valueFrom:
                     secretKeyRef:
                       key: OIDC_CLIENT_REGISTRATION_TOKEN
-                      name: release-name-studios
+                      name: RELEASE-NAME-platform-backend
               envFrom:
                 - configMapRef:
                     name: release-name-studios-common

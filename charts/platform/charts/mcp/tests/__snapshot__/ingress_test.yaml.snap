@@ -1,0 +1,36 @@
+should render when ingress.enabled is true:
+  1: |
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mcp
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: mcp-1.2.3
+      name: release-name-mcp
+      namespace: NAMESPACE
+    spec:
+      rules:
+        - host: mcp.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: release-name-mcp
+                    port:
+                      number: 6010
+                path: /
+                pathType: ImplementationSpecific
+        - host: mcp2.example.com
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: mcp-backend-svc
+                    port:
+                      number: 8002
+                path: /
+                pathType: ImplementationSpecific

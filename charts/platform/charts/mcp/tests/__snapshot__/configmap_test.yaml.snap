@@ -1,0 +1,24 @@
+should render a ConfigMap with default values:
+  1: |
+    apiVersion: v1
+    data:
+      HUB_API_ENDPOINT: https://hub.seqera.io
+      MCP_SERVER_URL: https://mcp.test.example.com
+      MICRONAUT_ENVIRONMENTS: oauth-platform
+      MICRONAUT_SERVER_PORT: "6010"
+      OAUTH_AUDIENCE: platform
+      OAUTH_ISSUER_URL: https://test.example.com/api
+      REGISTRY_API_ENDPOINT: https://registry.nextflow.io
+      TOWER_API_ENDPOINT: https://test.example.com/api
+      WAVE_API_ENDPOINT: https://wave.seqera.io
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: mcp
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: mcp-1.2.3
+      name: release-name-mcp
+      namespace: NAMESPACE

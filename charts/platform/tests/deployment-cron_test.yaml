@@ -100,6 +100,7 @@ tests:
       cryptoSeedString: otherwise 'helm template' creates random ones each time
       licenseSecretName: unittest
       licenseSecretKey: license-token-key
+      oidcClientRegistrationToken: set this to a static value as well
   asserts:
   - matchSnapshot: {}
 - it: shouldn't obey custom selector requests

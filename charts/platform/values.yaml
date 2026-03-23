@@ -350,6 +350,22 @@ platform:
   # @default -- `"oidc.pem"`
   oidcPrivateKeySecretKey: ""
 
+  # -- OIDC client registration token as a string. Used by Studios and MCP to dynamically register
+  # OAuth clients with Seqera Platform's OIDC provider. If neither this nor
+  # oidcClientRegistrationTokenSecretName is set, a random value is generated.
+  # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
+  # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
+  # regenerate a new random value on each upgrade, which may break existing OIDC sessions. Always
+  # explicitly set this value or use an existing secret when using Kustomize
+  oidcClientRegistrationToken: ""
+  # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
+  # to the string field. Note: the Secret must already exist in the same namespace at the time of
+  # deployment
+  oidcClientRegistrationTokenSecretName: ""
+  # -- Key in the existing Secret containing the OIDC client registration token
+  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  oidcClientRegistrationTokenSecretKey: ""
+
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
     # notifications for events
@@ -1326,11 +1342,26 @@ studios:
   # -- Enable Studios feature. Refer to the subchart README for more details and the full list of
   # configuration options
   enabled: true
+  proxy:
+    # Wire the OIDC registration token to the platform backend secret so all consumers share the
+    # same token. Override these values only if you want studios to use a different secret.
+    oidcClientRegistrationTokenSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    oidcClientRegistrationTokenSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the
   # full list of configuration options
   enabled: true
+
+mcp:
+  # -- Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more
+  # details and the full list of configuration options
+  enabled: true
+  oidcToken:
+    # Wire the OIDC registration token to the platform backend secret so all consumers share the
+    # same token. Override these values only if you want mcp to use a different secret.
+    existingSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 agent-backend:
   # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for

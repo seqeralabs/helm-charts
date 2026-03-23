@@ -5,6 +5,25 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.1] - 2026-03-23
+
+### Changed
+
+- Bumped bitnami/common dependency to 2.37.0
+
+## [0.28.0] - 2026-03-16
+
+### Changed
+
+- Updated platform chart version to 0.28.0
+- Added new `mcp` subchart to install the Model Context Protocol server
+- Restructured OIDC initial access token functions into Platform chart
+
+## [0.27.9] - 2026-03-19
+
+### Changed
+
+- Updated agent-backend subchart to version 0.2.6
 
 ## [0.27.9] - 2026-03-19
 

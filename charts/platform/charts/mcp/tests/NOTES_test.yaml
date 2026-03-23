@@ -1,0 +1,164 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test MCP NOTES.txt
+templates:
+  - NOTES.txt
+chart:
+  version: 1.0.0
+  appVersion: "v1.0.0"
+tests:
+  # oauth-platform environment: clientId/clientSecret fields must NOT be set
+  - it: should fail when oauth.clientId is set with oauth-platform environment
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.clientId: "my-client-id"
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth-platform' environment, 'oauth.clientId', 'oauth.clientSecretString' and 'oauth.clientSecretExistingSecretName' must not be set\\."
+
+  - it: should fail when oauth.clientSecretString is set with oauth-platform environment
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth-platform' environment, 'oauth.clientId', 'oauth.clientSecretString' and 'oauth.clientSecretExistingSecretName' must not be set\\."
+
+  - it: should fail when oauth.clientSecretExistingSecretName is set with oauth-platform environment
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.clientSecretExistingSecretName: "my-client-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth-platform' environment, 'oauth.clientId', 'oauth.clientSecretString' and 'oauth.clientSecretExistingSecretName' must not be set\\."
+
+  - it: should pass when no client credentials are set with oauth-platform environment
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # oauth environment: clientId and clientSecret are required
+  - it: should fail when oauth.clientId is missing with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+        - prod
+      oauth.clientId: ""
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth' environment, 'oauth.clientId' must be set\\."
+
+  - it: should fail when both oauth.clientSecretString and oauth.clientSecretExistingSecretName are missing with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+        - prod
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: ""
+      oauth.clientSecretExistingSecretName: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth' environment, either 'oauth.clientSecretString' or 'oauth.clientSecretExistingSecretName' must be set\\."
+
+  - it: should fail when both oauth.clientSecretString and oauth.clientSecretExistingSecretName are set with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+        - prod
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: "my-client-secret"
+      oauth.clientSecretExistingSecretName: "my-client-secret-name"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'oauth.clientSecretString' or an existing secret name in 'oauth.clientSecretExistingSecretName', but not both\\."
+
+  - it: should pass when clientId and clientSecretString are set with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+        - prod
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when clientId and clientSecretExistingSecretName are set with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+        - prod
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretExistingSecretName: "my-client-secret-name"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # JWT seed mutual exclusion
+  - it: should fail when both oauth.jwtSeedString and oauth.jwtSeedSecretName are set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.jwtSeedString: "my-jwt-seed"
+      oauth.jwtSeedSecretName: "my-jwt-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'oauth.jwtSeedString' or an existing secret name in 'oauth.jwtSeedSecretName', but not both\\."
+
+  - it: should pass when only oauth.jwtSeedString is set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.jwtSeedString: "my-jwt-seed"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only oauth.jwtSeedSecretName is set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+      oauth.jwtSeedSecretName: "my-jwt-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when neither jwt seed value is set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - prod
+    asserts:
+      - hasDocuments:
+          count: 1

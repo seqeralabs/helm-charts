@@ -1,9 +1,9 @@
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.36.0
+  version: 2.37.0
 - name: seqera-common
   repository: file://../../../seqera-common
   version: 2.0.0
-digest: sha256:5fdb2f7f79360780f1d07ca39adba58862ba86924c47495a02b4cb7d50c1ae30
-generated: "2026-02-20T16:40:03.090723052+01:00"
+digest: sha256:7e59842b79aaea2071efb939fc10eb998c5c22a106c0936f4b894a20670e7113
+generated: "2026-03-23T12:35:02.428004972+01:00"

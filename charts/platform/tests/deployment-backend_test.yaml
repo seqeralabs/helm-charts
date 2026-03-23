@@ -86,6 +86,7 @@ tests:
       cryptoSeedString: otherwise 'helm template' creates random ones each time
       licenseSecretName: unittest
       licenseSecretKey: license-token-key
+      oidcClientRegistrationToken: set this to a static value as well
   asserts:
   - matchSnapshot: {}
 
@@ -295,7 +296,7 @@ tests:
         valueFrom:
           secretKeyRef:
             key: OIDC_CLIENT_REGISTRATION_TOKEN
-            name: release-name-studios
+            name: release-name-platform-backend
       - name: NXF_HOME
         value: /var/cache/tower/
       - name: NXF_PLUGINS_DIR
