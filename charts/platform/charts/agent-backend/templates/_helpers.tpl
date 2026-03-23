@@ -77,3 +77,23 @@ Return the name of the secret containing the token encryption key.
     {{- printf "AGENT_BACKEND_TOKEN_ENCRYPTION_KEY" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Generate or retrieve the token encryption key (Fernet-compatible: URL-safe base64 of 32 random bytes).
+Priority: 1) user-provided value, 2) existing secret in cluster, 3) auto-generate.
+Result is base64-encoded (for use in Secret data).
+*/}}
+{{- define "agent-backend.tokenEncryptionKey.value" -}}
+  {{- $secretName := include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . -}}
+  {{- $secretKey := include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . -}}
+  {{- if .Values.tokenEncryptionKey -}}
+    {{- .Values.tokenEncryptionKey | b64enc | quote -}}
+  {{- else -}}
+    {{- $secretData := (lookup "v1" "Secret" (include "common.names.namespace" .) $secretName).data -}}
+    {{- if and $secretData (hasKey $secretData $secretKey) -}}
+      {{- index $secretData $secretKey | quote -}}
+    {{- else -}}
+      {{- randBytes 32 | replace "+" "-" | replace "/" "_" | b64enc | quote -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
