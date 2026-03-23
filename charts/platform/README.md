@@ -41,11 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-<<<<<<< HEAD
-  --version 0.27.9 \
-=======
   --version 0.28.0 \
->>>>>>> ac5952f (First pass at mcp chart, missing oidc initial token rework)
   --namespace my-namespace \
   --create-namespace
 ```
