@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update Studios template matrix to Studios 0.11
-- Updated agent backend Readme removing mention of deprecated variable
+- Update agent backend Readme removing mention of deprecated variable
+- Update portal web and studios default subdomains to ai. and studios.
 
 ## [0.28.1] - 2026-03-23
 

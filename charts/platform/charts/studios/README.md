@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.2.3](https://img.shields.io/badge/Version-1.2.3-informational?style=flat-square) ![AppVersion: 0.11.0](https://img.shields.io/badge/AppVersion-0.11.0-informational?style=flat-square)
+![Version: 1.2.4](https://img.shields.io/badge/Version-1.2.4-informational?style=flat-square) ![AppVersion: 0.11.0](https://img.shields.io/badge/AppVersion-0.11.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.2.3 \
+  --version 1.2.4 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -72,7 +72,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.platformServiceAddress | string | `"{{ printf \"%s-platform-backend\" .Release.Name | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
-| global.studiosDomain | string | `"studios.example.com"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
+| global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |

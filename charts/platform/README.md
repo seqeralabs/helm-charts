@@ -82,7 +82,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
-| global.portalWebDomain | string | `"{{ printf \"portal.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
+| global.portalWebDomain | string | `"{{ printf \"ai.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | global.azure.images.platformBackend.registry | string | `nil` | Image registry for the Platform backend image deployed on Azure. Example: `myregistry.azurecr.io`. Evaluated as a template |
