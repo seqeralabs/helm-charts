@@ -15,7 +15,6 @@ The required values to set in order to have a working installation are:
 - The `.image` section to point to your container registry.
 - The database connection details for the Agent Backend MySQL database under the `.database` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
-- LangChain API credentials under `.langchainApiKey` or `.langchainApiKeyExistingSecretName`.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.

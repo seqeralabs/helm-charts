@@ -14,7 +14,7 @@ should render when ingress.enabled is true:
       namespace: NAMESPACE
     spec:
       rules:
-        - host: portal.example.com
+        - host: ai.example.com
           http:
             paths:
               - backend:

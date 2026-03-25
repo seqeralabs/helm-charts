@@ -29,7 +29,7 @@ global:
 
   # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
   # wildcard subdomains. Evaluated as a template
-  studiosDomain: studios.example.com
+  studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
   # -- Base URL for Studios connections: can be any value, since each session will use a unique
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
   studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'

@@ -25,7 +25,7 @@ global:
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Portal Web frontend listens. Evaluated as a template
-  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
+  portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically

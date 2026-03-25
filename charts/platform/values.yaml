@@ -60,7 +60,7 @@ global:
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Portal Web frontend listens. Evaluated as a template
-  portalWebDomain: '{{ printf "portal.%s" .Values.global.platformExternalDomain }}'
+  portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
@@ -408,21 +408,23 @@ platform:
     tools:
       jupyter:
         tool: jupyter
-        recommended: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
-        deprecated: public.cr.seqera.io/platform/data-studio-jupyter:4.1.5-0.7.1
+        recommended: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.11
+        deprecated: public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.8
 
       vscode:
         tool: vscode
-        recommended: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
-        deprecated: public.cr.seqera.io/platform/data-studio-vscode:1.93.1-0.8
+        recommended: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.11
+        deprecated: public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.8
 
       rstudio:
         tool: rstudio
-        recommended: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
+        recommended: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.11
+        deprecated: public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.8
 
       xpra:
         tool: xpra
-        recommended: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
+        recommended: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.11
+        deprecated: public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.8
     # .platform.studios.tools expects a map of maps: the key can be any name, the only required
     # field is 'recommended'.
 
