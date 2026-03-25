@@ -48,7 +48,7 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: release-name-mcp
-                key: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+                key: OIDC_CLIENT_REGISTRATION_TOKEN
 
   - it: should inject TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN from existing secret when set
     template: deployment.yaml
