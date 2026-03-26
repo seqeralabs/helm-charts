@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Make oidc issuer URL required for 'oauth' MN env only
+- Refine OAuth and installation wording in chart documentation
 
 ## [0.1.2] - 2026-03-25
 

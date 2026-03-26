@@ -18,7 +18,7 @@ The following examples demonstrate possible configurations for enabling and cust
 |---------|-------------|
 | [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline Optimization service subchart with database setup and registry access |
 | [studios/](studios/) | Studios subchart configuration for interactive data analysis environments with ingress setup |
-| [seqera-ai](seqera-ai/) | Enabling the Seqera AI agent backend, Model Context Protocol server and portal web interface |
+| [seqera-ai](seqera-ai/) | Enabling the Seqera AI agent backend, Model Context Protocol server, and Portal web interface |
 
 ## Additional Resources
 
