@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update MCP chart version to 0.1.3
+- Add Seqera AI installation example
 
 ## [0.28.3] - 2026-03-26
 
