@@ -12,6 +12,11 @@
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
+- When the chart is configured with `oauth-platform` in `.micronautEnvironments` (the default) it authenticates against Seqera Platform:
+  * This configures Platform to become the OIDC provider for MCP
+  * When the MCP chart is deployed as a subchart of the Platform chart, the OIDC initial token is automatically taken from the Platform secret
+- The `oauth` Micronaut Environment should be set in `.micronautEnvironments` to use a custom OAuth provider instead of Platform:
+  * In this case, the `oauth.issuerUrl`, `oauth.clientId` and `oauth.clientSecretString` (or `oauth.clientSecretExistingSecretName`) values must be set with the credentials to a custom OAuth provider.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.

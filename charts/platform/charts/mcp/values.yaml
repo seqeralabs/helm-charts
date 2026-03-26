@@ -45,12 +45,16 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+# -- List of Micronaut Environments to enable on the MCP pod
 micronautEnvironments:
   - oauth-platform # Replace with 'oauth' if using a custom OAuth server instead of Platform
   # - oauth        # To be used in place of 'oauth-platform' if using a custom OAuth server
 
+# -- API endpoint of Seqera Hub.
 hubApiEndpoint: https://hub.seqera.io
+# -- API endpoint of Seqera Wave.
 waveApiEndpoint: https://wave.seqera.io
+# -- API endpoint of Seqera Nextflow Registry.
 registryApiEndpoint: https://registry.nextflow.io
 
 oidcToken:
@@ -84,6 +88,23 @@ oauth:
   # client that MCP uses to authenticate with that provider
   audience: platform
 
+  # -- OAuth client ID for MCP to authenticate with a custom OAuth server. Not needed if using
+  # Seqera Platform as the OAuth provider (by setting 'oauth-platform' in the micronaut
+  # environments), as Platform automatically creates an internal client for MCP with the correct
+  # permissions. This is required when 'oauth' is set in the micronaut environments to authenticate
+  # with a custom OAuth provider instead of Platform
+  clientId: ""
+  # -- OAuth client secret for MCP to authenticate with a custom OAuth server. Not needed if using
+  # Seqera Platform as the OAuth provider, as Platform automatically creates an internal client for
+  # MCP with the correct permissions
+  clientSecretString: ""
+  # -- OAuth client secret for MCP defined in an existing Secret, as an alternative to the string
+  # field. Note: the Secret must already exist in the same namespace at the time of deployment
+  clientSecretExistingSecretName: ""
+  # -- Key in the existing Secret containing the OAuth client secret
+  # @default -- `"OAUTH_CLIENT_SECRET"`
+  clientSecretExistingSecretKey: ""
+
   # -- JWT seed, defined as string, used to sign authentication tokens.
   # Define the value as a String or a Secret, not both at the same time.
   # If neither is defined, Helm generates a random 35-character string.
@@ -98,21 +119,6 @@ oauth:
   # -- Key in the existing Secret containing the JWT seed
   # @default -- `"OAUTH_JWT_SECRET"`
   jwtSeedSecretKey: ""
-
-  # -- OAuth client ID for MCP to authenticate with a custom OAuth server. Not needed if using
-  # Seqera Platform as the OAuth provider (by setting 'oauth-platform' in the micronaut environments), as Platform automatically creates an internal client for
-  # MCP with the correct permissions (feq with 'oauth')
-  clientId: ""
-  # -- OAuth client secret for MCP to authenticate with a custom OAuth server. Not needed if using
-  # Seqera Platform as the OAuth provider, as Platform automatically creates an internal client for
-  # MCP with the correct permissions
-  clientSecretString: ""
-  # -- OAuth client secret for MCP defined in an existing Secret, as an alternative to the string
-  # field. Note: the Secret must already exist in the same namespace at the time of deployment
-  clientSecretExistingSecretName: ""
-  # -- Key in the existing Secret containing the OAuth client secret
-  # @default -- `"OAUTH_CLIENT_SECRET"`
-  clientSecretExistingSecretKey: ""
 
 image:
   # -- Container image registry

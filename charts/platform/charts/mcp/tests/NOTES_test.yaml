@@ -82,6 +82,18 @@ tests:
       - failedTemplate:
           errorPattern: "When using 'oauth' environment, 'oauth.issuerUrl' must be set\\."
 
+  - it: should pass when oauth.issuerUrl is set with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+      oauth.issuerUrl: "https://custom-auth.example.com"
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # oauth environment: clientId and clientSecret are required
   - it: should fail when oauth.clientId is missing with oauth environment
     set:
       micronautEnvironments:
