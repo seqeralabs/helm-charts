@@ -59,7 +59,8 @@ jobs:
 
             # Package the chart
             helm package ${chart}/
-            echo "Packaged chart ${chart}"
+            chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
+            echo "Packaged chart ${chart} ($(du -sh ${chart_name}-${chart_version}.tgz | cut -f1))"
           done
 
       - name: Check subchart version coverage in parent dependencies
@@ -73,9 +74,10 @@ jobs:
           for chart in $charts_to_package; do
             chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
-            echo "Pushing chart ${chart} (${chart_name}), version ${chart_version}.."
-            helm push ${chart_name}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}'
-            echo "Pushed chart ${chart_name}"
+            echo "Pushing chart ${chart} (${chart_name}), version ${chart_version} ($(du -sh ${chart_name}-${chart_version}.tgz | cut -f1)).."
+            push_start=$(date +%s)
+            helm push ${chart_name}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}' --debug
+            echo "Pushed chart ${chart_name} in $(($(date +%s) - push_start))s"
           done
 
       - name: 'Create GitHub releases for packaged charts'

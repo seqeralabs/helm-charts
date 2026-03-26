@@ -40,4 +40,9 @@ data:
   AGENT_BACKEND_DB_NAME: {{ tpl .Values.database.name . | quote }}
   AGENT_BACKEND_DB_USER: {{ tpl .Values.database.username . | quote }}
 
+  AGENT_BACKEND_REDIS_HOST: {{ tpl .Values.redis.host . | quote }}
+  AGENT_BACKEND_REDIS_PORT: {{ .Values.redis.port | quote }}
+  AGENT_BACKEND_REDIS_DB: {{ .Values.redis.db | quote }}
+  AGENT_BACKEND_REDIS_TLS: {{ .Values.redis.tls | quote }}
+
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

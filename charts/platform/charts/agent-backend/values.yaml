@@ -110,6 +110,24 @@ tokenEncryptionKeyExistingSecretName: ""
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
 tokenEncryptionKeyExistingSecretKey: ""
 
+redis:
+  # -- Redis hostname
+  host: ""
+  # -- Redis port
+  port: 6379
+  # -- Redis database index
+  db: 0
+  # -- Enable TLS for Redis connection
+  tls: false
+  # -- Redis password
+  password: ""
+  # -- Name of an existing Secret containing the Redis password, as an alternative to the password
+  # field. Note: the Secret must already exist in the same namespace at the time of deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the Redis password
+  # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
+  existingSecretKey: ""
+
 # -- Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 logLevel: INFO
 
@@ -261,6 +279,38 @@ resources: {}
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies
   enabled: true
+
+  waitForRedis:
+    # -- Enable wait for Redis init container before starting the main container
+    enabled: true
+    image:
+      # -- Override default wait for Redis init container image
+      registry: ""
+      repository: "redis"
+      tag: "7"
+      # Digest must be in the format `sha256:1234abcdef`
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- UID the container processes run as (overrides container image default)
+      runAsUser: 101
+      # -- Require the container to run as a non-root UID (prevents starting if UID is 0)
+      runAsNonRoot: true
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Container requests and limits for different resources like CPU or memory
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
 
   waitForMySQL:
     # -- Enable wait for MySQL init container before starting the main container

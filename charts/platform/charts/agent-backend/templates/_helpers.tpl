@@ -79,6 +79,35 @@ Return the name of the secret containing the token encryption key.
 {{- end -}}
 
 {{/*
+Return the Redis URI for the wait-for-redis init container.
+*/}}
+{{- define "agent-backend.redis.uri" -}}
+  {{- printf "%s://%s:%d"
+  (ternary "rediss" "redis" (.Values.redis.tls | toString | eq "true"))
+  (tpl .Values.redis.host .)
+  (.Values.redis.port | int)
+  -}}
+{{- end -}}
+
+{{/*
+Return the name of the secret containing the Redis password.
+*/}}
+{{- define "agent-backend.redis.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.redis.existingSecretName .) -}}
+{{- end -}}
+{{- define "agent-backend.redis.existingSecret.secretName" -}}
+  {{- include "agent-backend.redis.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- end -}}
+
+{{- define "agent-backend.redis.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.redis.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.redis.existingSecretKey .) | default "AGENT_BACKEND_REDIS_PASSWORD" -}}
+  {{- else -}}
+    {{- printf "AGENT_BACKEND_REDIS_PASSWORD" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Generate or retrieve the token encryption key (Fernet-compatible: URL-safe base64 of 32 random bytes).
 Priority: 1) user-provided value, 2) existing secret in cluster, 3) auto-generate.
 Result is base64-encoded (for use in Secret data).
