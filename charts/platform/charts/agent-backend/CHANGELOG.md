@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-26
+
+### Added
+
+- Add Redis support: new `redis` configuration block with `host`, `port`, `db`, `tls`, `password`, `existingSecretName`, and `existingSecretKey` values
+
 ## [0.2.8] - 2026-03-25
 
 ### Changed

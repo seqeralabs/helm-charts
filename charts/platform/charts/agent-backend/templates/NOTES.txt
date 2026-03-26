@@ -54,6 +54,16 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
+{{- if not .Values.redis.host -}}
+{{- $message := "Define the Agent Backend Redis host at 'redis.host'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if and .Values.redis.password .Values.redis.existingSecretName -}}
+{{- $message := "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
 
 Thank you for installing {{ .Chart.Name | title }}!
 

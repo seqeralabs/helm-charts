@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.2.8](https://img.shields.io/badge/Version-0.2.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -35,7 +35,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.2.8 \
+  --version 0.3.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -81,6 +81,13 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | tokenEncryptionKey | string | `""` | Token encryption key. Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication. Always explicitly set this value or use an existing secret when using Kustomize |
 | tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
+| redis.host | string | `""` | Redis hostname |
+| redis.port | int | `6379` | Redis port |
+| redis.db | int | `0` | Redis database index |
+| redis.tls | bool | `false` | Enable TLS for Redis connection |
+| redis.password | string | `""` | Redis password |
+| redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
 | logLevel | string | `"INFO"` | Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG) |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
@@ -117,6 +124,17 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies |
+| initContainerDependencies.waitForRedis.enabled | bool | `true` | Enable wait for Redis init container before starting the main container |
+| initContainerDependencies.waitForRedis.image.registry | string | `""` | Override default wait for Redis init container image |
+| initContainerDependencies.waitForRedis.image.repository | string | `"redis"` |  |
+| initContainerDependencies.waitForRedis.image.tag | string | `"7"` |  |
+| initContainerDependencies.waitForRedis.image.digest | string | `""` |  |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | `"IfNotPresent"` |  |
+| initContainerDependencies.waitForRedis.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
+| initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| initContainerDependencies.waitForRedis.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| initContainerDependencies.waitForRedis.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
 | initContainerDependencies.waitForMySQL.enabled | bool | `true` | Enable wait for MySQL init container before starting the main container |
 | initContainerDependencies.waitForMySQL.image.registry | string | `""` | Override default wait for MySQL init container image |
 | initContainerDependencies.waitForMySQL.image.repository | string | `"mysql"` |  |

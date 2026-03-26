@@ -63,32 +63,12 @@ spec:
 {{- end }}
 
       initContainers:
-{{- if and .Values.initContainerDependencies.enabled .Values.initContainerDependencies.waitForMySQL.enabled }}
-        - name: wait-for-db
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.initContainerDependencies.waitForMySQL.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "waitForMySQL" "context" $) }}
-          imagePullPolicy: {{ .Values.initContainerDependencies.waitForMySQL.image.pullPolicy }}
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              echo "$(date): starting check for db $AGENT_BACKEND_DB_HOST:$AGENT_BACKEND_DB_PORT"
-              until mysql -h "$AGENT_BACKEND_DB_HOST" -P "$AGENT_BACKEND_DB_PORT" -D "$AGENT_BACKEND_DB_NAME" -u"$AGENT_BACKEND_DB_USER" -p"$AGENT_BACKEND_DB_PASSWORD" -e "SELECT VERSION()"; do
-                echo "$(date): see you in 5 seconds"
-                sleep 5
-              done
-              echo "$(date): db server ready"
-          envFrom:
-            - configMapRef:
-                name: {{ include "common.names.fullname" . }}
-          env:
-            - name: AGENT_BACKEND_DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "agent-backend.database.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
-          securityContext: {{- toYaml .Values.initContainerDependencies.waitForMySQL.securityContext | nindent 12 }}
-  {{- if .Values.initContainerDependencies.waitForMySQL.resources }}
-          resources: {{- toYaml .Values.initContainerDependencies.waitForMySQL.resources | nindent 12 }}
+{{- if .Values.initContainerDependencies.enabled }}
+  {{- if .Values.initContainerDependencies.waitForMySQL.enabled }}
+        {{- include "seqera.initContainers.waitForMySQL" (dict "name" "db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database "secretNameTemplate" "agent-backend.database.existingSecret.secretName" "secretKeyTemplate" "agent-backend.database.existingSecret.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
+  {{- end }}
+  {{- if .Values.initContainerDependencies.waitForRedis.enabled }}
+        {{- include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "agent-backend.redis.uri" "secretNameTemplate" "agent-backend.redis.existingSecret.secretName" "secretKeyTemplate" "agent-backend.redis.existingSecret.secretKey" "cloudProviderImageKey" "waitForRedis" "context" $) | nindent 8 }}
   {{- end }}
 {{- end }}
         - name: init
@@ -145,6 +125,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.tokenEncryptionKey.existingSecret.secretKey" . }}
+{{- if or .Values.redis.password .Values.redis.existingSecretName }}
+            - name: AGENT_BACKEND_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agent-backend.redis.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.redis.existingSecret.secretKey" . }}
+{{- end }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

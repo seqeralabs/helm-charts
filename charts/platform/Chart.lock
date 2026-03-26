@@ -7,18 +7,18 @@ dependencies:
   version: 2.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 1.1.0
+  version: 1.1.1
 - name: studios
   repository: file://charts/studios
-  version: 1.2.2
+  version: 1.2.4
 - name: mcp
   repository: file://charts/mcp
-  version: 0.1.0
+  version: 0.1.2
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 0.2.6
+  version: 0.3.0
 - name: portal-web
   repository: file://charts/portal-web
-  version: 0.1.0
-digest: sha256:5bb996e77ae07e6f72fb57596c0d8e6589f01581487554c2b2104351fa7d5685
-generated: "2026-03-23T12:34:56.40836983+01:00"
+  version: 0.1.2
+digest: sha256:8fd5f53a8af53e782d51c968f88ebab7f49f6ffd0dd5b8abb011cd2c4da1886b
+generated: "2026-03-26T11:42:42.871193894+01:00"

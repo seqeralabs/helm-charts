@@ -131,6 +131,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1
@@ -143,6 +144,7 @@ tests:
         username: "agent"
         existingSecretName: "my-secret"
       anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1
@@ -182,6 +184,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1
@@ -194,9 +197,39 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
+      redis.host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1
+
+  # Redis host tests
+  - it: should fail when redis.host is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend Redis host at 'redis.host'\\."
+
+  - it: should fail when both redis.password and redis.existingSecretName are defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      redis.password: "my-redis-password"
+      redis.existingSecretName: "my-redis-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both\\."
 
   # Complete valid configuration test
   - it: should pass with all required values properly set
@@ -207,6 +240,7 @@ tests:
         username: "agent"
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1
@@ -220,6 +254,8 @@ tests:
         username: "agent"
         existingSecretName: "db-secret"
       anthropicApiKeyExistingSecretName: "anthropic-secret"
+      redis.host: "redis.example.com"
+      redis.existingSecretName: "redis-secret"
     asserts:
       - hasDocuments:
           count: 1

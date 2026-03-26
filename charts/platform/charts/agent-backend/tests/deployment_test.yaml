@@ -155,12 +155,15 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.initContainers
-          count: 2
+          count: 3
       - equal:
           path: spec.template.spec.initContainers[0].name
           value: wait-for-db
       - equal:
           path: spec.template.spec.initContainers[1].name
+          value: wait-for-redis
+      - equal:
+          path: spec.template.spec.initContainers[2].name
           value: init
 
   - it: should allow disabling mysql waiting init containers
@@ -171,9 +174,28 @@ tests:
     asserts:
       - lengthEqual:
           path: spec.template.spec.initContainers
-          count: 1
+          count: 2
       - equal:
           path: spec.template.spec.initContainers[0].name
+          value: wait-for-redis
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: init
+
+  - it: should allow disabling redis waiting init containers
+    template: deployment.yaml
+    set:
+      database.password: test-db-password
+      initContainerDependencies.waitForRedis.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[1].name
           value: init
 
   - it: should support custom init containers alongside built-in ones
@@ -182,6 +204,7 @@ tests:
       database.password: test-db-password
       initContainerDependencies.enabled: true
       initContainerDependencies.waitForMySQL.enabled: true
+      initContainerDependencies.waitForRedis.enabled: true
       dbMigrationInitContainer.enabled: true
       initContainers:
         - name: custom-init
@@ -193,9 +216,12 @@ tests:
           value: wait-for-db
       - equal:
           path: spec.template.spec.initContainers[1].name
-          value: init
+          value: wait-for-redis
       - equal:
           path: spec.template.spec.initContainers[2].name
+          value: init
+      - equal:
+          path: spec.template.spec.initContainers[3].name
           value: custom-init
 
   - it: should use external secret for database password
@@ -285,16 +311,25 @@ tests:
     template: deployment.yaml
     set:
       initContainerDependencies.waitForMySQL.enabled: true
+      database.host: mysql.example.com
+      database.port: 3306
+      database.name: agentdb
+      database.username: agent
     asserts:
-      - equal:
-          path: spec.template.spec.initContainers[0].envFrom
-          value:
-            - configMapRef:
-                name: release-name-agent-backend
       - equal:
           path: spec.template.spec.initContainers[0].env
           value:
-            - name: AGENT_BACKEND_DB_PASSWORD
+            - name: SLEEP_PERIOD_SECONDS
+              value: "5"
+            - name: DB_HOST
+              value: mysql.example.com
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_NAME
+              value: agentdb
+            - name: DB_USERNAME
+              value: agent
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: release-name-agent-backend
@@ -304,12 +339,12 @@ tests:
     template: deployment.yaml
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[1].envFrom
+          path: spec.template.spec.initContainers[2].envFrom
           value:
             - configMapRef:
                 name: release-name-agent-backend
       - equal:
-          path: spec.template.spec.initContainers[1].env
+          path: spec.template.spec.initContainers[2].env
           value:
             - name: AGENT_BACKEND_DB_PASSWORD
               valueFrom:
@@ -497,7 +532,7 @@ tests:
               tag: 1.2.3
     asserts:
       - equal:
-          path: spec.template.spec.initContainers[1].image
+          path: spec.template.spec.initContainers[2].image
           value: my-azure-registry.azurecr.io/my-agent-backend:1.2.3
 
   - it: should use azure-specific image for the wait-for-db initContainer
@@ -542,3 +577,54 @@ tests:
       - equal:
           path: spec.template.spec.initContainers[0].image
           value: my-registry-azurecr.io/my-mysql:v9.9.9
+
+  - it: should NOT include AGENT_BACKEND_REDIS_PASSWORD in env when redis.password is not set
+    template: deployment.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: AGENT_BACKEND_REDIS_PASSWORD
+
+  - it: should include AGENT_BACKEND_REDIS_PASSWORD in env when redis.password is set
+    template: deployment.yaml
+    set:
+      redis.password: my-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: AGENT_BACKEND_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: release-name-agent-backend
+                key: AGENT_BACKEND_REDIS_PASSWORD
+
+  - it: should use external secret for Redis password
+    template: deployment.yaml
+    set:
+      redis.existingSecretName: my-redis-secret
+      redis.existingSecretKey: redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: AGENT_BACKEND_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: redis-password
+
+  - it: should use default key when Redis external secret is set without custom key
+    template: deployment.yaml
+    set:
+      redis.existingSecretName: my-redis-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: AGENT_BACKEND_REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: AGENT_BACKEND_REDIS_PASSWORD
