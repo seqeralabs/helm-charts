@@ -29,7 +29,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.clientId: "my-client-id"
     asserts:
       - failedTemplate:
@@ -39,7 +38,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.clientSecretString: "my-client-secret"
     asserts:
       - failedTemplate:
@@ -49,7 +47,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.clientSecretExistingSecretName: "my-client-secret"
     asserts:
       - failedTemplate:
@@ -59,17 +56,37 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
     asserts:
       - hasDocuments:
           count: 1
 
-  # oauth environment: clientId and clientSecret are required
+  # oauth and oauth-platform are mutually exclusive
+  - it: should fail when both oauth and oauth-platform are set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+        - oauth
+    asserts:
+      - failedTemplate:
+          errorPattern: "'oauth-platform' and 'oauth' environments are mutually exclusive and cannot both be set in 'micronautEnvironments'\\."
+
+  # oauth environment: issuerUrl, clientId and clientSecret are required
+  - it: should fail when oauth.issuerUrl is missing with oauth environment
+    set:
+      micronautEnvironments:
+        - oauth
+      oauth.issuerUrl: ""
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "When using 'oauth' environment, 'oauth.issuerUrl' must be set\\."
+
   - it: should fail when oauth.clientId is missing with oauth environment
     set:
       micronautEnvironments:
         - oauth
-        - prod
+      oauth.issuerUrl: "https://custom-auth.example.com"
       oauth.clientId: ""
       oauth.clientSecretString: "my-client-secret"
     asserts:
@@ -80,7 +97,7 @@ tests:
     set:
       micronautEnvironments:
         - oauth
-        - prod
+      oauth.issuerUrl: "https://custom-auth.example.com"
       oauth.clientId: "my-client-id"
       oauth.clientSecretString: ""
       oauth.clientSecretExistingSecretName: ""
@@ -92,7 +109,7 @@ tests:
     set:
       micronautEnvironments:
         - oauth
-        - prod
+      oauth.issuerUrl: "https://custom-auth.example.com"
       oauth.clientId: "my-client-id"
       oauth.clientSecretString: "my-client-secret"
       oauth.clientSecretExistingSecretName: "my-client-secret-name"
@@ -104,7 +121,7 @@ tests:
     set:
       micronautEnvironments:
         - oauth
-        - prod
+      oauth.issuerUrl: "https://custom-auth.example.com"
       oauth.clientId: "my-client-id"
       oauth.clientSecretString: "my-client-secret"
     asserts:
@@ -115,7 +132,7 @@ tests:
     set:
       micronautEnvironments:
         - oauth
-        - prod
+      oauth.issuerUrl: "https://custom-auth.example.com"
       oauth.clientId: "my-client-id"
       oauth.clientSecretExistingSecretName: "my-client-secret-name"
     asserts:
@@ -127,7 +144,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedString: "my-jwt-seed"
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
@@ -138,7 +154,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedString: "my-jwt-seed"
     asserts:
       - hasDocuments:
@@ -148,7 +163,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
       - hasDocuments:
@@ -158,7 +172,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
     asserts:
       - hasDocuments:
           count: 1

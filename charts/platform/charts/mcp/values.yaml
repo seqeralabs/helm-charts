@@ -74,8 +74,9 @@ oidcToken:
 oauth:
   # -- OAuth issuer URL for MCP to authenticate with. This is the URL of the OAuth provider that MCP
   # uses to authenticate and obtain tokens. It is used to discover the provider's public keys and
-  # other details
-  issuerUrl: '{{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) }}'
+  # other details. When using 'oauth-platform' in micronautEnvironments, defaults to the Platform
+  # API endpoint. When using 'oauth', this must be set explicitly
+  issuerUrl: ""
   # -- OAuth audience for MCP to authenticate with. This is the expected audience claim in the
   # tokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this
   # should be set to "platform" to match the audience of the internal client that Platform creates
