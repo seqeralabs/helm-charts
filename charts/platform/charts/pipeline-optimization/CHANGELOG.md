@@ -5,6 +5,17 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-03-27
+
+### Added
+
+- Add `extraEnv` and `extraVolumeMounts` to `initContainerDependencies.waitForMySQL` values, enabling CA certificate mounts and additional env vars in wait init containers
+- `MYSQL_EXTRA_ARGS` example documented under `waitForMySQL.extraEnv` for passing TLS flags such as `--ssl-ca` and `--ssl-mode`
+
+### Changed
+
+- User-supplied `initContainers` now render before built-in `waitFor*` init containers, enabling cert-fetching sidecars to run before dependency checks
+
 ## [1.1.1] - 2026-03-23
 
 ### Changed

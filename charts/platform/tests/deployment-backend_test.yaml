@@ -480,7 +480,7 @@ tests:
       path: spec.template.spec.initContainers
       count: 5
   - equal:
-      path: spec.template.spec.initContainers[3]
+      path: spec.template.spec.initContainers[0]
       value:
         name: extra-init-container1
         image: busybox:latest
@@ -489,7 +489,7 @@ tests:
         - -c
         - echo Hello from extra init container
   - equal:
-      path: spec.template.spec.initContainers[4]
+      path: spec.template.spec.initContainers[1]
       value:
         name: extra-init-container2
         image: alpine:latest
@@ -1145,7 +1145,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.initContainers[1].image
-      value: redis:7
+      value: redis:7-alpine
 
 - it: should evaluate templates in azure override fields for wait-for-Redis initContainer
   template: deployment-backend.yaml
@@ -1204,3 +1204,119 @@ tests:
   - equal:
       path: spec.template.spec.initContainers[2].image
       value: my-registry-azurecr.io/my-curl:v9.9.9
+
+- it: should render extraEnvVars on the wait-for-MySQL init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForMySQL:
+        extraEnvVars:
+          - name: MYSQL_EXTRA_ARGS
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[0].env
+      content:
+        name: MYSQL_EXTRA_ARGS
+        value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+
+- it: should render extraVolumeMounts on the wait-for-MySQL init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForMySQL:
+        extraVolumeMounts:
+          - name: ca-certs
+            mountPath: /certs/ca.pem
+            subPath: ca.pem
+            readOnly: true
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].volumeMounts
+      value:
+        - name: ca-certs
+          mountPath: /certs/ca.pem
+          subPath: ca.pem
+          readOnly: true
+
+- it: should not render volumeMounts on the wait-for-MySQL init container when extraVolumeMounts is empty
+  template: deployment-backend.yaml
+  asserts:
+  - notExists:
+      path: spec.template.spec.initContainers[0].volumeMounts
+
+- it: should render extraEnvVars on the wait-for-Redis init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForRedis:
+        extraEnvVars:
+          - name: MY_EXTRA_VAR
+            value: "some-value"
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[1].env
+      content:
+        name: MY_EXTRA_VAR
+        value: "some-value"
+
+- it: should render extraVolumeMounts on the wait-for-Redis init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForRedis:
+        extraVolumeMounts:
+          - name: ca-certs
+            mountPath: /certs
+            readOnly: true
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[1].volumeMounts
+      value:
+        - name: ca-certs
+          mountPath: /certs
+          readOnly: true
+
+- it: should not render volumeMounts on the wait-for-Redis init container when extraVolumeMounts is empty
+  template: deployment-backend.yaml
+  asserts:
+  - notExists:
+      path: spec.template.spec.initContainers[1].volumeMounts
+
+- it: should render extraEnvVars on the wait-for-cron init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForCron:
+        extraEnvVars:
+          - name: MY_EXTRA_VAR
+            value: "some-value"
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[2].env
+      content:
+        name: MY_EXTRA_VAR
+        value: "some-value"
+
+- it: should render extraVolumeMounts on the wait-for-cron init container
+  template: deployment-backend.yaml
+  set:
+    initContainerDependencies:
+      waitForCron:
+        extraVolumeMounts:
+          - name: ca-certs
+            mountPath: /certs
+            readOnly: true
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[2].volumeMounts
+      value:
+        - name: ca-certs
+          mountPath: /certs
+          readOnly: true
+
+- it: should not render volumeMounts on the wait-for-cron init container when extraVolumeMounts is empty
+  template: deployment-backend.yaml
+  asserts:
+  - notExists:
+      path: spec.template.spec.initContainers[2].volumeMounts

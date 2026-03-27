@@ -4,6 +4,6 @@ dependencies:
   version: 2.37.0
 - name: seqera-common
   repository: file://../../../seqera-common
-  version: 2.0.0
-digest: sha256:7e59842b79aaea2071efb939fc10eb998c5c22a106c0936f4b894a20670e7113
-generated: "2026-03-23T12:35:13.947431065+01:00"
+  version: 2.0.1
+digest: sha256:43b86a4e07dc89877d15a1b55b233c7f787591a1eb6c2dc477bf631529fb9943
+generated: "2026-03-27T11:35:27.257825018+01:00"

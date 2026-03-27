@@ -213,16 +213,100 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: wait-for-db
+          value: custom-init
       - equal:
           path: spec.template.spec.initContainers[1].name
-          value: wait-for-redis
+          value: wait-for-db
       - equal:
           path: spec.template.spec.initContainers[2].name
-          value: init
+          value: wait-for-redis
       - equal:
           path: spec.template.spec.initContainers[3].name
-          value: custom-init
+          value: init
+
+  - it: should render extraEnvVars on the wait-for-MySQL init container
+    template: deployment.yaml
+    set:
+      database.password: test-db-password
+      initContainerDependencies.waitForMySQL.enabled: true
+      initContainerDependencies.waitForMySQL.extraEnvVars:
+        - name: MYSQL_EXTRA_ARGS
+          value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: MYSQL_EXTRA_ARGS
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+
+  - it: should render extraVolumeMounts on the wait-for-MySQL init container
+    template: deployment.yaml
+    set:
+      database.password: test-db-password
+      initContainerDependencies.waitForMySQL.enabled: true
+      initContainerDependencies.waitForMySQL.extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /certs/ca.pem
+          subPath: ca.pem
+          readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs/ca.pem
+              subPath: ca.pem
+              readOnly: true
+
+  - it: should not render volumeMounts on the wait-for-MySQL init container when extraVolumeMounts is empty
+    template: deployment.yaml
+    set:
+      database.password: test-db-password
+      initContainerDependencies.waitForMySQL.enabled: true
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0].volumeMounts
+
+  - it: should render extraEnvVars on the wait-for-Redis init container
+    template: deployment.yaml
+    set:
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainerDependencies.waitForMySQL.enabled: false
+      initContainerDependencies.waitForRedis.extraEnvVars:
+        - name: MY_EXTRA_VAR
+          value: "some-value"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: MY_EXTRA_VAR
+            value: "some-value"
+
+  - it: should render extraVolumeMounts on the wait-for-Redis init container
+    template: deployment.yaml
+    set:
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainerDependencies.waitForMySQL.enabled: false
+      initContainerDependencies.waitForRedis.extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /certs
+          readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs
+              readOnly: true
+
+  - it: should not render volumeMounts on the wait-for-Redis init container when extraVolumeMounts is empty
+    template: deployment.yaml
+    set:
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainerDependencies.waitForMySQL.enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0].volumeMounts
 
   - it: should use external secret for database password
     template: deployment.yaml

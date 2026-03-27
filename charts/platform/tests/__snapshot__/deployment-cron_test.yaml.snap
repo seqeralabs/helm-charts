@@ -75,7 +75,7 @@ should produce a Deployment resource with minimal values:
           - -c
           - |
             echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+            until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" $MYSQL_EXTRA_ARGS -e "SELECT VERSION()"; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
             done
@@ -127,7 +127,7 @@ should produce a Deployment resource with minimal values:
             value: "5"
           - name: REDIS_URI
             value: redis://:6379
-        image: redis:7
+        image: redis:7-alpine
         imagePullPolicy: IfNotPresent
         name: wait-for-redis
         resources:
@@ -307,7 +307,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                 - -c
                 - |
                   echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+                  until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" $MYSQL_EXTRA_ARGS -e "SELECT VERSION()"; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
                   done
@@ -359,7 +359,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                   value: "5"
                 - name: REDIS_URI
                   value: redis://:6379
-              image: redis:7
+              image: redis:7-alpine
               imagePullPolicy: IfNotPresent
               name: wait-for-redis
               resources:

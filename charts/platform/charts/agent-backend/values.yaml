@@ -286,8 +286,8 @@ initContainerDependencies:
     image:
       # -- Override default wait for Redis init container image
       registry: ""
-      repository: "redis"
-      tag: "7"
+      repository: redis
+      tag: 7-alpine
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
@@ -312,13 +312,18 @@ initContainerDependencies:
       limits:
         memory: "100Mi"
 
+    # -- Additional environment variables for the init container
+    extraEnvVars: []
+    # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    extraVolumeMounts: []
+
   waitForMySQL:
     # -- Enable wait for MySQL init container before starting the main container
     enabled: true
     image:
       # -- Override default wait for MySQL init container image
       registry: ""
-      repository: "mysql"
+      repository: mysql
       tag: "9"
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
@@ -343,6 +348,21 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
+
+    # -- Additional environment variables for the init container.
+    # The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness
+    # check command, and can be used to pass TLS flags when connecting to managed MySQL services
+    # such as AWS RDS or Azure Database for MySQL that require certificate verification.
+    # Pair with `extraVolumeMounts` to mount the CA certificate into the container.
+    # Example (TLS with CA certificate mounted from a volume):
+    # extraEnvVars:
+    #   - name: MYSQL_EXTRA_ARGS
+    #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+    extraEnvVars: []
+    # -- Additional volume mounts for the init container. Use this to mount CA certificates
+    # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
+    # `MYSQL_EXTRA_ARGS` can reference them.
+    extraVolumeMounts: []
 
 # Configure extra options for the startup probe
 startupProbe:
