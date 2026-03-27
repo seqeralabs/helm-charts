@@ -1,0 +1,123 @@
+# AWS RDS TLS example — online (CA bundle fetched at pod startup)
+#
+# An extraInitContainer downloads the AWS CA bundle from the AWS trust store
+# into a shared emptyDir volume. The waitForMySQL and waitForRedis init containers
+# then mount that volume and use the certificate for TLS verification.
+#
+# The emptyDir volume and the fetch-aws-ca init container must be declared on every
+# deployment that runs the waitFor* init containers — both backend and cron in this case.
+#
+# Replace the placeholder values below with your actual configuration.
+
+global:
+  platformExternalDomain: platform.example.com
+
+platformDatabase:
+  host: mydb.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com
+  port: 3306
+  name: platformdb
+  username: platformuser
+  connectionOptions:
+    mariadb:
+      - permitMysqlScheme=true
+      # sslMode=verify-full uses SSL/TLS for encryption, does certificate verification, and hostname
+      # verification.
+      - sslMode=verify-full
+      - serverSslCert=/certs/ca-bundle.pem
+
+redis:
+  host: mycluster.xxxxxx.ng.0001.use1.cache.amazonaws.com
+  port: 6379
+  enableTls: true
+
+# The fetch-aws-ca init container and the emptyDir volume must be added to every
+# deployment that uses the waitFor* init containers. For the platform chart that
+# is backend and cron (both run waitForMySQL and waitForRedis).
+backend:
+  extraVolumes:
+    - name: aws-ca-bundle
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: aws-ca-bundle
+      mountPath: /certs
+      readOnly: true
+  # Fetch the AWS CA bundle before the waitFor* init containers run.
+  # User-supplied initContainers are placed before the built-in waitFor* containers,
+  # so the cert will be present on disk when the readiness checks execute.
+  initContainers:
+    - name: fetch-aws-ca
+      image: curlimages/curl:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+        - -c
+        - |
+          curl -sSf \
+            https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem \
+            -o /certs/ca-bundle.pem
+          echo "AWS CA bundle written to /certs/ca-bundle.pem"
+      volumeMounts:
+        - name: aws-ca-bundle
+          mountPath: /certs
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+
+cron:
+  extraVolumes:
+    - name: aws-ca-bundle
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: aws-ca-bundle
+      mountPath: /certs
+      readOnly: true
+  # The migrate-db init container connects to RDS directly using the
+  # platformDatabase.connectionOptions.mariadb settings and also needs the CA cert.
+  dbMigrationInitContainer:
+    extraVolumeMounts:
+      - name: aws-ca-bundle
+        mountPath: /certs
+        readOnly: true
+  initContainers:
+    - name: fetch-aws-ca
+      image: curlimages/curl:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+        - -c
+        - |
+          curl -sSf \
+            https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem \
+            -o /certs/ca-bundle.pem
+          echo "AWS CA bundle written to /certs/ca-bundle.pem"
+      volumeMounts:
+        - name: aws-ca-bundle
+          mountPath: /certs
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        readOnlyRootFilesystem: false
+        capabilities:
+          drop:
+            - ALL
+
+initContainerDependencies:
+  waitForMySQL:
+    extraEnv:
+      - name: MYSQL_EXTRA_ARGS
+        value: "--ssl-ca=/certs/ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
+    extraVolumeMounts:
+      - name: aws-ca-bundle
+        mountPath: /certs
+        readOnly: true
+
+  waitForRedis:
+    # REDISCLI_TLS=1 enables TLS for redis-cli. ElastiCache uses a public CA that is
+    # already trusted by the redis:7-alpine image, so no custom CA cert is needed.
+    extraEnv:
+      - name: REDISCLI_TLS
+        value: "1"

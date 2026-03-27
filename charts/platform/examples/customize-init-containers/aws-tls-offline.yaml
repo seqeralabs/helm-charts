@@ -1,0 +1,88 @@
+# AWS RDS TLS example — offline / air-gapped (CA bundle pre-loaded in a ConfigMap)
+#
+# Before deploying, download the AWS CA bundle for the region where your RDS instances are and store
+# it in a ConfigMap:
+#
+#   curl -sSf \
+#     https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem \
+#     -o aws-rds-us-east-1-ca-bundle.pem
+#
+#   kubectl create configmap aws-rds-us-east-1-ca-bundle \
+#     --from-file=ca-bundle.pem=aws-rds-us-east-1-ca-bundle.pem \
+#     --namespace <your-namespace>
+#
+# The ConfigMap is then mounted directly into the init containers — no init container
+# is needed to fetch the cert at runtime, making this suitable for air-gapped environments.
+#
+# The volume must be declared on every deployment that runs the waitFor* init containers —
+# both backend and cron in this case.
+#
+# More details about AWS RDS TLS configuration:
+# https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html
+#
+# Replace the placeholder values below with your actual configuration.
+
+global:
+  platformExternalDomain: platform.example.com
+
+platformDatabase:
+  host: mydb.cluster-xxxxxxxxxxxx.us-east-1.rds.amazonaws.com
+  port: 3306
+  name: platformdb
+  username: platformuser
+  connectionOptions:
+    mariadb:
+      - permitMysqlScheme=true
+      # verify-full uses SSL/TLS for encryption, does certificate and hostname verification.
+      - sslMode=verify-full
+      - serverSslCert=/certs/ca-bundle.pem
+
+redis:
+  host: mycluster.xxxxxx.ng.0001.use1.cache.amazonaws.com
+  port: 6379
+  enableTls: true
+
+# The ConfigMap volume must be declared on every deployment that uses the waitFor* init
+# containers. For the platform chart that is backend and cron.
+backend:
+  extraVolumes:
+    - name: aws-rds-us-east-1-ca-bundle
+      configMap:
+        name: aws-rds-us-east-1-ca-bundle
+  extraVolumeMounts:
+    - name: aws-rds-us-east-1-ca-bundle
+      mountPath: /certs
+      readOnly: true
+
+cron:
+  extraVolumes:
+    - name: aws-rds-us-east-1-ca-bundle
+      configMap:
+        name: aws-rds-us-east-1-ca-bundle
+  extraVolumeMounts:
+    - name: aws-rds-us-east-1-ca-bundle
+      mountPath: /certs
+      readOnly: true
+  # The migrate-db init container connects to RDS directly and also needs the CA cert.
+  dbMigrationInitContainer:
+    extraVolumeMounts:
+      - name: aws-rds-us-east-1-ca-bundle
+        mountPath: /certs
+        readOnly: true
+
+initContainerDependencies:
+  waitForMySQL:
+    extraEnv:
+      - name: MYSQL_EXTRA_ARGS
+        value: "--ssl-ca=/certs/ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
+    extraVolumeMounts:
+      - name: aws-rds-us-east-1-ca-bundle
+        mountPath: /certs
+        readOnly: true
+
+  waitForRedis:
+    # REDISCLI_TLS=1 enables TLS for redis-cli. ElastiCache uses a public CA that is
+    # already trusted by the redis:7-alpine image, so no custom CA cert is needed.
+    extraEnv:
+      - name: REDISCLI_TLS
+        value: "1"
