@@ -5,6 +5,21 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.4] - 2026-03-27
+
+### Added
+
+- Add `extraEnv` and `extraVolumeMounts` to all `initContainerDependencies.waitFor*` values blocks, enabling CA certificate mounts and additional env vars in wait init containers
+- Add `MYSQL_EXTRA_ARGS` env var support to `waitForMySQL`, enabling TLS flags such as `--ssl-ca` and `--ssl-mode` to be passed to the `mysql` client
+
+### Changed
+
+- User-supplied `initContainers` now render before built-in `waitFor*` init containers in backend, cron, and all subchart deployments, enabling use cases such as fetching CA certificates before dependency checks run
+- Bump seqera-common to 2.0.1
+- Bump agent-backend subchart to 0.3.1
+- Bump pipeline-optimization subchart to 1.1.2
+- Bump studios subchart to 1.2.5
+
 ## [0.28.3] - 2026-03-26
 
 ### Added

@@ -559,6 +559,44 @@ tests:
   - equal:
       path: spec.template.spec.initContainers[0].image
       value: my-registry.example.com/curlimages/curl:latest
+- it: should render extraEnv on the wait-for-Platform init container
+  template: deployment-proxy.yaml
+  set:
+    initContainerDependencies:
+      waitForPlatform:
+        extraEnv:
+          - name: MY_EXTRA_VAR
+            value: "some-value"
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[0].env
+      content:
+        name: MY_EXTRA_VAR
+        value: "some-value"
+
+- it: should render extraVolumeMounts on the wait-for-Platform init container
+  template: deployment-proxy.yaml
+  set:
+    initContainerDependencies:
+      waitForPlatform:
+        extraVolumeMounts:
+          - name: ca-certs
+            mountPath: /certs
+            readOnly: true
+  asserts:
+  - equal:
+      path: spec.template.spec.initContainers[0].volumeMounts
+      value:
+        - name: ca-certs
+          mountPath: /certs
+          readOnly: true
+
+- it: should not render volumeMounts on the wait-for-Platform init container when extraVolumeMounts is empty
+  template: deployment-proxy.yaml
+  asserts:
+  - notExists:
+      path: spec.template.spec.initContainers[0].volumeMounts
+
 - it: should render extraVolumes
   template: deployment-proxy.yaml
   set:

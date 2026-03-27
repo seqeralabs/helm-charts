@@ -331,11 +331,61 @@ tests:
           path: spec.template.spec.initContainers
           count: 5
       - equal:
-          path: spec.template.spec.initContainers[3].name
+          path: spec.template.spec.initContainers[0].name
           value: extra-init-container1
       - equal:
-          path: spec.template.spec.initContainers[4].name
+          path: spec.template.spec.initContainers[1].name
           value: extra-init-container2
+
+  - it: should render extraEnv on the wait-for-MySQL init containers
+    template: deployment.yaml
+    set:
+      initContainerDependencies.waitForMySQL.extraEnv:
+        - name: MYSQL_EXTRA_ARGS
+          value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: MYSQL_EXTRA_ARGS
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+      - contains:
+          path: spec.template.spec.initContainers[1].env
+          content:
+            name: MYSQL_EXTRA_ARGS
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+
+  - it: should render extraVolumeMounts on the wait-for-MySQL init containers
+    template: deployment.yaml
+    set:
+      initContainerDependencies.waitForMySQL.extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /certs/ca.pem
+          subPath: ca.pem
+          readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs/ca.pem
+              subPath: ca.pem
+              readOnly: true
+      - equal:
+          path: spec.template.spec.initContainers[1].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs/ca.pem
+              subPath: ca.pem
+              readOnly: true
+
+  - it: should not render volumeMounts on the wait-for-MySQL init containers when extraVolumeMounts is empty
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0].volumeMounts
+      - notExists:
+          path: spec.template.spec.initContainers[1].volumeMounts
 
   - it: should customize DB migration init container
     template: deployment.yaml

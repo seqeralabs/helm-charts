@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 1.1.1](https://img.shields.io/badge/Version-1.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
+![Version: 1.1.2](https://img.shields.io/badge/Version-1.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 1.1.1 \
+  --version 1.1.2 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -166,6 +166,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForMySQL.extraEnv | list | `[]` | Additional environment variables for the init container. The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness check command, and can be used to pass TLS flags when connecting to managed MySQL services such as AWS RDS or Azure Database for MySQL that require certificate verification. Pair with `extraVolumeMounts` to mount the CA certificate into the container. Example (TLS with CA certificate mounted from a volume): extraEnv:   - name: MYSQL_EXTRA_ARGS     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA" |
+| initContainerDependencies.waitForMySQL.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container. Use this to mount CA certificates (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that `MYSQL_EXTRA_ARGS` can reference them. |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the Platform ServiceAccount to generate |

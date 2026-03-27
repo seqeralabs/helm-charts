@@ -33,7 +33,7 @@ include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"         
     - '-c'
     - |
       echo "$(date): starting check for db $DB_HOST:$DB_PORT"
-      until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" -e "SELECT VERSION()"; do
+      until mysql -h "$DB_HOST" -P "$DB_PORT" -D "$DB_NAME" -u"$DB_USERNAME" -p"$DB_PASSWORD" $MYSQL_EXTRA_ARGS -e "SELECT VERSION()"; do
         echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
         sleep $SLEEP_PERIOD_SECONDS
       done
@@ -54,6 +54,12 @@ include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"         
         secretKeyRef:
           name: {{ include .secretNameTemplate .context }}
           key: {{ include .secretKeyTemplate .context }}
+  {{- if .waitValues.extraEnv }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- end }}
+  {{- if .waitValues.extraVolumeMounts }}
+  volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
+  {{- end }}
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
 {{- end -}}
@@ -90,7 +96,12 @@ include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .
           name: {{ include .secretNameTemplate .context }}
           key: {{ include .secretKeyTemplate .context }}
   {{- end }}
-
+  {{- if .waitValues.extraEnv }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- end }}
+  {{- if .waitValues.extraVolumeMounts }}
+  volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
+  {{- end }}
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
 {{- end -}}
@@ -122,6 +133,12 @@ include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitVal
       value: {{ tpl .platformHost .context | quote }}
     - name: PLATFORM_PORT
       value: {{ .platformPort | int | quote }}
+  {{- if .waitValues.extraEnv }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- end }}
+  {{- if .waitValues.extraVolumeMounts }}
+  volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
+  {{- end }}
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
 {{- end -}}

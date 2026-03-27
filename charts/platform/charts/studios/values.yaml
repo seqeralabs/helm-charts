@@ -410,9 +410,9 @@ initContainerDependencies:
       # -- Wait for Platform init container image registry
       registry: ""
       # -- Wait for Platform init container image repository
-      repository: "curlimages/curl"
+      repository: curlimages/curl
       # -- Wait for Platform init container image tag
-      tag: "latest"
+      tag: latest
       # -- Wait for Platform init container image digest in the format `sha256:1234abcdef`
       digest: ""
       # -- imagePullPolicy for the wait for Platform init container
@@ -437,6 +437,11 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
+
+    # -- Additional environment variables for the init container
+    extraEnv: []
+    # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    extraVolumeMounts: []
 
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on

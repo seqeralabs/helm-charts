@@ -1166,7 +1166,7 @@ initContainerDependencies:
     image:
       # -- Override default wait for MySQL init container image
       registry: ""
-      repository: "mysql"
+      repository: mysql
       tag: "9"
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
@@ -1193,14 +1193,29 @@ initContainerDependencies:
       limits:
         memory: "100Mi"
 
+    # -- Additional environment variables for the init container.
+    # The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness
+    # check command, and can be used to pass TLS flags when connecting to managed MySQL services
+    # such as AWS RDS or Azure Database for MySQL that require certificate verification.
+    # Pair with `extraVolumeMounts` to mount the CA certificate into the container.
+    # Example (TLS with CA certificate mounted from a volume):
+    # extraEnv:
+    #   - name: MYSQL_EXTRA_ARGS
+    #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+    extraEnv: []
+    # -- Additional volume mounts for the init container. Use this to mount CA certificates
+    # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
+    # `MYSQL_EXTRA_ARGS` can reference them.
+    extraVolumeMounts: []
+
   waitForRedis:
     # -- Enable wait for Redis init container before starting backend and cron
     enabled: true
     image:
       # -- Override default wait for Redis init container image
       registry: ""
-      repository: "redis"
-      tag: "7"
+      repository: redis
+      tag: 7-alpine
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
@@ -1225,6 +1240,11 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
+
+    # -- Additional environment variables for the init container
+    extraEnv: []
+    # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    extraVolumeMounts: []
 
   waitForCron:
     # -- Enable wait for Platform cron init container before starting backend
@@ -1232,8 +1252,8 @@ initContainerDependencies:
     image:
       # -- Override default wait for cron init container image
       registry: ""
-      repository: "curlimages/curl"
-      tag: "latest"
+      repository: curlimages/curl
+      tag: latest
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
@@ -1258,6 +1278,11 @@ initContainerDependencies:
         memory: "50Mi"
       limits:
         memory: "100Mi"
+
+    # -- Additional environment variables for the init container
+    extraEnv: []
+    # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    extraVolumeMounts: []
 
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on

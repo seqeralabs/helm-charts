@@ -59,6 +59,9 @@ spec:
 {{- end }}
 
       initContainers:
+{{- with .Values.initContainers }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
         {{- include "seqera.initContainers.waitForMySQL" (dict "name" "pipeline-optimization-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database         "secretNameTemplate" "pipeline-optimization.database.secretName"         "secretKeyTemplate" "pipeline-optimization.database.secretKey"         "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
         {{- include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"              "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "pipeline-optimization.platformDatabase.secretName" "secretKeyTemplate" "pipeline-optimization.platformDatabase.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
@@ -82,9 +85,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "pipeline-optimization.platformDatabase.secretName" . }}
                   key: {{ include "pipeline-optimization.platformDatabase.secretKey" . }}
-{{- with .Values.initContainers }}
-        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-{{- end }}
 
       containers:
         - name: pipeline-optimization

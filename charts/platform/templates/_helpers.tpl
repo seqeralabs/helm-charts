@@ -396,6 +396,12 @@ Return the name of the secret containing the OIDC private key.
     - name: CRON_PORT
       value: {{ $.Values.cron.service.http.port | int | quote }}
 
+    {{- if .extraEnv }}
+    {{- include "seqera.tplvalues.render" (dict "value" .extraEnv "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .extraVolumeMounts }}
+  volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .extraVolumeMounts "context" $) | nindent 4 }}
+    {{- end }}
   securityContext: {{- include "seqera.tplvalues.render" (dict "value" .securityContext) | nindent 4 }}
   resources: {{- include "seqera.tplvalues.render" (dict "value" .resources) | nindent 4 }}
   {{- end -}}
