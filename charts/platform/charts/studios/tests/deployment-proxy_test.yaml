@@ -559,12 +559,12 @@ tests:
   - equal:
       path: spec.template.spec.initContainers[0].image
       value: my-registry.example.com/curlimages/curl:latest
-- it: should render extraEnv on the wait-for-Platform init container
+- it: should render extraEnvVars on the wait-for-Platform init container
   template: deployment-proxy.yaml
   set:
     initContainerDependencies:
       waitForPlatform:
-        extraEnv:
+        extraEnvVars:
           - name: MY_EXTRA_VAR
             value: "some-value"
   asserts:

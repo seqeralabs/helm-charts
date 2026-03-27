@@ -1199,10 +1199,10 @@ initContainerDependencies:
     # such as AWS RDS or Azure Database for MySQL that require certificate verification.
     # Pair with `extraVolumeMounts` to mount the CA certificate into the container.
     # Example (TLS with CA certificate mounted from a volume):
-    # extraEnv:
+    # extraEnvVars:
     #   - name: MYSQL_EXTRA_ARGS
     #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
-    extraEnv: []
+    extraEnvVars: []
     # -- Additional volume mounts for the init container. Use this to mount CA certificates
     # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
     # `MYSQL_EXTRA_ARGS` can reference them.
@@ -1242,7 +1242,7 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
-    extraEnv: []
+    extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
     extraVolumeMounts: []
 
@@ -1280,7 +1280,7 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
-    extraEnv: []
+    extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
     extraVolumeMounts: []
 

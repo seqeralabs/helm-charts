@@ -171,7 +171,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForPlatform.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForPlatform.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForPlatform.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.1","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| initContainerDependencies.waitForPlatform.extraEnv | list | `[]` | Additional environment variables for the init container |
+| initContainerDependencies.waitForPlatform.extraEnvVars | list | `[]` | Additional environment variables for the init container |
 | initContainerDependencies.waitForPlatform.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |

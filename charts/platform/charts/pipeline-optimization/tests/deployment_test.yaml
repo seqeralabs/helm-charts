@@ -337,10 +337,10 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: extra-init-container2
 
-  - it: should render extraEnv on the wait-for-MySQL init containers
+  - it: should render extraEnvVars on the wait-for-MySQL init containers
     template: deployment.yaml
     set:
-      initContainerDependencies.waitForMySQL.extraEnv:
+      initContainerDependencies.waitForMySQL.extraEnvVars:
         - name: MYSQL_EXTRA_ARGS
           value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
     asserts:

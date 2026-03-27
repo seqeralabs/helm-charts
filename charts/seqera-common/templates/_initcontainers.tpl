@@ -54,8 +54,8 @@ include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"         
         secretKeyRef:
           name: {{ include .secretNameTemplate .context }}
           key: {{ include .secretKeyTemplate .context }}
-  {{- if .waitValues.extraEnv }}
-    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- if .waitValues.extraEnvVars }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnvVars "context" .context) | nindent 4 }}
   {{- end }}
   {{- if .waitValues.extraVolumeMounts }}
   volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
@@ -96,8 +96,8 @@ include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .
           name: {{ include .secretNameTemplate .context }}
           key: {{ include .secretKeyTemplate .context }}
   {{- end }}
-  {{- if .waitValues.extraEnv }}
-    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- if .waitValues.extraEnvVars }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnvVars "context" .context) | nindent 4 }}
   {{- end }}
   {{- if .waitValues.extraVolumeMounts }}
   volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
@@ -133,8 +133,8 @@ include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitVal
       value: {{ tpl .platformHost .context | quote }}
     - name: PLATFORM_PORT
       value: {{ .platformPort | int | quote }}
-  {{- if .waitValues.extraEnv }}
-    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnv "context" .context) | nindent 4 }}
+  {{- if .waitValues.extraEnvVars }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnvVars "context" .context) | nindent 4 }}
   {{- end }}
   {{- if .waitValues.extraVolumeMounts }}
   volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}

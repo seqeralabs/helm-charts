@@ -439,7 +439,7 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
-    extraEnv: []
+    extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
     extraVolumeMounts: []
 

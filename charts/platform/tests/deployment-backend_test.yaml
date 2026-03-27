@@ -1205,12 +1205,12 @@ tests:
       path: spec.template.spec.initContainers[2].image
       value: my-registry-azurecr.io/my-curl:v9.9.9
 
-- it: should render extraEnv on the wait-for-MySQL init container
+- it: should render extraEnvVars on the wait-for-MySQL init container
   template: deployment-backend.yaml
   set:
     initContainerDependencies:
       waitForMySQL:
-        extraEnv:
+        extraEnvVars:
           - name: MYSQL_EXTRA_ARGS
             value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
   asserts:
@@ -1245,12 +1245,12 @@ tests:
   - notExists:
       path: spec.template.spec.initContainers[0].volumeMounts
 
-- it: should render extraEnv on the wait-for-Redis init container
+- it: should render extraEnvVars on the wait-for-Redis init container
   template: deployment-backend.yaml
   set:
     initContainerDependencies:
       waitForRedis:
-        extraEnv:
+        extraEnvVars:
           - name: MY_EXTRA_VAR
             value: "some-value"
   asserts:
@@ -1283,12 +1283,12 @@ tests:
   - notExists:
       path: spec.template.spec.initContainers[1].volumeMounts
 
-- it: should render extraEnv on the wait-for-cron init container
+- it: should render extraEnvVars on the wait-for-cron init container
   template: deployment-backend.yaml
   set:
     initContainerDependencies:
       waitForCron:
-        extraEnv:
+        extraEnvVars:
           - name: MY_EXTRA_VAR
             value: "some-value"
   asserts:
