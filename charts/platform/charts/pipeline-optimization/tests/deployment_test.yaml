@@ -342,18 +342,18 @@ tests:
     set:
       initContainerDependencies.waitForMySQL.extraEnv:
         - name: MYSQL_EXTRA_ARGS
-          value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+          value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
     asserts:
       - contains:
           path: spec.template.spec.initContainers[0].env
           content:
             name: MYSQL_EXTRA_ARGS
-            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
       - contains:
           path: spec.template.spec.initContainers[1].env
           content:
             name: MYSQL_EXTRA_ARGS
-            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
 
   - it: should render extraVolumeMounts on the wait-for-MySQL init containers
     template: deployment.yaml

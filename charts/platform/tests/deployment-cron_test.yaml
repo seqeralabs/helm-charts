@@ -1148,13 +1148,13 @@ tests:
       waitForMySQL:
         extraEnv:
           - name: MYSQL_EXTRA_ARGS
-            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+            value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
   asserts:
   - contains:
       path: spec.template.spec.initContainers[0].env
       content:
         name: MYSQL_EXTRA_ARGS
-        value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+        value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
 
 - it: should render extraVolumeMounts on the wait-for-MySQL init container
   template: deployment-cron.yaml

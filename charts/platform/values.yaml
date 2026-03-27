@@ -1201,7 +1201,7 @@ initContainerDependencies:
     # Example (TLS with CA certificate mounted from a volume):
     # extraEnv:
     #   - name: MYSQL_EXTRA_ARGS
-    #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_CA"
+    #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
     extraEnv: []
     # -- Additional volume mounts for the init container. Use this to mount CA certificates
     # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
