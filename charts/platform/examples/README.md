@@ -6,6 +6,7 @@ This directory contains practical examples demonstrating different deployment co
 
 | Example | Description |
 |---------|-------------|
+| [customize-init-containers/](customize-init-containers/) | Customize the dependency synchronization initContainers, e.g. for TLS authentication to AWS RDS by mounting a CA certificate and setting init container environment variables |
 | [high-availability/](high-availability/) | Production HA setup with multiple replicas, Pod Disruption Budgets, pod anti-affinity, and proper resource allocation |
 | [ingress-configurations/](ingress-configurations/) | Various ingress controller setups (NGINX, AWS ALB, GKE, Traefik) with TLS certificate management |
 | [kustomize/](kustomize/) | Using Kustomize for environment-specific configurations and overlays |
