@@ -66,10 +66,10 @@ oidcToken:
   # with the value of the OIDC client registration token from the platform backend secret, so it
   # should not be set in that case. When deploying independently of the platform parent chart, this
   # must be set to the same value defined in the platform backend secret.
-  # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
-  # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
-  # regenerate a new random value on each upgrade, which will break authentication. Always
-  # explicitly set this value or use an existing secret when using Kustomize
+  # WARNING: Always explicitly set this value or use an existing secret when using Kustomize.
+  # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
+  # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
+  # regenerate a new random value on each upgrade, which will break authentication
   tokenString: ""
   # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
   # to the string field. Note: the Secret must already exist in the same namespace at the time of
@@ -94,10 +94,10 @@ oauth:
   # -- JWT seed, defined as string, used to sign authentication tokens.
   # Define the value as a String or a Secret, not both at the same time.
   # If neither is defined, Helm generates a random 35-character string.
-  # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
-  # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
-  # regenerate a new random value on each upgrade, which will break authentication. Always
-  # explicitly set this value or use an existing secret when using Kustomize
+  # WARNING: Always explicitly set this value or use an existing secret when using Kustomize.
+  # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
+  # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
+  # regenerate a new random value on each upgrade, which will break authentication
   jwtSeedString: ""
   # -- Name of an existing Secret containing the JWT seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
