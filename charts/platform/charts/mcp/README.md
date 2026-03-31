@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -15,6 +15,9 @@ RAG-based natural language interactions.
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
+- The domain where Seqera Platform is accessible, set under `.global.platformExternalDomain`. The MCP domain defaults to `mcp.<platformExternalDomain>` but can be overridden with `.global.mcpDomain`.
+- The OIDC client registration token under `.oidcToken.tokenString` (or reference an existing Secret with `.oidcToken.existingSecretName`). When deploying as part of the platform parent chart this is set automatically; when deploying standalone it must match the value configured in the platform backend.
+- A stable JWT seed for signing authentication tokens under `.oauth.jwtSeedString` (or reference an existing Secret with `.oauth.jwtSeedSecretName`). If not set a random value is generated, which is incompatible with Kustomize-based upgrades.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
@@ -34,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/mcp \
-  --version 0.1.2 \
+  --version 0.2.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -60,11 +63,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template. Note: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
-| micronautEnvironments[0] | string | `"oauth-platform"` |  |
+| micronautEnvironments | list | `["oauth-platform"]` | List of Micronaut environments to enable. Evaluated as a template |
 | hubApiEndpoint | string | `"https://hub.seqera.io"` |  |
 | waveApiEndpoint | string | `"https://wave.seqera.io"` |  |
 | registryApiEndpoint | string | `"https://registry.nextflow.io"` |  |
-| oidcToken.tokenString | string | `""` | OIDC client registration token as a string. Used to dynamically register an OAuth client with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random value is generated. When deployed via the platform parent chart, this is auto-wired to the platform backend secret and this value should not be set. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication. Always explicitly set this value or use an existing secret when using Kustomize |
+| oidcToken.tokenString | string | `""` | OIDC client registration token as a string. Used to dynamically register an OAuth client with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random value is generated. When deployed via the platform parent chart, this is automatically defined with the value of the OIDC client registration token from the platform backend secret, so it should not be set in that case. When deploying independently of the platform parent chart, this must be set to the same value defined in the platform backend secret. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication. Always explicitly set this value or use an existing secret when using Kustomize |
 | oidcToken.existingSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | oidcToken.existingSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 | oauth.issuerUrl | string | `"{{ printf \"https://%s/api\" (tpl .Values.global.platformExternalDomain $) }}"` | OAuth issuer URL for MCP to authenticate with. This is the URL of the OAuth provider that MCP uses to authenticate and obtain tokens. It is used to discover the provider's public keys and other details |
@@ -72,10 +75,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | oauth.jwtSeedString | string | `""` | JWT seed, defined as string, used to sign authentication tokens. Define the value as a String or a Secret, not both at the same time. If neither is defined, Helm generates a random 35-character string. WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication. Always explicitly set this value or use an existing secret when using Kustomize |
 | oauth.jwtSeedSecretName | string | `""` | Name of an existing Secret containing the JWT seed, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | oauth.jwtSeedSecretKey | string | `"OAUTH_JWT_SECRET"` | Key in the existing Secret containing the JWT seed |
-| oauth.clientId | string | `""` | OAuth client ID for MCP to authenticate with a custom OAuth server. Not needed if using Seqera Platform as the OAuth provider (by setting 'oauth-platform' in the micronaut environments), as Platform automatically creates an internal client for MCP with the correct permissions (feq with 'oauth') |
-| oauth.clientSecretString | string | `""` | OAuth client secret for MCP to authenticate with a custom OAuth server. Not needed if using Seqera Platform as the OAuth provider, as Platform automatically creates an internal client for MCP with the correct permissions |
-| oauth.clientSecretExistingSecretName | string | `""` | OAuth client secret for MCP defined in an existing Secret, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
-| oauth.clientSecretExistingSecretKey | string | `"OAUTH_CLIENT_SECRET"` | Key in the existing Secret containing the OAuth client secret |
 | image.registry | string | `""` | Container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/mcp"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |

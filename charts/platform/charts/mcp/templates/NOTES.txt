@@ -19,26 +19,6 @@
 
 {{/* We can't put checks in _helpers.tpl, it doesn't make installation fail. */}}
 
-{{- if has "oauth-platform" .Values.micronautEnvironments -}}
-{{- if or .Values.oauth.clientId .Values.oauth.clientSecretString .Values.oauth.clientSecretExistingSecretName -}}
-{{- $message := "When using 'oauth-platform' environment, 'oauth.clientId', 'oauth.clientSecretString' and 'oauth.clientSecretExistingSecretName' must not be set. Platform automatically creates an internal OAuth client for MCP." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- else if has "oauth" .Values.micronautEnvironments -}}
-{{- if not .Values.oauth.clientId -}}
-{{- $message := "When using 'oauth' environment, 'oauth.clientId' must be set." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- if and (not .Values.oauth.clientSecretString) (not .Values.oauth.clientSecretExistingSecretName) -}}
-{{- $message := "When using 'oauth' environment, either 'oauth.clientSecretString' or 'oauth.clientSecretExistingSecretName' must be set." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- if and .Values.oauth.clientSecretString .Values.oauth.clientSecretExistingSecretName -}}
-{{- $message := "Either provide 'oauth.clientSecretString' or an existing secret name in 'oauth.clientSecretExistingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- end -}}
-
 {{- if and .Values.oauth.jwtSeedString .Values.oauth.jwtSeedSecretName -}}
 {{- $message := "Either provide 'oauth.jwtSeedString' or an existing secret name in 'oauth.jwtSeedSecretName', but not both." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}

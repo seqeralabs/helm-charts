@@ -45,9 +45,12 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+# -- List of Micronaut environments to enable. Evaluated as a template
 micronautEnvironments:
-  - oauth-platform # Replace with 'oauth' if using a custom OAuth server instead of Platform
-  # - oauth        # To be used in place of 'oauth-platform' if using a custom OAuth server
+  # The 'oauth-platform' environment enables built-in support for using Seqera Platform as the OAuth
+  # provider, including auto-registration of an internal client with the correct permissions for MCP
+  # and automatic configuration of the issuer URL and audience.
+  - oauth-platform
 
 hubApiEndpoint: https://hub.seqera.io
 waveApiEndpoint: https://wave.seqera.io
@@ -56,8 +59,10 @@ registryApiEndpoint: https://registry.nextflow.io
 oidcToken:
   # -- OIDC client registration token as a string. Used to dynamically register an OAuth client
   # with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random
-  # value is generated. When deployed via the platform parent chart, this is auto-wired to the
-  # platform backend secret and this value should not be set.
+  # value is generated. When deployed via the platform parent chart, this is automatically defined
+  # with the value of the OIDC client registration token from the platform backend secret, so it
+  # should not be set in that case. When deploying independently of the platform parent chart, this
+  # must be set to the same value defined in the platform backend secret.
   # WARNING: Auto-generated random values are incompatible with Kustomize. When upgrading releases
   # via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which will break authentication. Always
@@ -97,21 +102,6 @@ oauth:
   # -- Key in the existing Secret containing the JWT seed
   # @default -- `"OAUTH_JWT_SECRET"`
   jwtSeedSecretKey: ""
-
-  # -- OAuth client ID for MCP to authenticate with a custom OAuth server. Not needed if using
-  # Seqera Platform as the OAuth provider (by setting 'oauth-platform' in the micronaut environments), as Platform automatically creates an internal client for
-  # MCP with the correct permissions (feq with 'oauth')
-  clientId: ""
-  # -- OAuth client secret for MCP to authenticate with a custom OAuth server. Not needed if using
-  # Seqera Platform as the OAuth provider, as Platform automatically creates an internal client for
-  # MCP with the correct permissions
-  clientSecretString: ""
-  # -- OAuth client secret for MCP defined in an existing Secret, as an alternative to the string
-  # field. Note: the Secret must already exist in the same namespace at the time of deployment
-  clientSecretExistingSecretName: ""
-  # -- Key in the existing Secret containing the OAuth client secret
-  # @default -- `"OAUTH_CLIENT_SECRET"`
-  clientSecretExistingSecretKey: ""
 
 image:
   # -- Container image registry

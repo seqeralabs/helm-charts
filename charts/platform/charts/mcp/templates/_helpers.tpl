@@ -58,21 +58,3 @@ Return the name of the secret containing the OIDC client registration token.
     {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
   {{- end -}}
 {{- end -}}
-
-{{/*
-Return the name of the secret containing the MCP OAuth client secret.
-*/}}
-{{- define "mcp.oauth.client.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.oauth.clientSecretExistingSecretName .) -}}
-{{- end -}}
-{{- define "mcp.oauth.client.existingSecret.secretName" -}}
-  {{- include "mcp.oauth.client.existingSecret" . | default (include "common.names.fullname" .) -}}
-{{- end -}}
-
-{{- define "mcp.oauth.client.existingSecret.secretKey" -}}
-  {{- if (include "mcp.oauth.client.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.oauth.clientSecretExistingSecretKey .) | default "OAUTH_CLIENT_SECRET" -}}
-  {{- else -}}
-    {{- printf "OAUTH_CLIENT_SECRET" -}}
-  {{- end -}}
-{{- end -}}
