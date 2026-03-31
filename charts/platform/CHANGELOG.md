@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING** Bump MCP subchart to 0.2.0: removed support for custom OAuth provider. MCP now exclusively uses Seqera Platform as the OAuth provider. Removed values: `oauth.clientId`, `oauth.clientSecretString`, `oauth.clientSecretExistingSecretName`, `oauth.clientSecretExistingSecretKey`
+- Add Seqera AI installation example
+- Refine Seqera AI and MCP wording in documentation
 
 ## [0.28.3] - 2026-03-26
 

@@ -29,7 +29,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedString: "my-jwt-seed"
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
@@ -40,7 +39,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedString: "my-jwt-seed"
     asserts:
       - hasDocuments:
@@ -50,7 +48,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
       - hasDocuments:
@@ -60,7 +57,6 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
-        - prod
     asserts:
       - hasDocuments:
           count: 1

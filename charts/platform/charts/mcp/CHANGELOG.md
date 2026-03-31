@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Refine OAuth and installation wording in chart documentation
 - **BREAKING** Removed support for custom OAuth provider configuration. MCP now exclusively uses Seqera Platform as the OAuth provider. The following values have been removed: `micronautEnvironments` option `oauth`, `oauth.clientId`, `oauth.clientSecretString`, `oauth.clientSecretExistingSecretName`, `oauth.clientSecretExistingSecretKey`
 
 ## [0.1.2] - 2026-03-25

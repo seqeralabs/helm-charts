@@ -52,8 +52,11 @@ micronautEnvironments:
   # and automatic configuration of the issuer URL and audience.
   - oauth-platform
 
+# -- API endpoint of Seqera Hub.
 hubApiEndpoint: https://hub.seqera.io
+# -- API endpoint of Seqera Wave.
 waveApiEndpoint: https://wave.seqera.io
+# -- API endpoint of Seqera Nextflow Registry.
 registryApiEndpoint: https://registry.nextflow.io
 
 oidcToken:
@@ -70,17 +73,17 @@ oidcToken:
   tokenString: ""
   # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
   # to the string field. Note: the Secret must already exist in the same namespace at the time of
-  # deployment
+  # deployment.
   existingSecretName: ""
-  # -- Key in the existing Secret containing the OIDC client registration token
+  # -- Key in the existing Secret containing the OIDC client registration token.
   # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
   existingSecretKey: ""
 
 oauth:
-  # -- OAuth issuer URL for MCP to authenticate with. This is the URL of the OAuth provider that MCP
-  # uses to authenticate and obtain tokens. It is used to discover the provider's public keys and
-  # other details
-  issuerUrl: '{{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) }}'
+  # -- OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform
+  # API endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default
+  # behavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.
+  issuerUrl: ""
   # -- OAuth audience for MCP to authenticate with. This is the expected audience claim in the
   # tokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this
   # should be set to "platform" to match the audience of the internal client that Platform creates
