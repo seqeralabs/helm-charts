@@ -22,6 +22,12 @@ agent-backend:
     existingSecretName: my-already-created-secret
 
   anthropicApiKeyExistingSecretName: my-already-created-secret
+
+  # The following token can be automatically created by the helm chart if not provided, but it
+  # should be set explicitly when using the chart with Kustomize, otherwise it will be regenerated
+  # at each helm upgrade and will cause errors because the encryption key needs to be stable across
+  # upgrades. If created manually, it must be a valid Fernet key, which is a 32-byte URL-safe
+  # base64-encoded string.
   tokenEncryptionKeyExistingSecretName: my-already-created-secret
 
   ingress:
@@ -40,10 +46,18 @@ portal-web:
 mcp:
   enabled: true
 
-  oidcToken:
-    existingSecretName: my-already-created-secret
+  # The initial OIDC client registration token is automatically set to the secret created by the
+  # Platform parent chart, so it doesn't need to be set when installing the chart as part of the
+  # Platform parent chart. When installing the chart independently from the Platform parent chart,
+  # this token needs to be set to the same value as the one defined in the Platform backend secret.
+  # oidcToken:
+  #   existingSecretName: my-already-created-secret
 
   oauth:
+    # The JWT seed is used to sign authentication tokens. The value can be automatically generated
+    # by the helm chart if not provided, but it should be set explicitly when using the chart with
+    # Kustomize, otherwise it will be regenerated at each helm upgrade and may show up as a diff in
+    # the generated manifests.
     jwtSeedSecretName: my-already-created-secret
 
   ingress:
