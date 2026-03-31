@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -35,7 +35,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.3.1 \
+  --version 0.4.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -84,7 +84,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.host | string | `""` | Redis hostname |
 | redis.port | int | `6379` | Redis port |
 | redis.db | int | `0` | Redis database index |
-| redis.tls | bool | `false` | Enable TLS for Redis connection |
+| redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
 | redis.password | string | `""` | Redis password |
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
