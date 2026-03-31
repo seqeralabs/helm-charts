@@ -16,6 +16,10 @@ $ pre-commit install
 $ pre-commit install-hooks
 ```
 
+When staged changes modify files under `charts/`, the local pre-commit hooks will try to draft
+missing `CHANGELOG.md` entries with Claude Code before running the changelog validation hook. If
+the hook rewrites a changelog file, review the generated entry and re-run `git commit`.
+
 To build the charts locally, use `make` from each chart directory.
 
 The charts in this repository use [helm-unittest](https://github.com/helm-unittest/helm-unittest/)
