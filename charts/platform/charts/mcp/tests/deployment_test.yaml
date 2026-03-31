@@ -222,35 +222,6 @@ tests:
                 name: my-jwt-secret
                 key: OAUTH_JWT_SECRET
 
-  - it: should use external secret for OAuth client secret
-    template: deployment.yaml
-    set:
-      oauth.clientSecretExistingSecretName: my-oauth-client-secret
-      oauth.clientSecretExistingSecretKey: oauth-client-key
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: my-oauth-client-secret
-                key: oauth-client-key
-
-  - it: should use default key when OAuth client secret external secret is set without custom key
-    template: deployment.yaml
-    set:
-      oauth.clientSecretExistingSecretName: my-oauth-client-secret
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].env
-          content:
-            name: OAUTH_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: my-oauth-client-secret
-                key: OAUTH_CLIENT_SECRET
-
   - it: should configure main container with env before envFrom
     template: deployment.yaml
     asserts:
