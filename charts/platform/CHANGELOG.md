@@ -5,6 +5,21 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.1] - 2026-03-31
+
+### Changed
+
+- Update documentation warning about Helm-generated random values with Kustomize
+- Update Studios, MCP and agent backend charts to include updates to documentation about Helm-generated random values with Kustomize.
+
+## [0.29.0] - 2026-03-31
+
+### Changed
+
+- **BREAKING** Bump MCP subchart to 0.2.0: removed support for custom OAuth provider. MCP now exclusively uses Seqera Platform as the OAuth provider. Removed values: `oauth.clientId`, `oauth.clientSecretString`, `oauth.clientSecretExistingSecretName`, `oauth.clientSecretExistingSecretKey`
+- Add Seqera AI installation example
+- Refine Seqera AI and MCP wording in documentation
+
 ## [0.28.3] - 2026-03-26
 
 ### Added
@@ -33,12 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated platform chart version to 0.28.0
 - Added new `mcp` subchart to install the Model Context Protocol server
 - Restructured OIDC initial access token functions into Platform chart
-
-## [0.27.9] - 2026-03-19
-
-### Changed
-
-- Updated agent-backend subchart to version 0.2.6
 
 ## [0.27.9] - 2026-03-19
 

@@ -151,6 +151,7 @@ dbMigrationInitContainer:
 
   # -- Command to run to migrate the database schema
   command: ['/opt/groundswell/bin/migrate-db.sh']
+  # -- Arguments to pass to the pod command
   args: []
 
 service:
