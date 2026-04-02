@@ -67,11 +67,13 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-auth0:
-  # -- Required Auth0 domain (e.g. myorg.auth0.com)
-  domain: ""
-  # -- Required Auth0 app client id
-  clientId: ""
+oauth:
+  # -- OAuth endpoint. Evaluated as a template
+  endpoint: '{{ printf "https://%s/api" .Values.global.platformExternalDomain }}'
+  # -- OAuth web client ID
+  clientId: seqera_ai_portal_web
+  # -- OAuth audience
+  audience: platform
 
 service:
   # -- Service type.

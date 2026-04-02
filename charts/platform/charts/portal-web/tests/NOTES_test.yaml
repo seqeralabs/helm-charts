@@ -24,25 +24,7 @@ chart:
   version: 9.9.9
   appVersion: "v9.8.7"
 tests:
-  - it: should fail when auth0.domain is explicitly set to empty string
-    set:
-      auth0.domain: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Auth0 domain at 'auth0.domain'\\."
-
-  - it: should fail when auth0.clientId is explicitly set to empty string
-    set:
-      auth0.domain: myorg.auth0.com
-      auth0.clientId: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Auth0 client ID at 'auth0.clientId'\\."
-
-  - it: should pass when auth0.domain and auth0.clientId are set
-    set:
-      auth0.domain: myorg.auth0.com
-      auth0.clientId: myclientid
+  - it: should render NOTES.txt
     asserts:
       - hasDocuments:
           count: 1

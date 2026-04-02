@@ -55,48 +55,38 @@ tests:
           path: data.SEQERA_AGENT_BACKEND_URL
           value: "https://ai-api.prod.example.com"
 
-  - it: should set AUTH0_DOMAIN from auth0.domain
+  - it: should set SEQERA_AUTH_DOMAIN from oauth.endpoint
     set:
-      auth0.domain: myorg.auth0.com
+      oauth.endpoint: https://myorg.example.com/api
     asserts:
       - equal:
-          path: data.AUTH0_DOMAIN
-          value: myorg.auth0.com
+          path: data.SEQERA_AUTH_DOMAIN
+          value: https://myorg.example.com/api
 
-  - it: should template auth0.domain
+  - it: should template oauth.endpoint using platformExternalDomain
     set:
       global.platformExternalDomain: prod.example.com
-      auth0.domain: '{{ .Values.global.platformExternalDomain }}'
+      oauth.endpoint: '{{ printf "https://%s/api" .Values.global.platformExternalDomain }}'
     asserts:
       - equal:
-          path: data.AUTH0_DOMAIN
-          value: prod.example.com
+          path: data.SEQERA_AUTH_DOMAIN
+          value: https://prod.example.com/api
 
-  - it: should template complex auth0.domain
+  - it: should set SEQERA_AUTH_WEB_CLIENT_ID from oauth.clientId
     set:
-      global.platformExternalDomain: prod.example.com
-      auth0.domain: '{{ printf "%d.%s" 4 .Values.global.platformExternalDomain }}'
+      oauth.clientId: my-client-id
     asserts:
       - equal:
-          path: data.AUTH0_DOMAIN
-          value: 4.prod.example.com
-
-  - it: should set AUTH0_CLIENT_ID from auth0.clientId
-    set:
-      auth0.clientId: my-client-id
-    asserts:
-      - equal:
-          path: data.AUTH0_CLIENT_ID
+          path: data.SEQERA_AUTH_WEB_CLIENT_ID
           value: my-client-id
 
-  - it: should template AUTH0_CLIENT_ID from auth0.clientId
+  - it: should set SEQERA_AUTH_AUDIENCE from oauth.audience
     set:
-      global.platformExternalDomain: prod.example.com
-      auth0.clientId: '{{ printf "%s-client-id" .Values.global.platformExternalDomain }}'
+      oauth.audience: my-audience
     asserts:
       - equal:
-          path: data.AUTH0_CLIENT_ID
-          value: prod.example.com-client-id
+          path: data.SEQERA_AUTH_AUDIENCE
+          value: my-audience
 
   - it: should apply commonLabels
     set:
