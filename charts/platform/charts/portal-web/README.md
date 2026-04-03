@@ -2,7 +2,7 @@
 
 Portal web frontend for Seqera Platform
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -13,10 +13,8 @@ Portal web frontend for Seqera Platform
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
+- The `.global.platformExternalDomain` value to point to the domain where Seqera Platform will be exposed.
 - The `.image` section to point to your container registry.
-- Auth0 credentials under the `.auth0` section:
-  * `.auth0.domain`: your Auth0 domain (e.g. `myorg.auth0.com`)
-  * `.auth0.clientId`: your Auth0 application client ID
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
@@ -33,7 +31,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/portal-web \
-  --version 0.1.2 \
+  --version 0.2.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -66,8 +64,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| auth0.domain | string | `""` | Required Auth0 domain (e.g. myorg.auth0.com) |
-| auth0.clientId | string | `""` | Required Auth0 app client id |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | service.http.name | string | `"http"` | Service name to use |
 | service.http.port | int | `80` | Service port |

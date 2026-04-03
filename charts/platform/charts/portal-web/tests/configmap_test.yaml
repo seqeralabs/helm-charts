@@ -55,49 +55,6 @@ tests:
           path: data.SEQERA_AGENT_BACKEND_URL
           value: "https://ai-api.prod.example.com"
 
-  - it: should set AUTH0_DOMAIN from auth0.domain
-    set:
-      auth0.domain: myorg.auth0.com
-    asserts:
-      - equal:
-          path: data.AUTH0_DOMAIN
-          value: myorg.auth0.com
-
-  - it: should template auth0.domain
-    set:
-      global.platformExternalDomain: prod.example.com
-      auth0.domain: '{{ .Values.global.platformExternalDomain }}'
-    asserts:
-      - equal:
-          path: data.AUTH0_DOMAIN
-          value: prod.example.com
-
-  - it: should template complex auth0.domain
-    set:
-      global.platformExternalDomain: prod.example.com
-      auth0.domain: '{{ printf "%d.%s" 4 .Values.global.platformExternalDomain }}'
-    asserts:
-      - equal:
-          path: data.AUTH0_DOMAIN
-          value: 4.prod.example.com
-
-  - it: should set AUTH0_CLIENT_ID from auth0.clientId
-    set:
-      auth0.clientId: my-client-id
-    asserts:
-      - equal:
-          path: data.AUTH0_CLIENT_ID
-          value: my-client-id
-
-  - it: should template AUTH0_CLIENT_ID from auth0.clientId
-    set:
-      global.platformExternalDomain: prod.example.com
-      auth0.clientId: '{{ printf "%s-client-id" .Values.global.platformExternalDomain }}'
-    asserts:
-      - equal:
-          path: data.AUTH0_CLIENT_ID
-          value: prod.example.com-client-id
-
   - it: should apply commonLabels
     set:
       commonLabels:
