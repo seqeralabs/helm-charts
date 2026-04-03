@@ -67,14 +67,6 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-oauth:
-  # -- OAuth endpoint. Evaluated as a template
-  endpoint: '{{ printf "https://%s/api" .Values.global.platformExternalDomain }}'
-  # -- OAuth web client ID
-  clientId: seqera_ai_portal_web
-  # -- OAuth audience
-  audience: platform
-
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort

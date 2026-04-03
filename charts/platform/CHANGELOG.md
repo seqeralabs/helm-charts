@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated portal-web subchart to version 0.1.3
+- **BREAKING** - Updated portal-web subchart to 0.2.0: removed configurable OAuth values (`oauth.endpoint`, `oauth.clientId`, `oauth.audience`) from portal-web subchart. Auth domain is now derived from `global.platformExternalDomain`, and client ID and audience are hardcoded to fixed values.
 
 ## [0.29.1] - 2026-03-31
 

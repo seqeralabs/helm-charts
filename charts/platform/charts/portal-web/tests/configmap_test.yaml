@@ -55,39 +55,6 @@ tests:
           path: data.SEQERA_AGENT_BACKEND_URL
           value: "https://ai-api.prod.example.com"
 
-  - it: should set SEQERA_AUTH_DOMAIN from oauth.endpoint
-    set:
-      oauth.endpoint: https://myorg.example.com/api
-    asserts:
-      - equal:
-          path: data.SEQERA_AUTH_DOMAIN
-          value: https://myorg.example.com/api
-
-  - it: should template oauth.endpoint using platformExternalDomain
-    set:
-      global.platformExternalDomain: prod.example.com
-      oauth.endpoint: '{{ printf "https://%s/api" .Values.global.platformExternalDomain }}'
-    asserts:
-      - equal:
-          path: data.SEQERA_AUTH_DOMAIN
-          value: https://prod.example.com/api
-
-  - it: should set SEQERA_AUTH_WEB_CLIENT_ID from oauth.clientId
-    set:
-      oauth.clientId: my-client-id
-    asserts:
-      - equal:
-          path: data.SEQERA_AUTH_WEB_CLIENT_ID
-          value: my-client-id
-
-  - it: should set SEQERA_AUTH_AUDIENCE from oauth.audience
-    set:
-      oauth.audience: my-audience
-    asserts:
-      - equal:
-          path: data.SEQERA_AUTH_AUDIENCE
-          value: my-audience
-
   - it: should apply commonLabels
     set:
       commonLabels:

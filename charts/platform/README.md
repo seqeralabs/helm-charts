@@ -66,7 +66,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | file://charts/agent-backend | agent-backend | 0.3.x |
 | file://charts/mcp | mcp | 0.2.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 1.x.x |
-| file://charts/portal-web | portal-web | 0.1.x |
+| file://charts/portal-web | portal-web | 0.2.x |
 | file://charts/studios | studios | 1.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 

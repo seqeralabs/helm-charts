@@ -4,11 +4,11 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.1.3] - 2026-04-02
+## [0.2.0] - 2026-04-03
 
 ### Changed
 
-- Remove auth0 values and add generic oauth variables instead.
+- Hardcode OAuth configuration values (`SEQERA_AUTH_DOMAIN`, `SEQERA_AUTH_WEB_CLIENT_ID`, `SEQERA_AUTH_AUDIENCE`) in the configmap template to use the `global.platformExternalDomain` value and remove the corresponding `auth0` values block from `values.yaml`.
 
 ## [0.1.2] - 2026-03-25
 

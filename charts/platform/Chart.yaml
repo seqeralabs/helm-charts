@@ -81,7 +81,7 @@ dependencies:
       - agent-backend
     condition: agent-backend.enabled
   - name: portal-web
-    version: "0.1.x"
+    version: "0.2.x"
     repository: "file://charts/portal-web"
     tags:
       - portal-web
