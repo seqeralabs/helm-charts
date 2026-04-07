@@ -142,7 +142,7 @@ tests:
       redis.host: redis.example.com
       redis.port: 6380
       redis.db: 5
-      redis.tls: true
+      redis.enableTls: true
     asserts:
       - equal:
           path: data.AGENT_BACKEND_REDIS_HOST

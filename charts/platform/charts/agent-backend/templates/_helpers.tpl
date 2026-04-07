@@ -83,7 +83,7 @@ Return the Redis URI for the wait-for-redis init container.
 */}}
 {{- define "agent-backend.redis.uri" -}}
   {{- printf "%s://%s:%d"
-  (ternary "rediss" "redis" (.Values.redis.tls | toString | eq "true"))
+  (ternary "rediss" "redis" (.Values.redis.enableTls | toString | eq "true"))
   (tpl .Values.redis.host .)
   (.Values.redis.port | int)
   -}}

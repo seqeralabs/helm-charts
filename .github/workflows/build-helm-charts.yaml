@@ -21,10 +21,12 @@ jobs:
         with:
           json: true
           write_output_files: true
+
       - name: Set up Helm
         run: |
-          wget -q https://get.helm.sh/helm-v3.19.0-linux-amd64.tar.gz
-          tar -zxf helm-v3.19.0-linux-amd64.tar.gz
+          curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-v3.20.1-linux-amd64.tar.gz
+          echo "0165ee4a2db012cc657381001e593e981f42aa5707acdd50658326790c9d0dc3  helm.tar.gz" | sha256sum -c
+          tar -xzf helm.tar.gz
           sudo mv linux-amd64/helm /usr/local/bin/helm
 
       - name: Extract list of changed Helm charts

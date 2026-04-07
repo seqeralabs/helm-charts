@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2026-03-31
+
+### Changed
+
+- Bumped bitnami/common dependency to 2.38.0
+- **BREAKING** Rename `redis.tls` value to `redis.enableTls`
+
 ## [0.3.1] - 2026-03-31
 
 ### Changed

@@ -4,6 +4,12 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.1] - 2026-04-07
+
+### Changed
+
+- Bumped bitnami/common dependency to 2.38.0
+
 ## [0.2.0] - 2026-04-03
 
 ### Changed
