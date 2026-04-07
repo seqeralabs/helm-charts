@@ -9,7 +9,7 @@ jobs:
   check-if-version-is-available-and-update-helm-chart:
     name: 'Update Helm chart'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 15
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,16 +68,46 @@ jobs:
         if: env.charts_to_package != ''
         run: python3 .github/scripts/check_subchart_version_coverage.py
 
+      - name: Install crane
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        uses: imjasonh/setup-crane@6da1ae018866400525525ce74ff892880c099987 # ratchet:imjasonh/setup-crane@v0.5
+
       - name: 'Push Helm charts only if we are on master'
         if: github.ref_name == 'master' && env.charts_to_package != ''
         shell: bash
+        env:
+          REPO_HOSTNAME: ${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}
+          REPO_PROJECT: ${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}
+          REPO_USERNAME: ${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}
+          REPO_PASSWORD: ${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}
         run: |
+          pushed_digests=()
+
+          rollback() {
+            if [ ${#pushed_digests[@]} -eq 0 ]; then
+              return
+            fi
+            echo "Push failed — rolling back ${#pushed_digests[@]} already-pushed chart(s)..."
+            crane auth login "${REPO_HOSTNAME}" --username "${REPO_USERNAME}" --password "${REPO_PASSWORD}"
+            for digest_ref in "${pushed_digests[@]}"; do
+              echo "Deleting ${digest_ref}..."
+              crane delete "${digest_ref}" || echo "WARNING: Failed to delete ${digest_ref}, manual cleanup may be required"
+            done
+          }
+
           for chart in $charts_to_package; do
             chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             echo "Pushing chart ${chart} (${chart_name}), version ${chart_version} ($(du -sh ${chart_name}-${chart_version}.tgz | cut -f1)).."
             push_start=$(date +%s)
-            helm push ${chart_name}-${chart_version}.tgz "oci://${{vars.SEQERA_HELM_CHARTS_CR_HOSTNAME}}/${{vars.SEQERA_HELM_CHARTS_CR_PROJECT}}/" --username '${{vars.SEQERA_HELM_CHARTS_CR_USERNAME}}' --password '${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}' --debug
+            push_output=$(helm push ${chart_name}-${chart_version}.tgz "oci://${REPO_HOSTNAME}/${REPO_PROJECT}/" --username "${REPO_USERNAME}" --password "${REPO_PASSWORD}" --debug 2>&1) || {
+              echo "${push_output}"
+              rollback
+              exit 1
+            }
+            echo "${push_output}"
+            digest=$(echo "${push_output}" | grep -oP 'Digest: \K\S+')
+            pushed_digests+=("${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}")
             echo "Pushed chart ${chart_name} in $(($(date +%s) - push_start))s"
           done
 
