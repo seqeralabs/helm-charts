@@ -86,3 +86,25 @@ initContainerDependencies:
     extraEnv:
       - name: REDISCLI_TLS
         value: "1"
+
+pipeline-optimization:
+  enabled: true
+  extraVolumes:
+    - name: aws-rds-us-east-1-ca-bundle
+      configMap:
+        name: aws-rds-us-east-1-ca-bundle
+
+  extraVolumeMounts:
+    - name: aws-rds-us-east-1-ca-bundle
+      mountPath: /certs
+      readOnly: true
+
+  database:
+    # pipeline-optimization db details
+    enableTls: true
+    sslCa: /certs/ca-bundle.pem
+
+  platformDatabase:
+    # platform db details
+    enableTls: true
+    sslCa: /certs/ca-bundle.pem
