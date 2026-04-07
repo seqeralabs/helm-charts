@@ -66,6 +66,13 @@ database:
   # database
   # @default -- `"AGENT_BACKEND_DB_PASSWORD"`
   existingSecretKey: ""
+  # -- Enable TLS for the MySQL database connection
+  enableTls: false
+  # -- Verify the CA certificate when connecting via TLS (set to false to skip verification,
+  # insecure - for development/testing only)
+  tlsCaVerify: true
+  # -- Path to a CA certificate file for server certificate verification
+  sslCa: ""
 
 image:
   # -- Container image registry

@@ -480,9 +480,9 @@ tests:
       - notExists:
           path: data.SWELL_DB_SSL_ENABLED
 
-  - it: should set SWELL_DB_SSL_NOVERIFY when database.sslNoverify is true
+  - it: should set SWELL_DB_SSL_NOVERIFY when database.tlsCaVerify is false
     set:
-      database.sslNoverify: true
+      database.tlsCaVerify: false
     asserts:
       - equal:
           path: data.SWELL_DB_SSL_NOVERIFY
@@ -559,9 +559,9 @@ tests:
       - notExists:
           path: data.TOWER_DB_SSL_ENABLED
 
-  - it: should set TOWER_DB_SSL_NOVERIFY when platformDatabase.sslNoverify is true
+  - it: should set TOWER_DB_SSL_NOVERIFY when platformDatabase.tlsCaVerify is false
     set:
-      platformDatabase.sslNoverify: true
+      platformDatabase.tlsCaVerify: false
     asserts:
       - equal:
           path: data.TOWER_DB_SSL_NOVERIFY

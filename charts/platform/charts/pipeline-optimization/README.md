@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 1.1.4](https://img.shields.io/badge/Version-1.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
+![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 1.1.4 \
+  --version 2.0.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -70,7 +70,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.existingSecretKey | string | `"SWELL_DB_PASSWORD"` | Key in the existing Secret containing the password for the Pipeline Optimization MySQL database |
 | database.dialect | string | `"mysql"` | Pipeline Optimization database dialect. Currently only 'mysql' is supported |
 | database.enableTls | bool | `true` | Enable TLS for the Pipeline Optimization MySQL database connection |
-| database.sslNoverify | bool | `false` | Skip TLS certificate verification (insecure, for development/testing only) |
+| database.tlsCaVerify | bool | `true` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
 | database.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
 | database.sslCert | string | `""` | Path to a client certificate file for mutual TLS authentication |
 | database.sslKey | string | `""` | Path to a client key file for mutual TLS authentication |
@@ -82,7 +82,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platformDatabase.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the Platform MySQL database, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | platformDatabase.existingSecretKey | string | `"TOWER_DB_PASSWORD"` | Key in the existing Secret containing the password for the Platform MySQL database |
 | platformDatabase.enableTls | bool | `true` | Enable TLS for the Platform MySQL database connection |
-| platformDatabase.sslNoverify | bool | `false` | Skip TLS certificate verification (insecure, for development/testing only) |
+| platformDatabase.tlsCaVerify | bool | `true` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
 | platformDatabase.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
 | platformDatabase.sslCert | string | `""` | Path to a client certificate file for mutual TLS authentication |
 | platformDatabase.sslKey | string | `""` | Path to a client key file for mutual TLS authentication |

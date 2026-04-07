@@ -70,8 +70,9 @@ database:
   dialect: mysql
   # -- Enable TLS for the Pipeline Optimization MySQL database connection
   enableTls: true
-  # -- Skip TLS certificate verification (insecure, for development/testing only)
-  sslNoverify: false
+  # -- Verify the CA certificate when connecting via TLS (set to false to skip verification,
+  # insecure - for development/testing only)
+  tlsCaVerify: true
   # -- Path to a CA certificate file for server certificate verification
   sslCa: ""
   # -- Path to a client certificate file for mutual TLS authentication
@@ -102,8 +103,9 @@ platformDatabase:
   existingSecretKey: ""
   # -- Enable TLS for the Platform MySQL database connection
   enableTls: true
-  # -- Skip TLS certificate verification (insecure, for development/testing only)
-  sslNoverify: false
+  # -- Verify the CA certificate when connecting via TLS (set to false to skip verification,
+  # insecure - for development/testing only)
+  tlsCaVerify: true
   # -- Path to a CA certificate file for server certificate verification
   sslCa: ""
   # -- Path to a client certificate file for mutual TLS authentication

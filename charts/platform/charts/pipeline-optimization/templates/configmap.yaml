@@ -37,7 +37,7 @@ data:
 {{- if .Values.database.enableTls }}
   SWELL_DB_SSL_ENABLED: "true"
 {{- end }}
-{{- if .Values.database.sslNoverify }}
+{{- if not .Values.database.tlsCaVerify }}
   SWELL_DB_SSL_NOVERIFY: "true"
 {{- end }}
 {{- if .Values.database.sslCa }}
@@ -58,7 +58,7 @@ data:
 {{- if .Values.platformDatabase.enableTls }}
   TOWER_DB_SSL_ENABLED: "true"
 {{- end }}
-{{- if .Values.platformDatabase.sslNoverify }}
+{{- if not .Values.platformDatabase.tlsCaVerify }}
   TOWER_DB_SSL_NOVERIFY: "true"
 {{- end }}
 {{- if .Values.platformDatabase.sslCa }}
