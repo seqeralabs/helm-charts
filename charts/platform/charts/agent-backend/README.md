@@ -69,6 +69,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.password | string | `""` | MySQL database password |
 | database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
 | database.existingSecretKey | string | `"AGENT_BACKEND_DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
+| database.enableTls | bool | `false` | Enable TLS for the MySQL database connection |
+| database.tlsCaVerify | bool | `true` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
+| database.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
 | image.registry | string | `""` | Container image registry |
 | image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |

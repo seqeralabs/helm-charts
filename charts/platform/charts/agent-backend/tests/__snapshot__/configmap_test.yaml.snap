@@ -5,6 +5,8 @@ should render a ConfigMap with default values:
       AGENT_BACKEND_DB_HOST: mysql.default.svc.cluster.local
       AGENT_BACKEND_DB_NAME: agentdb
       AGENT_BACKEND_DB_PORT: "3306"
+      AGENT_BACKEND_DB_TLS: "false"
+      AGENT_BACKEND_DB_TLS_CA_VERIFY: "true"
       AGENT_BACKEND_DB_USER: agent
       AGENT_BACKEND_PORT: "8002"
       AGENT_BACKEND_REDIS_DB: "0"

@@ -39,6 +39,11 @@ data:
   AGENT_BACKEND_DB_PORT: {{ .Values.database.port | quote }}
   AGENT_BACKEND_DB_NAME: {{ tpl .Values.database.name . | quote }}
   AGENT_BACKEND_DB_USER: {{ tpl .Values.database.username . | quote }}
+  AGENT_BACKEND_DB_TLS: {{ .Values.database.enableTls | quote }}
+  AGENT_BACKEND_DB_TLS_CA_VERIFY: {{ .Values.database.tlsCaVerify | quote }}
+{{- if .Values.database.sslCa }}
+  AGENT_BACKEND_DB_TLS_CA: {{ tpl .Values.database.sslCa . | quote }}
+{{- end }}
 
   AGENT_BACKEND_REDIS_HOST: {{ tpl .Values.redis.host . | quote }}
   AGENT_BACKEND_REDIS_PORT: {{ .Values.redis.port | quote }}

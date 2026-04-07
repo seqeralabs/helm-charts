@@ -132,6 +132,68 @@ tests:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "false"
 
+  - it: should set AGENT_BACKEND_DB_TLS to false by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "false"
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
+          value: "true"
+      - notExists:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+
+  - it: should set AGENT_BACKEND_DB_TLS to true when enableTls is set
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      database.enableTls: true
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "true"
+      - notExists:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+
+  - it: should set AGENT_BACKEND_DB_TLS_CA_VERIFY to false when tlsCaVerify is false
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      database.tlsCaVerify: false
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
+          value: "false"
+
+  - it: should set AGENT_BACKEND_DB_TLS_CA when sslCa is provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      database.enableTls: true
+      database.sslCa: /certs/ca.pem
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "true"
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+          value: "/certs/ca.pem"
+
   - it: should contain custom Redis configuration
     set:
       global.platformExternalDomain: test.example.com
