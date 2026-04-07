@@ -5,6 +5,17 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-03-27
+
+### Added
+
+- Add `extraEnv` and `extraVolumeMounts` support to all `seqera.initContainers.waitFor*` helpers, allowing callers to mount CA certificates or inject additional environment variables into init containers
+- Add `MYSQL_EXTRA_ARGS` env var interpolation to `seqera.initContainers.waitForMySQL` command, enabling TLS flags such as `--ssl-ca` and `--ssl-mode` to be passed at runtime
+
+### Changed
+
+- User-supplied `initContainers` now render before the built-in `waitFor*` init containers in all deployments, enabling use cases such as fetching CA certificates before dependency checks run
+
 ## [2.0.0] - 2026-02-20
 
 ### Changed

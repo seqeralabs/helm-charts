@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.29.3](https://img.shields.io/badge/Version-0.29.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
+![Version: 0.29.4](https://img.shields.io/badge/Version-0.29.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.29.3 \
+  --version 0.29.4 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -391,10 +391,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForMySQL.extraEnvVars | list | `[]` | Additional environment variables for the init container. The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness check command, and can be used to pass TLS flags when connecting to managed MySQL services such as AWS RDS or Azure Database for MySQL that require certificate verification. Pair with `extraVolumeMounts` to mount the CA certificate into the container. Example (TLS with CA certificate mounted from a volume): extraEnvVars:   - name: MYSQL_EXTRA_ARGS     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY" |
+| initContainerDependencies.waitForMySQL.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container. Use this to mount CA certificates (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that `MYSQL_EXTRA_ARGS` can reference them. |
 | initContainerDependencies.waitForRedis.enabled | bool | `true` | Enable wait for Redis init container before starting backend and cron |
 | initContainerDependencies.waitForRedis.image.registry | string | `""` | Override default wait for Redis init container image |
 | initContainerDependencies.waitForRedis.image.repository | string | `"redis"` |  |
-| initContainerDependencies.waitForRedis.image.tag | string | `"7"` |  |
+| initContainerDependencies.waitForRedis.image.tag | string | `"7-alpine"` |  |
 | initContainerDependencies.waitForRedis.image.digest | string | `""` |  |
 | initContainerDependencies.waitForRedis.image.pullPolicy | string | `"IfNotPresent"` |  |
 | initContainerDependencies.waitForRedis.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
@@ -402,6 +404,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForRedis.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForRedis.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForRedis.extraEnvVars | list | `[]` | Additional environment variables for the init container |
+| initContainerDependencies.waitForRedis.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
 | initContainerDependencies.waitForCron.enabled | bool | `true` | Enable wait for Platform cron init container before starting backend |
 | initContainerDependencies.waitForCron.image.registry | string | `""` | Override default wait for cron init container image |
 | initContainerDependencies.waitForCron.image.repository | string | `"curlimages/curl"` |  |
@@ -413,6 +417,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForCron.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
 | initContainerDependencies.waitForCron.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | initContainerDependencies.waitForCron.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForCron.extraEnvVars | list | `[]` | Additional environment variables for the init container |
+| initContainerDependencies.waitForCron.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
 | serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
 | serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |

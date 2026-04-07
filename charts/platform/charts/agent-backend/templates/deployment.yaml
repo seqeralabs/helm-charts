@@ -63,6 +63,9 @@ spec:
 {{- end }}
 
       initContainers:
+{{- with .Values.initContainers }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
   {{- if .Values.initContainerDependencies.waitForMySQL.enabled }}
         {{- include "seqera.initContainers.waitForMySQL" (dict "name" "db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database "secretNameTemplate" "agent-backend.database.existingSecret.secretName" "secretKeyTemplate" "agent-backend.database.existingSecret.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
@@ -96,9 +99,6 @@ spec:
           resources: {{- toYaml .Values.dbMigrationInitContainer.resources | nindent 12 }}
 {{- end }}
 
-{{- with .Values.initContainers }}
-        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-{{- end }}
       containers:
         - name: agent-backend
           image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}

@@ -69,6 +69,9 @@ spec:
 {{- end }}
 
       initContainers:
+{{- with .Values.cron.initContainers }}
+        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+{{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
         {{- include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.platformDatabase "secretNameTemplate" "platform.database.secretName" "secretKeyTemplate" "platform.database.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
         {{- include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "platform.redis.uri" "secretNameTemplate" "platform.redis.secretName" "secretKeyTemplate" "platform.redis.secretKey" "cloudProviderImageKey" "waitForRedis" "context" $) | nindent 8 }}
@@ -117,9 +120,6 @@ spec:
             - name: config-volume
               mountPath: /tower.yml
               subPath: tower.yml
-{{- with .Values.cron.initContainers }}
-        {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
-{{- end }}
 
       containers:
         - name: cron
