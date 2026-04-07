@@ -56,7 +56,7 @@ jobs:
           sudo mv linux-amd64/helm /usr/local/bin/helm
 
       - name: Login to Seqera CR
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # ratchet:docker/login-action@v4.0.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # ratchet:docker/login-action@v4.1.0
         with:
           username: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_USERNAME }}
           password: ${{ secrets.SEQERA_CR_PULL_CREDENTIALS_PASSWORD }}
@@ -79,7 +79,7 @@ jobs:
           aws-region: eu-west-1
 
       - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@183a1442edf41672e66566b7fc560e297a290896 # ratchet:aws-actions/amazon-ecr-login@v2.1.1
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # ratchet:aws-actions/amazon-ecr-login@v2.1.2
 
       - name: Install Skopeo
         run: |

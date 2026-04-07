@@ -5,17 +5,18 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.29.3] - 2026-03-31
-
-### Changed
-
-- Bumped bitnami/common dependency to 2.38.0 across all subcharts
-
-## [0.29.2] - 2026-03-31
+## [0.29.3] - 2026-04-07
 
 ### Changed
 
 - Bump `agent-backend` subchart to 0.4.0: renamed `redis.tls` to `redis.enableTls`
+- Bumped bitnami/common dependency to 2.38.0 across all subcharts
+
+## [0.29.2] - 2026-04-02
+
+### Changed
+
+- **BREAKING** - Updated portal-web subchart to 0.2.0: removed configurable OAuth values (`oauth.endpoint`, `oauth.clientId`, `oauth.audience`) from portal-web subchart. Auth domain is now derived from `global.platformExternalDomain`, and client ID and audience are hardcoded to fixed values.
 
 ## [0.29.1] - 2026-03-31
 

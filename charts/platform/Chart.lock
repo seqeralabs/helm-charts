@@ -19,6 +19,6 @@ dependencies:
   version: 0.4.1
 - name: portal-web
   repository: file://charts/portal-web
-  version: 0.1.3
-digest: sha256:4c358d60e33b35e29fd1e7ed386aed521da92f8a556699f2aa4145e7e1a253f7
-generated: "2026-03-31T16:01:37.396875234+02:00"
+  version: 0.2.1
+digest: sha256:4c7ebd8a877de54162125458a33f961fb20ae1e467b2343b8709bb2fb9632311
+generated: "2026-04-07T11:51:27.561302843+02:00"

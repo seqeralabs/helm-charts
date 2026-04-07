@@ -10,11 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bumped bitnami/common dependency to 2.38.0
-
-## [0.4.0] - 2026-03-31
-
-### Changed
-
 - **BREAKING** Rename `redis.tls` value to `redis.enableTls`
 
 ## [0.3.1] - 2026-03-31

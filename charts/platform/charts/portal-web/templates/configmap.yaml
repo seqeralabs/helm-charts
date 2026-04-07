@@ -33,5 +33,6 @@ data:
   SEQERA_PLATFORM_API_URL: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain .) | quote }}
   SEQERA_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain .) | quote }}
 
-  AUTH0_DOMAIN: {{ tpl .Values.auth0.domain . | quote }}
-  AUTH0_CLIENT_ID: {{ tpl .Values.auth0.clientId . | quote }}
+  SEQERA_AUTH_DOMAIN: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain .) | quote }}
+  SEQERA_AUTH_WEB_CLIENT_ID: seqera_ai_portal_web
+  SEQERA_AUTH_AUDIENCE: platform
