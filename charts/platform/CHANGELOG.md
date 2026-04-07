@@ -16,9 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - User-supplied `initContainers` now render before built-in `waitFor*` init containers in backend, cron, and all subchart deployments, enabling use cases such as fetching CA certificates before dependency checks run
 - Bump seqera-common to 2.0.1
-- Bump agent-backend subchart to 0.3.1
-- Bump pipeline-optimization subchart to 1.1.2
-- Bump studios subchart to 1.2.5
+- Bump agent-backend subchart to 0.4.2
+- Bump mcp subchart to 0.2.3
+- Bump pipeline-optimization subchart to 1.1.4
+- Bump portal-web subchart to 0.2.2
+- Bump studios subchart to 1.2.7
 
 ## [0.29.3] - 2026-04-07
 

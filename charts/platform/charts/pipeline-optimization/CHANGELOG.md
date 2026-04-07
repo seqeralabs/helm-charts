@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `extraEnv` and `extraVolumeMounts` to `initContainerDependencies.waitForMySQL` values, enabling CA certificate mounts and additional env vars in wait init containers
 - `MYSQL_EXTRA_ARGS` example documented under `waitForMySQL.extraEnv` for passing TLS flags such as `--ssl-ca` and `--ssl-mode`
+- Bumped seqera-common to 2.0.1
 
 ### Changed
 
