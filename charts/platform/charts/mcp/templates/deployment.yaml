@@ -87,13 +87,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "mcp.oauth.jwt.existingSecret.secretName" . }}
                   key: {{ include "mcp.oauth.jwt.existingSecret.secretKey" . }}
-{{- if .Values.oauth.clientSecretExistingSecretName }}
-            - name: OAUTH_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "mcp.oauth.client.existingSecret.secretName" . }}
-                  key: {{ include "mcp.oauth.client.existingSecret.secretKey" . }}
-{{- end }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

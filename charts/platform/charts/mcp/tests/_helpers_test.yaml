@@ -26,6 +26,55 @@ chart:
   version: 1.2.3
   appVersion: "v9.9.9"
 tests:
+  # mcp.oauth.issuerUrl helper
+  - it: should default oauth issuer URL to Platform API endpoint when using oauth-platform
+    template: configmap.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      micronautEnvironments:
+        - oauth-platform
+    asserts:
+      - equal:
+          path: data.OAUTH_ISSUER_URL
+          value: "https://test.example.com/api"
+
+  - it: should use explicit oauth.issuerUrl when set, even with oauth-platform
+    template: configmap.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      micronautEnvironments:
+        - oauth-platform
+      oauth.issuerUrl: "https://custom-auth.example.com"
+    asserts:
+      - equal:
+          path: data.OAUTH_ISSUER_URL
+          value: "https://custom-auth.example.com"
+
+  - it: should use explicit oauth.issuerUrl when set with oauth environment
+    template: configmap.yaml
+    set:
+      micronautEnvironments:
+        - oauth
+      oauth.issuerUrl: "https://custom-auth.example.com"
+      oauth.clientId: "my-client-id"
+      oauth.clientSecretString: "my-client-secret"
+    asserts:
+      - equal:
+          path: data.OAUTH_ISSUER_URL
+          value: "https://custom-auth.example.com"
+
+  - it: should template oauth.issuerUrl value
+    template: configmap.yaml
+    set:
+      global.platformExternalDomain: test.example.com
+      micronautEnvironments:
+        - oauth-platform
+      oauth.issuerUrl: "https://auth.{{ .Values.global.platformExternalDomain }}"
+    asserts:
+      - equal:
+          path: data.OAUTH_ISSUER_URL
+          value: "https://auth.test.example.com"
+
   - it: should use custom image from global registry override
     template: deployment.yaml
     set:

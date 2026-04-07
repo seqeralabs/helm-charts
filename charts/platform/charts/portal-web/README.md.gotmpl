@@ -12,10 +12,8 @@
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
+- The `.global.platformExternalDomain` value to point to the domain where Seqera Platform will be exposed.
 - The `.image` section to point to your container registry.
-- Auth0 credentials under the `.auth0` section:
-  * `.auth0.domain`: your Auth0 domain (e.g. `myorg.auth0.com`)
-  * `.auth0.clientId`: your Auth0 application client ID
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.

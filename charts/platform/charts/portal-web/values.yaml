@@ -67,12 +67,6 @@ image:
   # pullSecrets:
   #   - myRegistryKeySecretName
 
-auth0:
-  # -- Required Auth0 domain (e.g. myorg.auth0.com)
-  domain: ""
-  # -- Required Auth0 app client id
-  clientId: ""
-
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort

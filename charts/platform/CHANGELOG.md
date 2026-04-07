@@ -5,7 +5,7 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.28.4] - 2026-03-27
+## [0.29.4] - 2026-04-07
 
 ### Added
 
@@ -19,6 +19,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump agent-backend subchart to 0.3.1
 - Bump pipeline-optimization subchart to 1.1.2
 - Bump studios subchart to 1.2.5
+
+## [0.29.3] - 2026-04-07
+
+### Changed
+
+- Bump `agent-backend` subchart to 0.4.0: renamed `redis.tls` to `redis.enableTls`
+- Bumped bitnami/common dependency to 2.38.0 across all subcharts
+
+## [0.29.2] - 2026-04-02
+
+### Changed
+
+- **BREAKING** - Updated portal-web subchart to 0.2.0: removed configurable OAuth values (`oauth.endpoint`, `oauth.clientId`, `oauth.audience`) from portal-web subchart. Auth domain is now derived from `global.platformExternalDomain`, and client ID and audience are hardcoded to fixed values.
+
+## [0.29.1] - 2026-03-31
+
+### Changed
+
+- Update documentation warning about Helm-generated random values with Kustomize
+- Update Studios, MCP and agent backend charts to include updates to documentation about Helm-generated random values with Kustomize.
+
+## [0.29.0] - 2026-03-31
+
+### Changed
+
+- **BREAKING** Bump MCP subchart to 0.2.0: removed support for custom OAuth provider. MCP now exclusively uses Seqera Platform as the OAuth provider. Removed values: `oauth.clientId`, `oauth.clientSecretString`, `oauth.clientSecretExistingSecretName`, `oauth.clientSecretExistingSecretKey`
+- Add Seqera AI installation example
+- Refine Seqera AI and MCP wording in documentation
 
 ## [0.28.3] - 2026-03-26
 
@@ -48,12 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated platform chart version to 0.28.0
 - Added new `mcp` subchart to install the Model Context Protocol server
 - Restructured OIDC initial access token functions into Platform chart
-
-## [0.27.9] - 2026-03-19
-
-### Changed
-
-- Updated agent-backend subchart to version 0.2.6
 
 ## [0.27.9] - 2026-03-19
 

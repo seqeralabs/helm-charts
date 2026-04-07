@@ -12,6 +12,9 @@
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
+- The domain where Seqera Platform is accessible, set under `.global.platformExternalDomain`. The MCP domain defaults to `mcp.<platformExternalDomain>` but can be overridden with `.global.mcpDomain`.
+- The OIDC client registration token under `.oidcToken.tokenString` (or reference an existing Secret with `.oidcToken.existingSecretName`). When deploying as part of the platform parent chart this is set automatically; when deploying standalone it must match the value configured in the platform backend.
+- A stable JWT seed for signing authentication tokens under `.oauth.jwtSeedString` (or reference an existing Secret with `.oauth.jwtSeedSecretName`). If not set a random value is generated, which is incompatible with Kustomize-based upgrades.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.

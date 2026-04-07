@@ -43,6 +43,6 @@ data:
   AGENT_BACKEND_REDIS_HOST: {{ tpl .Values.redis.host . | quote }}
   AGENT_BACKEND_REDIS_PORT: {{ .Values.redis.port | quote }}
   AGENT_BACKEND_REDIS_DB: {{ .Values.redis.db | quote }}
-  AGENT_BACKEND_REDIS_TLS: {{ .Values.redis.tls | quote }}
+  AGENT_BACKEND_REDIS_TLS: {{ .Values.redis.enableTls | quote }}
 
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 1.1.2](https://img.shields.io/badge/Version-1.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
+![Version: 1.1.3](https://img.shields.io/badge/Version-1.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 1.1.2 \
+  --version 1.1.3 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -98,7 +98,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | dbMigrationInitContainer.image.digest | string | `""` | Migrate DB init container image digest in the format `sha256:1234abcdef` |
 | dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Migrate DB init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | dbMigrationInitContainer.command | list | `["/opt/groundswell/bin/migrate-db.sh"]` | Command to run to migrate the database schema |
-| dbMigrationInitContainer.args | list | `[]` |  |
+| dbMigrationInitContainer.args | list | `[]` | Arguments to pass to the pod command |
 | service.type | string | `"ClusterIP"` | Pipeline Optimization Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | service.http.name | string | `"http"` | Service name to use |
 | service.http.port | int | `8090` | Service port number |

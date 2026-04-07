@@ -25,6 +25,19 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Return the OAuth issuer URL for MCP.
+When using 'oauth-platform' in micronautEnvironments, defaults to the Platform API endpoint.
+When using 'oauth', the value must be explicitly set in oauth.issuerUrl.
+*/}}
+{{- define "mcp.oauth.issuerUrl" -}}
+  {{- if .Values.oauth.issuerUrl -}}
+    {{- tpl .Values.oauth.issuerUrl $ -}}
+  {{- else if has "oauth-platform" .Values.micronautEnvironments -}}
+    {{- printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Return the name of the secret containing the MCP OAuth JWT seed.
 */}}
 {{- define "mcp.oauth.jwt.existingSecret" -}}
@@ -56,23 +69,5 @@ Return the name of the secret containing the OIDC client registration token.
     {{- printf "%s" (tpl .Values.oidcToken.existingSecretKey .) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
   {{- else -}}
     {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
-Return the name of the secret containing the MCP OAuth client secret.
-*/}}
-{{- define "mcp.oauth.client.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.oauth.clientSecretExistingSecretName .) -}}
-{{- end -}}
-{{- define "mcp.oauth.client.existingSecret.secretName" -}}
-  {{- include "mcp.oauth.client.existingSecret" . | default (include "common.names.fullname" .) -}}
-{{- end -}}
-
-{{- define "mcp.oauth.client.existingSecret.secretKey" -}}
-  {{- if (include "mcp.oauth.client.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.oauth.clientSecretExistingSecretKey .) | default "OAUTH_CLIENT_SECRET" -}}
-  {{- else -}}
-    {{- printf "OAUTH_CLIENT_SECRET" -}}
   {{- end -}}
 {{- end -}}
