@@ -22,7 +22,7 @@ description: |
   Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
   RAG-based natural language interactions.
 type: application
-version: 0.2.3
+version: 0.2.4
 appVersion: "1.0.0"
 maintainers:
   - name: Seqera Labs

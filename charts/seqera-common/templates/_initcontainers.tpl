@@ -96,6 +96,10 @@ include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .
           name: {{ include .secretNameTemplate .context }}
           key: {{ include .secretKeyTemplate .context }}
   {{- end }}
+  {{- if .context.Values.redis.enableTls }}
+    - name: REDISCLI_TLS
+      value: "1"
+  {{- end }}
   {{- if .waitValues.extraEnvVars }}
     {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnvVars "context" .context) | nindent 4 }}
   {{- end }}

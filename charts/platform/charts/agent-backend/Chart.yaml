@@ -19,7 +19,7 @@ apiVersion: v2
 name: agent-backend
 description: Backend service for Seqera CLI AI capabilities
 type: application
-version: 0.4.3
+version: 0.4.4
 appVersion: "2.0.0"
 maintainers:
   - name: Seqera Labs
