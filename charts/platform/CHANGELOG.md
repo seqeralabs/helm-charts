@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *BREAKING** Bump `pipeline-optimization` subchart to 2.0.0: renamed `database.sslNoverify` and `platformDatabase.sslNoverify` to `tlsCaVerify` with inverted boolean semantics
-- Add unit tests for `REDISCLI_TLS` env var on the wait-for-redis init container when `redis.enableTls` is enabled, covering backend, cron, and agent-backend deployments
 
 ## [0.29.4] - 2026-04-07
 
