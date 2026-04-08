@@ -1,19 +1,20 @@
 # TLS Authentication to AWS RDS
 
-This example demonstrates how to connect the Platform init containers to AWS RDS (MySQL) endpoints
+This example demonstrates how to connect Seqera products to AWS RDS (MySQL) endpoints
 that require TLS with certificate verification.
 
 ## Background
 
-AWS RDS uses TLS certificates signed by the AWS Certificate Authority. The standard `mysql:9` init
-container image does not include the AWS CA bundle by default, so certificate verification fails
-unless the CA certificate is made available inside the container.
+AWS RDS uses TLS certificates signed by the AWS Certificate Authority (CA). The default `mysql:9`
+init container image used by Platform does not include the AWS CA bundle, so certificate
+verification fails unless the CA certificate is made available inside the container.
 
 The MariaDB JDBC driver (used by the Platform backend and migration container) also requires the CA
 certificate to be provided via the `serverSslCert` connection option.
 
 AWS ElastiCache Redis uses a certificate signed by a public CA that is already trusted by the
-`redis:7-alpine` image and the JVM default trust store, so no custom CA bundle is needed for Redis.
+`redis:7-alpine` image and the JVM default trust store, so no custom CA bundle is needed to make
+Platform or other products communicate with AWS ElastiCache.
 
 The approach used here:
 
@@ -26,8 +27,9 @@ The approach used here:
 
 ## Prerequisites
 
-- Your cluster nodes must have outbound HTTPS access to `https://truststore.pki.rds.amazonaws.com`, OR the CA bundle must be pre-loaded into a ConfigMap or Secret.
-- AWS RDS MySQL must be configured with `require_secure_transport = ON`.
+The TLS Certificate Authority (CA) bundle must be available to the init containers and main
+containers. This bundle can be obtained from AWS by either fetching it at pod startup (requires
+outbound internet access) or pre-loading it into a ConfigMap or Secret.
 
 ## Fetch the CA bundle at pod startup (online approach)
 
@@ -53,6 +55,9 @@ A global bundle is also available covering all AWS RDS regions, see the [AWS
 documentation](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html).
 Then reference the ConfigMap in the values file instead of using an init container to fetch it.
 See [aws-tls-offline.yaml](aws-tls-offline.yaml).
+
+You can also store the CA bundle within your custom values.yaml file and let helm create the
+ConfigMap using the `.extraDeploy` option.
 
 ## Troubleshooting
 
