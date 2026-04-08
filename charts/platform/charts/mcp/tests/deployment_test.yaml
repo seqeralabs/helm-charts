@@ -358,3 +358,109 @@ tests:
       - equal:
           path: spec.template.spec.serviceAccountName
           value: release-name-mcp-sa
+
+  - it: should render wait-for-platform init container by default
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: wait-for-platform
+
+  - it: should not render wait-for-platform init container when initContainerDependencies.enabled is false
+    template: deployment.yaml
+    set:
+      initContainerDependencies.enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0]
+
+  - it: should render wait-for-platform init container with digest
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            digest: sha256:abcdef1234567890
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: curlimages/curl@sha256:abcdef1234567890
+
+  - it: should render wait-for-platform init container with custom registry
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          image:
+            registry: my-registry.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: my-registry.example.com/curlimages/curl:latest
+
+  - it: should render extraEnvVars on the wait-for-platform init container
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          extraEnvVars:
+            - name: MY_EXTRA_VAR
+              value: "some-value"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: MY_EXTRA_VAR
+            value: "some-value"
+
+  - it: should render extraVolumeMounts on the wait-for-platform init container
+    template: deployment.yaml
+    set:
+      initContainerDependencies:
+        waitForPlatform:
+          extraVolumeMounts:
+            - name: ca-certs
+              mountPath: /certs
+              readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs
+              readOnly: true
+
+  - it: should not render volumeMounts on the wait-for-platform init container when extraVolumeMounts is empty
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0].volumeMounts
+
+  - it: should render custom-init containers before wait-for-platform
+    template: deployment.yaml
+    set:
+      initContainers:
+        - name: custom-init
+          image: busybox
+          command: ['sh', '-c', 'echo custom']
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: custom-init
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-platform
+
+  - it: should use default platformServiceAddress for wait-for-platform env
+    template: deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: PLATFORM_HOST
+            value: release-name-platform-backend
+      - contains:
+          path: spec.template.spec.initContainers[0].env
+          content:
+            name: PLATFORM_PORT
+            value: "8080"
