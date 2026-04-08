@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add TLS options for the database connection: `database.enableTls`, `database.tlsCaVerify`, and `database.sslCa` values to configure TLS, CA verification, and CA certificate path
 
+### Changed
+
+- Add tests covering `REDISCLI_TLS` env var presence on the wait-for-redis init container based on `redis.enableTls` value
+
 ## [0.4.2] - 2026-04-07
 
 ### Added

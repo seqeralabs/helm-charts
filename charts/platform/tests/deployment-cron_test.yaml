@@ -1218,3 +1218,25 @@ tests:
   asserts:
   - notExists:
       path: spec.template.spec.initContainers[1].volumeMounts
+
+- it: should set REDISCLI_TLS on the wait-for-redis init container when redis.enableTls is true
+  template: deployment-cron.yaml
+  set:
+    redis.enableTls: true
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[1].env
+      content:
+        name: REDISCLI_TLS
+        value: "1"
+
+- it: should not set REDISCLI_TLS on the wait-for-redis init container when redis.enableTls is false
+  template: deployment-cron.yaml
+  set:
+    redis.enableTls: false
+  asserts:
+  - notContains:
+      path: spec.template.spec.initContainers[1].env
+      content:
+        name: REDISCLI_TLS
+        value: "1"
