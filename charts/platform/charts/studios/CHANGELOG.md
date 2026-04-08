@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bumped seqera-common to 2.0.1
+- Bumped seqera-common to 2.0.2
 
 ## [1.2.7] - 2026-04-07
 
@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - User-supplied `initContainers` now render before built-in `waitFor*` init containers, enabling cert-fetching sidecars to run before dependency checks
-- Bumped seqera-common to 2.0.2
 
 ## [1.2.6] - 2026-03-31
 
