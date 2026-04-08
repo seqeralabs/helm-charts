@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-04-08
+
+### Changed
+
+- Bumped seqera-common dependency to 2.0.2
+
 ## [2.0.0] - 2026-04-07
 
 ### Changed
@@ -13,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `database.tlsCaVerify` and `platformDatabase.tlsCaVerify` respectively, with inverted semantics
   (the new field defaults to `true`, meaning CA verification is enabled by default).
   Migrate by replacing `sslNoverify: true` with `tlsCaVerify: false` in your values.
-- Bumped seqera-common dependency to 2.0.2
 
 ## [1.1.4] - 2026-04-07
 

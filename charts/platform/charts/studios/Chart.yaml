@@ -21,7 +21,7 @@ name: studios
 description: Studios is a unified platform for interactive analysis
 sources:
   - https://github.com/seqeralabs/helm-charts/tree/main/seqera/charts/studios
-version: 1.2.7
+version: 1.2.8
 appVersion: "0.11.0"
 maintainers:
   - name: Seqera Labs
