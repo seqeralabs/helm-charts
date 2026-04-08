@@ -115,13 +115,6 @@ initContainerDependencies:
         mountPath: /certs
         readOnly: true
 
-  waitForRedis:
-    # REDISCLI_TLS=1 enables TLS for redis-cli. ElastiCache uses a public CA that is
-    # already trusted by the redis:7-alpine image, so no custom CA cert is needed.
-    extraEnv:
-      - name: REDISCLI_TLS
-        value: "1"
-
 pipeline-optimization:
   enabled: true
   initContainers:
@@ -157,5 +150,37 @@ pipeline-optimization:
 
   platformDatabase:
     # platform db details
+    enableTls: true
+    sslCa: /rds-ca/rds-ca-bundle.pem
+
+agent-backend:
+  enabled: true
+  initContainers:
+    - name: fetch-rds-ca
+      image: curlimages/curl:latest
+      command:
+        - sh
+        - -c
+        - curl -fsSL https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem -o /rds-ca/rds-ca-bundle.pem
+      securityContext:
+        runAsUser: 1000
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: rds-ca-bundle
+          mountPath: /rds-ca
+
+  extraVolumes:
+    - name: rds-ca-bundle
+      emptyDir: {}
+
+  extraVolumeMounts:
+    - name: rds-ca-bundle
+      mountPath: /rds-ca
+      readOnly: true
+
+  database:
     enableTls: true
     sslCa: /rds-ca/rds-ca-bundle.pem
