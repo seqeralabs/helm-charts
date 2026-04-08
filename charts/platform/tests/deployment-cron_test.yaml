@@ -613,6 +613,26 @@ tests:
         runAsNonRoot: false
         runAsUser: 2000
         asdf: 123
+- it: should include connect-cert-volume in the cron container volumes and volumeMounts
+  template: deployment-cron.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.volumes
+      value:
+      - configMap:
+          name: release-name-platform-tower-yml
+        name: config-volume
+      - emptyDir:
+          sizeLimit: 1Gi
+        name: plugin-volume
+      - name: connect-cert-volume
+        secret:
+          secretName: release-name-platform-backend
+  - contains:
+      path: spec.template.spec.containers[0].volumeMounts
+      content:
+        name: connect-cert-volume
+        mountPath: /data/certs
 - it: should include extra volumeMounts in the cron container
   template: deployment-cron.yaml
   set:
@@ -635,6 +655,8 @@ tests:
         name: plugin-volume
       - mountPath: /?/.nextflow/
         name: plugin-volume
+      - name: connect-cert-volume
+        mountPath: /data/certs
 - it: should use custom image for the cron deployment
   template: deployment-cron.yaml
   set:
