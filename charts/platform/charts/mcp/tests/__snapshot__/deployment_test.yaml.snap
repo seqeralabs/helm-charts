@@ -77,7 +77,40 @@ should render a Deployment with default values:
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
-          initContainers: null
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for platform to be ready at \"${PLATFORM_HOST}:${PLATFORM_PORT}/health\""
+                  until curl -s ${PLATFORM_HOST}:${PLATFORM_PORT}/health |grep -q \"UP\"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): platform ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: PLATFORM_HOST
+                  value: release-name-platform-backend
+                - name: PLATFORM_PORT
+                  value: "8080"
+              image: curlimages/curl:latest
+              imagePullPolicy: IfNotPresent
+              name: wait-for-platform
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.1"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
           securityContext:
             fsGroup: 101
           serviceAccountName: release-name-mcp-sa
