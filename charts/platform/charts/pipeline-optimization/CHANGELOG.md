@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `database.tlsCaVerify` and `platformDatabase.tlsCaVerify` respectively, with inverted semantics
   (the new field defaults to `true`, meaning CA verification is enabled by default).
   Migrate by replacing `sslNoverify: true` with `tlsCaVerify: false` in your values.
+- Bumped seqera-common dependency to 2.0.2
 
 ## [1.1.4] - 2026-04-07
 
