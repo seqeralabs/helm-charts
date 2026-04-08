@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.7] - 2026-04-08
+
+### Changed
+
+- Add example on how to set up TLS with custom CA certificates
+- Fixed changelog
+
 ## [0.29.6] - 2026-04-08
 
 ### Added
@@ -20,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - *BREAKING** Bump `pipeline-optimization` subchart to 2.0.0: renamed `database.sslNoverify` and `platformDatabase.sslNoverify` to `tlsCaVerify` with inverted boolean semantics
-- Add unit tests for `REDISCLI_TLS` env var on the wait-for-redis init container when `redis.enableTls` is enabled, covering backend, cron, and agent-backend deployments
 
 ## [0.29.4] - 2026-04-07
 
