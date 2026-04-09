@@ -35,7 +35,7 @@ tests:
         - oauth-platform
     asserts:
       - equal:
-          path: data.OAUTH_ISSUER_URL
+          path: data.MCP_OAUTH_ISSUER_URL
           value: "https://test.example.com/api"
 
   - it: should use explicit oauth.issuerUrl when set, even with oauth-platform
@@ -47,7 +47,7 @@ tests:
       oauth.issuerUrl: "https://custom-auth.example.com"
     asserts:
       - equal:
-          path: data.OAUTH_ISSUER_URL
+          path: data.MCP_OAUTH_ISSUER_URL
           value: "https://custom-auth.example.com"
 
   - it: should use explicit oauth.issuerUrl when set with oauth environment
@@ -60,7 +60,7 @@ tests:
       oauth.clientSecretString: "my-client-secret"
     asserts:
       - equal:
-          path: data.OAUTH_ISSUER_URL
+          path: data.MCP_OAUTH_ISSUER_URL
           value: "https://custom-auth.example.com"
 
   - it: should template oauth.issuerUrl value
@@ -72,7 +72,7 @@ tests:
       oauth.issuerUrl: "https://auth.{{ .Values.global.platformExternalDomain }}"
     asserts:
       - equal:
-          path: data.OAUTH_ISSUER_URL
+          path: data.MCP_OAUTH_ISSUER_URL
           value: "https://auth.test.example.com"
 
   - it: should use custom image from global registry override

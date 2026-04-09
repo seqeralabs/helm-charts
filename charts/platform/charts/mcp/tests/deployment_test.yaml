@@ -36,7 +36,7 @@ tests:
     asserts:
       - matchSnapshot: {}
 
-  - it: should inject TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN from standalone secret by default
+  - it: should inject MCP_OAUTH_INITIAL_ACCESS_TOKEN from standalone secret by default
     template: deployment.yaml
     set:
       oidcToken.existingSecretName: ""
@@ -44,13 +44,13 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0]
           value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            name: MCP_OAUTH_INITIAL_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: release-name-mcp
                 key: OIDC_CLIENT_REGISTRATION_TOKEN
 
-  - it: should inject TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN from existing secret when set
+  - it: should inject MCP_OAUTH_INITIAL_ACCESS_TOKEN from existing secret when set
     template: deployment.yaml
     set:
       oidcToken.existingSecretName: my-platform-backend
@@ -59,7 +59,7 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].env[0]
           value:
-            name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            name: MCP_OAUTH_INITIAL_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: my-platform-backend
@@ -202,7 +202,7 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].env
           content:
-            name: OAUTH_JWT_SECRET
+            name: MCP_OAUTH_JWT_SECRET
             valueFrom:
               secretKeyRef:
                 name: my-jwt-secret
@@ -216,11 +216,11 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].env
           content:
-            name: OAUTH_JWT_SECRET
+            name: MCP_OAUTH_JWT_SECRET
             valueFrom:
               secretKeyRef:
                 name: my-jwt-secret
-                key: OAUTH_JWT_SECRET
+                key: MCP_OAUTH_JWT_SECRET
 
   - it: should configure main container with env before envFrom
     template: deployment.yaml
@@ -228,10 +228,10 @@ tests:
       - contains:
           path: spec.template.spec.containers[0].env
           content:
-            name: OAUTH_JWT_SECRET
+            name: MCP_OAUTH_JWT_SECRET
             valueFrom:
               secretKeyRef:
-                key: OAUTH_JWT_SECRET
+                key: MCP_OAUTH_JWT_SECRET
                 name: release-name-mcp
 
   - it: should render extraOptionsSpec under spec

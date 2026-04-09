@@ -80,12 +80,12 @@ spec:
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
           env:
-            - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+            - name: MCP_OAUTH_INITIAL_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mcp.oidcToken.secretName" . }}
                   key: {{ include "mcp.oidcToken.secretKey" . }}
-            - name: OAUTH_JWT_SECRET
+            - name: MCP_OAUTH_JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "mcp.oauth.jwt.existingSecret.secretName" . }}

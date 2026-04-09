@@ -3,11 +3,11 @@ should render a ConfigMap with default values:
     apiVersion: v1
     data:
       HUB_API_ENDPOINT: https://hub.seqera.io
+      MCP_OAUTH_AUDIENCE: platform
+      MCP_OAUTH_ISSUER_URL: https://test.example.com/api
       MCP_SERVER_URL: https://mcp.test.example.com
       MICRONAUT_ENVIRONMENTS: oauth-platform
       MICRONAUT_SERVER_PORT: "6010"
-      OAUTH_AUDIENCE: platform
-      OAUTH_ISSUER_URL: https://test.example.com/api
       REGISTRY_API_ENDPOINT: https://registry.nextflow.io
       TOWER_API_ENDPOINT: https://test.example.com/api
       WAVE_API_ENDPOINT: https://wave.seqera.io

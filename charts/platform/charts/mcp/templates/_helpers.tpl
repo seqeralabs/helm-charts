@@ -49,9 +49,9 @@ Return the name of the secret containing the MCP OAuth JWT seed.
 
 {{- define "mcp.oauth.jwt.existingSecret.secretKey" -}}
   {{- if (include "mcp.oauth.jwt.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.oauth.jwtSeedSecretKey .) | default "OAUTH_JWT_SECRET" -}}
+    {{- printf "%s" (tpl .Values.oauth.jwtSeedSecretKey .) | default "MCP_OAUTH_JWT_SECRET" -}}
   {{- else -}}
-    {{- printf "OAUTH_JWT_SECRET" -}}
+    {{- printf "MCP_OAUTH_JWT_SECRET" -}}
   {{- end -}}
 {{- end -}}
 

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `TOWER_OIDC_PEM_PATH` moved to the shared backend/cron configmap and is now always set (previously backend-only and only when `studios.enabled=true`); required from Platform v26.1 onwards
 - `connect-cert-volume` and `TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN` are now always present on the backend deployment (previously only when `studios.enabled=true`); required from Platform v26.1 onwards
+- Bump `mcp` subchart to 0.3.0: rename OAuth environment variables to use `MCP_` prefix (`MCP_OAUTH_INITIAL_ACCESS_TOKEN`, `MCP_OAUTH_JWT_SECRET`, `MCP_OAUTH_ISSUER_URL`, `MCP_OAUTH_AUDIENCE`)
 
 ## [0.29.8] - 2026-04-08
 
