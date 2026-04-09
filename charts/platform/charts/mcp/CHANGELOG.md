@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING** Rename environment variables to use `MCP_` prefix: `TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN` → `MCP_OAUTH_INITIAL_ACCESS_TOKEN`, `OAUTH_JWT_SECRET` → `MCP_OAUTH_JWT_SECRET`, `OAUTH_ISSUER_URL` → `MCP_OAUTH_ISSUER_URL`, `OAUTH_AUDIENCE` → `MCP_OAUTH_AUDIENCE`
+- When upgrading from 0.2.x, you may encounter errors such as `PASSWORDS ERROR: The secret "releasename-mcp" does not contain the key "MCP_OAUTH_JWT_SECRET"`. To resolve this, you can run the following command to update the secret with the new key:
+  ```
+  kubectl -n <namespace> get secret releasename-mcp -o yaml |
+    sed 's/OAUTH_JWT_SECRET/MCP_OAUTH_JWT_SECRET/g' |
+    kubectl apply -f -
+  ```
 - Bump appVersion to 1.1.0
 
 ## [0.2.5] - 2026-04-08
