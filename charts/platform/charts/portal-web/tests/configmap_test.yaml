@@ -48,14 +48,15 @@ tests:
           path: data.SEQERA_PLATFORM_API_URL
           value: "http://release-name-platform-backend:8080"
 
-  - it: should set SEQERA_AUTH_DOMAIN from platformServiceAddress and platformServicePort
+  - it: should set SEQERA_AUTH_DOMAIN with the external platform endpoint
     set:
+      global.platformExternalDomain: prod.example.com
       global.platformServiceAddress: my-platform-backend
       global.platformServicePort: 9090
     asserts:
       - equal:
           path: data.SEQERA_AUTH_DOMAIN
-          value: "http://my-platform-backend:9090"
+          value: "https://prod.example.com/api"
 
   - it: should set SEQERA_AGENT_BACKEND_URL from agentBackendDomain
     set:
