@@ -6,6 +6,7 @@ should render a ConfigMap with default values:
       SEQERA_AUTH_AUDIENCE: platform
       SEQERA_AUTH_DOMAIN: https://example.com/api
       SEQERA_AUTH_WEB_CLIENT_ID: seqera_ai_portal_web
+      SEQERA_PLATFORM_APP_URL: https://example.com
       SEQERA_PLATFORM_API_URL: http://release-name-platform-backend:8080
     kind: ConfigMap
     metadata:
