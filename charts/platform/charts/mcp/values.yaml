@@ -109,7 +109,7 @@ oauth:
   # Note: the Secret must already exist in the same namespace at the time of deployment
   jwtSeedSecretName: ""
   # -- Key in the existing Secret containing the JWT seed
-  # @default -- `"OAUTH_JWT_SECRET"`
+  # @default -- `"MCP_OAUTH_JWT_SECRET"`
   jwtSeedSecretKey: ""
 
 image:

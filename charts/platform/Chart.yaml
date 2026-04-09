@@ -69,7 +69,7 @@ dependencies:
       - studios
     condition: studios.enabled
   - name: mcp
-    version: "0.2.x"
+    version: "0.3.x"
     repository: "file://charts/mcp"
     tags:
       - mcp
