@@ -39,6 +39,14 @@ tests:
           path: data.SEQERA_PLATFORM_API_URL
           value: "http://my-platform-backend:9090"
 
+  - it: should set SEQERA_PLATFORM_APP_URL from platformExternalDomain
+    set:
+      global.platformExternalDomain: prod.example.com
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_APP_URL
+          value: "https://prod.example.com"
+
   - it: should template platformServiceAddress in SEQERA_PLATFORM_API_URL
     set:
       global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
