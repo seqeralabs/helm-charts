@@ -38,7 +38,6 @@ data:
 {{- end }}
 {{- if .Values.studios.enabled }}
   TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
-  TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
   TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY: {{ .Values.platform.studios.customImageRegistry | quote }}
   TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: {{ .Values.platform.studios.customImageRepository | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
@@ -80,6 +79,8 @@ data:
   TOWER_DB_MAX_LIFETIME: {{ .Values.platformDatabase.maxLifetime | toString | quote }}
   TOWER_DB_MAX_POOL_SIZE: {{ .Values.platformDatabase.maxPoolSize | toString | quote }}
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.platformDatabase.minPoolSize | toString | quote }}
+
+  TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
 
 {{- if .Values.platform.smtp.host }}
   TOWER_SMTP_HOST: {{ .Values.platform.smtp.host | quote }}

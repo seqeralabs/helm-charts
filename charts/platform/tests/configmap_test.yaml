@@ -382,3 +382,21 @@ tests:
         GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
         MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
         TOWER_DATA_EXPLORER_ENABLED: 'false'
+- it: should render TOWER_OIDC_PEM_PATH in the shared-backend-cron configmap regardless of studios.enabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    studios:
+      enabled: false
+  asserts:
+  - equal:
+      path: data.TOWER_OIDC_PEM_PATH
+      value: /data/certs/oidc.pem
+- it: should not render TOWER_OIDC_PEM_PATH in the backend-only configmap
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-backend
+  asserts:
+  - notExists:
+      path: data.TOWER_OIDC_PEM_PATH

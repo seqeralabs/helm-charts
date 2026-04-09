@@ -207,6 +207,8 @@ spec:
               mountPath: /.nextflow/
             - name: plugin-volume
               mountPath: /?/.nextflow/
+            - name: connect-cert-volume
+              mountPath: /data/certs
 
 {{- if .Values.cron.containerSecurityContext.enabled }}
           securityContext: {{- omit .Values.cron.containerSecurityContext "enabled" | toYaml | nindent 12 }}
@@ -232,5 +234,8 @@ spec:
         - name: plugin-volume
           emptyDir:
             sizeLimit: "1Gi"
+        - name: connect-cert-volume
+          secret:
+            secretName: {{ include "studios.oidcPrivateKeySecretName" . }}
 
       {{ include "common.images.renderPullSecrets" ( dict "images" (list .Values.cron.image .Values.cron.dbMigrationInitContainer.image) "context" $) | nindent 6 }}

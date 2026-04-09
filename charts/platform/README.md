@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.29.7](https://img.shields.io/badge/Version-0.29.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
+![Version: 0.30.0](https://img.shields.io/badge/Version-0.30.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v25.3.4](https://img.shields.io/badge/AppVersion-v25.3.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.29.7 \
+  --version 0.30.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -64,7 +64,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 2.x.x |
 | file://charts/agent-backend | agent-backend | 0.4.x |
-| file://charts/mcp | mcp | 0.2.x |
+| file://charts/mcp | mcp | 0.3.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
 | file://charts/portal-web | portal-web | 0.2.x |
 | file://charts/studios | studios | 1.x.x |

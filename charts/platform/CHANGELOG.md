@@ -5,6 +5,18 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.0] - 2026-04-08
+
+### Added
+
+- Mount OIDC private key secret (`connect-cert-volume` at `/data/certs`) on the cron deployment, matching the backend deployment
+
+### Changed
+
+- `TOWER_OIDC_PEM_PATH` moved to the shared backend/cron configmap and is now always set (previously backend-only and only when `studios.enabled=true`); required from Platform v26.1 onwards
+- `connect-cert-volume` and `TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN` are now always present on the backend deployment (previously only when `studios.enabled=true`); required from Platform v26.1 onwards
+- Bump `mcp` subchart to 0.3.0: rename OAuth environment variables to use `MCP_` prefix (`MCP_OAUTH_INITIAL_ACCESS_TOKEN`, `MCP_OAUTH_JWT_SECRET`, `MCP_OAUTH_ISSUER_URL`, `MCP_OAUTH_AUDIENCE`)
+
 ## [0.29.8] - 2026-04-08
 
 ### Added

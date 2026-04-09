@@ -65,8 +65,8 @@ tests:
             HUB_API_ENDPOINT: "https://hub.seqera.io"
             WAVE_API_ENDPOINT: "https://wave.seqera.io"
             REGISTRY_API_ENDPOINT: "https://registry.nextflow.io"
-            OAUTH_ISSUER_URL: "https://auth.example.com"
-            OAUTH_AUDIENCE: "mcp"
+            MCP_OAUTH_ISSUER_URL: "https://auth.example.com"
+            MCP_OAUTH_AUDIENCE: "mcp"
 
   - it: should template values in configmap
     set:
@@ -89,5 +89,5 @@ tests:
             HUB_API_ENDPOINT: "https://hub.example.com"
             WAVE_API_ENDPOINT: "https://wave.example.com"
             REGISTRY_API_ENDPOINT: "https://registry.example.com"
-            OAUTH_ISSUER_URL: "https://auth.example.com/auth"
-            OAUTH_AUDIENCE: "RELEASE-NAME-mcp"
+            MCP_OAUTH_ISSUER_URL: "https://auth.example.com/auth"
+            MCP_OAUTH_AUDIENCE: "RELEASE-NAME-mcp"

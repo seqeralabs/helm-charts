@@ -13,12 +13,12 @@ dependencies:
   version: 1.2.9
 - name: mcp
   repository: file://charts/mcp
-  version: 0.2.5
+  version: 0.3.0
 - name: agent-backend
   repository: file://charts/agent-backend
   version: 0.4.5
 - name: portal-web
   repository: file://charts/portal-web
   version: 0.2.3
-digest: sha256:bc9cf1f73d0e2eb3ee1268fc128ed39c1c2e6f1bb127b8cf9dfe4f8dfe0d33a9
-generated: "2026-04-08T12:55:32.552345343+02:00"
+digest: sha256:7a36b28a204e3087d2d25eaa7a3a8d9bce966845c271b406a7e924deba7de2f6
+generated: "2026-04-09T10:15:53.623708429+02:00"

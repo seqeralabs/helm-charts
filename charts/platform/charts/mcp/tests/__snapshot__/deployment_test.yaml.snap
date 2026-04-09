@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 595e1244e288fa87e428d959b87d4666a798d74cadd57abec6658a548cf725a0
+            checksum/configmap: 16f769ed028fde925ece3abfcb4bf4d07ef7afa2bfb2516c2f683e336d5af811
             checksum/secret: c02f86a51632209a540a8a0e36bd7bf3aadaf054e628be683b4c60c100b3e3b5
           labels:
             app.kubernetes.io/component: mcp
@@ -33,12 +33,12 @@ should render a Deployment with default values:
         spec:
           containers:
             - env:
-                - name: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+                - name: MCP_OAUTH_INITIAL_ACCESS_TOKEN
                   valueFrom:
                     secretKeyRef:
                       key: MY_OIDC_TOKEN
                       name: my-oidc-secret
-                - name: OAUTH_JWT_SECRET
+                - name: MCP_OAUTH_JWT_SECRET
                   valueFrom:
                     secretKeyRef:
                       key: jwt-seed-key
