@@ -74,6 +74,17 @@ Return the name of the secret containing the Redis password.
   {{- include "wave.redis.existingSecret" . | default (include "common.names.fullname" .) -}}
 {{- end -}}
 
+{{/*
+Build the Wave micronaut envs list: always ensure required environments are present.
+*/}}
+{{- define "wave.micronautEnvs" -}}
+  {{- $list := .Values.micronautEnvironments -}}
+  {{/* Always make sure the required micronaut environments are added to the list */}}
+  {{- $list = append $list "postgres" -}}
+  {{- $list = append $list "redis" -}}
+  {{- uniq $list | join "," | quote -}}
+{{- end -}}
+
 {{- define "wave.redis.existingSecret.secretKey" -}}
   {{- if (include "wave.redis.existingSecret" .) -}}
     {{- printf "%s" (tpl .Values.redis.existingSecretKey .) | default "WAVE_REDIS_PASSWORD" -}}

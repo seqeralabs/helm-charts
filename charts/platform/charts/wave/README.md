@@ -61,6 +61,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.waveDomain | string | `"{{ printf \"wave.%s\" .Values.global.platformExternalDomain }}"` | Domain where Wave listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
+| micronautEnvironments | list | `["postgres","redis","lite"]` | List of Micronaut environments to enable |
 | database.host | string | `""` | PostgreSQL database hostname |
 | database.port | int | `5432` | PostgreSQL database port |
 | database.name | string | `""` | PostgreSQL database name |

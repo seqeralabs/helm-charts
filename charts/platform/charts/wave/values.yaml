@@ -44,6 +44,12 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+# -- List of Micronaut environments to enable
+micronautEnvironments:
+  - postgres
+  - redis
+  - lite
+
 database:
   # -- PostgreSQL database hostname
   host: ""

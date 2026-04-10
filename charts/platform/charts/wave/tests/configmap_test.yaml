@@ -115,7 +115,7 @@ tests:
           path: data.REDIS_URI
           value: "redis://redis.example.com:6380"
 
-  - it: should contain MICRONAUT_ENVIRONMENTS
+  - it: should contain MICRONAUT_ENVIRONMENTS with default values
     set:
       database.host: db.example.com
       database.name: wavedb
@@ -124,6 +124,34 @@ tests:
       - equal:
           path: data.MICRONAUT_ENVIRONMENTS
           value: "postgres,redis,lite"
+
+  - it: should contain MICRONAUT_ENVIRONMENTS with custom values
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      micronautEnvironments:
+        - postgres
+        - redis
+        - lite
+        - custom-env
+    asserts:
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: "postgres,redis,lite,custom-env"
+
+  - it: should always include required postgres and redis micronaut environments
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      micronautEnvironments:
+        - lite
+        - custom-env
+    asserts:
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: "lite,custom-env,postgres,redis"
 
   - it: should apply commonLabels to configmap
     set:

@@ -30,7 +30,7 @@ metadata:
   labels: {{- $labels | nindent 4 }}
   annotations: {{- $annotations | nindent 4 }}
 data:
-  MICRONAUT_ENVIRONMENTS: "postgres,redis,lite" # TODO
+  MICRONAUT_ENVIRONMENTS: {{ include "wave.micronautEnvs" . }}
   MICRONAUT_SERVER_PORT: {{ .Values.service.http.targetPort | quote }}
   TOWER_ENDPOINT_URL: '{{ printf "https://%s/api" .Values.global.platformExternalDomain | quote }}'
   WAVE_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain $) | quote }}

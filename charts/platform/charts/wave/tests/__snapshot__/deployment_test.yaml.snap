@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 3a0726c1a33f58cedf793d45ed0b1ae7b1e4a695cbcec6bfd424af6d9a000c9b
+            checksum/configmap: 253619a7171c2e26b76c97806e3bf7d1d826296faf074fe4a09a23f12d4b36f9
             checksum/secret: d612594cf83ec8761d401b8770dc0f1773a5465202c0190a5bd356068e945bea
           labels:
             app.kubernetes.io/component: wave
