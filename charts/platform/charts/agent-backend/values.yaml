@@ -62,8 +62,7 @@ database:
   # to the password field. Note: the Secret must already exist in the  same namespace at the time of
   # deployment
   existingSecretName: ""
-  # -- Key in the existing Secret containing the password for the MySQL
-  # database
+  # -- Key in the existing Secret containing the password for the MySQL database
   # @default -- `"AGENT_BACKEND_DB_PASSWORD"`
   existingSecretKey: ""
   # -- Enable TLS for the MySQL database connection
@@ -74,25 +73,23 @@ database:
   # -- Path to a CA certificate file for server certificate verification
   sslCa: ""
 
-image:
-  # -- Container image registry
-  registry: ""
-  # -- Container image repository
-  repository: private/nf-tower-enterprise/agent-backend
-  # -- Container image tag
-  # @default -- `"{{ .chart.AppVersion }}"`
-  tag: ""
-  # -- Container image digest in the format `sha256:1234abcdef`
-  digest: ""
-  # -- imagePullPolicy for the container
-  # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
-  pullPolicy: IfNotPresent
-  # -- List of imagePullSecrets
-  # Secrets must be created in the same namespace, for example using the .extraDeploy array
-  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  pullSecrets: []
-  # pullSecrets:
-  #   - myRegistryKeySecretName
+redis:
+  # -- Redis hostname
+  host: ""
+  # -- Redis port
+  port: 6379
+  # -- Redis database index
+  db: 0
+  # -- Enable TLS when connecting to Redis
+  enableTls: false
+  # -- Redis password
+  password: ""
+  # -- Name of an existing Secret containing the Redis password, as an alternative to the password
+  # field. Note: the Secret must already exist in the same namespace at the time of deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the Redis password
+  # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
+  existingSecretKey: ""
 
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""
@@ -118,23 +115,25 @@ tokenEncryptionKeyExistingSecretName: ""
 # @default -- `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`
 tokenEncryptionKeyExistingSecretKey: ""
 
-redis:
-  # -- Redis hostname
-  host: ""
-  # -- Redis port
-  port: 6379
-  # -- Redis database index
-  db: 0
-  # -- Enable TLS when connecting to Redis
-  enableTls: false
-  # -- Redis password
-  password: ""
-  # -- Name of an existing Secret containing the Redis password, as an alternative to the password
-  # field. Note: the Secret must already exist in the same namespace at the time of deployment
-  existingSecretName: ""
-  # -- Key in the existing Secret containing the Redis password
-  # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
-  existingSecretKey: ""
+image:
+  # -- Container image registry
+  registry: ""
+  # -- Container image repository
+  repository: private/nf-tower-enterprise/agent-backend
+  # -- Container image tag
+  # @default -- `"{{ .chart.AppVersion }}"`
+  tag: ""
+  # -- Container image digest in the format `sha256:1234abcdef`
+  digest: ""
+  # -- imagePullPolicy for the container
+  # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  pullPolicy: IfNotPresent
+  # -- List of imagePullSecrets
+  # Secrets must be created in the same namespace, for example using the .extraDeploy array
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  pullSecrets: []
+  # pullSecrets:
+  #   - myRegistryKeySecretName
 
 # -- Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)
 logLevel: INFO

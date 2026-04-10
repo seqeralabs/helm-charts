@@ -1,0 +1,932 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Wave deployment
+templates:
+  - deployment.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v1.32.4"
+tests:
+  - it: should render a Deployment with default values
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - matchSnapshot: {}
+
+  - it: should use custom image
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      image.registry: custom-registry.io
+      image.repository: custom/wave
+      image.tag: v1.2.3
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: custom-registry.io/custom/wave:v1.2.3
+
+  - it: should render extraEnvVars, extraEnvVarsCMs and extraEnvVarsSecrets
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraEnvVars:
+        - name: EXTRA_ENV_VAR_1
+          value: set-a-value-here
+        - name: EXTRA_ENV_VAR_2
+          value: set-a-value-here
+      extraEnvVarsCMs:
+        - CMContainingExtraEnvVars
+      extraEnvVarsSecrets:
+        - SecretContainingExtraEnvVars
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EXTRA_ENV_VAR_1
+            value: set-a-value-here
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: EXTRA_ENV_VAR_2
+            value: set-a-value-here
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: CMContainingExtraEnvVars
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: SecretContainingExtraEnvVars
+
+  - it: should mount extra volumes
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraVolumes:
+        - name: custom-volume
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: custom-volume
+          mountPath: /custom
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: custom-volume
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: custom-volume
+            mountPath: /custom
+
+  - it: should apply custom resources
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 4Gi
+        requests:
+          cpu: 500m
+          memory: 2Gi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources
+          value:
+            limits:
+              cpu: 1000m
+              memory: 4Gi
+            requests:
+              cpu: 500m
+              memory: 2Gi
+
+  - it: should include custom init containers
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainers:
+        - name: custom-init
+          image: busybox
+          command: ['sh', '-c', 'echo waiting']
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers
+          content:
+            name: custom-init
+            image: busybox
+            command: ['sh', '-c', 'echo waiting']
+
+  - it: should apply common labels
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should include both built-in init containers by default
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 3
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: busybox
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: wait-for-redis
+
+  - it: should allow disabling postgres waiting init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForPostgres.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: busybox
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-redis
+
+  - it: should allow disabling redis waiting init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForRedis.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 2
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: busybox
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: wait-for-db
+
+  - it: should allow disabling all init container dependencies
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.enabled: false
+    asserts:
+      - lengthEqual:
+          path: spec.template.spec.initContainers
+          count: 1
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: busybox
+
+  - it: should support custom init containers alongside built-in ones
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.enabled: true
+      initContainerDependencies.waitForPostgres.enabled: true
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainers:
+        - name: custom-init
+          image: busybox
+          command: ['sh', '-c', 'echo custom']
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: busybox
+      - equal:
+          path: spec.template.spec.initContainers[1].name
+          value: custom-init
+      - equal:
+          path: spec.template.spec.initContainers[2].name
+          value: wait-for-db
+      - equal:
+          path: spec.template.spec.initContainers[3].name
+          value: wait-for-redis
+
+  - it: should use external secret for database password
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.existingSecretName: my-db-secret
+      database.existingSecretKey: db-password
+      redis.host: redis.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: WAVE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: db-password
+
+  - it: should use default key when external secret is set without custom key
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.existingSecretName: my-db-secret
+      redis.host: redis.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: WAVE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-db-secret
+                key: WAVE_DB_PASSWORD
+
+  - it: should configure main container with env before envFrom
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env
+          value:
+            - name: WAVE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: release-name-wave
+                  key: WAVE_DB_PASSWORD
+
+  - it: should include REDIS_PASSWORD in env when redis.password is set
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      redis.password: my-redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: release-name-wave
+                key: WAVE_REDIS_PASSWORD
+
+  - it: should NOT include REDIS_PASSWORD in env when redis.password is not set
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: REDIS_PASSWORD
+
+  - it: should use external secret for Redis password
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      redis.existingSecretName: my-redis-secret
+      redis.existingSecretKey: redis-password
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: redis-password
+
+  - it: should use default key when Redis external secret is set without custom key
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      redis.existingSecretName: my-redis-secret
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-redis-secret
+                key: WAVE_REDIS_PASSWORD
+
+  - it: should render extraOptionsSpec under spec
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraOptionsSpec:
+        replicas: 3
+        revisionHistoryLimit: 5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: shouldn't obey custom selector requests in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraOptionsSpec:
+        selector:
+          matchLabels:
+            app: something-else
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: wave
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: wave
+
+  - it: should render extraOptionsTemplateSpec under spec.template.spec
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraOptionsTemplateSpec:
+        nodeSelector:
+          disktype: ssd
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - wave
+                topologyKey: kubernetes.io/hostname
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            disktype: ssd
+      - equal:
+          path: spec.template.spec.affinity
+          value:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: app
+                        operator: In
+                        values:
+                          - wave
+                  topologyKey: kubernetes.io/hostname
+
+  - it: should ignore managed fields in extraOptionsTemplateSpec
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      extraOptionsTemplateSpec:
+        serviceAccountName: some-other-sa
+        dnsPolicy: ClusterFirstWithHostNet
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: release-name-wave-sa
+      - equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: should render podAnnotations on the pod template
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      podAnnotations:
+        custom-annotation: custom-value
+        another-annotation: another-value
+    asserts:
+      - isSubset:
+          path: spec.template.metadata.annotations
+          content:
+            custom-annotation: custom-value
+            another-annotation: another-value
+
+  - it: should render podLabels on the pod template
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      podLabels:
+        custom-pod-label: custom-value
+    asserts:
+      - isSubset:
+          path: spec.template.metadata.labels
+          content:
+            custom-pod-label: custom-value
+
+  - it: should render image pullSecrets
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      image.pullSecrets:
+        - myRegistrySecret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: myRegistrySecret
+
+  - it: should render pod security context when enabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      podSecurityContext:
+        enabled: true
+        fsGroup: 101
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value:
+            fsGroup: 101
+
+  - it: should not render pod security context when disabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      podSecurityContext:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext
+
+  - it: should render container security context when enabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      containerSecurityContext:
+        enabled: true
+        runAsUser: 101
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            runAsUser: 101
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+  - it: should not render container security context when disabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      containerSecurityContext:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext
+
+  - it: should render liveness probe when enabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      livenessProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: "{{ .Values.service.http.targetPort }}"
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 3
+        failureThreshold: 10
+        successThreshold: 1
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.containers[0].livenessProbe
+
+  - it: should not render liveness probe when disabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      livenessProbe:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].livenessProbe
+
+  - it: should render readiness probe when enabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      readinessProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: "{{ .Values.service.http.targetPort }}"
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        timeoutSeconds: 3
+        failureThreshold: 5
+        successThreshold: 1
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.containers[0].readinessProbe
+
+  - it: should not render readiness probe when disabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      readinessProbe:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].readinessProbe
+
+  - it: should render startup probe when enabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      startupProbe:
+        enabled: true
+        httpGet:
+          path: /health
+          port: "{{ .Values.service.http.targetPort }}"
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 3
+        failureThreshold: 5
+        successThreshold: 1
+    asserts:
+      - isNotNull:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: should not render startup probe when disabled
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      startupProbe:
+        enabled: false
+    asserts:
+      - notExists:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: should set workingDir
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].workingDir
+          value: /work
+
+  - it: should render custom command and args
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      command:
+        - /bin/sh
+        - -c
+      args:
+        - "echo hello"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].command
+          value:
+            - /bin/sh
+            - -c
+      - equal:
+          path: spec.template.spec.containers[0].args
+          value:
+            - "echo hello"
+
+  - it: should always include tmp volume
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: tmp
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: tmp
+            mountPath: /work
+
+  - it: should render commonAnnotations on deployment metadata
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      commonAnnotations:
+        custom-annotation: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            custom-annotation: custom-value
+
+  - it: should set REDISCLI_TLS on the wait-for-redis init container when redis.enableTls is true
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      redis.enableTls: true
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[2].env
+          content:
+            name: REDISCLI_TLS
+            value: "1"
+
+  - it: should not set REDISCLI_TLS on the wait-for-redis init container when redis.enableTls is false
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      redis.enableTls: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.initContainers[2].env
+          content:
+            name: REDISCLI_TLS
+            value: "1"
+
+  - it: should render extraEnvVars on the wait-for-Postgres init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForPostgres.enabled: true
+      initContainerDependencies.waitForPostgres.extraEnvVars:
+        - name: PGSSLROOTCERT
+          value: "/certs/ca.pem"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[1].env
+          content:
+            name: PGSSLROOTCERT
+            value: "/certs/ca.pem"
+
+  - it: should render extraVolumeMounts on the wait-for-Postgres init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForPostgres.enabled: true
+      initContainerDependencies.waitForPostgres.extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /certs/ca.pem
+          subPath: ca.pem
+          readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[1].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs/ca.pem
+              subPath: ca.pem
+              readOnly: true
+
+  - it: should render extraEnvVars on the wait-for-Redis init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainerDependencies.waitForPostgres.enabled: false
+      initContainerDependencies.waitForRedis.extraEnvVars:
+        - name: MY_EXTRA_VAR
+          value: "some-value"
+    asserts:
+      - contains:
+          path: spec.template.spec.initContainers[1].env
+          content:
+            name: MY_EXTRA_VAR
+            value: "some-value"
+
+  - it: should render extraVolumeMounts on the wait-for-Redis init container
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      initContainerDependencies.waitForRedis.enabled: true
+      initContainerDependencies.waitForPostgres.enabled: false
+      initContainerDependencies.waitForRedis.extraVolumeMounts:
+        - name: ca-certs
+          mountPath: /certs
+          readOnly: true
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[1].volumeMounts
+          value:
+            - name: ca-certs
+              mountPath: /certs
+              readOnly: true

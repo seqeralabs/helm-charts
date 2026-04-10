@@ -18,9 +18,6 @@ repos:
     hooks:
       - id: helmfmt
 
-  # The seqeralabs fork comes with Go text/template support and a fix for relative config files
-  # https://github.com/emzeat/mz-lictools/pull/47
-  # https://github.com/emzeat/mz-lictools/pull/48
   # Use separate calls to the same hook to first decorate helm template files with Go text/template
   # style, then decorate remaining yaml and other files with standard style.
   - repo: https://github.com/emzeat/mz-lictools

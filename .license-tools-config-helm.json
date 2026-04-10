@@ -11,11 +11,11 @@
     ".txt": "GO_TEXT_TEMPLATE_STYLE"
   },
   "include": [
-    "*/templates/*.tpl",
-    "*/templates/*.txt",
-    "*/templates/*.yaml",
-    "*/charts/*/templates/*.tpl",
-    "*/charts/*/templates/*.txt",
-    "*/charts/*/templates/*.yaml"
+    "charts/*/templates/*.tpl",
+    "charts/*/templates/*.txt",
+    "charts/*/templates/*.yaml",
+    "charts/*/charts/*/templates/*.tpl",
+    "charts/*/charts/*/templates/*.txt",
+    "charts/*/charts/*/templates/*.yaml"
   ]
 }

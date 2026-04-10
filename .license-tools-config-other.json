@@ -7,9 +7,9 @@
   "force_license": true,
   "title": false,
   "include": [
-    "*/Chart.yaml",
-    "*/values.yaml",
-    "*/charts/*/Chart.yaml",
-    "*/charts/*/values.yaml"
+    "charts/*/Chart.yaml",
+    "charts/*/values.yaml",
+    "charts/*/charts/*/Chart.yaml",
+    "charts/*/charts/*/values.yaml"
   ]
 }

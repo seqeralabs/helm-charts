@@ -65,6 +65,52 @@ include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"         
 {{- end -}}
 
 {{/*
+Common initContainer to wait for PostgreSQL database to be ready.
+
+Usage example:
+include "seqera.initContainers.waitForPostgres" (dict "name" "db" "waitValues" .Values.initContainerDependencies.waitForPostgres "connDetails" .Values.database "secretNameTemplate" "wave.database.existingSecret.secretName" "secretKeyTemplate" "wave.database.existingSecret.secretKey" "context" $)
+*/}}
+{{- define "seqera.initContainers.waitForPostgres" -}}
+- name: wait-for-{{ .name }}
+  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
+  imagePullPolicy: {{ .waitValues.image.pullPolicy }}
+  command:
+    - 'sh'
+    - '-c'
+    - |
+      echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+      until PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -d "$DB_NAME" -U "$DB_USERNAME" $PSQL_EXTRA_ARGS -c "SELECT VERSION()"; do
+        echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+        sleep $SLEEP_PERIOD_SECONDS
+      done
+      echo "$(date): db server ready"
+  env:
+    - name: SLEEP_PERIOD_SECONDS
+      value: "5"
+    - name: DB_HOST
+      value: {{ .connDetails.host | quote }}
+    - name: DB_PORT
+      value: {{ .connDetails.port | quote }}
+    - name: DB_NAME
+      value: {{ .connDetails.name | quote }}
+    - name: DB_USERNAME
+      value: {{ .connDetails.username | quote }}
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ include .secretNameTemplate .context }}
+          key: {{ include .secretKeyTemplate .context }}
+  {{- if .waitValues.extraEnvVars }}
+    {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraEnvVars "context" .context) | nindent 4 }}
+  {{- end }}
+  {{- if .waitValues.extraVolumeMounts }}
+  volumeMounts: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.extraVolumeMounts "context" .context) | nindent 4 }}
+  {{- end }}
+  securityContext: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.securityContext) | nindent 4 }}
+  resources: {{- include "seqera.tplvalues.render" (dict "value" .waitValues.resources) | nindent 4 }}
+{{- end -}}
+
+{{/*
 Common initContainer to wait for Redis to be ready.
 
 Usage example:
