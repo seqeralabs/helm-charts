@@ -1,0 +1,164 @@
+should render a Deployment with default values:
+  1: |
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      labels:
+        app.kubernetes.io/component: wave
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: wave
+        app.kubernetes.io/version: v1.32.4
+        helm.sh/chart: wave-1.2.3
+      name: release-name-wave
+      namespace: NAMESPACE
+    spec:
+      selector:
+        matchLabels:
+          app.kubernetes.io/component: wave
+          app.kubernetes.io/instance: RELEASE-NAME
+          app.kubernetes.io/name: wave
+      template:
+        metadata:
+          annotations:
+            checksum/configmap: 253619a7171c2e26b76c97806e3bf7d1d826296faf074fe4a09a23f12d4b36f9
+            checksum/secret: d612594cf83ec8761d401b8770dc0f1773a5465202c0190a5bd356068e945bea
+          labels:
+            app.kubernetes.io/component: wave
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: wave
+            app.kubernetes.io/version: v1.32.4
+            helm.sh/chart: wave-1.2.3
+        spec:
+          containers:
+            - env:
+                - name: WAVE_DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: WAVE_DB_PASSWORD
+                      name: release-name-wave
+              envFrom:
+                - configMapRef:
+                    name: release-name-wave
+              image: private/nf-tower-enterprise/wave:v1.32.4
+              imagePullPolicy: IfNotPresent
+              livenessProbe:
+                failureThreshold: 10
+                httpGet:
+                  path: /health
+                  port: 9090
+                initialDelaySeconds: 5
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 3
+              name: wave
+              readinessProbe:
+                failureThreshold: 5
+                httpGet:
+                  path: /health
+                  port: 9090
+                initialDelaySeconds: 5
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 3
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+              volumeMounts:
+                - mountPath: /work
+                  name: tmp
+              workingDir: /work
+          initContainers:
+            - command:
+                - sh
+                - -c
+                - '> /tmp/config.yml'
+              image: busybox:latest
+              name: busybox
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check for db $DB_HOST:$DB_PORT"
+                  until PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -d "$DB_NAME" -U "$DB_USERNAME" $PSQL_EXTRA_ARGS -c "SELECT VERSION()"; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): db server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: DB_HOST
+                  value: db.example.com
+                - name: DB_PORT
+                  value: "5432"
+                - name: DB_NAME
+                  value: wavedb
+                - name: DB_USERNAME
+                  value: wave
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: WAVE_DB_PASSWORD
+                      name: release-name-wave
+              image: postgres:12
+              imagePullPolicy: IfNotPresent
+              name: wait-for-db
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+            - command:
+                - sh
+                - -c
+                - |
+                  echo "$(date): starting check redis '$REDIS_URI' with password (if set) '$REDISCLI_AUTH'";
+                  until redis-cli -u "$REDIS_URI" get hello; do
+                    echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
+                    sleep $SLEEP_PERIOD_SECONDS
+                  done
+                  echo "$(date): redis server ready"
+              env:
+                - name: SLEEP_PERIOD_SECONDS
+                  value: "5"
+                - name: REDIS_URI
+                  value: redis://redis.example.com:6379
+              image: redis:7-alpine
+              imagePullPolicy: IfNotPresent
+              name: wait-for-redis
+              resources:
+                limits:
+                  memory: 100Mi
+                requests:
+                  cpu: "0.5"
+                  memory: 50Mi
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                readOnlyRootFilesystem: true
+                runAsNonRoot: true
+                runAsUser: 101
+          securityContext:
+            fsGroup: 101
+          serviceAccountName: release-name-wave-sa
+          volumes:
+            - emptyDir: {}
+              name: tmp

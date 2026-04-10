@@ -1,0 +1,469 @@
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Values in the .global section can be accessed by both parent and child subcharts as
+# .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
+global:
+  # -- Domain where Seqera Platform listens
+  platformExternalDomain: example.com
+
+  # -- Domain where Wave listens. Evaluated as a template
+  waveDomain: '{{ printf "wave.%s" .Values.global.platformExternalDomain }}'
+
+  # -- Optional credentials to log in and fetch images from a private registry. These credentials
+  # are shared with all the subcharts automatically
+  imageCredentials: []
+  # imageCredentials:
+  # - registry: ""
+  #   username: ""
+  #   password: ""
+  #   email: someone@example.com  # Optional
+
+  # -- Optional list of existing Secrets containing image pull credentials to use for pulling
+  # images from private registries. These Secrets are shared with all the subcharts automatically
+  imageCredentialsSecrets: []
+  # imageCredentialsSecrets:
+  # - myPrivateRegistryKeySecretName
+  #
+  # Each secret must be of type `kubernetes.io/dockerconfigjson` and contain the field
+  # `.dockerconfigjson` with value created with:
+  #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
+
+# -- List of Micronaut environments to enable
+micronautEnvironments:
+  - postgres
+  - redis
+  - lite
+
+database:
+  # -- PostgreSQL database hostname
+  host: ""
+  # -- PostgreSQL database port
+  port: 5432
+  # -- PostgreSQL database name
+  name: ""
+  # -- PostgreSQL database username
+  username: ""
+  # -- PostgreSQL database password
+  password: ""
+  # -- Name of an existing Secret containing credentials for the PostgreSQL database, as an
+  # alternative to the password field. Note: the Secret must already exist in the  same namespace at
+  # the time of
+  # deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the password for the PostgreSQL database
+  # @default -- `"WAVE_DB_PASSWORD"`
+  existingSecretKey: ""
+  # -- Enable TLS for the PostgreSQL database connection
+  enableTls: false
+
+redis:
+  # -- Redis hostname
+  host: ""
+  # -- Redis port
+  port: 6379
+  # -- Redis database index
+  db: 0
+  # -- Enable TLS when connecting to Redis
+  enableTls: false
+  # -- Redis password
+  password: ""
+  # -- Name of an existing Secret containing the Redis password, as an alternative to the password
+  # field. Note: the Secret must already exist in the same namespace at the time of deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the Redis password
+  # @default -- `"REDIS_PASSWORD"`
+  existingSecretKey: ""
+
+image:
+  # -- Container image registry
+  registry: ""
+  # -- Container image repository
+  repository: private/nf-tower-enterprise/wave
+  # -- Container image tag
+  # @default -- `"{{ .chart.AppVersion }}"`
+  tag: ""
+  # -- Container image digest in the format `sha256:1234abcdef`
+  digest: ""
+  # -- imagePullPolicy for the container
+  # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  pullPolicy: IfNotPresent
+  # -- List of imagePullSecrets
+  # Secrets must be created in the same namespace, for example using the .extraDeploy array
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  pullSecrets: []
+  # pullSecrets:
+  #   - myRegistryKeySecretName
+
+# -- Service configuration
+service:
+  # -- Service type.
+  # Note: ingresses using AWS ALB require the service to be NodePort
+  type: ClusterIP
+  http:
+    # -- Service name to use
+    name: http
+    # -- Service port
+    port: 9090
+    # -- Port on the pod/container that the Service forwards traffic to (can be a number or
+    # named port, distinct from the Service's external port)
+    targetPort: 9090
+    # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+    # Choose port between 30000-32767, unless the cluster was configured differently than default
+    nodePort: null
+
+  # -- Other services that should live in the Service object
+  # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  extraServices: []
+  # extraServices:
+  # - name: myspecialservice
+  #   port: 1234
+  #   targetPort: 5678
+  #   nodePort: null
+
+  # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
+  # externalTrafficPolicy, externalIPs). Evaluated as a template
+  extraOptions: {}
+
+# -- Additional init containers for the pod. Evaluated as a template
+initContainers: []
+
+# -- Override default container command (useful when using custom images)
+command: []
+# -- Override default container args (useful when using custom images)
+args: []
+# -- Working directory for the main container process. Evaluated as a template
+workingDir: /work
+
+# -- Additional labels for the pod. Evaluated as a template
+podLabels: {}
+# -- Additional annotations for the pod. Evaluated as a template
+podAnnotations: {}
+
+# -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
+# Evaluated as a template
+extraOptionsSpec: {}
+# extraOptionsSpec:
+#   strategy:
+#     rollingUpdate:
+#       maxUnavailable: 1
+#   strategy:
+#     rollingUpdate:
+#       maxUnavailable: x
+#       maxSurge: y
+
+# -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
+# etc). Evaluated as a template
+extraOptionsTemplateSpec: {}
+# extraOptionsTemplateSpec:
+#   nodeSelector:
+#     service: myspecialnodegroup
+
+# -- Extra environment variables
+extraEnvVars: []
+# extraEnvVars:
+#   - name: "CUSTOM_ENV_VAR"
+#     value: "set-a-value-here"
+
+# -- List of ConfigMaps containing extra env vars
+extraEnvVarsCMs: []
+# -- List of Secrets containing extra env vars
+extraEnvVarsSecrets: []
+# -- List of volumes to add to the deployment (evaluated as template). Requires setting
+# `extraVolumeMounts`
+extraVolumes: []
+# -- List of volume mounts to add to the container (evaluated as template). Normally used with
+# `extraVolumes`
+extraVolumeMounts: []
+
+# Configure Pods Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+# Empty map to disable Pod Security Context configuration
+podSecurityContext:
+  # -- Enable pod Security Context
+  enabled: true
+  # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
+  # in the pod can share group-owned access
+  fsGroup: 101
+
+# Configure Container Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+containerSecurityContext:
+  # -- Enable container Security Context
+  enabled: true
+  # -- UID the container processes run as (overrides container image default)
+  runAsUser: 101
+  # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  runAsNonRoot: true
+  # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  readOnlyRootFilesystem: true
+  # -- Fine-grained Linux kernel privileges to add or drop for the container
+  capabilities:
+    drop:
+      - ALL
+
+# -- Container requests and limits for different resources like CPU or memory
+resources: {}
+# `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
+# the kubelet then guarantees at least these resources to the pod. `.limits` are the
+# maximum resources a container is allowed to use
+# Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+# Seqera recommends tuning resources to match the expected workload. The following are
+# sensible defaults to start with:
+#
+# resources:
+#   requests:
+#     cpu: "200m"
+#     memory: "1400Mi"
+#   limits:
+#     memory: "1400Mi"
+
+initContainerDependencies:
+  # -- Enable init containers that coordinate startup dependencies
+  enabled: true
+
+  waitForRedis:
+    # -- Enable wait for Redis init container before starting the main container
+    enabled: true
+    image:
+      # -- Override default wait for Redis init container image
+      registry: ""
+      repository: redis
+      tag: 7-alpine
+      # Digest must be in the format `sha256:1234abcdef`
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- UID the container processes run as (overrides container image default)
+      runAsUser: 101
+      # -- Require the container to run as a non-root UID (prevents starting if UID is 0)
+      runAsNonRoot: true
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Container requests and limits for different resources like CPU or memory
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+    # -- Additional environment variables for the init container
+    extraEnvVars: []
+    # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    extraVolumeMounts: []
+
+  waitForPostgres:
+    # -- Enable wait for PostgreSQL init container before starting the main container
+    enabled: true
+    image:
+      # -- Override default wait for PostgreSQL init container image
+      registry: ""
+      repository: postgres
+      tag: "12"
+      # Digest must be in the format `sha256:1234abcdef`
+      digest: ""
+      pullPolicy: IfNotPresent
+
+    securityContext:
+      # -- UID the container processes run as (overrides container image default)
+      runAsUser: 101
+      # -- Require the container to run as a non-root UID (prevents starting if UID is 0)
+      runAsNonRoot: true
+      # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      readOnlyRootFilesystem: true
+      # -- Fine-grained Linux kernel privileges to add or drop for the container
+      capabilities:
+        drop:
+          - ALL
+
+    # -- Container requests and limits for different resources like CPU or memory
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "50Mi"
+      limits:
+        memory: "100Mi"
+
+    # -- Additional environment variables for the init container.
+    # The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness
+    # check command, and can be used to pass TLS flags when connecting to managed MySQL services
+    # such as AWS RDS or Azure Database for MySQL that require certificate verification.
+    # Pair with `extraVolumeMounts` to mount the CA certificate into the container.
+    # Example (TLS with CA certificate mounted from a volume):
+    # extraEnvVars:
+    #   - name: MYSQL_EXTRA_ARGS
+    #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+    extraEnvVars: []
+    # -- Additional volume mounts for the init container. Use this to mount CA certificates
+    # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
+    # `MYSQL_EXTRA_ARGS` can reference them.
+    extraVolumeMounts: []
+
+# Configure extra options for the startup probe
+startupProbe:
+  # -- Enable startup probe
+  enabled: false
+  httpGet:
+    # -- HTTP GET path for startup probe
+    path: "/health"
+    # -- HTTP GET port for startup probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Longer initial wait to accommodate slow-starting apps
+  initialDelaySeconds: 5
+  # -- Often set longer to avoid frequent checks while starting
+  periodSeconds: 10
+  # -- Can be longer to allow slow initialization responses
+  timeoutSeconds: 3
+  # -- Consecutive failures during startup before killing the container (instead of immediate
+  # restarts)
+  failureThreshold: 5
+  # -- Number of consecutive successes required to consider startup complete and enable
+  # liveness/readiness
+  successThreshold: 1
+
+# Configure extra options for the readiness probe
+readinessProbe:
+  # -- Enable readiness probe
+  enabled: true
+  httpGet:
+    # -- HTTP GET path for readiness probe
+    path: "/health"
+    # -- HTTP GET port for readiness probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Delay before first check (normal start timing)
+  initialDelaySeconds: 5
+  # -- Regular check interval during normal operation
+  periodSeconds: 5
+  # -- Short timeout to detect unresponsive containers for readiness
+  timeoutSeconds: 3
+  # -- Consecutive failures before marking the container Unready (no restart)
+  failureThreshold: 5
+  # -- Number of consecutive successes required to mark the container Ready after failures
+  successThreshold: 1
+
+# Configure extra options for the liveness probe
+livenessProbe:
+  # -- Enable liveness probe
+  enabled: true
+  httpGet:
+    # -- HTTP GET path for liveness probe
+    path: "/health"
+    # -- HTTP GET port for liveness probe. Evaluated as a template
+    port: "{{ .Values.service.http.targetPort }}"
+  # -- Delay before first check (normal start timing)
+  initialDelaySeconds: 5
+  # -- Regular check interval during normal operation
+  periodSeconds: 10
+  # -- Short timeout to detect hung containers quickly
+  timeoutSeconds: 3
+  # -- Consecutive failures before restarting the container
+  failureThreshold: 10
+  # -- Typically 1 (usually ignored)
+  successThreshold: 1
+
+# -- Service account configuration
+serviceAccount:
+  # -- Service account name
+  name: ""
+  # -- Service account annotations
+  annotations: {}
+  # -- Names of Secrets containing credentials to pull images from registries
+  imagePullSecretNames: []
+  # -- Automatically mount service account token
+  automountServiceAccountToken: true
+
+ingress:
+  # -- Enable ingress for Wave
+  enabled: false
+
+  # -- Path for the main ingress rule
+  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
+  path: "/"
+
+  # -- Default path type for the Ingress
+  defaultPathType: "ImplementationSpecific"
+
+  # -- Configure the default service for the ingress (evaluated as template)
+  # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
+  # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  defaultBackend: {}
+  # defaultBackend:
+  #   service:
+  #     name: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #     port:
+  #       number: '{{ .Values.frontend.service.http.port }}'
+
+  # -- Additional hosts you want to include. Evaluated as a template
+  extraHosts: []
+  # extraHosts:
+  #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-backend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.global.platformServicePort }}'
+  #   - host: '{{ printf "www.%s" .Values.global.platformExternalDomain }}'
+  #     paths:
+  #       - path: /*
+  #         pathType: Prefix  # Optional, defaults to defaultPathType
+  #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
+  #         portNumber: '{{ .Values.frontend.service.http.port }}'
+
+  # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  annotations: {}
+  # -- Additional labels for the ingress object. Evaluated as a template
+  extraLabels: {}
+  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`)
+  ingressClassName: ""
+  # -- TLS configuration. Evaluated as a template
+  tls: []
+  # tls:
+  #   - hosts:
+  #       - '{{ .Values.global.platformExternalDomain }}'
+  #       - '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
+  #     secretName: my-tls
+
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+# extraDeploy:
+#   - apiVersion: v1
+#     kind: MyExtraObjectKind
+#     ...
+#   - apiVersion: v1
+#     kind: AnotherExtraObjectKind
+#     ...
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+# -- Labels to add to all deployed objects
+commonLabels: {}
+# -- Additional labels for the Secret objects. Evaluated as a template
+secretLabels: {}
+# -- Additional annotations for the Secret objects. Evaluated as a template
+secretAnnotations: {}
+# -- Additional labels for the ConfigMap objects. Evaluated as a template
+configMapLabels: {}
+# -- Additional annotations for the ConfigMap objects. Evaluated as a template
+configMapAnnotations: {}

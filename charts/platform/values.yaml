@@ -53,6 +53,9 @@ global:
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
   studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
 
+  # -- Domain where Wave listens. Evaluated as a template
+  waveDomain: '{{ printf "wave.%s" .Values.global.platformExternalDomain }}'
+
   # -- Domain where Seqera MCP listens. Evaluated as a template
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 

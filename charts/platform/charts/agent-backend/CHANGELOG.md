@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2026-04-10
+
+### Changed
+
+- Reorder `values.yaml` sections to group `redis` alongside `database` for better readability
+- Update README to mention Redis connection details as a required configuration
+- Bump `seqera-common` dependency to 2.1.0
+
 ## [0.4.5] - 2026-04-08
 
 ### Changed

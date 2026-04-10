@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.4.5](https://img.shields.io/badge/Version-0.4.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 0.4.6](https://img.shields.io/badge/Version-0.4.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -14,7 +14,8 @@ The chart does not automatically define `cr.seqera.io` as the registry where to 
 
 The required values to set in order to have a working installation are:
 - The `.image` section to point to your container registry.
-- The database connection details for the Agent Backend MySQL database under the `.database` section.
+- The database connection details for the MySQL database under the `.database` section.
+- The redis connection details under the `.redis` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
@@ -35,7 +36,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.4.5 \
+  --version 0.4.6 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -72,18 +73,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | database.enableTls | bool | `false` | Enable TLS for the MySQL database connection |
 | database.tlsCaVerify | bool | `true` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
 | database.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
-| image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
-| image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
-| image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
-| image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
-| image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
-| anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
-| tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
-| tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
 | redis.host | string | `""` | Redis hostname |
 | redis.port | int | `6379` | Redis port |
 | redis.db | int | `0` | Redis database index |
@@ -91,6 +80,18 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.password | string | `""` | Redis password |
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
+| anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
+| anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
+| tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
+| tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
+| image.registry | string | `""` | Container image registry |
+| image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
+| image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
+| image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
+| image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
+| image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | logLevel | string | `"INFO"` | Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG) |
 | service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
 | service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |

@@ -1,0 +1,206 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Wave configmap
+templates:
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v1.32.4"
+tests:
+  - it: should render a ConfigMap with default values
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - matchSnapshot: {}
+
+  - it: should contain database configuration
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - equal:
+          path: data.WAVE_DB_USER
+          value: waveuser
+      - equal:
+          path: data.WAVE_DB_URI
+          value: "jdbc:postgresql://db.example.com:5432/wavedb"
+
+  - it: should use custom database port
+    set:
+      database.host: db.example.com
+      database.port: 5433
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - equal:
+          path: data.WAVE_DB_URI
+          value: "jdbc:postgresql://db.example.com:5433/wavedb"
+
+  - it: should contain platform endpoint URL
+    set:
+      global.platformExternalDomain: prod.example.com
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - equal:
+          path: data['TOWER_ENDPOINT_URL']
+          value: '"https://prod.example.com/api"'
+
+  - it: should contain Wave server URL
+    set:
+      global.platformExternalDomain: prod.example.com
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - equal:
+          path: data.WAVE_SERVER_URL
+          value: "https://prod.example.com"
+
+  - it: should contain Redis URI with default values
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      redis.host: redis.example.com
+    asserts:
+      - equal:
+          path: data.REDIS_URI
+          value: "redis://redis.example.com:6379"
+
+  - it: should contain Redis URI with TLS enabled
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      redis.host: redis.example.com
+      redis.enableTls: true
+    asserts:
+      - equal:
+          path: data.REDIS_URI
+          value: "rediss://redis.example.com:6379"
+
+  - it: should contain Redis URI with custom port
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      redis.host: redis.example.com
+      redis.port: 6380
+    asserts:
+      - equal:
+          path: data.REDIS_URI
+          value: "redis://redis.example.com:6380"
+
+  - it: should contain MICRONAUT_ENVIRONMENTS with default values
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+    asserts:
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: "postgres,redis,lite"
+
+  - it: should contain MICRONAUT_ENVIRONMENTS with custom values
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      micronautEnvironments:
+        - postgres
+        - redis
+        - lite
+        - custom-env
+    asserts:
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: "postgres,redis,lite,custom-env"
+
+  - it: should always include required postgres and redis micronaut environments
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      micronautEnvironments:
+        - lite
+        - custom-env
+    asserts:
+      - equal:
+          path: data.MICRONAUT_ENVIRONMENTS
+          value: "lite,custom-env,postgres,redis"
+
+  - it: should apply commonLabels to configmap
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should apply commonAnnotations to configmap
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      commonAnnotations:
+        custom-annotation: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            custom-annotation: custom-value
+
+  - it: should apply configMapLabels to configmap
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      configMapLabels:
+        cm-label: cm-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            cm-label: cm-value
+
+  - it: should apply configMapAnnotations to configmap
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: waveuser
+      configMapAnnotations:
+        cm-annotation: cm-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            cm-annotation: cm-value
