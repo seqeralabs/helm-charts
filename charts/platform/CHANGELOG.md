@@ -5,6 +5,10 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.30.1] - 2026-04-16
+
+- `oidc.pem` and `OIDC_CLIENT_REGISTRATION_TOKEN` secrets are now always generated (previously only when `studios.enabled=true`); required from Platform v26.1 onwards
+
 ## [0.30.0] - 2026-04-08
 
 ### Added
