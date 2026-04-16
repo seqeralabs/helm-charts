@@ -21,6 +21,12 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
+  # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
+  # hostname. Evaluated as a template
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+  # -- Seqera Platform Service port
+  platformServicePort: 8080
+
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
