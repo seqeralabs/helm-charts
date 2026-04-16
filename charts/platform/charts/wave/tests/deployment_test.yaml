@@ -194,7 +194,7 @@ tests:
           count: 3
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: busybox
+          value: touch-config-file
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: wait-for-db
@@ -217,7 +217,7 @@ tests:
           count: 2
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: busybox
+          value: touch-config-file
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: wait-for-redis
@@ -237,7 +237,7 @@ tests:
           count: 2
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: busybox
+          value: touch-config-file
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: wait-for-db
@@ -257,7 +257,7 @@ tests:
           count: 1
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: busybox
+          value: touch-config-file
 
   - it: should support custom init containers alongside built-in ones
     template: deployment.yaml
@@ -277,7 +277,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.initContainers[0].name
-          value: busybox
+          value: touch-config-file
       - equal:
           path: spec.template.spec.initContainers[1].name
           value: custom-init

@@ -78,8 +78,9 @@ should render a Deployment with default values:
                 - sh
                 - -c
                 - '> /tmp/config.yml'
-              image: busybox:latest
-              name: busybox
+              image: private/nf-tower-enterprise/wave:v1.32.4
+              imagePullPolicy: IfNotPresent
+              name: touch-config-file
               volumeMounts:
                 - mountPath: /tmp
                   name: tmp
@@ -109,7 +110,7 @@ should render a Deployment with default values:
                     secretKeyRef:
                       key: WAVE_DB_PASSWORD
                       name: release-name-wave
-              image: postgres:12
+              image: postgres:16-alpine
               imagePullPolicy: IfNotPresent
               name: wait-for-db
               resources:

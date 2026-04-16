@@ -63,8 +63,9 @@ spec:
 {{- end }}
 
       initContainers:
-        - name: busybox
-          image: busybox:latest
+        - name: touch-config-file
+          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "wave" "context" $) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["sh", "-c", "> /tmp/config.yml"]
           volumeMounts:
             - name: tmp
