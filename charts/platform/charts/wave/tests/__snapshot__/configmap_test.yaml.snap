@@ -1,0 +1,22 @@
+should render a ConfigMap with default values:
+  1: |
+    apiVersion: v1
+    data:
+      MICRONAUT_ENVIRONMENTS: postgres,redis,lite
+      MICRONAUT_SERVER_PORT: "9090"
+      REDIS_URI: redis://:6379
+      TOWER_ENDPOINT_URL: '"https://example.com/api"'
+      WAVE_DB_URI: jdbc:postgresql://db.example.com:5432/wavedb
+      WAVE_DB_USER: waveuser
+      WAVE_SERVER_URL: https://example.com
+    kind: ConfigMap
+    metadata:
+      annotations: {}
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: wave
+        app.kubernetes.io/version: v1.32.4
+        helm.sh/chart: wave-1.2.3
+      name: release-name-wave
+      namespace: NAMESPACE

@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.31.0] - 2026-04-09
+
+### Added
+
+- Add first version of the `wave` subchart, which deploys the Wave server (https://seqera.io/wave/)
+- Bump subcharts due to bump in `seqera-common` to 2.1.0: `pipeline-optimization` to 2.0.3, `studios` to 1.2.10, `wave` to 0.1.0, `mcp` to 0.3.1, `agent-backend` to 0.4.6, `portal-web` to 0.2.5.
+
 ## [0.30.2] - 2026-04-16
 
 ### Changed

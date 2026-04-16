@@ -1,0 +1,281 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Wave ingress
+templates:
+  - ingress.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v1.32.4"
+tests:
+  - it: should NOT render by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render when ingress.enabled is true
+    set:
+      ingress.enabled: true
+    asserts:
+      - isKind:
+          of: Ingress
+      - matchSnapshot: {}
+
+  - it: should set ingressClassName
+    set:
+      ingress.enabled: true
+      ingress.ingressClassName: nginx
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  - it: should not set ingressClassName when empty
+    set:
+      ingress.enabled: true
+      ingress.ingressClassName: ""
+    asserts:
+      - notExists:
+          path: spec.ingressClassName
+
+  - it: should configure TLS
+    set:
+      ingress.enabled: true
+      ingress.tls:
+        - hosts:
+            - wave.example.com
+          secretName: wave-tls
+    asserts:
+      - isNotNull:
+          path: spec.tls
+      - equal:
+          path: spec.tls[0].secretName
+          value: wave-tls
+
+  - it: should include default rule using global.waveDomain
+    set:
+      global.platformExternalDomain: test.example.com
+      global.waveDomain: wave.test.example.com
+      ingress.enabled: true
+      ingress.path: /
+      ingress.defaultPathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: wave.test.example.com
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: release-name-wave
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 9090
+
+  - it: should template global.waveDomain
+    set:
+      global.platformExternalDomain: test.example.com
+      global.waveDomain: "{{ .Release.Name }}-wave.example.com"
+      ingress.enabled: true
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: RELEASE-NAME-wave.example.com
+
+  - it: should handle service.http.port as integer
+    set:
+      ingress.enabled: true
+      service.http.port: 8888
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8888
+
+  - it: should handle service.http.port as template string
+    set:
+      ingress.enabled: true
+      service.http.port: "{{ .Release.Namespace | len | add 8000 }}"
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 8009
+
+  - it: should include both default rule and extraHosts
+    set:
+      global.waveDomain: wave.example.com
+      ingress.enabled: true
+      ingress.path: /
+      ingress.defaultPathType: Prefix
+      ingress.extraHosts:
+        - host: custom.example.com
+          paths:
+            - path: /api
+              pathType: Prefix
+              serviceName: api-service
+              portNumber: 8080
+    asserts:
+      - lengthEqual:
+          path: spec.rules
+          count: 2
+      - equal:
+          path: spec.rules[0].host
+          value: wave.example.com
+      - equal:
+          path: spec.rules[1].host
+          value: custom.example.com
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.name
+          value: api-service
+
+  - it: should handle portNumber as integer value
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: 8080
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8080
+
+  - it: should handle portNumber as string integer
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: "9000"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 9000
+
+  - it: should handle portNumber as template string
+    set:
+      ingress.enabled: true
+      service.http.port: 7777
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+              portNumber: "{{ .Values.service.http.port }}"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 7777
+
+  - it: should handle multiple extraHosts with different portNumber types
+    set:
+      ingress.enabled: true
+      service.http.port: 5555
+      ingress.extraHosts:
+        - host: api.example.com
+          paths:
+            - path: /v1
+              serviceName: api-v1
+              portNumber: 8001
+            - path: /v2
+              serviceName: api-v2
+              portNumber: "8002"
+        - host: admin.example.com
+          paths:
+            - path: /
+              serviceName: admin-service
+              portNumber: "{{ .Values.service.http.port }}"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.number
+          value: 8001
+      - equal:
+          path: spec.rules[1].http.paths[1].backend.service.port.number
+          value: 8002
+      - equal:
+          path: spec.rules[2].http.paths[0].backend.service.port.number
+          value: 5555
+
+  - it: should apply ingress annotations
+    set:
+      ingress.enabled: true
+      ingress.annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            nginx.ingress.kubernetes.io/rewrite-target: /
+
+  - it: should apply ingress extraLabels
+    set:
+      ingress.enabled: true
+      ingress.extraLabels:
+        ingress-label: ingress-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            ingress-label: ingress-value
+
+  - it: should apply commonLabels to ingress
+    set:
+      ingress.enabled: true
+      commonLabels:
+        custom-label: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            custom-label: custom-value
+
+  - it: should apply commonAnnotations to ingress
+    set:
+      ingress.enabled: true
+      commonAnnotations:
+        custom-annotation: custom-value
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            custom-annotation: custom-value
+
+  - it: should render defaultBackend when configured
+    set:
+      ingress.enabled: true
+      ingress.defaultBackend:
+        service:
+          name: default-backend
+          port:
+            number: 80
+    asserts:
+      - equal:
+          path: spec.defaultBackend
+          value:
+            service:
+              name: default-backend
+              port:
+                number: 80
