@@ -4,11 +4,19 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.2.4] - 2026-04-10
+## [0.2.5] - 2026-04-16
 
 ### Changed
 
 - Bump `seqera-common` dependency to 2.1.0
+
+## [0.2.4] - 2026-04-09
+
+### Changed
+
+- Point `SEQERA_PLATFORM_API_URL` to the internal Platform backend service (`platformServiceAddress`:`platformServicePort`) instead of the external domain
+- Add `SEQERA_PLATFORM_APP_URL` to the portal-web chart configmap using `global.platformExternalDomain`
+- Add `global.platformServiceAddress` and `global.platformServicePort` values
 
 ## [0.2.3] - 2026-04-08
 

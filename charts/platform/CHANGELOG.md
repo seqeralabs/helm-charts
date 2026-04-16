@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add first version of the `wave` subchart, which deploys the Wave server (https://seqera.io/wave/)
+- Bump subcharts due to bump in `seqera-common` to 2.1.0: `pipeline-optimization` to 2.0.3, `studios` to 1.2.10, `wave` to 0.1.0, `mcp` to 0.3.1, `agent-backend` to 0.4.6, `portal-web` to 0.2.5.
+
+## [0.30.2] - 2026-04-16
+
+### Changed
+
+- Portal web chart now uses the internal backend service (`global.platformServiceAddress`:`global.platformServicePort`) instead of the public external domain
+- Add `SEQERA_PLATFORM_APP_URL` to the portal-web chart configmap using `global.platformExternalDomain`
+- Bump `portal-web` subchart to 0.2.4
+
+## [0.30.1] - 2026-04-16
+
+- `oidc.pem` and `OIDC_CLIENT_REGISTRATION_TOKEN` secrets are now always generated (previously only when `studios.enabled=true`); required from Platform v26.1 onwards
 
 ## [0.30.0] - 2026-04-08
 
