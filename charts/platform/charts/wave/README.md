@@ -129,7 +129,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForPostgres.enabled | bool | `true` | Enable wait for PostgreSQL init container before starting the main container |
 | initContainerDependencies.waitForPostgres.image.registry | string | `""` | Override default wait for PostgreSQL init container image |
 | initContainerDependencies.waitForPostgres.image.repository | string | `"postgres"` |  |
-| initContainerDependencies.waitForPostgres.image.tag | string | `"12"` |  |
+| initContainerDependencies.waitForPostgres.image.tag | string | `"16-alpine"` |  |
 | initContainerDependencies.waitForPostgres.image.digest | string | `""` |  |
 | initContainerDependencies.waitForPostgres.image.pullPolicy | string | `"IfNotPresent"` |  |
 | initContainerDependencies.waitForPostgres.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |

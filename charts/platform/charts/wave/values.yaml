@@ -281,7 +281,7 @@ initContainerDependencies:
       # -- Override default wait for PostgreSQL init container image
       registry: ""
       repository: postgres
-      tag: "12"
+      tag: "16-alpine"
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
