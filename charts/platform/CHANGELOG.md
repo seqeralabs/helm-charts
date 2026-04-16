@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Portal web chart now uses the internal backend service (`global.platformServiceAddress`:`global.platformServicePort`) instead of the public external domain
+- Add `SEQERA_PLATFORM_APP_URL` to the portal-web chart configmap using `global.platformExternalDomain`
 - Bump `portal-web` subchart to 0.2.4
 
 ## [0.30.1] - 2026-04-16

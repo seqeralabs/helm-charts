@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 12a3236c4e794f416b8f0622f14b21911535597a6b15e579c5c24f79f3c8e6ed
+            checksum/configmap: 8bf5469b88620cecc2332b46677819a63e63351bdf69851fa2a4fae4dba0a2db
             checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
           labels:
             app.kubernetes.io/component: portal-web
