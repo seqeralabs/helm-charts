@@ -151,6 +151,8 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
+      agent-backend:
+        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -165,6 +167,8 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
+      agent-backend:
+        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -179,6 +183,8 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
+      agent-backend:
+        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -193,6 +199,175 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
+      agent-backend:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should fail when agent-backend is enabled and database.host is not defined
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: ""
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: "test-anthropic-key"
+        redis:
+          host: "redis.example.com"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend database host at 'agent-backend.database.host'\\."
+
+  - it: should fail when agent-backend is enabled and no Anthropic credentials are set
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: "database.example.com"
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: ""
+        anthropicApiKeyExistingSecretName: ""
+        redis:
+          host: "redis.example.com"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Anthropic API key at 'agent-backend.anthropicApiKey' or provide an existing secret name at 'agent-backend.anthropicApiKeyExistingSecretName'\\."
+
+  - it: should fail when agent-backend is enabled and redis.host is not defined
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: "database.example.com"
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: "test-anthropic-key"
+        redis:
+          host: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Agent Backend Redis host at 'agent-backend.redis.host'\\."
+
+  - it: should fail when agent-backend AgentCore ARN is set without region
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: "database.example.com"
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: "test-anthropic-key"
+        redis:
+          host: "redis.example.com"
+        agentcore:
+          agentArn: "arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime"
+          region: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the AgentCore region at 'agent-backend.agentcore.region' when 'agent-backend.agentcore.agentArn' is set\\."
+
+  - it: should fail when agent-backend AgentCore region is set without ARN
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: "database.example.com"
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: "test-anthropic-key"
+        redis:
+          host: "redis.example.com"
+        agentcore:
+          agentArn: ""
+          region: "eu-west-2"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the AgentCore runtime ARN at 'agent-backend.agentcore.agentArn' when 'agent-backend.agentcore.region' is set\\."
+
+  - it: should pass when agent-backend is disabled without agent-backend values
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when agent-backend is enabled with required values
+    set:
+      platformDatabase:
+        host: "whatever"
+        password: "whatever"
+      redis:
+        host: "whatever"
+      platform:
+        licenseString: "whatever"
+        executionBackends: [anything]
+      agent-backend:
+        enabled: true
+        database:
+          host: "database.example.com"
+          name: "agent_backend"
+          username: "agent"
+          password: "test-password"
+        anthropicApiKey: "test-anthropic-key"
+        redis:
+          host: "redis.example.com"
     asserts:
       - hasDocuments:
           count: 1

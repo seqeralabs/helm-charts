@@ -231,6 +231,37 @@ tests:
       - failedTemplate:
           errorPattern: "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both\\."
 
+  # AgentCore tests
+  - it: should fail when agentcore.agentArn is set without agentcore.region
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      agentcore.agentArn: "arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime"
+      agentcore.region: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the AgentCore region at 'agentcore.region' when 'agentcore.agentArn' is set\\."
+
+  - it: should fail when agentcore.region is set without agentcore.agentArn
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      agentcore.agentArn: ""
+      agentcore.region: "eu-west-2"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the AgentCore runtime ARN at 'agentcore.agentArn' when 'agentcore.region' is set\\."
+
   # Complete valid configuration test
   - it: should pass with all required values properly set
     set:

@@ -91,6 +91,12 @@ redis:
   # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
   existingSecretKey: ""
 
+agentcore:
+  # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
+  agentArn: ""
+  # -- AWS region for the Bedrock AgentCore runtime
+  region: ""
+
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""
 # -- Name of an existing Secret containing the Anthropic API key.
