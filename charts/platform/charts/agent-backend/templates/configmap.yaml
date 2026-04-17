@@ -52,7 +52,6 @@ data:
 
 {{- if .Values.agentcore.agentArn }}
   AGENTCORE_AGENT_ARN: {{ tpl .Values.agentcore.agentArn . | quote }}
-  AGENTCORE_REGION: {{ tpl .Values.agentcore.region . | quote }}
 {{- end }}
 
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

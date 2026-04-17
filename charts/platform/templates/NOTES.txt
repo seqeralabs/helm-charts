@@ -90,64 +90,6 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- $agentBackend := index .Values "agent-backend" -}}
-{{- if $agentBackend.enabled -}}
-{{- if not $agentBackend.database.host -}}
-{{- $message := "Define the Agent Backend database host at 'agent-backend.database.host'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if not $agentBackend.database.name -}}
-{{- $message := "Define the Agent Backend database name at 'agent-backend.database.name'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if not $agentBackend.database.username -}}
-{{- $message := "Define the Agent Backend database username at 'agent-backend.database.username'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and (not $agentBackend.database.password) (not $agentBackend.database.existingSecretName) -}}
-{{- $message := "Define the Agent Backend database password at 'agent-backend.database.password' or provide an existing secret name at 'agent-backend.database.existingSecretName'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and $agentBackend.database.password $agentBackend.database.existingSecretName -}}
-{{- $message := "Either provide 'agent-backend.database.password' or an existing secret name in 'agent-backend.database.existingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and (not $agentBackend.anthropicApiKey) (not $agentBackend.anthropicApiKeyExistingSecretName) -}}
-{{- $message := "Define the Anthropic API key at 'agent-backend.anthropicApiKey' or provide an existing secret name at 'agent-backend.anthropicApiKeyExistingSecretName'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and $agentBackend.anthropicApiKey $agentBackend.anthropicApiKeyExistingSecretName -}}
-{{- $message := "Either provide 'agent-backend.anthropicApiKey' or an existing secret name in 'agent-backend.anthropicApiKeyExistingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if not $agentBackend.redis.host -}}
-{{- $message := "Define the Agent Backend Redis host at 'agent-backend.redis.host'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and $agentBackend.redis.password $agentBackend.redis.existingSecretName -}}
-{{- $message := "Either provide 'agent-backend.redis.password' or an existing secret name in 'agent-backend.redis.existingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and $agentBackend.agentcore.agentArn (not $agentBackend.agentcore.region) -}}
-{{- $message := "Define the AgentCore region at 'agent-backend.agentcore.region' when 'agent-backend.agentcore.agentArn' is set." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and $agentBackend.agentcore.region (not $agentBackend.agentcore.agentArn) -}}
-{{- $message := "Define the AgentCore runtime ARN at 'agent-backend.agentcore.agentArn' when 'agent-backend.agentcore.region' is set." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-{{- end -}}
-
 Thank you for installing {{ .Chart.Name | title }}!
 
 Your release is named '{{ .Release.Name }}' and was installed in the '{{ include "common.names.namespace" . }}' namespace.

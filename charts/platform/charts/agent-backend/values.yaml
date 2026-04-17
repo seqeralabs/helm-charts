@@ -94,8 +94,6 @@ redis:
 agentcore:
   # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
   agentArn: ""
-  # -- AWS region for the Bedrock AgentCore runtime
-  region: ""
 
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""

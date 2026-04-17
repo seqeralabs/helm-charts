@@ -219,7 +219,7 @@ tests:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "true"
 
-  - it: should include AgentCore configuration when provided
+  - it: should include AgentCore runtime ARN when provided
     set:
       global.platformExternalDomain: test.example.com
       global.mcpDomain: mcp.test.example.com
@@ -227,11 +227,9 @@ tests:
       database.name: db
       database.username: user
       agentcore.agentArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
-      agentcore.region: eu-west-2
     asserts:
       - equal:
           path: data.AGENTCORE_AGENT_ARN
           value: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
-      - equal:
+      - notExists:
           path: data.AGENTCORE_REGION
-          value: eu-west-2

@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Add install-time validation for required `agent-backend` values when the parent chart enables that subchart
-- Add install-time validation for `agent-backend.agentcore.agentArn` / `agent-backend.agentcore.region` pairing
+- Bump `agent-backend` subchart to 0.4.7 to include explicit AgentCore runtime ARN chart support
 
 ## [0.31.0] - 2026-04-09
 

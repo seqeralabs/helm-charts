@@ -9,11 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add explicit `agentcore.agentArn` and `agentcore.region` values and render them into the chart configmap when configured
-
-### Changed
-
-- Add install-time validation requiring `agentcore.agentArn` and `agentcore.region` to be set together
+- Add explicit `agentcore.agentArn` value and render `AGENTCORE_AGENT_ARN` into the chart configmap when configured
 
 ## [0.4.6] - 2026-04-10
 
