@@ -51,3 +51,13 @@ data:
   AGENT_BACKEND_REDIS_TLS: {{ .Values.redis.enableTls | quote }}
 
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
+  USE_BEDROCK_INFERENCE: {{ .Values.embeddings.useBedrockInference | quote }}
+{{- if .Values.embeddings.bedrock.region }}
+  BEDROCK_REGION: {{ tpl (toString .Values.embeddings.bedrock.region) . | quote }}
+{{- end }}
+{{- if .Values.embeddings.bedrock.modelId }}
+  NEXTFLOW_DOCS_BEDROCK_MODEL_ID: {{ tpl (toString .Values.embeddings.bedrock.modelId) . | quote }}
+{{- end }}
+{{- if .Values.embeddings.bedrock.dimensions }}
+  NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: {{ include "seqera.tplvalues.render" (dict "value" .Values.embeddings.bedrock.dimensions "context" $) | quote }}
+{{- end }}

@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.4.6](https://img.shields.io/badge/Version-0.4.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 0.4.7](https://img.shields.io/badge/Version-0.4.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -17,6 +17,7 @@ The required values to set in order to have a working installation are:
 - The database connection details for the MySQL database under the `.database` section.
 - The redis connection details under the `.redis` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
+- Bedrock embedding settings under `.embeddings` when using AWS Titan for embeddings.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
@@ -36,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.4.6 \
+  --version 0.4.7 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -83,6 +84,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
+| embeddings | object | `{"bedrock":{"dimensions":"","modelId":"","region":""},"useBedrockInference":false}` |  |
+| embeddings.useBedrockInference | bool | `false` | Enable AWS Bedrock inference for embeddings generation. |
+| embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
+| embeddings.bedrock.modelId | string | `""` | Bedrock model ID used for embeddings |
+| embeddings.bedrock.dimensions | string | `""` | Embedding vector dimensions expected from the configured Bedrock model |
 | tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
 | tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
