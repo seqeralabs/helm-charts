@@ -84,7 +84,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
-| embeddings | object | `{"bedrock":{"dimensions":"","modelId":"","region":""},"useBedrockInference":false}` |  |
 | embeddings.useBedrockInference | bool | `false` | Enable AWS Bedrock inference for embeddings generation. |
 | embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
 | embeddings.bedrock.modelId | string | `""` | Bedrock model ID used for embeddings |

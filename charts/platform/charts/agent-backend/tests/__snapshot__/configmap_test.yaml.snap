@@ -16,6 +16,7 @@ should render a ConfigMap with default values:
       LOG_LEVEL: INFO
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
       SEQERA_PLATFORM_API_URL: https://test.example.com/api
+      USE_BEDROCK_INFERENCE: "false"
     kind: ConfigMap
     metadata:
       annotations: {}
