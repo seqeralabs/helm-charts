@@ -5,11 +5,17 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.31.1] - 2026-04-17
+## [0.32.1] - 2026-04-20
 
 ### Changed
 
-- Bump `agent-backend` subchart to 0.4.7 to include explicit AgentCore runtime ARN chart support
+- Bump `agent-backend` subchart to 0.4.7 to include explicit AgentCore runtime ARN requirement
+
+## [0.32.0] - 2026-04-20
+
+### Added
+
+- Add 'oauth-client' to the list of Micronaut environments to enable on Platform backend, required for tower cli and other clients from v25.3 onwards to work properly with OIDC authentication
 
 ## [0.31.0] - 2026-04-09
 
