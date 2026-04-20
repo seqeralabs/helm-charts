@@ -13,6 +13,7 @@ should render a ConfigMap with default values:
       AGENT_BACKEND_REDIS_HOST: ""
       AGENT_BACKEND_REDIS_PORT: "6379"
       AGENT_BACKEND_REDIS_TLS: "false"
+      AGENTCORE_AGENT_ARN: ""
       LOG_LEVEL: INFO
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
       SEQERA_PLATFORM_API_URL: https://test.example.com/api

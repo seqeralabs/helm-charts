@@ -226,7 +226,7 @@ tests:
       database.host: mysql
       database.name: db
       database.username: user
-      agentcore.agentArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
+      bedrockAgentCoreArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
     asserts:
       - equal:
           path: data.AGENTCORE_AGENT_ARN

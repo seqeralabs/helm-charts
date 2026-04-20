@@ -151,8 +151,6 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
-      agent-backend:
-        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -167,8 +165,6 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
-      agent-backend:
-        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -183,8 +179,6 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
-      agent-backend:
-        enabled: false
     asserts:
       - hasDocuments:
           count: 1
@@ -199,8 +193,6 @@ tests:
       platform:
         licenseString: "whatever"
         executionBackends: [anything]
-      agent-backend:
-        enabled: false
     asserts:
       - hasDocuments:
           count: 1

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add explicit `agentcore.agentArn` value and render `AGENTCORE_AGENT_ARN` into the chart configmap when configured
+- Add explicit `bedrockAgentCoreArn` value and render `AGENTCORE_AGENT_ARN` into the chart configmap when configured
 
 ## [0.4.6] - 2026-04-10
 
