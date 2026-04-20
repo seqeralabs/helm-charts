@@ -18,7 +18,7 @@ The required values to set in order to have a working installation are:
 - The redis connection details under the `.redis` section.
 - The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
-- Bedrock embedding settings under `.embeddings` when using AWS Titan for embeddings.
+- Bedrock embedding settings under `.embeddings` (in particular the AWS region to use for the Bedrock embedding engine).
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
@@ -83,13 +83,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
 | bedrockAgentCoreArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions |
+| embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
+| embeddings.bedrock.modelId | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings |
+| embeddings.bedrock.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model |
 | anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
-| embeddings.useBedrockInference | bool | `false` | Enable AWS Bedrock inference for embeddings generation. |
-| embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
-| embeddings.bedrock.modelId | string | `""` | Bedrock model ID used for embeddings |
-| embeddings.bedrock.dimensions | string | `""` | Embedding vector dimensions expected from the configured Bedrock model |
 | tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
 | tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |

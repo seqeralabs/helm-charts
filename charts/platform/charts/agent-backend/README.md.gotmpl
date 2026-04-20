@@ -17,7 +17,7 @@ The required values to set in order to have a working installation are:
 - The redis connection details under the `.redis` section.
 - The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
-- Bedrock embedding settings under `.embeddings` when using AWS Titan for embeddings.
+- Bedrock embedding settings under `.embeddings` (in particular the AWS region to use for the Bedrock embedding engine).
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.

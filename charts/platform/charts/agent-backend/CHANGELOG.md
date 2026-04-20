@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add first-class Bedrock embedding configuration values (`embeddings.useBedrockInference`, `embeddings.bedrock.region`, `embeddings.bedrock.modelId`, and `embeddings.bedrock.dimensions`) and render them as `USE_BEDROCK_INFERENCE`, `BEDROCK_REGION`, `NEXTFLOW_DOCS_BEDROCK_MODEL_ID`, and `NEXTFLOW_DOCS_BEDROCK_DIMENSIONS` in the Agent Backend ConfigMap
+- Add first-class Bedrock embedding configuration values under `.embeddings`
 - Add explicit `bedrockAgentCoreArn` value and render `AGENTCORE_AGENT_ARN` into the chart configmap when configured
 
 ## [0.4.6] - 2026-04-10

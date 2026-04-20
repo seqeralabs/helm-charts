@@ -52,14 +52,9 @@ data:
 
   AGENTCORE_AGENT_ARN: {{ tpl .Values.bedrockAgentCoreArn . | quote }}
 
-  LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
-  USE_BEDROCK_INFERENCE: {{ .Values.embeddings.useBedrockInference | quote }}
-{{- if .Values.embeddings.bedrock.region }}
+  USE_BEDROCK_INFERENCE: "true"
   BEDROCK_REGION: {{ tpl (toString .Values.embeddings.bedrock.region) . | quote }}
-{{- end }}
-{{- if .Values.embeddings.bedrock.modelId }}
   NEXTFLOW_DOCS_BEDROCK_MODEL_ID: {{ tpl (toString .Values.embeddings.bedrock.modelId) . | quote }}
-{{- end }}
-{{- if .Values.embeddings.bedrock.dimensions }}
   NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: {{ include "seqera.tplvalues.render" (dict "value" .Values.embeddings.bedrock.dimensions "context" $) | quote }}
-{{- end }}
+
+  LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}

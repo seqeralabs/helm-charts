@@ -111,7 +111,7 @@ tests:
           path: data.LOG_LEVEL
           value: DEBUG
 
-  - it: should set Bedrock inference disabled by default
+  - it: should always enable Bedrock inference
     set:
       global.platformExternalDomain: test.example.com
       global.mcpDomain: mcp.test.example.com
@@ -121,22 +121,31 @@ tests:
     asserts:
       - equal:
           path: data.USE_BEDROCK_INFERENCE
-          value: "false"
-      - notExists:
-          path: data.BEDROCK_REGION
-      - notExists:
-          path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
-      - notExists:
-          path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
+          value: "true"
 
-  - it: should render Bedrock embeddings settings when enabled
+  - it: should render Bedrock embeddings settings with default values
     set:
       global.platformExternalDomain: test.example.com
       global.mcpDomain: mcp.test.example.com
       database.host: mysql
       database.name: db
       database.username: user
-      embeddings.useBedrockInference: true
+    asserts:
+      - isSubset:
+          path: data
+          content:
+            USE_BEDROCK_INFERENCE: "true"
+            BEDROCK_REGION: ""
+            NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
+            NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+
+  - it: should render Bedrock embeddings settings when configured
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
       embeddings.bedrock.region: eu-west-2
       embeddings.bedrock.modelId: amazon.titan-embed-text-v2:0
       embeddings.bedrock.dimensions: 1024

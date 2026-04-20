@@ -94,6 +94,15 @@ redis:
 # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
 bedrockAgentCoreArn: ""
 
+embeddings:
+  bedrock:
+    # -- AWS region where the Bedrock model is hosted
+    region: ""
+    # -- Bedrock model ID used for embeddings
+    modelId: "amazon.titan-embed-text-v2:0"
+    # -- Embedding vector dimensions expected from the configured Bedrock model
+    dimensions: "1024"
+
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""
 # -- Name of an existing Secret containing the Anthropic API key.
@@ -102,18 +111,6 @@ anthropicApiKeyExistingSecretName: ""
 # -- Key in the existing Secret containing the Anthropic API key
 # @default -- `"ANTHROPIC_API_KEY"`
 anthropicApiKeyExistingSecretKey: ""
-
-embeddings:
-  # -- Enable AWS Bedrock inference for embeddings generation.
-  useBedrockInference: false
-
-  bedrock:
-    # -- AWS region where the Bedrock model is hosted
-    region: ""
-    # -- Bedrock model ID used for embeddings
-    modelId: ""
-    # -- Embedding vector dimensions expected from the configured Bedrock model
-    dimensions: ""
 
 # -- Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret,
 # not both at the same time. If not defined, a random Fernet key will be auto-generated at each
