@@ -111,6 +111,53 @@ tests:
           path: data.LOG_LEVEL
           value: DEBUG
 
+  - it: should always enable Bedrock inference
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.USE_BEDROCK_INFERENCE
+          value: "true"
+
+  - it: should render Bedrock embeddings settings with default values
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - isSubset:
+          path: data
+          content:
+            USE_BEDROCK_INFERENCE: "true"
+            BEDROCK_REGION: ""
+            NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
+            NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+
+  - it: should render Bedrock embeddings settings when configured
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      embeddings.bedrock.region: eu-west-2
+      embeddings.bedrock.modelId: amazon.titan-embed-text-v2:0
+      embeddings.bedrock.dimensions: 1024
+    asserts:
+      - isSubset:
+          path: data
+          content:
+            USE_BEDROCK_INFERENCE: "true"
+            BEDROCK_REGION: eu-west-2
+            NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
+            NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+
   - it: should contain default Redis configuration
     set:
       global.platformExternalDomain: test.example.com
@@ -218,3 +265,18 @@ tests:
       - equal:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "true"
+
+  - it: should include AgentCore runtime ARN when provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      bedrockAgentCoreArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
+    asserts:
+      - equal:
+          path: data.AGENTCORE_AGENT_ARN
+          value: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
+      - notExists:
+          path: data.AGENTCORE_REGION

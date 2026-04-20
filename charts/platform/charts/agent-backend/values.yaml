@@ -91,6 +91,18 @@ redis:
   # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
   existingSecretKey: ""
 
+# -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
+bedrockAgentCoreArn: ""
+
+embeddings:
+  bedrock:
+    # -- AWS region where the Bedrock model is hosted
+    region: ""
+    # -- Bedrock model ID used for embeddings
+    modelId: "amazon.titan-embed-text-v2:0"
+    # -- Embedding vector dimensions expected from the configured Bedrock model
+    dimensions: "1024"
+
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""
 # -- Name of an existing Secret containing the Anthropic API key.
