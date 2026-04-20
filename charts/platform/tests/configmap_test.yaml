@@ -24,10 +24,11 @@ chart:
   version: 1.2.3
   appVersion: "v9.9.9"
 tests:
-- it: should render 4 different CM documents by default
+- it: shuld render 4 different CM documents by default
   asserts:
   - hasDocuments:
       count: 4
+
 - it: should render cron cm with default values
   documentSelector:
     path: metadata.name
@@ -40,6 +41,7 @@ tests:
       value:
         MICRONAUT_ENVIRONMENTS: prod,redis,cron
         TOWER_CRON_SERVER_PORT: '8082'
+
 - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
   documentSelector:
     path: metadata.name
@@ -56,6 +58,7 @@ tests:
   - equal:
       path: data.MICRONAUT_ENVIRONMENTS
       value: prod,whatever1,whatever2,redis,cron
+
 - it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
   documentSelector:
     path: metadata.name
@@ -66,6 +69,7 @@ tests:
   asserts:
   - notExists:
       path: data.TOWER_DATA_STUDIO_CONNECT_URL
+
 - it: should apply common labels
   chart:
     version: 9.8.7
@@ -90,6 +94,7 @@ tests:
         environment: dev
         team: platform
         numericLabelAsString: '8080'
+
 - it: should render env var with the requested execution backends
   documentSelector:
     path: metadata.name
@@ -103,6 +108,7 @@ tests:
   - equal:
       path: data.TOWER_ENABLE_PLATFORMS
       value: altair-platform,slurm-platform
+
 - it: should render tower-yml cm with provided data
   documentSelector:
     path: metadata.name
@@ -116,6 +122,7 @@ tests:
       value:
         tower.yml: "tower:\n  data-studio:\n    allowed-workspaces: null\n---\nsomeKey: someValue\nanotherKey:\n  nestedKey:\
           \ nestedValue"
+
 - it: should render annotations in all configmaps when provided
   set:
     global:
@@ -131,6 +138,7 @@ tests:
       value:
         annotation1: value1
         annotation2: '1234'
+
 - it: should merge annotations from commonAnnotations and platform.configMapAnnotations
   set:
     commonAnnotations:
@@ -147,6 +155,7 @@ tests:
       value:
         annotation1: this overrides the common annotation
         annotation2: this should stay
+
 - it: should render labels in all configmaps when provided via platform.configMapLabels
   chart:
     version: 9.8.7
@@ -171,6 +180,7 @@ tests:
         helm.sh/chart: platform-9.8.7
         labelA: valueA
         labelB: '1234'
+
 - it: should render database driver correctly with default "mariadb"
   documentSelector:
     path: metadata.name
@@ -179,6 +189,7 @@ tests:
   - equal:
       path: data.TOWER_DB_DRIVER
       value: org.mariadb.jdbc.Driver
+
 - it: should render database driver correctly when using "mysql" as alias
   documentSelector:
     path: metadata.name
@@ -190,6 +201,7 @@ tests:
   - equal:
       path: data.TOWER_DB_DRIVER
       value: org.mariadb.jdbc.Driver
+
 - it: should fail when empty database driver is provided
   set:
     platformDatabase:
@@ -197,6 +209,7 @@ tests:
   asserts:
   - failedTemplate:
       errorMessage: 'Unsupported database driver: ''''. Supported drivers are: ''mariadb'' (or its alias ''mysql'').'
+
 - it: should render db dialect correctly when explicitly set to "mysql-8"
   documentSelector:
     path: metadata.name
@@ -208,6 +221,7 @@ tests:
   - equal:
       path: data.TOWER_DB_DIALECT
       value: io.seqera.util.MySQL8DialectCollateBin
+
 - it: should fail when database dialect is unsupported
   set:
     platformDatabase:
@@ -215,6 +229,7 @@ tests:
   asserts:
   - failedTemplate:
       errorMessage: 'Unsupported database dialect: ''unsupported-dialect''. Supported dialects are: ''mysql-8'', ''mariadb-10''.'
+
 - it: should render database url correctly for mariadb driver with default list of parameters
   documentSelector:
     path: metadata.name
@@ -223,6 +238,7 @@ tests:
   - equal:
       path: data.TOWER_DB_URL
       value: jdbc:mysql://:3306/?permitMysqlScheme=true
+
 - it: should render database url correctly for mysql driver (alias for mariadb) with specified parameters
   documentSelector:
     path: metadata.name
@@ -238,6 +254,7 @@ tests:
   - equal:
       path: data.TOWER_DB_URL
       value: jdbc:mysql://:3306/?param1=value1&param2=value2
+
 - it: should render database url correctly using mariadb options when no mysql options are provided
   documentSelector:
     path: metadata.name
@@ -253,6 +270,7 @@ tests:
   - equal:
       path: data.TOWER_DB_URL
       value: jdbc:mysql://:3306/?param1=value1&param2=value2
+
 - it: should render database url with custom database name
   documentSelector:
     path: metadata.name
@@ -266,6 +284,7 @@ tests:
   - equal:
       path: data.TOWER_DB_URL
       value: jdbc:mysql://db.example.com:3306/tower_db?permitMysqlScheme=true
+
 - it: should render database url with custom name and connection options
   documentSelector:
     path: metadata.name
@@ -283,12 +302,14 @@ tests:
   - equal:
       path: data.TOWER_DB_URL
       value: jdbc:mysql://prod-db.example.com:3306/production_db?useSSL=true&serverTimezone=UTC
+
 - it: should render Studios tools environment variables when studios is enabled with default tools
   documentSelector:
     path: metadata.name
     value: release-name-platform-backend
   asserts:
   - matchSnapshot: {}
+
 - it: should render custom Studios tool when provided
   documentSelector:
     path: metadata.name
@@ -302,6 +323,7 @@ tests:
             recommended: registry.example.com/custom-tool:v1.0.0
   asserts:
   - matchSnapshot: {}
+
 - it: should render custom Studios tool with deprecated and experimental versions when provided
   documentSelector:
     path: metadata.name
@@ -317,6 +339,7 @@ tests:
             experimental: registry.example.com/custom-tool:v3.0.0
   asserts:
   - matchSnapshot: {}
+
 - it: should turn on data explorer flag when enabled
   documentSelector:
     path: metadata.name
@@ -329,6 +352,7 @@ tests:
   - equal:
       path: data.TOWER_DATA_EXPLORER_ENABLED
       value: 'true'
+
 - it: should turn on data explorer flag when studios is enabled even if dataExplorer is disabled
   documentSelector:
     path: metadata.name
@@ -343,6 +367,7 @@ tests:
   - equal:
       path: data.TOWER_DATA_EXPLORER_ENABLED
       value: 'true'
+
 - it: should render Studios Wave custom image registry and repository when configured
   documentSelector:
     path: metadata.name
@@ -361,6 +386,7 @@ tests:
   - equal:
       path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
       value: myteam/studios-repo
+
 - it: should fail when database driver is unsupported
   set:
     platformDatabase:
@@ -368,6 +394,7 @@ tests:
   asserts:
   - failedTemplate:
       errorMessage: 'Unsupported database driver: ''unsupported''. Supported drivers are: ''mariadb'' (or its alias ''mysql'').'
+
 - it: should not render Studios tools environment variables when studios is disabled
   documentSelector:
     path: metadata.name
@@ -380,8 +407,9 @@ tests:
       path: data
       value:
         GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
-        MICRONAUT_ENVIRONMENTS: prod,redis,ha,wave,groundswell
+        MICRONAUT_ENVIRONMENTS: prod,redis,ha,oauth-client,wave,groundswell
         TOWER_DATA_EXPLORER_ENABLED: 'false'
+
 - it: should render TOWER_OIDC_PEM_PATH in the shared-backend-cron configmap regardless of studios.enabled
   documentSelector:
     path: metadata.name
@@ -393,6 +421,7 @@ tests:
   - equal:
       path: data.TOWER_OIDC_PEM_PATH
       value: /data/certs/oidc.pem
+
 - it: should not render TOWER_OIDC_PEM_PATH in the backend-only configmap
   documentSelector:
     path: metadata.name
