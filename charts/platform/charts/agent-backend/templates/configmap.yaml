@@ -50,6 +50,8 @@ data:
   AGENT_BACKEND_REDIS_DB: {{ .Values.redis.db | quote }}
   AGENT_BACKEND_REDIS_TLS: {{ .Values.redis.enableTls | quote }}
 
+  AGENTCORE_AGENT_ARN: {{ tpl .Values.bedrockAgentCoreArn . | quote }}
+
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
   USE_BEDROCK_INFERENCE: {{ .Values.embeddings.useBedrockInference | quote }}
 {{- if .Values.embeddings.bedrock.region }}

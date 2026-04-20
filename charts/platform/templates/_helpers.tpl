@@ -117,6 +117,7 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 {{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
 {{- $list = append $list "ha" -}}
+{{- $list = append $list "oauth-client" -}}
   {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
   {{- if not (empty .Values.platform.waveServerUrl) -}}
 {{- $list = append $list "wave" -}}

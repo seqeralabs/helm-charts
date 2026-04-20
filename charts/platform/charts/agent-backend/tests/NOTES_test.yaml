@@ -132,6 +132,7 @@ tests:
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1
@@ -145,6 +146,7 @@ tests:
         existingSecretName: "my-secret"
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1
@@ -185,6 +187,7 @@ tests:
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1
@@ -198,6 +201,7 @@ tests:
         password: "test-password"
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
       redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1
@@ -212,6 +216,7 @@ tests:
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
       redis.host: ""
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend Redis host at 'redis.host'\\."
@@ -227,9 +232,38 @@ tests:
       redis.host: "redis.example.com"
       redis.password: "my-redis-password"
       redis.existingSecretName: "my-redis-secret"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - failedTemplate:
           errorPattern: "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both\\."
+
+  # Bedrock AgentCore ARN tests
+  - it: should fail when bedrockAgentCoreArn is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      bedrockAgentCoreArn: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Bedrock AgentCore runtime ARN at 'bedrockAgentCoreArn'\\."
+
+  - it: should fail when bedrockAgentCoreArn is missing
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Bedrock AgentCore runtime ARN at 'bedrockAgentCoreArn'\\."
 
   # Complete valid configuration test
   - it: should pass with all required values properly set
@@ -241,6 +275,7 @@ tests:
         password: "test-password"
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1
@@ -256,6 +291,7 @@ tests:
       anthropicApiKeyExistingSecretName: "anthropic-secret"
       redis.host: "redis.example.com"
       redis.existingSecretName: "redis-secret"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - hasDocuments:
           count: 1

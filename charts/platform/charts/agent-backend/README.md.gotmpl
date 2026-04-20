@@ -15,6 +15,7 @@ The required values to set in order to have a working installation are:
 - The `.image` section to point to your container registry.
 - The database connection details for the MySQL database under the `.database` section.
 - The redis connection details under the `.redis` section.
+- The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
 - Bedrock embedding settings under `.embeddings` when using AWS Titan for embeddings.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
