@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump `agent-backend` subchart to 0.4.7 to include explicit AgentCore runtime ARN requirement
+- Bump `agent-backend` subchart to 0.4.7 to include explicit AgentCore runtime ARN requirement and embedding configuration validation
 
 ## [0.32.0] - 2026-04-20
 
