@@ -133,6 +133,7 @@ tests:
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
@@ -147,6 +148,7 @@ tests:
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
@@ -188,6 +190,7 @@ tests:
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
@@ -202,6 +205,7 @@ tests:
       anthropicApiKeyExistingSecretName: "my-anthropic-secret"
       redis.host: "redis.example.com"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
@@ -265,6 +269,71 @@ tests:
       - failedTemplate:
           errorPattern: "Define the Bedrock AgentCore runtime ARN at 'bedrockAgentCoreArn'\\."
 
+  # Bedrock embeddings configuration tests
+  - it: should fail when embeddings.bedrock.region is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
+
+  - it: should fail when embeddings.bedrock.modelId is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
+      embeddings.bedrock.modelId: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
+
+  - it: should fail when embeddings.bedrock.dimensions is not defined
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
+      embeddings.bedrock.dimensions: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
+
+  - it: should pass when all embeddings.bedrock values are set
+    set:
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+      redis.host: "redis.example.com"
+      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
+      embeddings.bedrock.modelId: "test-model"
+      embeddings.bedrock.dimensions: 1024
+    asserts:
+      - hasDocuments:
+          count: 1
+
   # Complete valid configuration test
   - it: should pass with all required values properly set
     set:
@@ -276,6 +345,7 @@ tests:
       anthropicApiKey: "test-anthropic-key"
       redis.host: "redis.example.com"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
@@ -292,6 +362,7 @@ tests:
       redis.host: "redis.example.com"
       redis.existingSecretName: "redis-secret"
       bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
+      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1

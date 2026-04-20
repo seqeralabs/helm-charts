@@ -18,6 +18,7 @@ The required values to set in order to have a working installation are:
 - The redis connection details under the `.redis` section.
 - The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
 - Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
+- Bedrock embedding settings under `.embeddings` (in particular the AWS region to use for the Bedrock embedding engine).
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
@@ -82,6 +83,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
 | bedrockAgentCoreArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions |
+| embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
+| embeddings.bedrock.modelId | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings |
+| embeddings.bedrock.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model |
 | anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |

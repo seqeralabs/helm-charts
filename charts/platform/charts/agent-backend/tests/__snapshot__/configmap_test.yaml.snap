@@ -14,9 +14,13 @@ should render a ConfigMap with default values:
       AGENT_BACKEND_REDIS_PORT: "6379"
       AGENT_BACKEND_REDIS_TLS: "false"
       AGENTCORE_AGENT_ARN: ""
+      BEDROCK_REGION: ""
       LOG_LEVEL: INFO
+      NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+      NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
       SEQERA_PLATFORM_API_URL: https://test.example.com/api
+      USE_BEDROCK_INFERENCE: "true"
     kind: ConfigMap
     metadata:
       annotations: {}
