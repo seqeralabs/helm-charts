@@ -10,6 +10,8 @@ jobs:
     name: 'Update Helm chart'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -141,12 +143,74 @@ jobs:
           \`\`\`
           EOF
 
-            # Create the release with auto-generated notes
+            # Create the release with auto-generated notes and attach the
+            # packaged chart as a release asset so it can be served as a
+            # standard Helm repository via GitHub Pages (see cr index step below).
             gh release create "${release_tag}" \
               --repo ${{ github.repository }} \
               --title "${chart_name} ${chart_version}" \
               --generate-notes \
-              --notes-file ${temp_file}
+              --notes-file ${temp_file} \
+              "${chart_name}-${chart_version}.tgz"
 
             echo "Created release ${release_tag}"
           done
+
+      - name: 'Bootstrap empty gh-pages branch if missing'
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            echo "gh-pages branch already exists."
+            exit 0
+          fi
+          echo "Creating empty gh-pages branch."
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git worktree add --orphan -b gh-pages gh-pages-init
+          cd gh-pages-init
+          # .nojekyll prevents GitHub Pages from running the index through Jekyll,
+          # which would mangle filenames starting with an underscore.
+          touch .nojekyll
+          git add .nojekyll
+          git commit -m "Initialize gh-pages branch"
+          git push origin gh-pages
+
+      - name: 'Install chart-releaser'
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        run: |
+          curl -fsSL -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.8.1/chart-releaser_1.8.1_linux_amd64.tar.gz
+          echo "834046b27b00cd6ba451326875c1937d4f2b671063c2053e031434ade73002b5  cr.tar.gz" | sha256sum -c
+          tar -xzf cr.tar.gz cr
+          sudo mv cr /usr/local/bin/cr
+
+      - name: 'Update GitHub Pages Helm repo index'
+        if: github.ref_name == 'master' && env.charts_to_package != ''
+        shell: bash
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Stage the freshly packaged .tgz files for cr index. The .tgz themselves
+          # are hosted as GitHub Release assets (uploaded in the previous step);
+          # cr uses this directory only to discover which charts to include.
+          mkdir -p .cr-release-packages
+          for chart in $charts_to_package; do
+            chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
+            chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
+            mv "${chart_name}-${chart_version}.tgz" .cr-release-packages/
+          done
+
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo="${GITHUB_REPOSITORY##*/}"
+
+          cr index \
+            --owner "${owner}" \
+            --git-repo "${repo}" \
+            --token "${CR_TOKEN}" \
+            --package-path .cr-release-packages \
+            --index-path .cr-index \
+            --pages-branch gh-pages \
+            --push

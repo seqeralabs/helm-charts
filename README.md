@@ -23,6 +23,29 @@ Each chart comes with its own README file containing specific instructions and d
 scenarios are also provided in the `examples/` directory to help you configure and deploy the
 charts in different environments.
 
+## Installing the charts
+
+Charts are published in two ways. Pick whichever fits your tooling.
+
+### As a Helm repository (HTTPS)
+
+```bash
+helm repo add seqera https://seqeralabs.github.io/helm-charts
+helm repo update
+helm search repo seqera
+helm install my-platform seqera/platform --version <version>
+```
+
+### From the OCI registry
+
+```bash
+helm pull oci://public.cr.seqera.io/charts/platform --version <version>
+helm install my-platform oci://public.cr.seqera.io/charts/platform --version <version>
+```
+
+The HTTPS repository only contains versions published from April 2026 onwards.
+For older releases, use the OCI registry.
+
 ## Vendoring Seqera container images and charts
 
 Refer to the [vendoring documentation](./VENDORING.md) for instructions on how to vendor Seqera
