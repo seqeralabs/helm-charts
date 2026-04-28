@@ -29,6 +29,8 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: "my-oidc-secret"
       oauth.jwtSeedString: "my-jwt-seed"
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
@@ -39,6 +41,8 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: "my-oidc-secret"
       oauth.jwtSeedString: "my-jwt-seed"
     asserts:
       - hasDocuments:
@@ -48,6 +52,8 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: "my-oidc-secret"
       oauth.jwtSeedSecretName: "my-jwt-secret"
     asserts:
       - hasDocuments:
@@ -57,6 +63,49 @@ tests:
     set:
       micronautEnvironments:
         - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: "my-oidc-secret"
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  # OIDC token mutual exclusion and requirement
+  - it: should fail when both oidcToken.tokenString and oidcToken.existingSecretName are set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.tokenString: "my-oidc-token"
+      oidcToken.existingSecretName: "my-oidc-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Either provide 'oidcToken.tokenString' or an existing secret name in 'oidcToken.existingSecretName', but not both\\."
+
+  - it: should fail when neither oidcToken.tokenString nor oidcToken.existingSecretName are set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "An OIDC client registration token must be provided"
+
+  - it: should pass when only oidcToken.tokenString is set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.tokenString: "my-oidc-token"
+      oidcToken.existingSecretName: ""
+    asserts:
+      - hasDocuments:
+          count: 1
+
+  - it: should pass when only oidcToken.existingSecretName is set
+    set:
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.tokenString: ""
+      oidcToken.existingSecretName: "my-oidc-secret"
     asserts:
       - hasDocuments:
           count: 1

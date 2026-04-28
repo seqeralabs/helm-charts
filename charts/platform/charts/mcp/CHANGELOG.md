@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed the name of the initial access token variable in the helper script
+- Fixed the name of the oauth initial access token variable in the helper script
+- Made oauth initial access token a requirement for the MCP chart
 
 ## [0.3.1] - 2026-04-10
 

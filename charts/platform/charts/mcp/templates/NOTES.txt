@@ -24,6 +24,14 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
+{{- if and .Values.oidcToken.tokenString .Values.oidcToken.existingSecretName -}}
+{{- fail "Either provide 'oidcToken.tokenString' or an existing secret name in 'oidcToken.existingSecretName', but not both." -}}
+{{- end -}}
+
+{{- if not (or .Values.oidcToken.tokenString .Values.oidcToken.existingSecretName) -}}
+{{- fail "An OIDC client registration token must be provided: set 'oidcToken.tokenString' or point to an existing secret via 'oidcToken.existingSecretName'." -}}
+{{- end -}}
+
 Thank you for installing {{ .Chart.Name | title }}!
 
 Your release is named '{{ .Release.Name }}' and was installed in the '{{ include "common.names.namespace" . }}' namespace.
