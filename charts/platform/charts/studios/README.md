@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.2.10](https://img.shields.io/badge/Version-1.2.10-informational?style=flat-square) ![AppVersion: 0.11.0](https://img.shields.io/badge/AppVersion-0.11.0-informational?style=flat-square)
+![Version: 1.2.11](https://img.shields.io/badge/Version-1.2.11-informational?style=flat-square) ![AppVersion: 0.11.0](https://img.shields.io/badge/AppVersion-0.11.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -17,8 +17,7 @@ https://docs.seqera.io/platform-enterprise/enterprise/configuration/pipeline_opt
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
-- oidc token (auto set if not)
-
+- The OIDC client registration token under `.proxy.oidcClientRegistrationToken` (or reference an existing Secret with `.proxy.oidcClientRegistrationTokenSecretName`). When deploying as part of the platform parent chart this is set automatically; when deploying standalone it must match the value configured in the platform backend.
 - The `.image` and the `.dbMigrationInitContainer.image` sections to point to your container registry.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
@@ -41,7 +40,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.2.10 \
+  --version 1.2.11 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -92,7 +91,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | proxy.oidcClientRegistrationToken | string | `""` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
 | proxy.oidcClientRegistrationTokenSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment |
-| proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
+| proxy.oidcClientRegistrationTokenSecretKey | string | `"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 | proxy.localCacheTTL | string | `"2m"` | TTL for local cache of Redis keys used for resiliency against Redis failures |
 | proxy.service.type | string | `"ClusterIP"` | Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | proxy.service.http.name | string | `"http"` | Service name to use |

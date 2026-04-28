@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.11] - 2026-04-28
+
+### Added
+
+- Write `CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN` to the chart-managed secret when `proxy.oidcClientRegistrationToken` is set as a string, enabling standalone deployments without an external secret
+- Require either `proxy.oidcClientRegistrationToken` or `proxy.oidcClientRegistrationTokenSecretName` to be set at install/upgrade time
+
 ## [1.2.10] - 2026-04-10
 
 ### Changed

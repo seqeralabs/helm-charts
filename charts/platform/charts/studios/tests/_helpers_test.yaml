@@ -214,16 +214,17 @@ tests:
           value: "RELEASE-NAME-oidc"
 
   # studios.oidcToken.secretKey helper tests
-  - it: should use default secret key OIDC_CLIENT_REGISTRATION_TOKEN when existingSecretKey is not set
+  - it: should use default secret key CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN when existingSecretKey is not set
     template: deployment-proxy.yaml
     set:
       proxy:
         oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
         oidcClientRegistrationTokenSecretKey: ""
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
-          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+          value: "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"
 
   - it: should use custom secret key when oidcClientRegistrationTokenSecretKey is provided with external secret
     template: deployment-proxy.yaml
@@ -260,7 +261,7 @@ tests:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
           value: "RELEASE-NAME-studios-oidc"
 
-  - it: should always use OIDC_CLIENT_REGISTRATION_TOKEN key when using chart-managed secret even if secretKey is customized
+  - it: should always use CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN key when using chart-managed secret even if secretKey is customized
     template: deployment-proxy.yaml
     set:
       proxy:
@@ -270,7 +271,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
-          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+          value: "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"
 
   - it: should use custom secret key with tpl evaluation when using external secret
     template: deployment-proxy.yaml
@@ -301,8 +302,9 @@ tests:
     set:
       proxy:
         oidcClientRegistrationToken: "test-token"
+        oidcClientRegistrationTokenSecretName: ""
         oidcClientRegistrationTokenSecretKey: ""
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
-          value: "OIDC_CLIENT_REGISTRATION_TOKEN"
+          value: "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"

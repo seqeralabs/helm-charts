@@ -42,6 +42,10 @@ It contains validations that are run at install/upgrade time.
 {{- fail "Either define an OIDC token in .Values.proxy.oidcClientRegistrationToken or via a secret in .Values.proxy.oidcClientRegistrationTokenSecretName, but not both." -}}
 {{- end -}}
 
+{{- if not (or .Values.proxy.oidcClientRegistrationToken .Values.proxy.oidcClientRegistrationTokenSecretName) -}}
+{{- fail "An OIDC client registration token must be provided: set 'proxy.oidcClientRegistrationToken' or point to an existing secret via 'proxy.oidcClientRegistrationTokenSecretName'." -}}
+{{- end -}}
+
 {{- if not .Values.global.platformServiceAddress -}}
 {{- fail "global.platformServiceAddress must be defined." -}}
 {{- end -}}

@@ -33,6 +33,7 @@ tests:
   set:
     proxy:
       oidcClientRegistrationToken: my-oidc-token
+      oidcClientRegistrationTokenSecretName: ""
   asserts:
   - isKind:
       of: StatefulSet
@@ -68,6 +69,7 @@ tests:
   set:
     proxy:
       oidcClientRegistrationToken: asdf
+      oidcClientRegistrationTokenSecretName: ""
     server:
       podLabels:
         key123: this-overrides-the-commonLabels
@@ -80,7 +82,7 @@ tests:
   - equal:
       path: spec.template.metadata.annotations
       value:
-        checksum/secret: a41b091d75333e0876e6c90366fb95b69620d3ccf3e0ad646ae0d263df246c10
+        checksum/secret: 21967464b5aad616961092d9e460c5f5a498acabe29129cb58441fd15ed70816
   - equal:
       path: spec.template.metadata.labels
       value:
@@ -100,6 +102,7 @@ tests:
   set:
     proxy:
       oidcClientRegistrationToken: my-oidc-token
+      oidcClientRegistrationTokenSecretName: ""
     server:
       image:
         pullPolicy: Always
