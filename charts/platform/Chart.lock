@@ -16,7 +16,7 @@ dependencies:
   version: 0.1.0
 - name: mcp
   repository: file://charts/mcp
-  version: 0.3.1
+  version: 0.3.2
 - name: agent-backend
   repository: file://charts/agent-backend
   version: 0.4.6

@@ -366,7 +366,7 @@ platform:
   # deployment
   oidcClientRegistrationTokenSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
-  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  # @default -- `"MCP_OAUTH_INITIAL_ACCESS_TOKEN"`
   oidcClientRegistrationTokenSecretKey: ""
 
   smtp:

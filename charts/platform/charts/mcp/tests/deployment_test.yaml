@@ -48,7 +48,7 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: release-name-mcp
-                key: OIDC_CLIENT_REGISTRATION_TOKEN
+                key: MCP_OAUTH_INITIAL_ACCESS_TOKEN
 
   - it: should inject MCP_OAUTH_INITIAL_ACCESS_TOKEN from existing secret when set
     template: deployment.yaml
