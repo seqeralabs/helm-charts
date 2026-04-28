@@ -101,6 +101,6 @@ key: {{ include "studios.oidcToken.secretKey" $studiosContext }}
   {{- if (include "studios.oidcToken.existingSecret" .) -}}
     {{- printf "%s" (tpl .Values.proxy.oidcClientRegistrationTokenSecretKey .) | default "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
   {{- else -}}
-    {{- printf "OIDC_CLIENT_REGISTRATION_TOKEN" -}}
+    {{- printf "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN" -}}
   {{- end -}}
 {{- end -}}

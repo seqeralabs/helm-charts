@@ -36,6 +36,7 @@ tests:
       platformServicePort: 8080
     proxy:
       oidcClientRegistrationToken: my-oidc-token
+      oidcClientRegistrationTokenSecretName: ""
   asserts:
   - isKind:
       of: Deployment
@@ -71,6 +72,7 @@ tests:
   set:
     proxy:
       oidcClientRegistrationToken: asdf
+      oidcClientRegistrationTokenSecretName: ""
       podLabels:
         key123: this-overrides-the-commonLabels
     redis:
@@ -82,7 +84,7 @@ tests:
   - equal:
       path: spec.template.metadata.annotations
       value:
-        checksum/secret: cf2e486d918e7aa4728f9c3db088ffd3b7072ecb519195791af6316520aa98b9
+        checksum/secret: 64912ff6a61ee0025ad6e20f4ffca6e51f030509e1ab24c779557491cc74b8a6
   - equal:
       path: spec.template.metadata.labels
       value:
@@ -105,6 +107,7 @@ tests:
       platformServicePort: 8080
     proxy:
       oidcClientRegistrationToken: my-oidc-token
+      oidcClientRegistrationTokenSecretName: ""
       image:
         pullPolicy: Always
         pullSecrets:

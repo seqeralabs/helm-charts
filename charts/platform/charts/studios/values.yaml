@@ -115,7 +115,7 @@ proxy:
   # in the same namespace at the time of deployment
   oidcClientRegistrationTokenSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
-  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  # @default -- `"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"`
   oidcClientRegistrationTokenSecretKey: ""
 
   # -- TTL for local cache of Redis keys used for resiliency against Redis failures

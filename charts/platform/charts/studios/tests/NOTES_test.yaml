@@ -25,6 +25,9 @@ tests:
     set:
       redis:
         host: ""
+      proxy:
+        oidcClientRegistrationToken: "asdf"
+        oidcClientRegistrationTokenSecretName: ""
       global:
         redis:
           host: ""
@@ -66,6 +69,23 @@ tests:
     asserts:
       - failedTemplate:
           errorPattern: .*Either define an OIDC token in .Values.proxy.oidcClientRegistrationToken or via a secret in .Values.proxy.oidcClientRegistrationTokenSecretName, but not both.*
+
+  - it: should fail when neither oidcClientRegistrationToken nor oidcClientRegistrationTokenSecretName are set
+    set:
+      redis:
+        host: "redis.example.com"
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: ""
+      global:
+        platformServiceAddress: "platform.example.com"
+        platformServicePort: 8080
+        platformExternalDomain: "platform.example.com"
+        studiosDomain: '{{ printf "studios.%s" (tpl .Values.global.platformExternalDomain $) }}'
+        studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
+    asserts:
+      - failedTemplate:
+          errorPattern: "An OIDC client registration token must be provided"
 
   - it: should pass when oidcClientRegistrationToken is defined and oidcClientRegistrationTokenSecretName is not
     set:

@@ -9,7 +9,7 @@ should run using config requested by the user:
     template:
       metadata:
         annotations:
-          checksum/secret: b80b1bc08c14341170ea8cd5f96a038d7c2e9fd40f00761cd9c165f9dbe90249
+          checksum/secret: d97a4cdb87cade4c5248eae7c307e7c19445bb1d2c0137fc932ffd8951a14f94
         labels:
           app.kubernetes.io/component: proxy
           app.kubernetes.io/instance: RELEASE-NAME
@@ -28,8 +28,8 @@ should run using config requested by the user:
               - name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
                 valueFrom:
                   secretKeyRef:
-                    key: OIDC_CLIENT_REGISTRATION_TOKEN
-                    name: RELEASE-NAME-platform-backend
+                    key: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+                    name: release-name-studios
               - name: MY_SPECIAL_ENVIRONMENT_VARIABLE
                 value: set-a-value-here
             envFrom:
@@ -132,7 +132,7 @@ should set the proxy deployment image using the chart version and use sane defau
       template:
         metadata:
           annotations:
-            checksum/secret: b80b1bc08c14341170ea8cd5f96a038d7c2e9fd40f00761cd9c165f9dbe90249
+            checksum/secret: d97a4cdb87cade4c5248eae7c307e7c19445bb1d2c0137fc932ffd8951a14f94
           labels:
             app.kubernetes.io/component: proxy
             app.kubernetes.io/instance: RELEASE-NAME
@@ -146,8 +146,8 @@ should set the proxy deployment image using the chart version and use sane defau
                 - name: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
                   valueFrom:
                     secretKeyRef:
-                      key: OIDC_CLIENT_REGISTRATION_TOKEN
-                      name: RELEASE-NAME-platform-backend
+                      key: CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN
+                      name: release-name-studios
               envFrom:
                 - configMapRef:
                     name: release-name-studios-common

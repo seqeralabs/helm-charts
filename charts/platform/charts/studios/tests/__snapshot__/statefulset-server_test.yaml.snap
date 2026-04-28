@@ -10,7 +10,7 @@ should run using config requested by the user:
     template:
       metadata:
         annotations:
-          checksum/secret: a72c589f456990485afcc28aea1909ef411996ad3412d8ec207423a9923c9b4c
+          checksum/secret: e573d2931dab1490d7eb5277f2a139fa0524f40786627826519ffee588abbde7
         labels:
           app.kubernetes.io/component: server
           app.kubernetes.io/instance: RELEASE-NAME
@@ -88,7 +88,7 @@ should set the statefulset server image using the chart version and use sane def
       template:
         metadata:
           annotations:
-            checksum/secret: a72c589f456990485afcc28aea1909ef411996ad3412d8ec207423a9923c9b4c
+            checksum/secret: e573d2931dab1490d7eb5277f2a139fa0524f40786627826519ffee588abbde7
           labels:
             app.kubernetes.io/component: server
             app.kubernetes.io/instance: RELEASE-NAME
