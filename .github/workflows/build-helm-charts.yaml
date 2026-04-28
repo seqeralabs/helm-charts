@@ -141,12 +141,14 @@ jobs:
           \`\`\`
           EOF
 
-            # Create the release with auto-generated notes
+            # Create the release with auto-generated notes and attach the
+            # packaged chart as a release asset.
             gh release create "${release_tag}" \
               --repo ${{ github.repository }} \
               --title "${chart_name} ${chart_version}" \
               --generate-notes \
-              --notes-file ${temp_file}
+              --notes-file ${temp_file} \
+              "${chart_name}-${chart_version}.tgz"
 
             echo "Created release ${release_tag}"
           done
