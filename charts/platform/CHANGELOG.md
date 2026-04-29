@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Bump `mcp` subchart to 0.3.3 and `studios` subchart to 1.2.12 to fix default OIDC external secret key to match each chart's own managed secret key
+- Bump `mcp` subchart to 0.3.3 and `studios` subchart to 1.2.12 to fix default OIDC external secret
+  key to match each chart's own managed secret key
+
+### Changed
+
+- Add `TOWER_SEQERA_AI_PORTAL_URL` env variable to platform backend configmap
 
 ## [0.32.3] - 2026-04-28
 
