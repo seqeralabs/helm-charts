@@ -17,6 +17,18 @@ helm repo add seqeralabs https://seqerlabs.github.io/helm-charts
 
 You can then run `helm search repo seqeralabs` to see the charts.
 
+### OCI registry
+
+Charts are also published as OCI artifacts to `public.cr.seqera.io/charts`. You can install
+directly from the OCI registry without adding the Helm repo, for example:
+
+```console
+helm install my-release oci://public.cr.seqera.io/charts/platform --version <version>
+```
+
+For high availability or air-gapped deployments, you can vendor (replicate) the charts into your
+own internal OCI registry. See the [vendoring documentation](https://github.com/seqeralabs/helm-charts/blob/master/VENDORING.md) for details.
+
 <!-- Keep full URL links to repo files because this README syncs from master to gh-pages.  -->
 
 Chart documentation is available in [seqeralabs directory](https://github.com/seqeralabs/helm-charts/blob/master/README.md).
