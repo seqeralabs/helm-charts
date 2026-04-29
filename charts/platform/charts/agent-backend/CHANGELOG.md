@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.8] - 2026-04-29
+
+### Changed
+
+- Point `SEQERA_PLATFORM_API_URL` to the internal Platform backend service (`platformServiceAddress`:`platformServicePort`) instead of the external domain
+- Add `SEQERA_PLATFORM_URL` env var pointing to the external platform URL for use in links and callbacks from the agent backend
+- Add `global.platformServiceAddress` and `global.platformServicePort` values
+
 ## [0.4.7] - 2026-04-20
 
 ### Added
