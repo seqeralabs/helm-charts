@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.3.3](https://img.shields.io/badge/Version-0.3.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/mcp \
-  --version 0.3.2 \
+  --version 0.3.3 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -71,7 +71,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | registryApiEndpoint | string | `"https://registry.nextflow.io"` | API endpoint of Seqera Nextflow Registry. |
 | oidcToken.tokenString | string | `""` | OIDC client registration token as a string. Used to dynamically register an OAuth client with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random value is generated. When deployed via the platform parent chart, this is automatically defined with the value of the OIDC client registration token from the platform backend secret, so it should not be set in that case. When deploying independently of the platform parent chart, this must be set to the same value defined in the platform backend secret. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication |
 | oidcToken.existingSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment. |
-| oidcToken.existingSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token. |
+| oidcToken.existingSecretKey | string | `"MCP_OAUTH_INITIAL_ACCESS_TOKEN"` | Key in the existing Secret containing the OIDC client registration token. |
 | oauth.issuerUrl | string | `""` | OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform API endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default behavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`. |
 | oauth.audience | string | `"platform"` | OAuth audience for MCP to authenticate with. This is the expected audience claim in the tokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this should be set to "platform" to match the audience of the internal client that Platform creates for MCP. When using a custom OAuth provider, this should match the audience configured for the client that MCP uses to authenticate with that provider |
 | oauth.jwtSeedString | string | `""` | JWT seed, defined as string, used to sign authentication tokens. Define the value as a String or a Secret, not both at the same time. If neither is defined, Helm generates a random 35-character string. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication |
