@@ -42,6 +42,9 @@ data:
   TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: {{ .Values.platform.studios.customImageRepository | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
+{{- if (index .Values "portal-web" "enabled") }}
+  TOWER_SEQERA_AI_PORTAL_URL: {{ printf "http://%s" (tpl .Values.global.portalWebDomain $) | quote }}
+{{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
