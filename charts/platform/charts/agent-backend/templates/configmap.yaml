@@ -58,5 +58,12 @@ data:
   BEDROCK_REGION: {{ tpl (toString .Values.embeddings.bedrock.region) . | quote }}
   NEXTFLOW_DOCS_BEDROCK_MODEL_ID: {{ tpl (toString .Values.embeddings.bedrock.modelId) . | quote }}
   NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: {{ include "seqera.tplvalues.render" (dict "value" .Values.embeddings.bedrock.dimensions "context" $) | quote }}
+  NEXTFLOW_DOCS_USE_REDIS_INDEX: {{ .Values.nextflowDocs.useRedisIndex | quote }}
+{{- if .Values.bedrockAssumeRoleArn }}
+  AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN: {{ tpl .Values.bedrockAssumeRoleArn . | quote }}
+{{- end }}
+{{- if .Values.bedrockAnthropicModel }}
+  BEDROCK_ANTHROPIC_MODEL: {{ tpl .Values.bedrockAnthropicModel . | quote }}
+{{- end }}
 
   LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
