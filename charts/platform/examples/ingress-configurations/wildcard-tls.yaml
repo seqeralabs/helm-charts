@@ -76,5 +76,3 @@ ingress:
         - platform.example.com
         - user-data.example.com
       secretName: wildcard-tls  # Single wildcard certificate
-
-  defaultPathType: Prefix

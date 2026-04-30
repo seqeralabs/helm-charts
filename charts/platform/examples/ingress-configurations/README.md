@@ -188,13 +188,41 @@ ingress:
       secretName: wildcard-tls
 ```
 
+### Resolving a chart's hostname in annotations: `seqera.ingress.host`
+
+Each chart ships a `seqera.ingress.host` template helper that returns its own
+primary domain (`global.platformExternalDomain` for platform,
+`global.studiosDomain` for studios, etc.). Drop it into
+`global.ingress.annotations` once and every chart's Ingress renders with the
+right hostname — useful for things like external-dns where the annotation
+value needs to match the actual host:
+
+```yaml
+global:
+  ingress:
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: '{{ include "seqera.ingress.host" . }}'
+```
+
+For wildcard forms (e.g. studios uses `*.studios.example.com`), compose the
+helper:
+
+```yaml
+external-dns.alpha.kubernetes.io/hostname: '*.{{ include "seqera.ingress.host" . }}'
+```
+
 ### Path Types
 
-- `ImplementationSpecific` (default): Ingress controller decides interpretation
-- `Prefix`: Matches URL path prefix
+- `Prefix` (default): Matches URL path prefix — works for nginx, traefik, AWS ALB, and most modern controllers
+- `ImplementationSpecific`: Ingress controller decides interpretation
 - `Exact`: Exact path match only
 
-For AWS ALB, always use path `/*` and `Prefix` type.
+For AWS ALB, set `path: "/*"` (path syntax required by ALB). The default `Prefix`
+path type works fine.
+
+The default can be set once cluster-wide via `global.ingress.defaultPathType`,
+which propagates to every chart's Ingress. A chart's local
+`ingress.defaultPathType` still wins when set.
 
 ### Common Annotations
 

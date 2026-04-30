@@ -104,3 +104,13 @@ key: {{ include "studios.oidcToken.secretKey" $studiosContext }}
     {{- printf "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return this chart's primary ingress hostname. See parent platform chart's `_helpers.tpl` for
+usage notes — `'{{ include "seqera.ingress.host" . }}'` in `global.ingress.annotations` resolves
+to each chart's own domain at render time. Returns the bare studios domain — users wanting the
+wildcard form can write `'*.{{ include "seqera.ingress.host" . }}'`.
+*/}}
+{{- define "seqera.ingress.host" -}}
+{{- tpl .Values.global.studiosDomain . -}}
+{{- end -}}

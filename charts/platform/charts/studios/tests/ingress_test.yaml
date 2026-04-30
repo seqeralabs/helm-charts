@@ -112,7 +112,7 @@ tests:
           value: "*.studios.example.com"
       - equal:
           path: spec.rules[0].http.paths[0].pathType
-          value: "ImplementationSpecific"
+          value: "Prefix"
       - equal:
           path: spec.rules[0].http.paths[0].path
           value: "/"
@@ -467,7 +467,7 @@ tests:
     asserts:
       - equal:
           path: spec.rules[1].http.paths[0].pathType
-          value: "ImplementationSpecific"
+          value: "Prefix"
 
   - it: should handle proxy.service.http.port as integer
     set:

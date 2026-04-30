@@ -2,7 +2,7 @@
 
 Wave
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.32.4](https://img.shields.io/badge/AppVersion-v1.32.4-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.32.4](https://img.shields.io/badge/AppVersion-v1.32.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -35,7 +35,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/wave \
-  --version 0.1.1 \
+  --version 0.2.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -59,6 +59,13 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.waveDomain | string | `"{{ printf \"wave.%s\" .Values.global.platformExternalDomain }}"` | Domain where Wave listens. Evaluated as a template |
+| global.ingress.enabled | bool | `false` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |
+| global.ingress.path | string | `"/"` | Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`. |
+| global.ingress.defaultPathType | string | `"Prefix"` | Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers. |
+| global.ingress.ingressClassName | string | `""` | Default ingress class name applied when `ingress.ingressClassName` is not set |
+| global.ingress.annotations | object | `{}` | Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template |
+| global.ingress.extraLabels | object | `{}` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
+| global.ingress.tls | list | `[]` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | micronautEnvironments | list | `["postgres","redis","lite"]` | List of Micronaut environments to enable |
@@ -169,13 +176,13 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
 | serviceAccount.automountServiceAccountToken | bool | `true` | Automatically mount service account token |
 | ingress.enabled | bool | `false` | Enable ingress for Wave |
-| ingress.path | string | `"/"` | Path for the main ingress rule Note: this needs to be set to '/*' to be used with AWS ALB ingress controller |
-| ingress.defaultPathType | string | `"ImplementationSpecific"` | Default path type for the Ingress |
+| ingress.path | string | `""` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
+| ingress.defaultPathType | string | `""` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
 | ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
 | ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
 | ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
-| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`) |
+| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
 | extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
