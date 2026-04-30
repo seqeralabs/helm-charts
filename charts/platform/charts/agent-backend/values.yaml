@@ -21,6 +21,12 @@ global:
   # -- Domain where Seqera Platform listens
   platformExternalDomain: example.com
 
+  # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
+  # hostname. Evaluated as a template
+  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+  # -- Seqera Platform Service port
+  platformServicePort: 8080
+
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
@@ -94,6 +100,17 @@ redis:
 # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
 bedrockAgentCoreArn: ""
 
+# -- Optional IAM role ARN that the Agent Backend assumes for cross-account Bedrock access.
+# Leave empty to let the pod directly use the AWS credentials provided to it (single-account setup).
+bedrockAssumeRoleArn: ""
+
+# -- Override the Anthropic model used on Bedrock by specifying an inference profile ARN. You can
+# create a custom inference profile that uses the Anthropic model you want or use the default
+# inference profile for the model provided by AWS. When doing cross-account access with
+# `bedrockAssumeRoleArn`, you may want to specify an inference profile ARN on the account where the
+# hop role is defined
+bedrockAnthropicModel: ""
+
 embeddings:
   bedrock:
     # -- AWS region where the Bedrock model is hosted
@@ -102,6 +119,11 @@ embeddings:
     modelId: "amazon.titan-embed-text-v2:0"
     # -- Embedding vector dimensions expected from the configured Bedrock model
     dimensions: "1024"
+
+nextflowDocs:
+  # -- Use a Redis-backed vector index for the Nextflow documentation knowledge base.
+  # Disabled by default.
+  useRedisIndex: false
 
 # -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
 anthropicApiKey: ""

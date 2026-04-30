@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `mcp` subchart to 0.3.3 and `studios` subchart to 1.2.12 to fix default OIDC external secret
   key to match each chart's own managed secret key
+- Bump `agent-backend` to 0.4.8 to point `SEQERA_PLATFORM_API_URL` to the internal Platform backend
+  service instead of the external domain, and add `SEQERA_PLATFORM_URL` env var pointing to the external platform URL for use in links and callbacks from the agent backend
 
 ### Changed
 
