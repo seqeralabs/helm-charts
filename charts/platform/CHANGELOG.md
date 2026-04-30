@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.7] - 2026-04-30
+
+### Changed
+
+- Bump `seqera-common` to 2.1.2, `wave` to 0.1.2, `agent-backend` to 0.4.11, `mcp` to 0.3.6, `pipeline-optimization` to 2.0.5, `portal-web` to 0.2.8, `studios` to 1.2.15 (Redis init container log message now reports `auth set` or `auth not set`)
+
 ## [0.32.6] - 2026-04-30
 
 ### Changed

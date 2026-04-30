@@ -123,7 +123,7 @@ should produce a Deployment resource with minimal values:
           - sh
           - -c
           - |
-            echo "$(date): starting check redis '$REDIS_URI' (auth ${REDISCLI_AUTH:+set})"
+            echo "$(date): starting check redis '$REDIS_URI' (auth ${REDISCLI_AUTH:+set}${REDISCLI_AUTH:-not set})"
             until redis-cli -u "$REDIS_URI" get hello; do
               echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
               sleep $SLEEP_PERIOD_SECONDS
@@ -364,7 +364,7 @@ should render the backend deployment with the correct checksums, labels and anno
                 - sh
                 - -c
                 - |
-                  echo "$(date): starting check redis '$REDIS_URI' (auth ${REDISCLI_AUTH:+set})"
+                  echo "$(date): starting check redis '$REDIS_URI' (auth ${REDISCLI_AUTH:+set}${REDISCLI_AUTH:-not set})"
                   until redis-cli -u "$REDIS_URI" get hello; do
                     echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
                     sleep $SLEEP_PERIOD_SECONDS
