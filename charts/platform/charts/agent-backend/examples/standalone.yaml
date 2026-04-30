@@ -1,0 +1,94 @@
+# Agent Backend - Standalone Deployment Example
+#
+# Use this file when deploying the agent-backend chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - Seqera Platform already running and accessible
+# - MySQL database provisioned
+# - Redis provisioned
+# - AWS Bedrock or Anthropic API access configured
+# - AWS Load Balancer Controller installed in the cluster
+# - ACM certificate ARN for TLS
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/agent-backend > values.yaml  # pull full defaults to customise
+#   helm upgrade --install agent-backend seqera/agent-backend \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  # Domain where your existing Seqera Platform is accessible
+  platformExternalDomain: platform.example.com
+
+  # Address of the Seqera Platform backend service.
+  # When Platform is deployed in the same cluster, use its internal service name:
+  #   platformServiceAddress: my-platform-platform-backend
+  # When Platform is external, use its hostname:
+  platformServiceAddress: platform.example.com
+  # platformServicePort: 8080  # default
+
+  # Domain where this agent-backend instance will be accessible
+  agentBackendDomain: ai-api.platform.example.com
+
+database:
+  host: mysql.example.com
+  # port: 3306  # default
+  name: agent_backend
+  username: agent_backend
+  existingSecretName: agent-backend-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  existingSecretName: agent-backend-redis-credentials
+  existingSecretKey: password
+
+# AWS Bedrock configuration (required for AI capabilities)
+bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1:123456789012:agent-runtime/XXXXXXXXXX"
+# Optional: cross-account access via an assumed role
+# bedrockAssumeRoleArn: "arn:aws:iam::123456789012:role/BedrockAccessRole"
+
+embeddings:
+  bedrock:
+    region: us-east-1
+    # modelId: amazon.titan-embed-text-v2:0  # default
+    # dimensions: "1024"                      # default
+
+# Alternatively, use Anthropic directly instead of Bedrock:
+# anthropicApiKeyExistingSecretName: agent-backend-anthropic-credentials
+# anthropicApiKeyExistingSecretKey: api-key
+
+# Token encryption key — must be a valid Fernet key.
+# Generate one with: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+tokenEncryptionKeyExistingSecretName: agent-backend-secrets
+tokenEncryptionKeyExistingSecretKey: token-encryption-key
+
+# ALB requires NodePort service type
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+  # TLS is handled by ACM; no tls section needed
+  tls: []
+
+# resources:
+#   requests:
+#     cpu: "100m"
+#     memory: "1000Mi"
+#   limits:
+#     memory: "1000Mi"

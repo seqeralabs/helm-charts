@@ -1,0 +1,91 @@
+# Studios - Standalone Deployment Example
+#
+# Use this file when deploying the studios chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - Seqera Platform already running and accessible with OIDC enabled
+# - Redis provisioned for session storage
+# - Wildcard DNS configured: *.studios.platform.example.com -> your ALB
+# - ACM wildcard certificate covering *.studios.platform.example.com
+# - The OIDC initial access token from Platform (used to register Studios as an OAuth client)
+# - AWS Load Balancer Controller installed in the cluster
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/studios > values.yaml  # pull full defaults to customise
+#   helm upgrade --install studios seqera/studios \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  # Domain where your existing Seqera Platform is accessible
+  platformExternalDomain: platform.example.com
+
+  # Address of the Seqera Platform backend service.
+  # When Platform is in the same cluster, use its internal service name:
+  #   platformServiceAddress: my-platform-platform-backend
+  # When Platform is external, use its hostname:
+  platformServiceAddress: platform.example.com
+  # platformServicePort: 8080  # default
+
+  # studiosDomain: studios.platform.example.com  # default: studios.<platformExternalDomain>
+  # studiosConnectionUrl: 'https://connect.studios.platform.example.com'  # default: https://connect.<studiosDomain>
+  # Each Studios session uses a unique subdomain, so DNS and the ACM certificate must cover the
+  # wildcard: *.<studiosDomain>
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  existingSecretName: studios-redis-credentials
+  existingSecretKey: password
+
+proxy:
+  # OIDC initial access token — must match the value configured in Seqera Platform.
+  # When deploying alongside the platform chart, this is wired up automatically.
+  # For standalone, retrieve it from the Platform backend Secret:
+  #   kubectl get secret <platform-backend-secret> -o jsonpath='{.data.TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN}' | base64 -d
+  oidcClientRegistrationTokenSecretName: platform-backend-secret
+  oidcClientRegistrationTokenSecretKey: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+
+  # ALB requires NodePort service type
+  service:
+    type: NodePort
+
+  # resources:
+  #   requests:
+  #     cpu: "30m"
+  #     memory: "64Mi"
+  #   limits:
+  #     memory: "64Mi"
+
+server:
+  # resources:
+  #   requests:
+  #     cpu: "20m"
+  #     memory: "50Mi"
+  #   limits:
+  #     memory: "50Mi"
+
+# Disable the init container that waits for Platform since it is already running externally
+initContainerDependencies:
+  waitForPlatform:
+    enabled: false
+
+# Studios requires a wildcard ingress so each session subdomain is routed correctly.
+# The ACM certificate must cover the wildcard *.studios.platform.example.com
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+  # TLS is handled by ACM; no tls section needed
+  tls: []

@@ -1,0 +1,73 @@
+# Wave - Standalone Deployment Example
+#
+# Use this file when deploying the wave chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - PostgreSQL database provisioned
+# - Redis provisioned
+# - AWS Load Balancer Controller installed in the cluster
+# - ACM certificate ARN for TLS
+#
+# Note: Wave can run independently of Seqera Platform. The platformExternalDomain
+# global value is used to derive the waveDomain default; set waveDomain explicitly
+# if your Wave instance lives on a different domain.
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/wave > values.yaml  # pull full defaults to customise
+#   helm upgrade --install wave seqera/wave \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  platformExternalDomain: platform.example.com
+
+  # waveDomain: wave.platform.example.com  # default: wave.<platformExternalDomain>
+
+# micronautEnvironments:  # default: [postgres, redis, lite]
+#   - postgres
+#   - redis
+#   - lite
+
+database:
+  host: postgres.example.com
+  # port: 5432  # default
+  name: wave
+  username: wave
+  existingSecretName: wave-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  existingSecretName: wave-redis-credentials
+  existingSecretKey: password
+
+# ALB requires NodePort service type
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+  # TLS is handled by ACM; no tls section needed
+  tls: []
+
+# resources:
+#   requests:
+#     cpu: "200m"
+#     memory: "1400Mi"
+#   limits:
+#     memory: "1400Mi"

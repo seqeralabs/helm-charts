@@ -1,0 +1,95 @@
+# Seqera Platform - Core Deployment Example
+#
+# Deploys the core Platform components only (backend, cron, frontend).
+# All optional subcharts (Studios, MCP, Wave, Agent Backend, Portal Web,
+# Pipeline Optimization) are explicitly disabled.
+#
+# Prerequisites:
+# - MySQL database provisioned
+# - Redis provisioned
+# - Seqera license key available
+# - AWS Load Balancer Controller installed in the cluster
+# - ACM certificate ARN for TLS
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/platform > values.yaml  # pull full defaults to customise
+#   helm upgrade --install platform seqera/platform \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  platformExternalDomain: platform.example.com
+  # contentDomain: user-data.platform.example.com  # default: user-data.<platformExternalDomain>
+
+platformDatabase:
+  host: mysql.example.com
+  # port: 3306  # default
+  name: platform
+  username: platform
+  existingSecretName: platform-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  contactEmail: support@example.com
+  licenseSecretName: platform-license
+
+  # Stable secrets — must be set explicitly to avoid regeneration on upgrade
+  jwtSeedSecretName: platform-secrets
+  jwtSeedSecretKey: jwt-seed
+  cryptoSeedSecretName: platform-secrets
+  cryptoSeedSecretKey: crypto-seed
+
+  smtp:
+    host: smtp.example.com
+    port: "587"
+    user: smtp-user
+    existingSecretName: platform-smtp-credentials
+    existingSecretKey: password
+
+# ALB requires NodePort on the frontend service (the only service exposed via ingress by default)
+frontend:
+  service:
+    type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  contentPath: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+  # TLS is handled by ACM; no tls section needed
+  tls: []
+
+# Disable all optional subcharts
+studios:
+  enabled: false
+
+pipeline-optimization:
+  enabled: false
+
+mcp:
+  enabled: false
+
+agent-backend:
+  enabled: false
+
+portal-web:
+  enabled: false
+
+wave:
+  enabled: false
