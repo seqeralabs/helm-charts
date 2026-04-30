@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: d00fa8cce1d5ae08eb10d7d0028b9252337f37ff264ff3dea9284da551ceff7c
+            checksum/configmap: f133dfcb4869e3b4a713c59b09af19365251f62b2d24f49dc81a5c928bbc0fb2
             checksum/secret: ac4ca92760ab83180bef6b3504a9f7b2663f3c2972a4b7e57a8e3173c6092172
           labels:
             app.kubernetes.io/component: agent-backend

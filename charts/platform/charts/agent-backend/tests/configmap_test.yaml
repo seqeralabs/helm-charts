@@ -139,6 +139,18 @@ tests:
           path: data.LOG_LEVEL
           value: DEBUG
 
+  - it: should set KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER to bedrock
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER
+          value: "bedrock"
+
   - it: should always enable Bedrock inference
     set:
       global.platformExternalDomain: test.example.com
@@ -293,6 +305,79 @@ tests:
       - equal:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "true"
+
+  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX to false by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
+          value: "false"
+
+  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX when enabled
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      nextflowDocs.useRedisIndex: true
+    asserts:
+      - equal:
+          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
+          value: "true"
+
+  - it: should not set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - notExists:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+
+  - it: should set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN when provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      bedrockAssumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/bedrock-cross-account
+
+  - it: should not set BEDROCK_ANTHROPIC_MODEL by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - notExists:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+
+  - it: should set BEDROCK_ANTHROPIC_MODEL when provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      bedrockAnthropicModel: anthropic.claude-sonnet-4-6
+    asserts:
+      - equal:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+          value: anthropic.claude-sonnet-4-6
 
   - it: should include AgentCore runtime ARN when provided
     set:

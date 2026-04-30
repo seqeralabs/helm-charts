@@ -10,8 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Point `SEQERA_PLATFORM_API_URL` to the internal Platform backend service (`platformServiceAddress`:`platformServicePort`) instead of the external domain
+
+### Added
+
 - Add `SEQERA_PLATFORM_URL` env var pointing to the external platform URL for use in links and callbacks from the agent backend
 - Add `global.platformServiceAddress` and `global.platformServicePort` values
+- Add `KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER` env var set to `bedrock`
+- Add `nextflowDocs.useRedisIndex` value to control `NEXTFLOW_DOCS_USE_REDIS_INDEX` (defaults to `false`)
+- Add `bedrockAssumeRoleArn` value to optionally set `AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN` for cross-account Bedrock access
+- Add `bedrockAnthropicModel` value to optionally override `BEDROCK_ANTHROPIC_MODEL`
 
 ## [0.4.7] - 2026-04-20
 
