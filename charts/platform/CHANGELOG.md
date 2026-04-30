@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.5] - 2026-04-30
+
+### Changed
+
+- Bump `seqera-common` dependency to 2.1.1, `wave` subchart to 0.1.1, `agent-backend` to 0.4.9, `mcp` to 0.3.4, `pipeline-optimization` to 2.0.4, `portal-web` to 0.2.6, `studios` to 1.2.13 to pick up the Redis init container fix that no longer logs the password
+
 ## [0.32.4] - 2026-04-29
 
 ### Fixed
