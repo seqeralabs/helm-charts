@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.4.7](https://img.shields.io/badge/Version-0.4.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 0.4.8](https://img.shields.io/badge/Version-0.4.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -38,7 +38,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.4.7 \
+  --version 0.4.8 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -61,6 +61,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
+| global.platformServiceAddress | string | `"{{ printf \"%s-platform-backend\" .Release.Name | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
+| global.platformServicePort | int | `8080` | Seqera Platform Service port |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
@@ -83,9 +85,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
 | bedrockAgentCoreArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions |
+| bedrockAssumeRoleArn | string | `""` | Optional IAM role ARN that the Agent Backend assumes for cross-account Bedrock access. Leave empty to let the pod directly use the AWS credentials provided to it (single-account setup). |
+| bedrockAnthropicModel | string | `""` | Override the Anthropic model used on Bedrock by specifying an inference profile ARN. You can create a custom inference profile that uses the Anthropic model you want or use the default inference profile for the model provided by AWS. When doing cross-account access with `bedrockAssumeRoleArn`, you may want to specify an inference profile ARN on the account where the hop role is defined |
 | embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
 | embeddings.bedrock.modelId | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings |
 | embeddings.bedrock.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model |
+| nextflowDocs.useRedisIndex | bool | `false` | Use a Redis-backed vector index for the Nextflow documentation knowledge base. Disabled by default. |
 | anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
 | anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |

@@ -58,7 +58,35 @@ tests:
           path: data.AGENT_BACKEND_DB_USER
           value: agentuser
 
-  - it: should contain platform URLs
+  - it: should set SEQERA_PLATFORM_API_URL from platformServiceAddress and platformServicePort
+    set:
+      global.platformExternalDomain: prod.example.com
+      global.platformServiceAddress: my-platform-backend
+      global.platformServicePort: 9090
+      global.mcpDomain: mcp.prod.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_API_URL
+          value: "http://my-platform-backend:9090"
+
+  - it: should template platformServiceAddress in SEQERA_PLATFORM_API_URL
+    set:
+      global.platformExternalDomain: prod.example.com
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
+      global.mcpDomain: mcp.prod.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.SEQERA_PLATFORM_API_URL
+          value: "http://release-name-platform-backend:8080"
+
+  - it: should set SEQERA_PLATFORM_URL from platformExternalDomain
     set:
       global.platformExternalDomain: prod.example.com
       global.mcpDomain: mcp.prod.example.com
@@ -67,8 +95,8 @@ tests:
       database.username: user
     asserts:
       - equal:
-          path: data.SEQERA_PLATFORM_API_URL
-          value: "https://prod.example.com/api"
+          path: data.SEQERA_PLATFORM_URL
+          value: "https://prod.example.com"
       - equal:
           path: data.SEQERA_MCP_URL
           value: "https://mcp.prod.example.com/mcp"
@@ -110,6 +138,18 @@ tests:
       - equal:
           path: data.LOG_LEVEL
           value: DEBUG
+
+  - it: should set KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER to bedrock
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER
+          value: "bedrock"
 
   - it: should always enable Bedrock inference
     set:
@@ -265,6 +305,79 @@ tests:
       - equal:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "true"
+
+  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX to false by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - equal:
+          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
+          value: "false"
+
+  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX when enabled
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      nextflowDocs.useRedisIndex: true
+    asserts:
+      - equal:
+          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
+          value: "true"
+
+  - it: should not set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - notExists:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+
+  - it: should set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN when provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      bedrockAssumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/bedrock-cross-account
+
+  - it: should not set BEDROCK_ANTHROPIC_MODEL by default
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+    asserts:
+      - notExists:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+
+  - it: should set BEDROCK_ANTHROPIC_MODEL when provided
+    set:
+      global.platformExternalDomain: test.example.com
+      global.mcpDomain: mcp.test.example.com
+      database.host: mysql
+      database.name: db
+      database.username: user
+      bedrockAnthropicModel: anthropic.claude-sonnet-4-6
+    asserts:
+      - equal:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+          value: anthropic.claude-sonnet-4-6
 
   - it: should include AgentCore runtime ARN when provided
     set:

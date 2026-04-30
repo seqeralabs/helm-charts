@@ -65,6 +65,21 @@ tests:
                 name: my-platform-backend
                 key: MY_OIDC_KEY
 
+  - it: should default to MCP_OAUTH_INITIAL_ACCESS_TOKEN key when using existing secret without custom key
+    template: deployment.yaml
+    set:
+      oidcToken.existingSecretName: my-platform-backend
+      oidcToken.existingSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0]
+          value:
+            name: MCP_OAUTH_INITIAL_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: my-platform-backend
+                key: MCP_OAUTH_INITIAL_ACCESS_TOKEN
+
   - it: should use custom image
     template: deployment.yaml
     set:

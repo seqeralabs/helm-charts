@@ -226,6 +226,18 @@ tests:
           path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
           value: "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"
 
+  - it: should use default secret key CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN when using external secret without a custom key
+    template: deployment-proxy.yaml
+    set:
+      proxy:
+        oidcClientRegistrationToken: ""
+        oidcClientRegistrationTokenSecretName: "external-secret"
+        oidcClientRegistrationTokenSecretKey: ""
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"
+
   - it: should use custom secret key when oidcClientRegistrationTokenSecretKey is provided with external secret
     template: deployment-proxy.yaml
     set:
