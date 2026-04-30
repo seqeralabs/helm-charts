@@ -27,6 +27,8 @@ tests:
   - it: should render a ConfigMap with default values
     set:
       global.platformExternalDomain: test.example.com
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
       global.mcpDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.name: agentdb

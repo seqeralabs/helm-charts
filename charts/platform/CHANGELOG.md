@@ -5,6 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.6] - 2026-04-30
+
+### Changed
+
+- Clear default values for `global.platformServiceAddress` and `global.platformServicePort` in subcharts that require Seqera Platform (`agent-backend`, `mcp`, `portal-web`, `studios`). These values are still defined with defaults in the parent `platform` chart and inherited automatically by subcharts when deployed together. When deploying a subchart standalone, users must now explicitly set these values. Each subchart now validates that both values are set at install/upgrade time
+- Bump `agent-backend` to 0.4.10, `mcp` to 0.3.5, `portal-web` to 0.2.7, `studios` to 1.2.14
+
 ## [0.32.5] - 2026-04-30
 
 ### Changed

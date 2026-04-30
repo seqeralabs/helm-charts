@@ -17,6 +17,18 @@
  limitations under the License.
 */}}
 
+{{/* We can't put checks in _helpers.tpl, it doesn't make installation fail. */}}
+
+{{- if not .Values.global.platformServiceAddress -}}
+{{- $message := "Define the Seqera Platform Service address at 'global.platformServiceAddress'. This must point to the Platform backend service (Kubernetes hostname or external ingress)." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
+{{- if not .Values.global.platformServicePort -}}
+{{- $message := "Define the Seqera Platform Service port at 'global.platformServicePort'." -}}
+{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
+{{- end -}}
+
 Thank you for installing {{ .Chart.Name | title }}!
 
 Your release is named '{{ .Release.Name }}' and was installed in the '{{ include "common.names.namespace" . }}' namespace.

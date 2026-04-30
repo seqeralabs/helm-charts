@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.3.4](https://img.shields.io/badge/Version-0.3.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.3.5](https://img.shields.io/badge/Version-0.3.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -16,6 +16,7 @@ The chart does not automatically define `cr.seqera.io` as the registry where to 
 
 The required values to set in order to have a working installation are:
 - The domain where Seqera Platform is accessible, set under `.global.platformExternalDomain`. The MCP domain defaults to `mcp.<platformExternalDomain>` but can be overridden with `.global.mcpDomain`.
+- The Seqera Platform Service connection details under `.global.platformServiceAddress` and `.global.platformServicePort`. These point to the Platform backend service that MCP communicates with. When deploying this subchart as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section.
 - The OIDC client registration token under `.oidcToken.tokenString` (or reference an existing Secret with `.oidcToken.existingSecretName`). When deploying as part of the platform parent chart this is set automatically; when deploying standalone it must match the value configured in the platform backend.
 - A stable JWT seed for signing authentication tokens under `.oauth.jwtSeedString` (or reference an existing Secret with `.oauth.jwtSeedSecretName`). If not set a random value is generated, which is incompatible with Kustomize-based upgrades.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
@@ -37,7 +38,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/mcp \
-  --version 0.3.4 \
+  --version 0.3.5 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -60,8 +61,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
-| global.platformServiceAddress | string | `"{{ printf \"%s-platform-backend\" .Release.Name | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
-| global.platformServicePort | int | `8080` | Seqera Platform Service port |
+| global.platformServiceAddress | string | `""` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.platformServicePort | string | `""` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template. Note: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |

@@ -22,10 +22,14 @@ global:
   platformExternalDomain: example.com
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
-  # hostname. Evaluated as a template
-  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
-  # -- Seqera Platform Service port
-  platformServicePort: 8080
+  # hostname. Evaluated as a template.
+  # Required when deploying this subchart standalone. When deploying as part of the parent
+  # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  platformServiceAddress: ""
+  # -- Seqera Platform Service port.
+  # Required when deploying this subchart standalone. When deploying as part of the parent
+  # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  platformServicePort: ""
 
   # -- Domain where the Agent Backend service listens. Evaluated as a template
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
