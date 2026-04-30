@@ -1,0 +1,80 @@
+# MCP - Standalone Deployment Example
+#
+# Use this file when deploying the mcp chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - Seqera Platform already running and accessible with OIDC enabled
+# - The OIDC initial access token from Platform (used to register MCP as an OAuth client)
+# - AWS Load Balancer Controller installed in the cluster
+# - ACM certificate ARN for TLS
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/mcp > values.yaml  # pull full defaults to customise
+#   helm upgrade --install mcp seqera/mcp \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  # Domain where your existing Seqera Platform is accessible
+  platformExternalDomain: platform.example.com
+
+  # Address of the Seqera Platform backend service.
+  # When Platform is in the same cluster, use its internal service name:
+  #   platformServiceAddress: my-platform-platform-backend
+  # When Platform is external, use its hostname:
+  platformServiceAddress: platform.example.com
+  # platformServicePort: 8080  # default
+
+  # mcpDomain: mcp.platform.example.com  # default: mcp.<platformExternalDomain>
+  # The OAuth redirect URL is automatically derived as: <mcpDomain>/oauth/callback
+
+# micronautEnvironments:   # default: [oauth-platform]
+#   - oauth-platform
+# Remove 'oauth-platform' and set oauth.issuerUrl explicitly if using a separate OIDC provider.
+
+# OIDC initial access token — must match the value configured in Seqera Platform.
+# When deploying alongside the platform chart, this is wired up automatically.
+# For standalone, retrieve it from the Platform backend Secret:
+#   kubectl get secret <platform-backend-secret> -o jsonpath='{.data.TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN}' | base64 -d
+oidcToken:
+  existingSecretName: platform-backend-secret
+  existingSecretKey: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
+
+oauth:
+  # JWT seed used to sign MCP authentication tokens.
+  # Provide a stable value so tokens survive pod restarts and upgrades.
+  jwtSeedString: ""  # or use jwtSeedSecretName / jwtSeedSecretKey
+
+# Disable the init container that waits for Platform since it is already running externally
+initContainerDependencies:
+  waitForPlatform:
+    enabled: false
+
+# ALB requires NodePort service type
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+  # TLS is handled by ACM; no tls section needed
+  tls: []
+
+# resources:
+#   requests:
+#     cpu: "100m"
+#     memory: "512Mi"
+#   limits:
+#     memory: "512Mi"
