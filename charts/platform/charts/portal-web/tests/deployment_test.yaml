@@ -28,6 +28,9 @@ chart:
 tests:
   - it: should render a Deployment with default values
     template: deployment.yaml
+    set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
     asserts:
       - matchSnapshot: {}
 

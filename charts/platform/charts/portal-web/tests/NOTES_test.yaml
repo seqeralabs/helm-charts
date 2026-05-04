@@ -25,6 +25,28 @@ chart:
   appVersion: "v9.8.7"
 tests:
   - it: should render NOTES.txt
+    set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
     asserts:
       - hasDocuments:
           count: 1
+
+  - it: should fail when global.platformServiceAddress is not defined
+    set:
+      global:
+        platformServiceAddress: ""
+        platformServicePort: 8080
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service address at 'global.platformServiceAddress'"
+
+  - it: should fail when global.platformServicePort is not defined
+    set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"

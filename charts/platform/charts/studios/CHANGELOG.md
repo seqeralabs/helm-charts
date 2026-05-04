@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump `seqera-common` dependency to 2.1.1 (Redis init container no longer logs the password)
 
+## [1.2.14] - 2026-04-30
+
+### Changed
+
+- Clear the default values for `global.platformServiceAddress` and `global.platformServicePort` so they must be explicitly set when deploying this subchart standalone. They point to the Seqera Platform backend service. When deploying as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section
+- Improve `NOTES.txt` validation messages for `global.platformServiceAddress` and `global.platformServicePort` to clarify that these values are inherited from the parent `platform` umbrella chart
+- Document the Platform Service connection details as a required configuration in the README
+
+## [1.2.13] - 2026-04-30
+
+### Changed
+
+- Bump `seqera-common` dependency to 2.1.1 (Redis init container no longer logs the password)
+
 ## [1.2.12] - 2026-04-29
 
 ### Fixed

@@ -24,9 +24,43 @@ chart:
   version: 1.0.0
   appVersion: "v1.0.0"
 tests:
+  # Platform Service connection tests
+  - it: should fail when global.platformServiceAddress is not defined
+    set:
+      global:
+        platformServiceAddress: ""
+        platformServicePort: 8080
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service address at 'global.platformServiceAddress'"
+
+  - it: should fail when global.platformServicePort is not defined
+    set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: ""
+      database:
+        host: "database.example.com"
+        name: "agent_backend"
+        username: "agent"
+        password: "test-password"
+      anthropicApiKey: "test-anthropic-key"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
+
   # Database host tests
   - it: should fail when database.host is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: ""
         name: "agent_backend"
@@ -39,6 +73,9 @@ tests:
 
   - it: should fail when database.host is missing
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         name: "agent_backend"
         username: "agent"
@@ -51,6 +88,9 @@ tests:
   # Database name tests
   - it: should fail when database.name is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: ""
@@ -63,6 +103,9 @@ tests:
 
   - it: should fail when database.name is missing
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         username: "agent"
@@ -75,6 +118,9 @@ tests:
   # Database username tests
   - it: should fail when database.username is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -87,6 +133,9 @@ tests:
 
   - it: should fail when database.username is missing
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -99,6 +148,9 @@ tests:
   # Database password tests
   - it: should fail when database.password is not defined and no existingSecretName
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -112,6 +164,9 @@ tests:
 
   - it: should fail when both database.password and database.existingSecretName are defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -125,6 +180,9 @@ tests:
 
   - it: should pass when only database.password is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -140,6 +198,9 @@ tests:
 
   - it: should pass when only database.existingSecretName is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -156,6 +217,9 @@ tests:
   # Anthropic API key tests
   - it: should fail when anthropicApiKey is not defined and no existingSecretName
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -169,6 +233,9 @@ tests:
 
   - it: should fail when both anthropicApiKey and anthropicApiKeyExistingSecretName are defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -182,6 +249,9 @@ tests:
 
   - it: should pass when only anthropicApiKey is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -197,6 +267,9 @@ tests:
 
   - it: should pass when only anthropicApiKeyExistingSecretName is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -213,6 +286,9 @@ tests:
   # Redis host tests
   - it: should fail when redis.host is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -227,6 +303,9 @@ tests:
 
   - it: should fail when both redis.password and redis.existingSecretName are defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -244,6 +323,9 @@ tests:
   # Bedrock AgentCore ARN tests
   - it: should fail when bedrockAgentCoreArn is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -258,6 +340,9 @@ tests:
 
   - it: should fail when bedrockAgentCoreArn is missing
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -272,6 +357,9 @@ tests:
   # Bedrock embeddings configuration tests
   - it: should fail when embeddings.bedrock.region is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -287,6 +375,9 @@ tests:
 
   - it: should fail when embeddings.bedrock.modelId is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -303,6 +394,9 @@ tests:
 
   - it: should fail when embeddings.bedrock.dimensions is not defined
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -319,6 +413,9 @@ tests:
 
   - it: should pass when all embeddings.bedrock values are set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -337,6 +434,9 @@ tests:
   # Complete valid configuration test
   - it: should pass with all required values properly set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"
@@ -353,6 +453,9 @@ tests:
   # Valid configuration with external secrets
   - it: should pass with all required values using external secrets
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       database:
         host: "database.example.com"
         name: "agent_backend"

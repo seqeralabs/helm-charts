@@ -10,6 +10,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Bump `seqera-common` dependency to 2.1.1 (Redis init container no longer logs the password)
 
+## [0.2.7] - 2026-04-30
+
+### Changed
+
+- Clear the default values for `global.platformServiceAddress` and `global.platformServicePort` so they must be explicitly set when deploying this subchart standalone. They point to the Seqera Platform backend service. When deploying as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section
+- Add `NOTES.txt` validation that fails the installation when `global.platformServiceAddress` or `global.platformServicePort` are not set
+- Document the Platform Service connection details as a required configuration in the README
+
+## [0.2.6] - 2026-04-30
+
+### Changed
+
+- Bump `seqera-common` dependency to 2.1.1 (Redis init container no longer logs the password)
+
 ## [0.2.5] - 2026-04-16
 
 ### Changed

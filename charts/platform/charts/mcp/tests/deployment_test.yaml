@@ -29,6 +29,8 @@ tests:
   - it: should render a Deployment with default values
     template: deployment.yaml
     set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
       oauth.jwtSeedSecretName: my-jwt-secret
       oauth.jwtSeedSecretKey: jwt-seed-key
       oidcToken.existingSecretName: my-oidc-secret
@@ -466,8 +468,11 @@ tests:
           path: spec.template.spec.initContainers[1].name
           value: wait-for-platform
 
-  - it: should use default platformServiceAddress for wait-for-platform env
+  - it: should template platformServiceAddress for wait-for-platform env
     template: deployment.yaml
+    set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
     asserts:
       - contains:
           path: spec.template.spec.initContainers[0].env

@@ -136,7 +136,7 @@ tests:
         studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
     asserts:
       - failedTemplate:
-          errorPattern: ".*global.platformServiceAddress must be defined.*"
+          errorPattern: "Define the Seqera Platform Service address at 'global.platformServiceAddress'"
 
   - it: should fail when global.platformServicePort is not defined
     set:
@@ -150,7 +150,7 @@ tests:
         platformServicePort: ""
     asserts:
       - failedTemplate:
-          errorPattern: ".*global.platformServicePort must be defined.*"
+          errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
 
   - it: should pass when both global.studiosDomain and global.studiosConnectionUrl are defined
     set:
