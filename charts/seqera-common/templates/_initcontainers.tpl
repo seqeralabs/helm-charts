@@ -124,7 +124,7 @@ include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .
     - 'sh'
     - '-c'
     - |
-      echo "$(date): starting check redis '$REDIS_URI' (auth ${REDISCLI_AUTH:+set}${REDISCLI_AUTH:-not set})"
+      if [ -n "$REDISCLI_AUTH" ]; then echo "$(date): starting check redis '$REDIS_URI' (auth set)"; else echo "$(date): starting check redis '$REDIS_URI' (auth not set)"; fi
       until redis-cli -u "$REDIS_URI" get hello; do
         echo "$(date): see you in $SLEEP_PERIOD_SECONDS seconds"
         sleep $SLEEP_PERIOD_SECONDS
