@@ -69,25 +69,25 @@ dependencies:
       - studios
     condition: studios.enabled
   - name: wave
-    version: "0.1.x"
+    version: "0.2.x"
     repository: "file://charts/wave"
     tags:
       - wave
     condition: wave.enabled
   - name: mcp
-    version: "0.3.x"
+    version: "0.4.x"
     repository: "file://charts/mcp"
     tags:
       - mcp
     condition: mcp.enabled
   - name: agent-backend
-    version: "0.4.x"
+    version: "0.5.x"
     repository: "file://charts/agent-backend"
     tags:
       - agent-backend
     condition: agent-backend.enabled
   - name: portal-web
-    version: "0.2.x"
+    version: "0.3.x"
     repository: "file://charts/portal-web"
     tags:
       - portal-web

@@ -63,12 +63,12 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Repository | Name | Version |
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 2.x.x |
-| file://charts/agent-backend | agent-backend | 0.4.x |
-| file://charts/mcp | mcp | 0.3.x |
+| file://charts/agent-backend | agent-backend | 0.5.x |
+| file://charts/mcp | mcp | 0.4.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
-| file://charts/portal-web | portal-web | 0.2.x |
+| file://charts/portal-web | portal-web | 0.3.x |
 | file://charts/studios | studios | 1.x.x |
-| file://charts/wave | wave | 0.1.x |
+| file://charts/wave | wave | 0.2.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
