@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bumped `appVersion` to `0.4.15`.
+- Bump license-header year range on configmap, secret, service templates and tests (no functional change).
 
 ### Removed
 

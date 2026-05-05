@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bumped `appVersion` to `1.13.1`.
+- Refresh deployment snapshot after `platformServiceAddress` requirement (#131).
 
 ### Removed
 

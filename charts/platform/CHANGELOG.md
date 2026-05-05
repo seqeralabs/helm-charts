@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.0] - 2026-07-07
 
+### Added
+
+- Provide complete examples to deploy each Helm chart standalone, along with a full end-to-end example deploying the entire platform with all subcharts. See `examples/` directory for details.
+
 ### Changed
 
 - Bumped Platform `appVersion` to `v26.1.3`.
+- Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
 
 ### Fixed
 
