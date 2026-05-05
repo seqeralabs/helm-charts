@@ -2,9 +2,8 @@ name: Helm chart packager
 on:
   push:
     paths: # The order of path filtering matters.
-      - '*/**' # Trigger on changes in subdirs only, not in files in the main repo.
-      - '!.*/**' # Exclude files in subdirs starting with dots (e.g., .github).
-      - '!*/**/Makefile' # Exclude Makefiles under charts.
+      - 'charts/**' # Trigger on changes under charts/ only.
+      - '!charts/**/Makefile' # Exclude Makefiles under charts.
 
 jobs:
   check-if-version-is-available-and-update-helm-chart:
