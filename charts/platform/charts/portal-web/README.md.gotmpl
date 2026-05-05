@@ -13,6 +13,7 @@ The chart does not automatically define `cr.seqera.io` as the registry where to 
 
 The required values to set in order to have a working installation are:
 - The `.global.platformExternalDomain` value to point to the domain where Seqera Platform will be exposed.
+- The Seqera Platform Service connection details under `.global.platformServiceAddress` and `.global.platformServicePort`. These point to the Platform backend service that Portal Web communicates with. When deploying this subchart as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section.
 - The `.image` section to point to your container registry.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.

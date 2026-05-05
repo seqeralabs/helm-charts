@@ -23,7 +23,7 @@ maintainers:
     email: devops@seqera.io
     url: https://seqera.io
 type: application
-version: 2.0.4
+version: 2.0.6
 appVersion: "0.4.13"
 dependencies:
   - name: common

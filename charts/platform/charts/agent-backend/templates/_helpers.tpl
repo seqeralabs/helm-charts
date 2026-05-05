@@ -126,3 +126,12 @@ Result is base64-encoded (for use in Secret data).
     {{- end -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return this chart's primary ingress hostname. See parent platform chart's `_helpers.tpl` for
+usage notes — `'{{ include "seqera.ingress.host" . }}'` in `global.ingress.annotations` resolves
+to each chart's own domain at render time.
+*/}}
+{{- define "seqera.ingress.host" -}}
+{{- tpl .Values.global.agentBackendDomain . -}}
+{{- end -}}

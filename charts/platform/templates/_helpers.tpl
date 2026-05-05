@@ -490,3 +490,12 @@ true
 false
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return this chart's primary ingress hostname. Use `'{{ include "seqera.ingress.host" . }}'` in
+`global.ingress.annotations` (e.g. `external-dns.alpha.kubernetes.io/hostname`) and the correct
+host resolves per chart at render time without hard-coding it.
+*/}}
+{{- define "seqera.ingress.host" -}}
+{{- tpl .Values.global.platformExternalDomain . -}}
+{{- end -}}

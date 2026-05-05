@@ -23,7 +23,7 @@ should render when ingress.enabled is true:
                     port:
                       number: 6010
                 path: /
-                pathType: ImplementationSpecific
+                pathType: Prefix
         - host: mcp2.example.com
           http:
             paths:
@@ -33,4 +33,4 @@ should render when ingress.enabled is true:
                     port:
                       number: 8002
                 path: /
-                pathType: ImplementationSpecific
+                pathType: Prefix

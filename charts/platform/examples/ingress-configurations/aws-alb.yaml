@@ -98,6 +98,3 @@ ingress:
   # TLS handled by ACM certificate specified in annotations
   # Don't specify tls section when using ACM certificates
   tls: []
-
-  # Use Prefix path type (required for ALB with /*)
-  defaultPathType: Prefix

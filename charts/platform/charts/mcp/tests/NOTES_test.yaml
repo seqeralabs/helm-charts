@@ -24,9 +24,37 @@ chart:
   version: 1.0.0
   appVersion: "v1.0.0"
 tests:
+  # Platform Service connection tests
+  - it: should fail when global.platformServiceAddress is not defined
+    set:
+      global:
+        platformServiceAddress: ""
+        platformServicePort: 8080
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.existingSecretName: "my-oidc-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service address at 'global.platformServiceAddress'"
+
+  - it: should fail when global.platformServicePort is not defined
+    set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: ""
+      micronautEnvironments:
+        - oauth-platform
+      oidcToken.existingSecretName: "my-oidc-secret"
+    asserts:
+      - failedTemplate:
+          errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
+
   # JWT seed mutual exclusion
   - it: should fail when both oauth.jwtSeedString and oauth.jwtSeedSecretName are set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""
@@ -39,6 +67,9 @@ tests:
 
   - it: should pass when only oauth.jwtSeedString is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""
@@ -50,6 +81,9 @@ tests:
 
   - it: should pass when only oauth.jwtSeedSecretName is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""
@@ -61,6 +95,9 @@ tests:
 
   - it: should pass when neither jwt seed value is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""
@@ -72,6 +109,9 @@ tests:
   # OIDC token mutual exclusion and requirement
   - it: should fail when both oidcToken.tokenString and oidcToken.existingSecretName are set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: "my-oidc-token"
@@ -82,6 +122,9 @@ tests:
 
   - it: should fail when neither oidcToken.tokenString nor oidcToken.existingSecretName are set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""
@@ -92,6 +135,9 @@ tests:
 
   - it: should pass when only oidcToken.tokenString is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: "my-oidc-token"
@@ -102,6 +148,9 @@ tests:
 
   - it: should pass when only oidcToken.existingSecretName is set
     set:
+      global:
+        platformServiceAddress: "platform-backend"
+        platformServicePort: 8080
       micronautEnvironments:
         - oauth-platform
       oidcToken.tokenString: ""

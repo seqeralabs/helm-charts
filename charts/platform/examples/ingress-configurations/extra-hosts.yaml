@@ -88,5 +88,3 @@ ingress:
     - hosts:
         - user-data.example.com
       secretName: platform-content-tls
-
-  defaultPathType: Prefix

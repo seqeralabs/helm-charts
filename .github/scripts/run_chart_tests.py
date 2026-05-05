@@ -23,9 +23,11 @@ BEHAVIOR:
   - Checks if helm-unittest plugin is installed
   - If not installed, runs: helm plugin install (does not require Makefile)
   - Finds all directories under charts/ containing Chart.yaml
-  - For each chart directory with a Makefile, runs: make -C <chart_dir> tests
+  - For each chart directory with a Makefile, runs: make -C <chart_dir> test-all
+    (when defined) or `make tests` (legacy fallback) — `test-all` exercises the
+    parent-recursive suite AND each subchart standalone, catching helper/value
+    divergence that the parent-only run masks
   - Skips charts without a Makefile (e.g., library charts with no tests)
-  - Subcharts are tested through their parent chart's test suite
 
 REQUIREMENTS:
   - helm CLI must be installed
@@ -91,8 +93,15 @@ def main():
             skipped_charts.append(chart_dir)
             continue
 
-        print(f"Running helm chart tests in {chart_dir}...")
-        test_result = subprocess.run(["make", "-C", chart_dir, "tests"])
+        # Prefer `test-all` (parent + standalone subcharts) when the chart's Makefile defines
+        # it; fall back to legacy `tests` target for charts that haven't adopted it yet.
+        makefile_targets = subprocess.run(
+            ["make", "-C", chart_dir, "-pn"], capture_output=True, text=True
+        ).stdout
+        target = "test-all" if "\ntest-all:" in makefile_targets else "tests"
+
+        print(f"Running helm chart tests in {chart_dir} (target: {target})...")
+        test_result = subprocess.run(["make", "-C", chart_dir, target])
         if test_result.returncode != 0:
             print(f"Helm chart tests failed in {chart_dir}.")
             failed_charts.append(chart_dir)

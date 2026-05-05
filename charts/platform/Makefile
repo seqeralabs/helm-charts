@@ -1,10 +1,16 @@
-.PHONY: test tests unittests unittests-no-build debug check-unittest-plugin install-unittest-plugin clean-deps clean-subchart-packages rebuild-deps rebuild-deps-and-unpack rebuild-deps-force help
+.PHONY: test tests unittests unittests-no-build debug check-unittest-plugin install-unittest-plugin clean-deps clean-subchart-packages rebuild-deps rebuild-deps-and-unpack rebuild-deps-force unittests-standalone test-all help
 
 # Run tests (with external dependencies rebuild) - DEFAULT behavior
-test: unittests
+test: test-all
 tests: test
 test-no-build: unittests-no-build
 tests-no-build: test-no-build
+
+# Run BOTH the parent's recursive test suite AND each standalone-installable subchart's
+# tests rendered with that subchart's own values/helpers (matching how a customer would
+# install it on its own). Catches helper / values divergence that the parent-recursive
+# run silently masks.
+test-all: unittests unittests-standalone
 
 help:
 	@echo "Seqera Platform Helm Chart - Available Make Targets"
@@ -12,6 +18,8 @@ help:
 	@echo "Testing:"
 	@echo "  make test                        - Rebuild all Platform dependencies and run tests (DEFAULT)"
 	@echo "  make test-no-build               - Run tests without rebuilding dependencies"
+	@echo "  make test-all                    - Run parent-recursive tests AND each subchart standalone"
+	@echo "  make unittests-standalone        - Run each subchart's tests standalone (no parent context)"
 	@echo "  make debug                       - Run tests in debug mode"
 	@echo "  make unittests-update-snapshots  - Rebuild all Platform dependencies and update snapshots"
 	@echo ""
@@ -118,6 +126,34 @@ unittests-no-build:
 unittests: rebuild-deps
 	@echo "Running unit tests..."
 	@helm unittest .
+
+# Run each subchart's unit tests STANDALONE — i.e. invoke `helm unittest` from inside the
+# subchart directory so its templates render with its own values.yaml / helpers, not under
+# the parent's merged context. A subchart is considered "standalone-installable" if it ships
+# its own `tests/` directory.
+#
+# This complements `unittests`: the parent-recursive run exercises the full integrated
+# deployment, this target exercises each subchart as if a customer installed it on its own.
+unittests-standalone: rebuild-deps
+	@echo "Running unit tests for each standalone-installable subchart..."
+	@failed=""; \
+	for subchart_dir in charts/*/; do \
+		subchart=$$(basename $$subchart_dir); \
+		if [ ! -d "$$subchart_dir/tests" ]; then \
+			echo "→ skipping $$subchart (no tests/ directory)"; \
+			continue; \
+		fi; \
+		echo ""; \
+		echo "→ $$subchart (standalone)"; \
+		(cd "$$subchart_dir" && helm unittest .) || failed="$$failed $$subchart"; \
+	done; \
+	if [ -n "$$failed" ]; then \
+		echo ""; \
+		echo "✗ standalone tests failed for:$$failed"; \
+		exit 1; \
+	fi; \
+	echo ""; \
+	echo "✓ all standalone subchart tests passed"
 
 unittests-update-snapshots: rebuild-deps
 	@echo "Running unit tests and updating snapshots..."

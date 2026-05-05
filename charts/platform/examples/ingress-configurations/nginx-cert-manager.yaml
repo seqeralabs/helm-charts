@@ -15,6 +15,17 @@ global:
   # Separate domain for user-generated content (XSS protection)
   contentDomain: user-data.example.com
 
+  # Cluster-wide ingress defaults. Set once here and every chart's Ingress (platform plus any
+  # enabled subcharts like studios, wave, mcp) picks them up. Per-chart overrides under
+  # `<chart>.ingress.*` still win when set.
+  ingress:
+    ingressClassName: nginx
+    annotations:
+      # `seqera.ingress.host` resolves to each chart's own primary domain, so this single
+      # annotation registers the correct host per service (platform.example.com,
+      # studios.example.com, wave.example.com, …) without hard-coding hostnames.
+      external-dns.alpha.kubernetes.io/hostname: '{{ include "seqera.ingress.host" . }}'
+
   platformDatabase:
     host: mysql.example.com
     database: platform
@@ -37,8 +48,7 @@ backend:
 ingress:
   enabled: true
 
-  # NGINX ingress class
-  ingressClassName: nginx
+  # ingressClassName is set via global.ingress.ingressClassName above so subcharts inherit it.
 
   annotations:
     # cert-manager annotations for automatic TLS certificate provisioning
@@ -66,6 +76,3 @@ ingress:
     - hosts:
         - user-data.example.com
       secretName: platform-content-tls
-
-  # Default path type
-  defaultPathType: Prefix
