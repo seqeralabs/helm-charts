@@ -155,27 +155,23 @@ jobs:
             echo "Created release ${release_tag}"
           done
 
-      - name: 'Install chart-releaser'
-        if: github.ref_name == 'master' && env.charts_to_package != ''
-        run: |
-          curl -fsSL -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.8.1/chart-releaser_1.8.1_linux_amd64.tar.gz
-          echo "834046b27b00cd6ba451326875c1937d4f2b671063c2053e031434ade73002b5  cr.tar.gz" | sha256sum -c
-          tar -xzf cr.tar.gz cr
-          sudo mv cr /usr/local/bin/cr
-
       - name: 'Update GitHub Pages Helm repo index'
         if: github.ref_name == 'master' && env.charts_to_package != ''
-        shell: bash
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
+          curl -fsSL -o cr.tar.gz https://github.com/helm/chart-releaser/releases/download/v1.8.1/chart-releaser_1.8.1_linux_amd64.tar.gz
+          echo "834046b27b00cd6ba451326875c1937d4f2b671063c2053e031434ade73002b5  cr.tar.gz" | sha256sum -c
+          tar -xzf cr.tar.gz cr
+          sudo mv cr /usr/local/bin/cr
+
           # Stage the freshly packaged .tgz files for cr index. The .tgz themselves
           # are hosted as GitHub Release assets (uploaded in the previous step);
           # cr uses this directory to discover which charts to include and queries
           # the GitHub API to resolve each one to its release-asset URL.
-          mkdir -p .cr-release-packages
+          mkdir -p .cr-release-packages .cr-index
           for chart in $charts_to_package; do
             chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
