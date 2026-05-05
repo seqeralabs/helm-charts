@@ -31,6 +31,18 @@ tests:
   asserts:
   - hasDocuments:
       count: 0
+- it: should render ingress when global.ingress.enabled is true even if local is false
+  set:
+    ingress:
+      enabled: false
+    global:
+      ingress:
+        enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+  - isKind:
+      of: Ingress
 - it: should set correct hostname
   set:
     ingress:
@@ -97,7 +109,7 @@ tests:
                 port:
                   number: 80
             path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
 - it: should not expose user-data. (content) subdomain when not set
   set:
     global:
@@ -118,7 +130,7 @@ tests:
                 port:
                   number: 80
             path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
 - it: should configure TLS when enabled
   set:
     ingress:
@@ -231,6 +243,111 @@ tests:
   - equal:
       path: spec.rules[1].http.paths[0].pathType
       value: Prefix
+- it: should fall back to global.ingress.defaultPathType when local is empty
+  set:
+    ingress:
+      enabled: true
+      defaultPathType: ""
+    global:
+      ingress:
+        defaultPathType: Prefix
+  asserts:
+  - equal:
+      path: spec.rules[0].http.paths[0].pathType
+      value: Prefix
+  - equal:
+      path: spec.rules[1].http.paths[0].pathType
+      value: Prefix
+- it: should resolve {{ include "seqera.ingress.host" . }} to the chart's primary domain in annotations
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+      ingress:
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: '{{ include "seqera.ingress.host" . }}'
+    ingress:
+      enabled: true
+  asserts:
+  - equal:
+      path: metadata.annotations["external-dns.alpha.kubernetes.io/hostname"]
+      value: platform.example.com
+- it: should merge global.ingress.annotations with local annotations, local wins on collision
+  set:
+    ingress:
+      enabled: true
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "1g"
+        chart-only: "yes"
+    global:
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+          nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        chart-only: "yes"
+        nginx.ingress.kubernetes.io/proxy-body-size: "1g"
+- it: should merge global.ingress.extraLabels with local extraLabels, local wins on collision
+  set:
+    ingress:
+      enabled: true
+      extraLabels:
+        env: dev
+        chart: platform
+    global:
+      ingress:
+        extraLabels:
+          env: prod
+          team: devops
+  asserts:
+  - equal:
+      path: metadata.labels.env
+      value: dev
+  - equal:
+      path: metadata.labels.team
+      value: devops
+  - equal:
+      path: metadata.labels.chart
+      value: platform
+- it: should concatenate global.ingress.tls with local tls
+  set:
+    ingress:
+      enabled: true
+      tls:
+      - hosts:
+        - platform.example.com
+        secretName: platform-tls
+    global:
+      ingress:
+        tls:
+        - hosts:
+          - "*.example.com"
+          secretName: wildcard-tls
+  asserts:
+  - equal:
+      path: spec.tls
+      value:
+      - hosts:
+        - platform.example.com
+        secretName: platform-tls
+      - hosts:
+        - "*.example.com"
+        secretName: wildcard-tls
+- it: should prefer local ingress.defaultPathType over global
+  set:
+    ingress:
+      enabled: true
+      defaultPathType: Exact
+    global:
+      ingress:
+        defaultPathType: Prefix
+  asserts:
+  - equal:
+      path: spec.rules[0].http.paths[0].pathType
+      value: Exact
 - it: should use correct API version
   set:
     ingress:

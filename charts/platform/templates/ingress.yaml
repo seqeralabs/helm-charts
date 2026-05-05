@@ -17,12 +17,16 @@
  limitations under the License.
 */}}
 
-{{ if .Values.ingress.enabled }}
+{{ if or .Values.ingress.enabled .Values.global.ingress.enabled }}
   {{- $commonLabels := include "common.labels.standard" (dict "customLabels" .Values.commonLabels "context" $) | fromYaml -}}
-  {{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.extraLabels $commonLabels) "context" .) -}}
+  {{- $mergedlabels := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.extraLabels .Values.global.ingress.extraLabels $commonLabels) "context" .) -}}
   {{- $labels := include "common.tplvalues.render" (dict "value" $mergedlabels "context" $) -}}
-  {{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.commonAnnotations) "context" .) -}}
+  {{- $mergedAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.ingress.annotations .Values.global.ingress.annotations .Values.commonAnnotations) "context" .) -}}
   {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
+  {{- $defaultPathType := default .Values.global.ingress.defaultPathType .Values.ingress.defaultPathType -}}
+  {{- $path := default .Values.global.ingress.path .Values.ingress.path -}}
+  {{- $ingressClassName := default .Values.global.ingress.ingressClassName .Values.ingress.ingressClassName -}}
+  {{- $tls := concat (default (list) .Values.ingress.tls) (default (list) .Values.global.ingress.tls) -}}
 
 apiVersion: {{ include "common.capabilities.ingress.apiVersion" . }}
 kind: Ingress
@@ -36,11 +40,11 @@ spec:
   defaultBackend: {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
-  {{- if .Values.ingress.ingressClassName }}
-  ingressClassName: {{ .Values.ingress.ingressClassName | quote }}
+  {{- if $ingressClassName }}
+  ingressClassName: {{ $ingressClassName | quote }}
   {{- end }}
 
-  {{- with .Values.ingress.tls }}
+  {{- with $tls }}
   tls: {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 4 }}
   {{- end }}
 
@@ -49,8 +53,8 @@ spec:
     - host: {{ tpl .Values.global.platformExternalDomain $ | quote }}
       http:
         paths:
-          - path: {{ .Values.ingress.path | quote }}
-            pathType: {{ .Values.ingress.defaultPathType }}
+          - path: {{ $path | quote }}
+            pathType: {{ $defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -63,7 +67,7 @@ spec:
       http:
         paths:
           - path: {{ .Values.ingress.contentPath | quote }}
-            pathType: {{ .Values.ingress.defaultPathType }}
+            pathType: {{ $defaultPathType }}
             backend:
               service:
                 name: {{ printf "%s-frontend" (include "common.names.fullname" .) | quote }}
@@ -77,7 +81,7 @@ spec:
         paths:
     {{- range .paths }}
           - path: {{ .path }}
-            pathType: {{ .pathType | default $.Values.ingress.defaultPathType }}
+            pathType: {{ .pathType | default $defaultPathType }}
             backend:
               service:
                 name: {{ tpl .serviceName $ | quote }}

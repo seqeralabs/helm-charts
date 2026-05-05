@@ -35,6 +35,29 @@ global:
   # Note: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 
+  # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
+  # `ingress.*` value takes precedence when set; otherwise the global is used.
+  ingress:
+    # -- Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so
+    # setting this once at the parent enables all subchart Ingresses.
+    enabled: false
+    # -- Default path applied to ingress rules when `ingress.path` is not set.
+    # AWS ALB users should override to `/*`.
+    path: "/"
+    # -- Default path type applied to ingress rules when `ingress.defaultPathType` is not set.
+    # `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.
+    defaultPathType: "Prefix"
+    # -- Default ingress class name applied when `ingress.ingressClassName` is not set
+    ingressClassName: ""
+    # -- Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision.
+    # Evaluated as a template
+    annotations: {}
+    # -- Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision.
+    # Evaluated as a template
+    extraLabels: {}
+    # -- TLS entries concatenated with the local `ingress.tls`. Evaluated as a template
+    tls: []
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   imageCredentials: []
@@ -379,12 +402,11 @@ ingress:
   # -- Enable ingress for MCP
   enabled: false
 
-  # -- Path for the main ingress rule
-  # Note: this needs to be set to '/*' to be used with AWS ALB ingress controller
-  path: "/"
+  # -- Path for the main ingress rule. When empty, falls back to `global.ingress.path`
+  path: ""
 
-  # -- Default path type for the Ingress
-  defaultPathType: "ImplementationSpecific"
+  # -- Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`
+  defaultPathType: ""
 
   # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
@@ -416,7 +438,8 @@ ingress:
   annotations: {}
   # -- Additional labels for the ingress object. Evaluated as a template
   extraLabels: {}
-  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`)
+  # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).
+  # When empty, falls back to `global.ingress.ingressClassName`
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
   tls: []

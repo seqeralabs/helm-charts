@@ -9,7 +9,7 @@ should configure extra hosts with multiple paths:
                 port:
                   number: 80
             path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
     - host: user-data.example.com
       http:
         paths:
@@ -19,7 +19,7 @@ should configure extra hosts with multiple paths:
                 port:
                   number: 80
             path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
     - host: api.example.com
       http:
         paths:
