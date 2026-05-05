@@ -23,3 +23,12 @@ Create the name of the service account to use
 {{- define "portal-web.serviceAccountName" -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
 {{- end }}
+
+{{/*
+Return this chart's primary ingress hostname. See parent platform chart's `_helpers.tpl` for
+usage notes — `'{{ include "seqera.ingress.host" . }}'` in `global.ingress.annotations` resolves
+to each chart's own domain at render time.
+*/}}
+{{- define "seqera.ingress.host" -}}
+{{- tpl .Values.global.portalWebDomain . -}}
+{{- end -}}

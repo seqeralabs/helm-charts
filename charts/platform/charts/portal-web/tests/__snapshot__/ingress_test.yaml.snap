@@ -23,4 +23,4 @@ should render when ingress.enabled is true:
                     port:
                       number: 80
                 path: /
-                pathType: ImplementationSpecific
+                pathType: Prefix

@@ -25,6 +25,9 @@ chart:
   appVersion: "v9.9.9"
 tests:
   - it: should render a ConfigMap with default values
+    set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
     asserts:
       - isKind:
           of: ConfigMap

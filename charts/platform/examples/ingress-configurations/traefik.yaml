@@ -65,8 +65,6 @@ ingress:
         - user-data.example.com
       secretName: platform-content-tls
 
-  defaultPathType: Prefix
-
 # Note: For advanced Traefik configurations, consider using IngressRoute CRD
 # and add it via extraDeploy. Example:
 #

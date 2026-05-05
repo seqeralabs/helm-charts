@@ -9,7 +9,7 @@ should configure extra hosts with multiple paths:
                 port:
                   number: 80
             path: /
-            pathType: ImplementationSpecific
+            pathType: Prefix
     - host: api.example.com
       http:
         paths:
@@ -57,7 +57,7 @@ should render complete ingress with all features:
                     port:
                       number: 80
                 path: /
-                pathType: ImplementationSpecific
+                pathType: Prefix
         - host: admin.example.com
           http:
             paths:
@@ -97,4 +97,4 @@ should render ingress when enabled with defaults:
                     port:
                       number: 80
                 path: /
-                pathType: ImplementationSpecific
+                pathType: Prefix

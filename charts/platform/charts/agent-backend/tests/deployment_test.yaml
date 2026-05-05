@@ -29,6 +29,8 @@ tests:
   - it: should render a Deployment with default values
     template: deployment.yaml
     set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
       database.password: test-db-password
       anthropicApiKey: test-anthropic-key
       tokenEncryptionKey: test-token-encryption-key

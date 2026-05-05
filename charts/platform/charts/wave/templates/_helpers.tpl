@@ -92,3 +92,12 @@ Build the Wave micronaut envs list: always ensure required environments are pres
     {{- printf "WAVE_REDIS_PASSWORD" -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Return this chart's primary ingress hostname. See parent platform chart's `_helpers.tpl` for
+usage notes — `'{{ include "seqera.ingress.host" . }}'` in `global.ingress.annotations` resolves
+to each chart's own domain at render time.
+*/}}
+{{- define "seqera.ingress.host" -}}
+{{- tpl .Values.global.waveDomain . -}}
+{{- end -}}
