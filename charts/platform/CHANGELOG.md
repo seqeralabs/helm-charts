@@ -18,6 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Default `ingress.defaultPathType` is now `Prefix` (was `ImplementationSpecific`). With the previous default and the chart's default `path: "/"`, routing behavior depended on the ingress controller — NGINX treated it as a prefix match, AWS ALB required `/*` for the same effect, GKE applied its own interpretation. The result was the same chart and values producing different routing across clusters. `Prefix` is part of the Kubernetes Ingress spec and produces consistent prefix-match semantics across NGINX, Traefik, AWS ALB, and most modern controllers, giving users a predictable out-of-the-box experience. Users whose controller still requires `ImplementationSpecific` (e.g. older GKE) can set `global.ingress.defaultPathType: ImplementationSpecific` once at the parent.
 - Update `examples/ingress-configurations/*` to drop now-redundant `defaultPathType: Prefix` overrides and showcase `global.ingress.ingressClassName` in `nginx-cert-manager.yaml`.
 
+## [0.32.7] - 2026-04-30
+
+### Changed
+
+- Bump `seqera-common` to 2.1.2, `wave` to 0.1.2, `agent-backend` to 0.4.11, `mcp` to 0.3.6, `pipeline-optimization` to 2.0.5, `portal-web` to 0.2.8, `studios` to 1.2.15 (Redis init container log message now reports `auth set` or `auth not set`)
+
 ## [0.32.5] - 2026-04-30
 
 ### Changed
