@@ -1,7 +1,7 @@
 .PHONY: test tests unittests unittests-no-build debug check-unittest-plugin install-unittest-plugin clean-deps clean-subchart-packages rebuild-deps rebuild-deps-and-unpack rebuild-deps-force unittests-standalone test-all help
 
 # Run tests (with external dependencies rebuild) - DEFAULT behavior
-test: unittests
+test: test-all
 tests: test
 test-no-build: unittests-no-build
 tests-no-build: test-no-build
