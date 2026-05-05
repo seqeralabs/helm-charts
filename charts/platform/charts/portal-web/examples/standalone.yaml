@@ -1,0 +1,50 @@
+# Portal Web - Standalone Deployment Example
+#
+# Use this file when deploying the portal-web chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - Seqera Platform already running and accessible
+# - Agent Backend already running and accessible
+# - AWS Load Balancer Controller installed in the cluster
+# - ACM certificate ARN for TLS
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/portal-web > values.yaml  # pull full defaults to customise
+#   helm upgrade --install portal-web seqera/portal-web \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  # Domain where your existing Seqera Platform is accessible
+  platformExternalDomain: platform.example.com
+
+  # agentBackendDomain: ai-api.platform.example.com  # default: ai-api.<platformExternalDomain>
+  # portalWebDomain: ai.platform.example.com          # default: ai.<platformExternalDomain>
+
+# ALB requires NodePort service type
+service:
+  type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  # ALB requires path "/*" instead of "/"
+  path: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+  # TLS is handled by ACM; no tls section needed
+  tls: []
+
+# resources:           # chart defaults: 100m CPU / 500Mi memory
+#   requests:
+#     cpu: "100m"
+#     memory: "500Mi"
+#   limits:
+#     memory: "500Mi"

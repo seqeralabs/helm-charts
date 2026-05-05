@@ -1,0 +1,246 @@
+# Seqera Platform - Complete Deployment Example
+#
+# Deploys the full Platform stack with all optional subcharts enabled:
+# Studios, MCP, Wave, Agent Backend, Portal Web, and Pipeline Optimization.
+#
+# Prerequisites:
+# - MySQL database provisioned (shared by Platform and Pipeline Optimization;
+#   Agent Backend uses a separate MySQL database)
+# - PostgreSQL database provisioned (Wave)
+# - Redis provisioned (Platform, Studios, Wave, Agent Backend each use one)
+# - Seqera license key available
+# - AWS Bedrock or Anthropic API access for Agent Backend
+# - Wildcard DNS and ACM certificate for Studios: *.studios.platform.example.com
+# - ACM certificate ARN for all other domains
+# - AWS Load Balancer Controller installed in the cluster
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/platform > values.yaml  # pull full defaults to customise
+#   helm upgrade --install platform seqera/platform \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  platformExternalDomain: platform.example.com
+  # contentDomain: user-data.platform.example.com  # default: user-data.<platformExternalDomain>
+  # studiosDomain: studios.platform.example.com    # default: studios.<platformExternalDomain>
+  # waveDomain: wave.platform.example.com          # default: wave.<platformExternalDomain>
+  # mcpDomain: mcp.platform.example.com            # default: mcp.<platformExternalDomain>
+  # agentBackendDomain: ai-api.platform.example.com # default: ai-api.<platformExternalDomain>
+  # portalWebDomain: ai.platform.example.com        # default: ai.<platformExternalDomain>
+
+platformDatabase:
+  host: mysql.example.com
+  # port: 3306  # default
+  name: platform
+  username: platform
+  existingSecretName: platform-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  contactEmail: support@example.com
+  licenseSecretName: platform-license
+
+  # Stable secrets — must be set explicitly to avoid regeneration on upgrade
+  jwtSeedSecretName: platform-secrets
+  jwtSeedSecretKey: jwt-seed
+  cryptoSeedSecretName: platform-secrets
+  cryptoSeedSecretKey: crypto-seed
+
+  smtp:
+    host: smtp.example.com
+    port: "587"
+    user: smtp-user
+    existingSecretName: platform-smtp-credentials
+    existingSecretKey: password
+
+  # Required for Studios: Wave registry where custom session images are pushed
+  waveServerUrl: https://wave.platform.example.com
+  studios:
+    customImageRegistry: registry.example.com
+    customImageRepository: my-team/studios-sessions
+
+  dataExplorer:
+    enabled: true
+
+# ALB requires NodePort on the frontend service
+frontend:
+  service:
+    type: NodePort
+
+ingress:
+  enabled: true
+  ingressClassName: alb
+  path: "/*"
+  contentPath: "/*"
+  defaultPathType: Prefix
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+  tls: []
+
+# -- Studios subchart
+studios:
+  enabled: true
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    existingSecretName: studios-redis-credentials
+    existingSecretKey: password
+  # OIDC token is wired automatically from the platform backend secret
+  proxy:
+    service:
+      type: NodePort
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    path: "/*"
+    defaultPathType: Prefix
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/studios-wildcard-1234
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+    tls: []
+
+# -- Wave subchart
+wave:
+  enabled: true
+  database:
+    host: postgres.example.com
+    # port: 5432  # default
+    name: wave
+    username: wave
+    existingSecretName: wave-db-credentials
+    existingSecretKey: password
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    existingSecretName: wave-redis-credentials
+    existingSecretKey: password
+  service:
+    type: NodePort
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    path: "/*"
+    defaultPathType: Prefix
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/healthcheck-path: /health
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
+    tls: []
+
+# -- MCP subchart
+# OIDC token is wired automatically from the platform backend secret
+mcp:
+  enabled: true
+  oauth:
+    jwtSeedSecretName: mcp-secrets
+    jwtSeedSecretKey: jwt-seed
+  service:
+    type: NodePort
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    path: "/*"
+    defaultPathType: Prefix
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/healthcheck-path: /health
+    tls: []
+
+# -- Agent Backend subchart
+agent-backend:
+  enabled: true
+  database:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: agent_backend
+    username: agent_backend
+    existingSecretName: agent-backend-db-credentials
+    existingSecretKey: password
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    existingSecretName: agent-backend-redis-credentials
+    existingSecretKey: password
+  bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1:123456789012:agent-runtime/XXXXXXXXXX"
+  embeddings:
+    bedrock:
+      region: us-east-1
+      # modelId: amazon.titan-embed-text-v2:0  # default
+  tokenEncryptionKeyExistingSecretName: agent-backend-secrets
+  tokenEncryptionKeyExistingSecretKey: token-encryption-key
+  service:
+    type: NodePort
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    path: "/*"
+    defaultPathType: Prefix
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+      alb.ingress.kubernetes.io/healthcheck-path: /health
+    tls: []
+
+# -- Portal Web subchart
+portal-web:
+  enabled: true
+  service:
+    type: NodePort
+  ingress:
+    enabled: true
+    ingressClassName: alb
+    path: "/*"
+    defaultPathType: Prefix
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: "443"
+    tls: []
+
+# -- Pipeline Optimization subchart
+pipeline-optimization:
+  enabled: true
+  database:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: pipeline_optimization
+    username: pipeline_optimization
+    existingSecretName: pipeline-optimization-db-credentials
+    existingSecretKey: password
+  platformDatabase:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password
