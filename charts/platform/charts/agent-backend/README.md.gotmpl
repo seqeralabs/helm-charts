@@ -13,7 +13,6 @@ The chart does not automatically define `cr.seqera.io` as the registry where to 
 
 The required values to set in order to have a working installation are:
 - The `.image` section to point to your container registry.
-- The Seqera Platform Service connection details under `.global.platformServiceAddress` and `.global.platformServicePort`. These point to the Platform backend service that the Agent Backend communicates with. When deploying this subchart as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section.
 - The database connection details for the MySQL database under the `.database` section.
 - The redis connection details under the `.redis` section.
 - The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
@@ -51,7 +50,29 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 {{ template "chart.requirementsSection" . }}
 
-{{ template "chart.valuesSection" . }}
+## Values
+
+{{- range .Sections.Sections }}
+
+### {{ .SectionName }}
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+{{- range .SectionItems }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+{{- end }}
+{{- end }}
+
+{{- with .Sections.DefaultSection.SectionItems }}
+
+### Other Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+{{- range . }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+{{- end }}
+{{- end }}
 
 ## Licensing
 

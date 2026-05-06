@@ -19,22 +19,27 @@
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
   # -- Domain where Seqera Platform listens
+  # @section -- Global
   platformExternalDomain: example.com
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template.
   # Required when deploying this subchart standalone. When deploying as part of the parent
   # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  # @section -- Global
   platformServiceAddress: ""
   # -- Seqera Platform Service port.
   # Required when deploying this subchart standalone. When deploying as part of the parent
   # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  # @section -- Global
   platformServicePort: ""
 
   # -- Domain where the Agent Backend service listens. Evaluated as a template
+  # @section -- Global
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Portal Web frontend listens. Evaluated as a template
+  # @section -- Global
   portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
   # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
@@ -42,26 +47,34 @@ global:
   ingress:
     # -- Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so
     # setting this once at the parent enables all subchart Ingresses.
+    # @section -- Global: Ingress defaults
     enabled: false
     # -- Default path applied to ingress rules when `ingress.path` is not set.
     # AWS ALB users should override to `/*`.
+    # @section -- Global: Ingress defaults
     path: "/"
     # -- Default path type applied to ingress rules when `ingress.defaultPathType` is not set.
     # `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.
+    # @section -- Global: Ingress defaults
     defaultPathType: "Prefix"
     # -- Default ingress class name applied when `ingress.ingressClassName` is not set
+    # @section -- Global: Ingress defaults
     ingressClassName: ""
     # -- Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision.
     # Evaluated as a template
+    # @section -- Global: Ingress defaults
     annotations: {}
     # -- Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision.
     # Evaluated as a template
+    # @section -- Global: Ingress defaults
     extraLabels: {}
     # -- TLS entries concatenated with the local `ingress.tls`. Evaluated as a template
+    # @section -- Global: Ingress defaults
     tls: []
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
+  # @section -- Global: Image credentials
   imageCredentials: []
   # imageCredentials:
   # - registry: ""
@@ -71,6 +84,7 @@ global:
 
   # -- Optional list of existing Secrets containing image pull credentials to use for pulling
   # images from private registries. These Secrets are shared with all the subcharts automatically
+  # @section -- Global: Image credentials
   imageCredentialsSecrets: []
   # imageCredentialsSecrets:
   # - myPrivateRegistryKeySecretName
@@ -82,20 +96,26 @@ global:
 
 image:
   # -- Container image registry
+  # @section -- Image
   registry: ""
   # -- Container image repository
+  # @section -- Image
   repository: private/nf-tower-enterprise/portal-web
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
+  # @section -- Image
   tag: ""
   # -- Container image digest in the format `sha256:1234abcdef`
+  # @section -- Image
   digest: ""
   # -- imagePullPolicy for the container
   # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  # @section -- Image
   pullPolicy: IfNotPresent
   # -- List of imagePullSecrets
   # Secrets must be created in the same namespace, for example using the .extraDeploy array
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # @section -- Image
   pullSecrets: []
   # pullSecrets:
   #   - myRegistryKeySecretName
@@ -103,21 +123,27 @@ image:
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort
+  # @section -- Service
   type: ClusterIP
   http:
     # -- Service name to use
+    # @section -- Service
     name: http
     # -- Service port
+    # @section -- Service
     port: 80
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port)
+    # @section -- Service
     targetPort: 3000
     # -- Service node port, only used when service.type is Nodeport or LoadBalancer
     # Choose port between 30000-32767, unless the cluster was configured differently than default
+    # @section -- Service
     nodePort: null
 
   # -- Other services that should live in the Service object
   # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  # @section -- Service
   extraServices: []
   # extraServices:
   # - name: myspecialservice
@@ -127,29 +153,38 @@ service:
 
   # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
   # externalTrafficPolicy, externalIPs). Evaluated as a template
+  # @section -- Service
   extraOptions: {}
 
 # -- Size limit for the /tmp emptyDir volume
+# @section -- Deployment
 tmpDirSizeLimit: "500Mi"
 
 # -- Size limit for the /app/.next/cache emptyDir volume
+# @section -- Deployment
 nextjsCacheSizeLimit: "500Mi"
 
 # -- Additional init containers for the pod. Evaluated as a template
+# @section -- Deployment
 initContainers: []
 
 # -- Override default container command (useful when using custom images)
+# @section -- Deployment
 command: []
 # -- Override default container args (useful when using custom images)
+# @section -- Deployment
 args: []
 
 # -- Additional labels for the pod. Evaluated as a template
+# @section -- Deployment
 podLabels: {}
 # -- Additional annotations for the pod. Evaluated as a template
+# @section -- Deployment
 podAnnotations: {}
 
 # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
 # Evaluated as a template
+# @section -- Deployment
 extraOptionsSpec: {}
 # extraOptionsSpec:
 #   strategy:
@@ -159,26 +194,32 @@ extraOptionsSpec: {}
 
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template
+# @section -- Deployment
 extraOptionsTemplateSpec: {}
 # extraOptionsTemplateSpec:
 #   nodeSelector:
 #     service: myspecialnodegroup
 
 # -- Extra environment variables
+# @section -- Deployment: Environment
 extraEnvVars: []
 # extraEnvVars:
 #   - name: "CUSTOM_ENV_VAR"
 #     value: "set-a-value-here"
 
 # -- List of ConfigMaps containing extra env vars
+# @section -- Deployment: Environment
 extraEnvVarsCMs: []
 # -- List of Secrets containing extra env vars
+# @section -- Deployment: Environment
 extraEnvVarsSecrets: []
 # -- List of volumes to add to the deployment (evaluated as template). Requires setting
 # `extraVolumeMounts`
+# @section -- Deployment: Environment
 extraVolumes: []
 # -- List of volume mounts to add to the container (evaluated as template). Normally used with
 # `extraVolumes`
+# @section -- Deployment: Environment
 extraVolumeMounts: []
 
 # Configure Pods Security Context.
@@ -186,28 +227,36 @@ extraVolumeMounts: []
 # Empty map to disable Pod Security Context configuration
 podSecurityContext:
   # -- Enable pod Security Context
+  # @section -- Security Context: Pod
   enabled: true
   # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
   # in the pod can share group-owned access
+  # @section -- Security Context: Pod
   fsGroup: 1001
 
 # Configure Container Security Context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 containerSecurityContext:
   # -- Enable container Security Context
+  # @section -- Security Context: Container
   enabled: true
   # -- UID the container processes run as (overrides container image default)
+  # @section -- Security Context: Container
   runAsUser: 1001
   # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  # @section -- Security Context: Container
   runAsNonRoot: true
   # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  # @section -- Security Context: Container
   readOnlyRootFilesystem: true
   # -- Fine-grained Linux kernel privileges to add or drop for the container
+  # @section -- Security Context: Container
   capabilities:
     drop:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
+# @section -- Resources
 resources:
   requests:
     cpu: "100m"
@@ -222,92 +271,126 @@ resources:
 # Configure extra options for the startup probe
 startupProbe:
   # -- Enable startup probe
+  # @section -- Probes: Startup
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
+    # @section -- Probes: Startup
     path: "/"
     # -- HTTP GET port for startup probe. Evaluated as a template
+    # @section -- Probes: Startup
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
+  # @section -- Probes: Startup
   initialDelaySeconds: 5
   # -- Often set longer to avoid frequent checks while starting
+  # @section -- Probes: Startup
   periodSeconds: 10
   # -- Can be longer to allow slow initialization responses
+  # @section -- Probes: Startup
   timeoutSeconds: 3
   # -- Consecutive failures during startup before killing the container (instead of immediate
   # restarts)
+  # @section -- Probes: Startup
   failureThreshold: 5
   # -- Number of consecutive successes required to consider startup complete and enable
   # liveness/readiness
+  # @section -- Probes: Startup
   successThreshold: 1
 
 # Configure extra options for the readiness probe
 readinessProbe:
   # -- Enable readiness probe
+  # @section -- Probes: Readiness
   enabled: true
   httpGet:
     # -- HTTP GET path for readiness probe
+    # @section -- Probes: Readiness
     path: "/"
     # -- HTTP GET port for readiness probe. Evaluated as a template
+    # @section -- Probes: Readiness
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check
+  # @section -- Probes: Readiness
   initialDelaySeconds: 10
   # -- Regular check interval during normal operation
+  # @section -- Probes: Readiness
   periodSeconds: 5
   # -- Short timeout to detect unresponsive containers for readiness
+  # @section -- Probes: Readiness
   timeoutSeconds: 3
   # -- Consecutive failures before marking the container Unready (no restart)
+  # @section -- Probes: Readiness
   failureThreshold: 3
   # -- Number of consecutive successes required to mark the container Ready after failures
+  # @section -- Probes: Readiness
   successThreshold: 1
 
 # Configure extra options for the liveness probe
 livenessProbe:
   # -- Enable liveness probe
+  # @section -- Probes: Liveness
   enabled: true
   httpGet:
     # -- HTTP GET path for liveness probe
+    # @section -- Probes: Liveness
     path: "/"
     # -- HTTP GET port for liveness probe. Evaluated as a template
+    # @section -- Probes: Liveness
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check
+  # @section -- Probes: Liveness
   initialDelaySeconds: 30
   # -- Regular check interval during normal operation
+  # @section -- Probes: Liveness
   periodSeconds: 10
   # -- Short timeout to detect hung containers quickly
+  # @section -- Probes: Liveness
   timeoutSeconds: 5
   # -- Consecutive failures before restarting the container
+  # @section -- Probes: Liveness
   failureThreshold: 3
   # -- Typically 1 (usually ignored)
+  # @section -- Probes: Liveness
   successThreshold: 1
 
 # -- Service account configuration
+# @section -- Service Account
 serviceAccount:
   # -- Service account name
+  # @section -- Service Account
   name: ""
   # -- Service account annotations
+  # @section -- Service Account
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
+  # @section -- Service Account
   imagePullSecretNames: []
   # -- Automatically mount service account token
+  # @section -- Service Account
   automountServiceAccountToken: false
 
 ingress:
   # -- Enable ingress for Portal Web
+  # @section -- Ingress
   enabled: false
 
   # -- Path for the main ingress rule. When empty, falls back to `global.ingress.path`
+  # @section -- Ingress
   path: ""
 
   # -- Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`
+  # @section -- Ingress
   defaultPathType: ""
 
   # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
   # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  # @section -- Ingress
   defaultBackend: {}
 
   # -- Additional hosts you want to include. Evaluated as a template
+  # @section -- Ingress
   extraHosts: []
   # extraHosts:
   #   - host: '{{ printf "portal2.%s" .Values.global.platformExternalDomain }}'
@@ -318,13 +401,17 @@ ingress:
   #         portNumber: '{{ .Values.service.http.port }}'
 
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  # @section -- Ingress
   annotations: {}
   # -- Additional labels for the ingress object. Evaluated as a template
+  # @section -- Ingress
   extraLabels: {}
   # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).
   # When empty, falls back to `global.ingress.ingressClassName`
+  # @section -- Ingress
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
+  # @section -- Ingress
   tls: []
   # tls:
   #   - hosts:
@@ -332,6 +419,7 @@ ingress:
   #     secretName: my-tls
 
 # -- Array of extra objects to deploy with the release
+# @section -- Extra Deploy
 extraDeploy: []
 # extraDeploy:
 #   - apiVersion: v1
@@ -339,14 +427,20 @@ extraDeploy: []
 #     ...
 
 # -- Annotations to add to all deployed objects
+# @section -- Common Metadata
 commonAnnotations: {}
 # -- Labels to add to all deployed objects
+# @section -- Common Metadata
 commonLabels: {}
 # -- Additional labels for the Secret objects. Evaluated as a template
+# @section -- Common Metadata
 secretLabels: {}
 # -- Additional annotations for the Secret objects. Evaluated as a template
+# @section -- Common Metadata
 secretAnnotations: {}
 # -- Additional labels for the ConfigMap objects. Evaluated as a template
+# @section -- Common Metadata
 configMapLabels: {}
 # -- Additional annotations for the ConfigMap objects. Evaluated as a template
+# @section -- Common Metadata
 configMapAnnotations: {}

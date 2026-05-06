@@ -47,7 +47,29 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 {{ template "chart.requirementsSection" . }}
 
-{{ template "chart.valuesSection" . }}
+## Values
+
+{{- range .Sections.Sections }}
+
+### {{ .SectionName }}
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+{{- range .SectionItems }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+{{- end }}
+{{- end }}
+
+{{- with .Sections.DefaultSection.SectionItems }}
+
+### Other Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+{{- range . }}
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+{{- end }}
+{{- end }}
 
 ## Licensing
 
