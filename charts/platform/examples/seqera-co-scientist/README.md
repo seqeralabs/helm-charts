@@ -1,6 +1,6 @@
-# Seqera AI installation example
+# Seqera Co-Scientist installation example
 
-This example demonstrates how to enable the Seqera AI [Agent backend](../../charts/agent-backend/),
+This example demonstrates how to enable the Seqera Co-Scientist [Agent backend](../../charts/agent-backend/),
 [Model Context Protocol server](../../charts/mcp/), and [Portal web
 interface](../../charts/portal-web/) using the Platform parent Helm chart and enabling
 the respective subcharts. The charts can also be installed without installing the Platform chart,
@@ -20,8 +20,8 @@ key = Fernet.generate_key()
 print(key.decode())
 ```
 
-The example doesn't provide values for the Platform chart, but it can be used as a reference for how to set the values for the Seqera AI components.
+The example doesn't provide values for the Platform chart, but it can be used as a reference for how to set the values for the Seqera Co-Scientist components.
 
-Private registry credentials are required to pull the Seqera AI images. Refer to the
+Private registry credentials are required to pull the Seqera Co-Scientist images. Refer to the
 [VENDORING.md](../../../../VENDORING.md) file for instructions on how to vendor images and charts to
 an internal registry.

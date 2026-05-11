@@ -10,9 +10,9 @@ Currently, it includes charts for:
   Nextflow pipelines running on Platform - internally referred to as Groundswell.
 - [Seqera MCP](./charts/platform/charts/mcp/README.md): Model Context Protocol (MCP) server to allow LLMs to
   interact with Seqera products.
-- [Seqera AI Backend](./charts/platform/charts/agent-backend/README.md): Backend service for Seqera CLI AI
+- [Agent Backend](./charts/platform/charts/agent-backend/README.md): Backend service for Seqera Co-Scientist CLI
   capabilities.
-- [Seqera Portal web interface](./charts/platform/charts/portal-web/README.md): Web service for Seqera AI
+- [Portal](./charts/platform/charts/portal-web/README.md): Web service for Seqera Co-Scientist
 - [Seqera Common](./charts/common/README.md): Library chart with shared resources and configurations
 
 The Platform chart is the main chart, and other charts can be deployed as sub-charts of Platform.
