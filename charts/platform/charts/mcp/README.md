@@ -4,13 +4,15 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
 > The public API SHOULD NOT be considered stable.
 
 ## Requirements and configuration
+
+For a full list of prerequisites needed to deploy Seqera AI, refer to the [Seqera AI prerequisites](https://docs.seqera.io/platform-enterprise/seqera-ai/prerequisites) documentation.
 
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
@@ -38,7 +40,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/mcp \
-  --version 0.4.0 \
+  --version 0.4.1 \
   --namespace my-namespace \
   --create-namespace
 ```

@@ -10,6 +10,8 @@ Backend service for Seqera CLI AI capabilities
 
 ## Requirements and configuration
 
+For a full list of prerequisites needed to deploy Seqera AI, refer to the [Seqera AI prerequisites](https://docs.seqera.io/platform-enterprise/seqera-ai/prerequisites) documentation.
+
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
 The required values to set in order to have a working installation are:
