@@ -120,8 +120,6 @@ bedrock:
     region: ""
     # -- Bedrock model ID used for embeddings.
     model: "amazon.titan-embed-text-v2:0"
-    # -- Embedding vector dimensions expected from the configured Bedrock model.
-    dimensions: "1024"
 
   # -- Sandbox (AgentCore) Bedrock configuration.
   sandbox:

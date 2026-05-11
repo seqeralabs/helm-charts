@@ -21,13 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   | `bedrockAnthropicModel`              | `bedrock.inference.anthropicModel`       |
   | `embeddings.bedrock.region`          | `bedrock.embeddings.region`              |
   | `embeddings.bedrock.modelId`         | `bedrock.embeddings.model`               |
-  | `embeddings.bedrock.dimensions`      | `bedrock.embeddings.dimensions`          |
+  | `embeddings.bedrock.dimensions`      | _(removed — see below)_                  |
   | `anthropicApiKey`                    | `anthropic.apiKey`                       |
   | `anthropicApiKeyExistingSecretName`  | `anthropic.existingSecretName`           |
   | `anthropicApiKeyExistingSecretKey`   | `anthropic.existingSecretKey`            |
   | _(was hardcoded `true`)_             | `inference.provider: bedrock`            |
   | _(was hardcoded `"bedrock"`)_        | `embeddings.provider: bedrock`           |
   | _(was implicit)_                     | `sandbox.provider: bedrock`              |
+
+- **BREAKING**: Remove `bedrock.embeddings.dimensions` value and `NEXTFLOW_DOCS_BEDROCK_DIMENSIONS` env var: the application provides a good default.
 
 ## [0.5.0] - 2026-05-05
 

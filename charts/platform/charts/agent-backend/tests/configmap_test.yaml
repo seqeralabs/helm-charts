@@ -170,9 +170,8 @@ tests:
       - equal:
           path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
           value: amazon.titan-embed-text-v2:0
-      - equal:
+      - notExists:
           path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
-          value: "1024"
       - notExists:
           path: data.AWS_BEDROCK_EMBEDDINGS_ASSUME_ROLE_ARN
       - notExists:
@@ -184,7 +183,6 @@ tests:
       bedrock.embeddings.assumeRoleArn: arn:aws:iam::123456789012:role/embeddings-role
       bedrock.embeddings.region: eu-west-2
       bedrock.embeddings.model: amazon.titan-embed-text-v2:0
-      bedrock.embeddings.dimensions: "1024"
     asserts:
       - equal:
           path: data.AWS_BEDROCK_EMBEDDINGS_ASSUME_ROLE_ARN
@@ -195,9 +193,8 @@ tests:
       - equal:
           path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
           value: amazon.titan-embed-text-v2:0
-      - equal:
+      - notExists:
           path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
-          value: "1024"
 
   # ---- Provider routing: sandbox (optional) ----
 

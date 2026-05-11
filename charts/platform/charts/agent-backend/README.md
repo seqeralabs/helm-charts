@@ -89,11 +89,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | bedrock.inference.assumeRoleArn | string | `""` | IAM role ARN for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
 | bedrock.inference.region | string | `""` | AWS region for Bedrock inference (overrides bedrock.default.region). |
 | bedrock.inference.anthropicModel | string | `""` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region profile). |
-| bedrock.embeddings | object | `{"assumeRoleArn":"","dimensions":"1024","model":"amazon.titan-embed-text-v2:0","region":""}` | Embeddings-specific Bedrock overrides. |
+| bedrock.embeddings | object | `{"assumeRoleArn":"","model":"amazon.titan-embed-text-v2:0","region":""}` | Embeddings-specific Bedrock overrides. |
 | bedrock.embeddings.assumeRoleArn | string | `""` | IAM role ARN for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
 | bedrock.embeddings.region | string | `""` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
 | bedrock.embeddings.model | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings. |
-| bedrock.embeddings.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model. |
 | bedrock.sandbox | object | `{"assumeRoleArn":"","region":"","runtimeArn":""}` | Sandbox (AgentCore) Bedrock configuration. |
 | bedrock.sandbox.assumeRoleArn | string | `""` | IAM role ARN for AgentCore (overrides bedrock.default.assumeRoleArn). |
 | bedrock.sandbox.region | string | `""` | AWS region for AgentCore. |

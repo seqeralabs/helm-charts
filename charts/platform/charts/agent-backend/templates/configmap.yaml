@@ -84,7 +84,6 @@ data:
   BEDROCK_EMBEDDINGS_REGION: {{ tpl .Values.bedrock.embeddings.region . | quote }}
   {{- end }}
   NEXTFLOW_DOCS_BEDROCK_MODEL_ID: {{ tpl (toString .Values.bedrock.embeddings.model) . | quote }}
-  NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: {{ include "seqera.tplvalues.render" (dict "value" .Values.bedrock.embeddings.dimensions "context" $) | quote }}
 {{- end }}
   NEXTFLOW_DOCS_USE_REDIS_INDEX: {{ .Values.nextflowDocs.useRedisIndex | quote }}
 
