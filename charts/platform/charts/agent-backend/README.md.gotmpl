@@ -15,15 +15,19 @@ The required values to set in order to have a working installation are:
 - The `.image` section to point to your container registry.
 - The Seqera Platform Service connection details under `.global.platformServiceAddress` and `.global.platformServicePort`. These point to the Platform backend service that the Agent Backend communicates with. When deploying this subchart as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section.
 - The database connection details for the MySQL database under the `.database` section.
-- The redis connection details under the `.redis` section.
-- The Bedrock AgentCore runtime ARN under the `.bedrockAgentCoreArn` section.
-- Anthropic API credentials under `.anthropicApiKey` or `.anthropicApiKeyExistingSecretName`.
-- Bedrock embedding settings under `.embeddings` (in particular the AWS region to use for the Bedrock embedding engine).
+- The Redis connection details under the `.redis` section.
+- The inference provider under `.inference.provider` (one of `bedrock`, `anthropic`) and the corresponding provider credentials:
+  * For Bedrock: optionally set `.bedrock.default.region` and `.bedrock.default.assumeRoleArn` as defaults applied to all Bedrock-backed services, with per-service overrides available under `.bedrock.inference.*`.
+  * For Anthropic: set `.anthropic.apiKey` or reference an existing Secret via `.anthropic.existingSecretName`.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
   * Multiple credentials can be specified to cover different registries.
   * Specific pull secrets can be defined in each `.image` section to extend the global credentials.
   * Image pull secrets defined in the specific `.image` section will be added to the global ones, not replacing them.
+
+The following capabilities are **optional** and disabled when their provider is not set:
+- **Embeddings** (AWS Bedrock only): set `.embeddings.provider: bedrock` and configure `.bedrock.embeddings.*` (model, dimensions, region, assumeRoleArn).
+- **Sandbox** (AWS Bedrock AgentCore only): set `.sandbox.provider: bedrock` and configure `.bedrock.sandbox.*` (runtimeArn, region, assumeRoleArn).
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
