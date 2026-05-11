@@ -1,6 +1,6 @@
 global:
   platformExternalDomain: platform.example.com
-  # The domains where Seqera AI applications will be exposed are automatically derived from the
+  # The domains where Seqera Co-Scientist applications will be exposed are automatically derived from the
   # `platformExternalDomain` value, but they can be overridden by setting the following values:
   # mcpDomain: mcp.platform.example.com
   # portalDomain: ai.platform.example.com
