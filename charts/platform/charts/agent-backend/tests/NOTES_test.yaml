@@ -23,34 +23,31 @@ templates:
 chart:
   version: 1.0.0
   appVersion: "v1.0.0"
+
+# Suite-level defaults that satisfy all required fields. Individual tests override only
+# what they are testing.
+set:
+  global.platformServiceAddress: "platform-backend"
+  global.platformServicePort: 8080
+  database.host: "database.example.com"
+  database.name: "agent_backend"
+  database.username: "agent"
+  database.password: "test-password"
+  anthropic.apiKey: "test-anthropic-key"
+  redis.host: "redis.example.com"
+
 tests:
   # Platform Service connection tests
   - it: should fail when global.platformServiceAddress is not defined
     set:
-      global:
-        platformServiceAddress: ""
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
+      global.platformServiceAddress: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Seqera Platform Service address at 'global.platformServiceAddress'"
 
   - it: should fail when global.platformServicePort is not defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: ""
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
+      global.platformServicePort: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
@@ -58,227 +55,80 @@ tests:
   # Database host tests
   - it: should fail when database.host is not defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: ""
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
+      database.host: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database host at 'database.host'\\."
 
-  - it: should fail when database.host is missing
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Agent Backend database host at 'database.host'\\."
-
-  # Database name tests
   - it: should fail when database.name is not defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: ""
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
+      database.name: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database name at 'database.name'\\."
 
-  - it: should fail when database.name is missing
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Agent Backend database name at 'database.name'\\."
-
-  # Database username tests
   - it: should fail when database.username is not defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: ""
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
+      database.username: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database username at 'database.username'\\."
 
-  - it: should fail when database.username is missing
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Agent Backend database username at 'database.username'\\."
-
-  # Database password tests
   - it: should fail when database.password is not defined and no existingSecretName
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: ""
-        existingSecretName: ""
-      anthropicApiKey: "test-anthropic-key"
+      database.password: ""
+      database.existingSecretName: ""
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend database password at 'database.password' or provide an existing secret name at 'database.existingSecretName'\\."
 
   - it: should fail when both database.password and database.existingSecretName are defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-        existingSecretName: "my-secret"
-      anthropicApiKey: "test-anthropic-key"
+      database.password: "test-password"
+      database.existingSecretName: "my-secret"
     asserts:
       - failedTemplate:
           errorPattern: "Either provide 'database.password' or an existing secret name in 'database.existingSecretName', but not both\\."
 
   - it: should pass when only database.password is set
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
 
   - it: should pass when only database.existingSecretName is set
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        existingSecretName: "my-secret"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
+      database.password: ""
+      database.existingSecretName: "my-secret"
     asserts:
       - hasDocuments:
           count: 1
 
   # Anthropic API key tests
-  - it: should fail when anthropicApiKey is not defined and no existingSecretName
+  - it: should fail when anthropic.apiKey is not defined and no existingSecretName
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: ""
-      anthropicApiKeyExistingSecretName: ""
+      anthropic.apiKey: ""
+      anthropic.existingSecretName: ""
     asserts:
       - failedTemplate:
-          errorPattern: "Define the Anthropic API key at 'anthropicApiKey' or provide an existing secret name at 'anthropicApiKeyExistingSecretName'\\."
+          errorPattern: "Define the Anthropic API key at 'anthropic.apiKey' or provide an existing secret name at 'anthropic.existingSecretName'\\."
 
-  - it: should fail when both anthropicApiKey and anthropicApiKeyExistingSecretName are defined
+  - it: should fail when both anthropic.apiKey and anthropic.existingSecretName are defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      anthropicApiKeyExistingSecretName: "my-anthropic-secret"
+      anthropic.apiKey: "test-anthropic-key"
+      anthropic.existingSecretName: "my-anthropic-secret"
     asserts:
       - failedTemplate:
-          errorPattern: "Either provide 'anthropicApiKey' or an existing secret name in 'anthropicApiKeyExistingSecretName', but not both\\."
+          errorPattern: "Either provide 'anthropic.apiKey' or an existing secret name in 'anthropic.existingSecretName', but not both\\."
 
-  - it: should pass when only anthropicApiKey is set
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
+  - it: should pass when only anthropic.apiKey is set
     asserts:
       - hasDocuments:
           count: 1
 
-  - it: should pass when only anthropicApiKeyExistingSecretName is set
+  - it: should pass when only anthropic.existingSecretName is set
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKeyExistingSecretName: "my-anthropic-secret"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
+      anthropic.apiKey: ""
+      anthropic.existingSecretName: "my-anthropic-secret"
     asserts:
       - hasDocuments:
           count: 1
@@ -286,186 +136,32 @@ tests:
   # Redis host tests
   - it: should fail when redis.host is not defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
       redis.host: ""
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - failedTemplate:
           errorPattern: "Define the Agent Backend Redis host at 'redis.host'\\."
 
   - it: should fail when both redis.password and redis.existingSecretName are defined
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
       redis.password: "my-redis-password"
       redis.existingSecretName: "my-redis-secret"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
     asserts:
       - failedTemplate:
           errorPattern: "Either provide 'redis.password' or an existing secret name in 'redis.existingSecretName', but not both\\."
 
-  # Bedrock AgentCore ARN tests
-  - it: should fail when bedrockAgentCoreArn is not defined
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Bedrock AgentCore runtime ARN at 'bedrockAgentCoreArn'\\."
-
-  - it: should fail when bedrockAgentCoreArn is missing
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Bedrock AgentCore runtime ARN at 'bedrockAgentCoreArn'\\."
-
-  # Bedrock embeddings configuration tests
-  - it: should fail when embeddings.bedrock.region is not defined
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
-
-  - it: should fail when embeddings.bedrock.modelId is not defined
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
-      embeddings.bedrock.modelId: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
-
-  - it: should fail when embeddings.bedrock.dimensions is not defined
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
-      embeddings.bedrock.dimensions: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Bedrock embedding configuration values under '.embeddings.bedrock'\\."
-
-  - it: should pass when all embeddings.bedrock values are set
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
-      embeddings.bedrock.modelId: "test-model"
-      embeddings.bedrock.dimensions: 1024
-    asserts:
-      - hasDocuments:
-          count: 1
-
-  # Complete valid configuration test
+  # Complete valid configuration
   - it: should pass with all required values properly set
-    set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        password: "test-password"
-      anthropicApiKey: "test-anthropic-key"
-      redis.host: "redis.example.com"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1
 
-  # Valid configuration with external secrets
   - it: should pass with all required values using external secrets
     set:
-      global:
-        platformServiceAddress: "platform-backend"
-        platformServicePort: 8080
-      database:
-        host: "database.example.com"
-        name: "agent_backend"
-        username: "agent"
-        existingSecretName: "db-secret"
-      anthropicApiKeyExistingSecretName: "anthropic-secret"
-      redis.host: "redis.example.com"
+      database.password: ""
+      database.existingSecretName: "db-secret"
+      anthropic.apiKey: ""
+      anthropic.existingSecretName: "anthropic-secret"
       redis.existingSecretName: "redis-secret"
-      bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1::agent-runtime/test"
-      embeddings.bedrock.region: "us-east-1"
     asserts:
       - hasDocuments:
           count: 1

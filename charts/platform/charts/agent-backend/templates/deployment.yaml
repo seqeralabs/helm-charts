@@ -118,8 +118,8 @@ spec:
             - name: ANTHROPIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "agent-backend.anthropicApiKey.existingSecret.secretName" . }}
-                  key: {{ include "agent-backend.anthropicApiKey.existingSecret.secretKey" . }}
+                  name: {{ include "agent-backend.anthropic.existingSecret.secretName" . }}
+                  key: {{ include "agent-backend.anthropic.existingSecret.secretKey" . }}
             - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:

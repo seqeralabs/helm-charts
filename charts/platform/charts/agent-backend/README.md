@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.0.0](https://img.shields.io/badge/AppVersion-2.0.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -39,7 +39,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 0.5.0 \
+  --version 1.0.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -75,6 +75,28 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.ingress.tls | list | `[]` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
+| inference.provider | string | `""` | Inference provider. One of: "bedrock", "anthropic". Required. |
+| embeddings.provider | string | `""` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
+| sandbox.provider | string | `""` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
+| bedrock.default | object | `{"assumeRoleArn":"","region":""}` | Default credentials/region applied to any Bedrock-backed service that does not set its own. |
+| bedrock.default.assumeRoleArn | string | `""` | Default IAM role ARN to assume for all Bedrock services (cross-account access). |
+| bedrock.default.region | string | `""` | Default AWS region for all Bedrock services. |
+| bedrock.inference | object | `{"anthropicModel":"","assumeRoleArn":"","region":""}` | Inference-specific Bedrock overrides. Each field maps to one env var; leave empty to omit and let the backend fall back to bedrock.default.* |
+| bedrock.inference.assumeRoleArn | string | `""` | IAM role ARN for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
+| bedrock.inference.region | string | `""` | AWS region for Bedrock inference (overrides bedrock.default.region). |
+| bedrock.inference.anthropicModel | string | `""` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region profile). |
+| bedrock.embeddings | object | `{"assumeRoleArn":"","dimensions":"1024","model":"amazon.titan-embed-text-v2:0","region":""}` | Embeddings-specific Bedrock overrides. |
+| bedrock.embeddings.assumeRoleArn | string | `""` | IAM role ARN for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
+| bedrock.embeddings.region | string | `""` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
+| bedrock.embeddings.model | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings. |
+| bedrock.embeddings.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model. |
+| bedrock.sandbox | object | `{"assumeRoleArn":"","region":"","runtimeArn":""}` | Sandbox (AgentCore) Bedrock configuration. |
+| bedrock.sandbox.assumeRoleArn | string | `""` | IAM role ARN for AgentCore (overrides bedrock.default.assumeRoleArn). |
+| bedrock.sandbox.region | string | `""` | AWS region for AgentCore. |
+| bedrock.sandbox.runtimeArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
+| anthropic.apiKey | string | `""` | Anthropic API key. Set this OR existingSecretName, not both. |
+| anthropic.existingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| anthropic.existingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
 | database.host | string | `""` | MySQL database hostname |
 | database.port | int | `3306` | MySQL database port |
 | database.name | string | `""` | MySQL database name |
@@ -92,16 +114,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.password | string | `""` | Redis password |
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
-| bedrockAgentCoreArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions |
-| bedrockAssumeRoleArn | string | `""` | Optional IAM role ARN that the Agent Backend assumes for cross-account Bedrock access. Leave empty to let the pod directly use the AWS credentials provided to it (single-account setup). |
-| bedrockAnthropicModel | string | `""` | Override the Anthropic model used on Bedrock by specifying an inference profile ARN. You can create a custom inference profile that uses the Anthropic model you want or use the default inference profile for the model provided by AWS. When doing cross-account access with `bedrockAssumeRoleArn`, you may want to specify an inference profile ARN on the account where the hop role is defined |
-| embeddings.bedrock.region | string | `""` | AWS region where the Bedrock model is hosted |
-| embeddings.bedrock.modelId | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings |
-| embeddings.bedrock.dimensions | string | `"1024"` | Embedding vector dimensions expected from the configured Bedrock model |
 | nextflowDocs.useRedisIndex | bool | `false` | Use a Redis-backed vector index for the Nextflow documentation knowledge base. Disabled by default. |
-| anthropicApiKey | string | `""` | Anthropic API key. Define the value as a String or a Secret, not both at the same time |
-| anthropicApiKeyExistingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| anthropicApiKeyExistingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
 | tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
 | tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |

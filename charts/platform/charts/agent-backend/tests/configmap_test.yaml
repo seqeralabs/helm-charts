@@ -23,16 +23,20 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+
+# Suite-level defaults: only inference.provider is required.
+set:
+  global.platformExternalDomain: test.example.com
+  global.platformServiceAddress: my-platform-backend
+  global.platformServicePort: 8080
+  global.mcpDomain: mcp.test.example.com
+  inference.provider: bedrock
+  database.host: mysql.default.svc.cluster.local
+  database.name: agentdb
+  database.username: agent
+
 tests:
-  - it: should render a ConfigMap with default values
-    set:
-      global.platformExternalDomain: test.example.com
-      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
-      global.platformServicePort: 8080
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql.default.svc.cluster.local
-      database.name: agentdb
-      database.username: agent
+  - it: should render a ConfigMap with default bedrock-only values
     asserts:
       - isKind:
           of: ConfigMap
@@ -40,8 +44,6 @@ tests:
 
   - it: should contain database configuration
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
       database.host: mysql.default.svc.cluster.local
       database.port: 3306
       database.name: agentdb
@@ -66,9 +68,6 @@ tests:
       global.platformServiceAddress: my-platform-backend
       global.platformServicePort: 9090
       global.mcpDomain: mcp.prod.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
     asserts:
       - equal:
           path: data.SEQERA_PLATFORM_API_URL
@@ -80,9 +79,6 @@ tests:
       global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
       global.platformServicePort: 8080
       global.mcpDomain: mcp.prod.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
     asserts:
       - equal:
           path: data.SEQERA_PLATFORM_API_URL
@@ -92,9 +88,6 @@ tests:
     set:
       global.platformExternalDomain: prod.example.com
       global.mcpDomain: mcp.prod.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
     asserts:
       - equal:
           path: data.SEQERA_PLATFORM_URL
@@ -105,11 +98,6 @@ tests:
 
   - it: should use custom service port in configmap
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
       service.http.targetPort: 9000
     asserts:
       - equal:
@@ -118,95 +106,198 @@ tests:
 
   - it: should template mcpDomain
     set:
-      global.platformExternalDomain: test.example.com
       global.mcpDomain: "{{ .Release.Name }}-mcp.example.com"
-      database.host: mysql
-      database.name: db
-      database.username: user
     asserts:
       - equal:
           path: data.SEQERA_MCP_URL
           value: "https://RELEASE-NAME-mcp.example.com/mcp"
 
-  - it: should set custom environment and log level
+  - it: should set custom log level
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
       logLevel: DEBUG
     asserts:
       - equal:
           path: data.LOG_LEVEL
           value: DEBUG
 
-  - it: should set KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER to bedrock
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-    asserts:
-      - equal:
-          path: data.KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER
-          value: "bedrock"
+  # ---- Provider routing: inference ----
 
-  - it: should always enable Bedrock inference
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
+  - it: should set USE_BEDROCK_INFERENCE to true when inference.provider is bedrock
     asserts:
       - equal:
           path: data.USE_BEDROCK_INFERENCE
           value: "true"
 
-  - it: should render Bedrock embeddings settings with default values
+  - it: should set USE_BEDROCK_INFERENCE to false when inference.provider is anthropic
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
+      inference.provider: anthropic
+      anthropic.apiKey: sk-ant-test123
     asserts:
-      - isSubset:
-          path: data
-          content:
-            USE_BEDROCK_INFERENCE: "true"
-            BEDROCK_REGION: ""
-            NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
-            NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+      - equal:
+          path: data.USE_BEDROCK_INFERENCE
+          value: "false"
 
-  - it: should render Bedrock embeddings settings when configured
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      embeddings.bedrock.region: eu-west-2
-      embeddings.bedrock.modelId: amazon.titan-embed-text-v2:0
-      embeddings.bedrock.dimensions: 1024
+  # ---- Provider routing: embeddings (optional) ----
+
+  - it: should not set KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER when embeddings.provider is empty
     asserts:
-      - isSubset:
-          path: data
-          content:
-            USE_BEDROCK_INFERENCE: "true"
-            BEDROCK_REGION: eu-west-2
-            NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
-            NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
+      - notExists:
+          path: data.KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER
+
+  - it: should set KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER when embeddings.provider is set
+    set:
+      embeddings.provider: bedrock
+    asserts:
+      - equal:
+          path: data.KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER
+          value: "bedrock"
+
+  - it: should not render embeddings env vars when embeddings.provider is empty
+    asserts:
+      - notExists:
+          path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
+      - notExists:
+          path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
+      - notExists:
+          path: data.AWS_BEDROCK_EMBEDDINGS_ASSUME_ROLE_ARN
+      - notExists:
+          path: data.BEDROCK_EMBEDDINGS_REGION
+
+  - it: should render embeddings env vars with defaults when embeddings.provider is bedrock
+    set:
+      embeddings.provider: bedrock
+    asserts:
+      - equal:
+          path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
+          value: amazon.titan-embed-text-v2:0
+      - equal:
+          path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
+          value: "1024"
+      - notExists:
+          path: data.AWS_BEDROCK_EMBEDDINGS_ASSUME_ROLE_ARN
+      - notExists:
+          path: data.BEDROCK_EMBEDDINGS_REGION
+
+  - it: should render all Bedrock embeddings env vars when fully configured
+    set:
+      embeddings.provider: bedrock
+      bedrock.embeddings.assumeRoleArn: arn:aws:iam::123456789012:role/embeddings-role
+      bedrock.embeddings.region: eu-west-2
+      bedrock.embeddings.model: amazon.titan-embed-text-v2:0
+      bedrock.embeddings.dimensions: "1024"
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_EMBEDDINGS_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/embeddings-role
+      - equal:
+          path: data.BEDROCK_EMBEDDINGS_REGION
+          value: eu-west-2
+      - equal:
+          path: data.NEXTFLOW_DOCS_BEDROCK_MODEL_ID
+          value: amazon.titan-embed-text-v2:0
+      - equal:
+          path: data.NEXTFLOW_DOCS_BEDROCK_DIMENSIONS
+          value: "1024"
+
+  # ---- Provider routing: sandbox (optional) ----
+
+  - it: should not render sandbox env vars when sandbox.provider is empty
+    asserts:
+      - notExists:
+          path: data.AGENTCORE_AGENT_ARN
+      - notExists:
+          path: data.AGENTCORE_REGION
+      - notExists:
+          path: data.AWS_AGENTCORE_ASSUME_ROLE_ARN
+
+  - it: should render AGENTCORE_AGENT_ARN when sandbox.provider and runtimeArn are set
+    set:
+      sandbox.provider: bedrock
+      bedrock.sandbox.runtimeArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
+    asserts:
+      - equal:
+          path: data.AGENTCORE_AGENT_ARN
+          value: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
+      - notExists:
+          path: data.AGENTCORE_REGION
+      - notExists:
+          path: data.AWS_AGENTCORE_ASSUME_ROLE_ARN
+
+  - it: should render all sandbox env vars when fully configured
+    set:
+      sandbox.provider: bedrock
+      bedrock.sandbox.runtimeArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/default
+      bedrock.sandbox.region: eu-west-2
+      bedrock.sandbox.assumeRoleArn: arn:aws:iam::123456789012:role/agentcore-role
+    asserts:
+      - equal:
+          path: data.AGENTCORE_AGENT_ARN
+          value: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/default
+      - equal:
+          path: data.AGENTCORE_REGION
+          value: eu-west-2
+      - equal:
+          path: data.AWS_AGENTCORE_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/agentcore-role
+
+  # ---- Bedrock default credentials ----
+
+  - it: should not set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN when not configured
+    asserts:
+      - notExists:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+
+  - it: should set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN when configured
+    set:
+      bedrock.default.assumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/bedrock-cross-account
+
+  - it: should not set AWS_BEDROCK_SERVICES_DEFAULT_REGION when not configured
+    asserts:
+      - notExists:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_REGION
+
+  - it: should set AWS_BEDROCK_SERVICES_DEFAULT_REGION when configured
+    set:
+      bedrock.default.region: us-east-1
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_SERVICES_DEFAULT_REGION
+          value: us-east-1
+
+  # ---- Bedrock inference overrides ----
+
+  - it: should not set per-service Bedrock inference env vars when not configured
+    asserts:
+      - notExists:
+          path: data.AWS_BEDROCK_INFERENCE_ASSUME_ROLE_ARN
+      - notExists:
+          path: data.BEDROCK_INFERENCE_REGION
+      - notExists:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+
+  - it: should set Bedrock inference per-service overrides when configured
+    set:
+      bedrock.inference.assumeRoleArn: arn:aws:iam::123456789012:role/inference-role
+      bedrock.inference.region: us-west-2
+      bedrock.inference.anthropicModel: anthropic.claude-sonnet-4-6
+    asserts:
+      - equal:
+          path: data.AWS_BEDROCK_INFERENCE_ASSUME_ROLE_ARN
+          value: arn:aws:iam::123456789012:role/inference-role
+      - equal:
+          path: data.BEDROCK_INFERENCE_REGION
+          value: us-west-2
+      - equal:
+          path: data.BEDROCK_ANTHROPIC_MODEL
+          value: anthropic.claude-sonnet-4-6
+
+  # ---- Redis ----
 
   - it: should contain default Redis configuration
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
     asserts:
       - equal:
           path: data.AGENT_BACKEND_REDIS_HOST
@@ -221,75 +312,8 @@ tests:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "false"
 
-  - it: should set AGENT_BACKEND_DB_TLS to false by default
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-    asserts:
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS
-          value: "false"
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
-          value: "true"
-      - notExists:
-          path: data.AGENT_BACKEND_DB_TLS_CA
-
-  - it: should set AGENT_BACKEND_DB_TLS to true when enableTls is set
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      database.enableTls: true
-    asserts:
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS
-          value: "true"
-      - notExists:
-          path: data.AGENT_BACKEND_DB_TLS_CA
-
-  - it: should set AGENT_BACKEND_DB_TLS_CA_VERIFY to false when tlsCaVerify is false
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      database.tlsCaVerify: false
-    asserts:
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
-          value: "false"
-
-  - it: should set AGENT_BACKEND_DB_TLS_CA when sslCa is provided
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      database.enableTls: true
-      database.sslCa: /certs/ca.pem
-    asserts:
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS
-          value: "true"
-      - equal:
-          path: data.AGENT_BACKEND_DB_TLS_CA
-          value: "/certs/ca.pem"
-
   - it: should contain custom Redis configuration
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
       redis.host: redis.example.com
       redis.port: 6380
       redis.db: 5
@@ -308,13 +332,52 @@ tests:
           path: data.AGENT_BACKEND_REDIS_TLS
           value: "true"
 
-  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX to false by default
+  # ---- Database TLS ----
+
+  - it: should set AGENT_BACKEND_DB_TLS to false by default
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "false"
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
+          value: "true"
+      - notExists:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+
+  - it: should set AGENT_BACKEND_DB_TLS to true when enableTls is set
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
+      database.enableTls: true
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "true"
+      - notExists:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+
+  - it: should set AGENT_BACKEND_DB_TLS_CA_VERIFY to false when tlsCaVerify is false
+    set:
+      database.tlsCaVerify: false
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA_VERIFY
+          value: "false"
+
+  - it: should set AGENT_BACKEND_DB_TLS_CA when sslCa is provided
+    set:
+      database.enableTls: true
+      database.sslCa: /certs/ca.pem
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS
+          value: "true"
+      - equal:
+          path: data.AGENT_BACKEND_DB_TLS_CA
+          value: "/certs/ca.pem"
+
+  # ---- Nextflow docs Redis index ----
+
+  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX to false by default
     asserts:
       - equal:
           path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
@@ -322,76 +385,60 @@ tests:
 
   - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX when enabled
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
       nextflowDocs.useRedisIndex: true
     asserts:
       - equal:
           path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
           value: "true"
 
-  - it: should not set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN by default
+  # ---- Validation failures ----
+
+  - it: should fail when inference.provider is not set
     set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
+      inference.provider: ""
+    asserts:
+      - failedTemplate:
+          errorPattern: "inference.provider is required"
+
+  - it: should fail when inference.provider has an unsupported value
+    set:
+      inference.provider: vertex
+    asserts:
+      - failedTemplate:
+          errorPattern: "is not supported"
+
+  - it: should fail when embeddings.provider has an unsupported value
+    set:
+      embeddings.provider: vertex
+    asserts:
+      - failedTemplate:
+          errorPattern: "is not supported"
+
+  - it: should fail when sandbox.provider has an unsupported value
+    set:
+      sandbox.provider: vertex
+    asserts:
+      - failedTemplate:
+          errorPattern: "is not supported"
+
+  - it: should fail when inference.provider is anthropic but no apiKey is configured
+    set:
+      inference.provider: anthropic
+    asserts:
+      - failedTemplate:
+          errorPattern: "neither anthropic.apiKey nor anthropic.existingSecretName is set"
+
+  - it: should not fail when inference.provider is anthropic and existingSecretName is configured
+    set:
+      inference.provider: anthropic
+      anthropic.existingSecretName: my-anthropic-secret
+    asserts:
+      - isKind:
+          of: ConfigMap
+
+  - it: should not render AGENTCORE_AGENT_ARN when sandbox.provider is bedrock but runtimeArn is not set
+    set:
+      sandbox.provider: bedrock
     asserts:
       - notExists:
-          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
-
-  - it: should set AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN when provided
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      bedrockAssumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account
-    asserts:
-      - equal:
-          path: data.AWS_BEDROCK_SERVICES_DEFAULT_ASSUME_ROLE_ARN
-          value: arn:aws:iam::123456789012:role/bedrock-cross-account
-
-  - it: should not set BEDROCK_ANTHROPIC_MODEL by default
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-    asserts:
-      - notExists:
-          path: data.BEDROCK_ANTHROPIC_MODEL
-
-  - it: should set BEDROCK_ANTHROPIC_MODEL when provided
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      bedrockAnthropicModel: anthropic.claude-sonnet-4-6
-    asserts:
-      - equal:
-          path: data.BEDROCK_ANTHROPIC_MODEL
-          value: anthropic.claude-sonnet-4-6
-
-  - it: should include AgentCore runtime ARN when provided
-    set:
-      global.platformExternalDomain: test.example.com
-      global.mcpDomain: mcp.test.example.com
-      database.host: mysql
-      database.name: db
-      database.username: user
-      bedrockAgentCoreArn: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
-    asserts:
-      - equal:
           path: data.AGENTCORE_AGENT_ARN
-          value: arn:aws:bedrock-agentcore:eu-west-2:123456789012:runtime/example-runtime
-      - notExists:
-          path: data.AGENTCORE_REGION

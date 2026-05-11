@@ -45,19 +45,49 @@ Return the name of the secret containing the database password.
 {{/*
 Return the name of the secret containing the Anthropic API key.
 */}}
-{{- define "agent-backend.anthropicApiKey.existingSecret" -}}
-  {{- printf "%s" (tpl .Values.anthropicApiKeyExistingSecretName .) -}}
+{{- define "agent-backend.anthropic.existingSecret" -}}
+  {{- printf "%s" (tpl .Values.anthropic.existingSecretName .) -}}
 {{- end -}}
-{{- define "agent-backend.anthropicApiKey.existingSecret.secretName" -}}
-  {{- include "agent-backend.anthropicApiKey.existingSecret" . | default (include "common.names.fullname" .) -}}
+{{- define "agent-backend.anthropic.existingSecret.secretName" -}}
+  {{- include "agent-backend.anthropic.existingSecret" . | default (include "common.names.fullname" .) -}}
 {{- end -}}
 
-{{- define "agent-backend.anthropicApiKey.existingSecret.secretKey" -}}
-  {{- if (include "agent-backend.anthropicApiKey.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.anthropicApiKeyExistingSecretKey .) | default "ANTHROPIC_API_KEY" -}}
+{{- define "agent-backend.anthropic.existingSecret.secretKey" -}}
+  {{- if (include "agent-backend.anthropic.existingSecret" .) -}}
+    {{- printf "%s" (tpl .Values.anthropic.existingSecretKey .) | default "ANTHROPIC_API_KEY" -}}
   {{- else -}}
     {{- printf "ANTHROPIC_API_KEY" -}}
   {{- end -}}
+{{- end -}}
+
+{{/*
+Validate provider selections. Call this from configmap.yaml to fail fast on misconfiguration.
+*/}}
+{{- define "agent-backend.validateProviders" -}}
+  {{- $inferenceProvider := .Values.inference.provider -}}
+  {{- $embeddingsProvider := .Values.embeddings.provider -}}
+  {{- $sandboxProvider := .Values.sandbox.provider -}}
+
+  {{- if not $inferenceProvider -}}
+    {{- fail "inference.provider is required. Set it to one of: bedrock, anthropic" -}}
+  {{- else if not (has $inferenceProvider (list "bedrock" "anthropic")) -}}
+    {{- fail (printf "inference.provider %q is not supported. Must be one of: bedrock, anthropic" $inferenceProvider) -}}
+  {{- end -}}
+
+  {{- if and $embeddingsProvider (not (has $embeddingsProvider (list "bedrock"))) -}}
+    {{- fail (printf "embeddings.provider %q is not supported. Must be: bedrock" $embeddingsProvider) -}}
+  {{- end -}}
+
+  {{- if and $sandboxProvider (not (has $sandboxProvider (list "bedrock"))) -}}
+    {{- fail (printf "sandbox.provider %q is not supported. Must be: bedrock" $sandboxProvider) -}}
+  {{- end -}}
+
+  {{- if eq $inferenceProvider "anthropic" -}}
+    {{- if not (or .Values.anthropic.apiKey .Values.anthropic.existingSecretName) -}}
+      {{- fail "inference.provider is \"anthropic\" but neither anthropic.apiKey nor anthropic.existingSecretName is set" -}}
+    {{- end -}}
+  {{- end -}}
+
 {{- end -}}
 
 {{/*

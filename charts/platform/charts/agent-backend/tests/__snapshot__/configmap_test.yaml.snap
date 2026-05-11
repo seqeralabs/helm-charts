@@ -1,4 +1,4 @@
-should render a ConfigMap with default values:
+should render a ConfigMap with default bedrock-only values:
   1: |
     apiVersion: v1
     data:
@@ -13,15 +13,10 @@ should render a ConfigMap with default values:
       AGENT_BACKEND_REDIS_HOST: ""
       AGENT_BACKEND_REDIS_PORT: "6379"
       AGENT_BACKEND_REDIS_TLS: "false"
-      AGENTCORE_AGENT_ARN: ""
-      BEDROCK_REGION: ""
-      KNOWLEDGE_INDEXER_EMBEDDINGS_PROVIDER: bedrock
       LOG_LEVEL: INFO
-      NEXTFLOW_DOCS_BEDROCK_DIMENSIONS: "1024"
-      NEXTFLOW_DOCS_BEDROCK_MODEL_ID: amazon.titan-embed-text-v2:0
       NEXTFLOW_DOCS_USE_REDIS_INDEX: "false"
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
-      SEQERA_PLATFORM_API_URL: http://release-name-platform-backend:8080
+      SEQERA_PLATFORM_API_URL: http://my-platform-backend:8080
       SEQERA_PLATFORM_URL: https://test.example.com
       USE_BEDROCK_INFERENCE: "true"
     kind: ConfigMap
