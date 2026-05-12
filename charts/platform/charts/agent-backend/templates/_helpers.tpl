@@ -82,6 +82,12 @@ Validate provider selections. Call this from configmap.yaml to fail fast on misc
     {{- fail (printf "sandbox.provider %q is not supported. Must be: bedrock" $sandboxProvider) -}}
   {{- end -}}
 
+  {{- if eq $sandboxProvider "bedrock" -}}
+    {{- if not .Values.bedrock.sandbox.runtimeArn -}}
+      {{- fail "sandbox.provider is \"bedrock\" but bedrock.sandbox.runtimeArn is not set" -}}
+    {{- end -}}
+  {{- end -}}
+
   {{- if eq $inferenceProvider "anthropic" -}}
     {{- if not (or .Values.anthropic.apiKey .Values.anthropic.existingSecretName) -}}
       {{- fail "inference.provider is \"anthropic\" but neither anthropic.apiKey nor anthropic.existingSecretName is set" -}}

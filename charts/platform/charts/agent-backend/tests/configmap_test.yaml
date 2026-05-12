@@ -372,21 +372,21 @@ tests:
           path: data.AGENT_BACKEND_DB_TLS_CA
           value: "/certs/ca.pem"
 
-  # ---- Nextflow docs Redis index ----
+  # ---- Nextflow docs tool ----
 
-  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX to false by default
+  - it: should set NEXTFLOW_DOCS_TOOL to disabled when embeddings.provider is not set
     asserts:
       - equal:
-          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
-          value: "false"
+          path: data.NEXTFLOW_DOCS_TOOL
+          value: "disabled"
 
-  - it: should set NEXTFLOW_DOCS_USE_REDIS_INDEX when enabled
+  - it: should set NEXTFLOW_DOCS_TOOL to memory when embeddings.provider is set
     set:
-      nextflowDocs.useRedisIndex: true
+      embeddings.provider: bedrock
     asserts:
       - equal:
-          path: data.NEXTFLOW_DOCS_USE_REDIS_INDEX
-          value: "true"
+          path: data.NEXTFLOW_DOCS_TOOL
+          value: "memory"
 
   # ---- Validation failures ----
 
@@ -433,9 +433,9 @@ tests:
       - isKind:
           of: ConfigMap
 
-  - it: should not render AGENTCORE_AGENT_ARN when sandbox.provider is bedrock but runtimeArn is not set
+  - it: should fail when sandbox.provider is bedrock but runtimeArn is not set
     set:
       sandbox.provider: bedrock
     asserts:
-      - notExists:
-          path: data.AGENTCORE_AGENT_ARN
+      - failedTemplate:
+          errorPattern: "bedrock.sandbox.runtimeArn is not set"
