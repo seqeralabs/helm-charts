@@ -95,7 +95,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | bedrock.embeddings.assumeRoleArn | string | `""` | IAM role ARN for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
 | bedrock.embeddings.region | string | `""` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
 | bedrock.embeddings.model | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings. |
-| bedrock.sandbox | object | `{"assumeRoleArn":"","region":"","runtimeArn":""}` | Sandbox (AgentCore) Bedrock configuration. |
+| bedrock.sandbox | object | `{"assumeRoleArn":"","region":"","runtimeArn":""}` | Sandbox (AWS Bedrock AgentCore) configuration. |
 | bedrock.sandbox.assumeRoleArn | string | `""` | IAM role ARN for AgentCore (overrides bedrock.default.assumeRoleArn). |
 | bedrock.sandbox.region | string | `""` | AWS region for AgentCore. |
 | bedrock.sandbox.runtimeArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |

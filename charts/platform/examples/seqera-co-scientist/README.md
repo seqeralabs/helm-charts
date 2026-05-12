@@ -20,6 +20,15 @@ key = Fernet.generate_key()
 print(key.decode())
 ```
 
+The agent backend requires declaring which provider serves each capability via `inference.provider`,
+`embeddings.provider`, and `sandbox.provider`.
+`inference.provider` is required: supported values: `bedrock` and `anthropic` (inference only).
+Embeddings and sandbox providers are optional (leave empty to disable).
+When using Anthropic for inference, set `anthropic.existingSecretName` (or `anthropic.apiKey`).
+When using Bedrock for any capability, configure the `bedrock` block accordingly: in particular, an
+AWS Bedrock AgentCore runtime ARN must be provided in `bedrock.sandbox.runtimeArn` when sandboxing
+is enabled with `sandbox.provider: bedrock`.
+
 The example doesn't provide values for the Platform chart, but it can be used as a reference for how to set the values for the Seqera Co-Scientist components.
 
 Private registry credentials are required to pull the Seqera Co-Scientist images. Refer to the

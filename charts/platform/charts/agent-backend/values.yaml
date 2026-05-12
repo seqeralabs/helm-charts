@@ -121,7 +121,7 @@ bedrock:
     # -- Bedrock model ID used for embeddings.
     model: "amazon.titan-embed-text-v2:0"
 
-  # -- Sandbox (AgentCore) Bedrock configuration.
+  # -- Sandbox (AWS Bedrock AgentCore) configuration.
   sandbox:
     # -- IAM role ARN for AgentCore (overrides bedrock.default.assumeRoleArn).
     assumeRoleArn: ""
