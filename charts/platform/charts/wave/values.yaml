@@ -117,7 +117,7 @@ image:
   # -- Container image registry
   registry: ""
   # -- Container image repository
-  repository: private/nf-tower-enterprise/wave
+  repository: enterprise/platform/wave
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""

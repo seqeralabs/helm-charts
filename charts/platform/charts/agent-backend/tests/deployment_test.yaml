@@ -25,6 +25,8 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+set:
+  inference.provider: bedrock
 tests:
   - it: should render a Deployment with default values
     template: deployment.yaml
@@ -32,7 +34,7 @@ tests:
       global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
       global.platformServicePort: 8080
       database.password: test-db-password
-      anthropicApiKey: test-anthropic-key
+      anthropic.apiKey: test-anthropic-key
       tokenEncryptionKey: test-token-encryption-key
     asserts:
       - matchSnapshot: {}
@@ -342,8 +344,8 @@ tests:
   - it: should use external secret for anthropic API key
     template: deployment.yaml
     set:
-      anthropicApiKeyExistingSecretName: my-anthropic-secret
-      anthropicApiKeyExistingSecretKey: api-key
+      anthropic.existingSecretName: my-anthropic-secret
+      anthropic.existingSecretKey: api-key
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[1]
@@ -357,7 +359,7 @@ tests:
   - it: should use default key when anthropic external secret is set without custom key
     template: deployment.yaml
     set:
-      anthropicApiKeyExistingSecretName: my-anthropic-secret
+      anthropic.existingSecretName: my-anthropic-secret
     asserts:
       - equal:
           path: spec.template.spec.containers[0].env[1]
@@ -371,7 +373,7 @@ tests:
   - it: should configure main container with env before envFrom
     template: deployment.yaml
     set:
-      anthropicApiKey: test-anthropic-key
+      anthropic.apiKey: test-anthropic-key
       tokenEncryptionKey: test-token-encryption-key
     asserts:
       - equal:
@@ -589,7 +591,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: private/nf-tower-enterprise/agent-backend:v9.9.9
+          value: ai/agent-backend/backend:v9.9.9
 
   - it: should evaluate templates in azure override fields for the agent-backend container
     template: deployment.yaml

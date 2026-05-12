@@ -5,6 +5,16 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.1] - 2026-05-11
+
+### Changed
+
+- `mcp`: Bump app version to 1.3.0.
+- `mcp`: `TOWER_API_ENDPOINT` now uses the internal platform service address and port (`global.platformServiceAddress`/`global.platformServicePort`) instead of the external domain.
+- Bump `agent-backend` to 1.0.0: provider configuration redesigned to support multiple LLM providers. See [agent-backend CHANGELOG](charts/agent-backend/CHANGELOG.md) for the full migration guide.
+- `agent-backend`: remove redundant Anthropic validation from NOTES.txt, add `bedrock.sandbox.runtimeArn` required validator, replace `NEXTFLOW_DOCS_USE_REDIS_INDEX` with `NEXTFLOW_DOCS_TOOL`.
+- Update image paths in the README and values.yaml - the chart does not hardcode `cr.seqera.io` as the registry, customers are invited to vendor the images to their private registry as well as the charts.
+
 ## [0.33.0] - 2026-04-30
 
 ### Added
@@ -183,8 +193,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **BREAKING** Bump MCP subchart to 0.2.0: removed support for custom OAuth provider. MCP now exclusively uses Seqera Platform as the OAuth provider. Removed values: `oauth.clientId`, `oauth.clientSecretString`, `oauth.clientSecretExistingSecretName`, `oauth.clientSecretExistingSecretKey`
-- Add Seqera AI installation example
-- Refine Seqera AI and MCP wording in documentation
+- Add Seqera Co-Scientist installation example
+- Refine Seqera Co-Scientist and MCP wording in documentation
 
 ## [0.28.3] - 2026-03-26
 

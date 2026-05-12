@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: f133dfcb4869e3b4a713c59b09af19365251f62b2d24f49dc81a5c928bbc0fb2
+            checksum/configmap: 44200b5ac359bae8677f19c8fe122dbffdf68622a912ef6dd4f773286fe759a6
             checksum/secret: ac4ca92760ab83180bef6b3504a9f7b2663f3c2972a4b7e57a8e3173c6092172
           labels:
             app.kubernetes.io/component: agent-backend
@@ -51,7 +51,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-agent-backend
-              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: ai/agent-backend/backend:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -167,7 +167,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-agent-backend
-              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: ai/agent-backend/backend:v9.9.9
               imagePullPolicy: IfNotPresent
               name: init
               resources:

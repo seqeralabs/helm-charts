@@ -497,7 +497,7 @@ backend:
     # -- Backend container image registry
     registry: ""
     # -- Backend container image repository
-    repository: private/nf-tower-enterprise/backend
+    repository: enterprise/platform/backend
     # -- Backend container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
@@ -710,7 +710,7 @@ frontend:
     # -- Frontend container image registry
     registry: ""
     # -- Frontend container image repository
-    repository: private/nf-tower-enterprise/frontend
+    repository: enterprise/platform/frontend
     # -- Specify a tag to override the version defined in .Chart.appVersion
     # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
     tag: ""
@@ -914,7 +914,7 @@ cron:
     # -- Cron container image registry
     registry: ""
     # -- Cron container image repository
-    repository: private/nf-tower-enterprise/backend
+    repository: enterprise/platform/backend
     # -- Cron container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
@@ -1114,7 +1114,7 @@ cron:
       # -- Database migration container image registry
       registry: ""
       # -- Database migration container image repository
-      repository: private/nf-tower-enterprise/migrate-db
+      repository: enterprise/platform/migrate-db
       # -- Specify a tag to override the version defined in .Chart.appVersion
       # @default -- `"{{ .chart.AppVersion }}"`
       tag: ""

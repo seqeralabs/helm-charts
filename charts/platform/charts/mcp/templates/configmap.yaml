@@ -34,7 +34,7 @@ data:
   MCP_SERVER_URL: {{ printf "https://%s" (tpl .Values.global.mcpDomain $) | quote }}
   MICRONAUT_ENVIRONMENTS: {{ .Values.micronautEnvironments | join "," | quote }}
 
-  TOWER_API_ENDPOINT: {{ printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) | quote }}
+  TOWER_API_ENDPOINT: {{ printf "http://%s:%s" (tpl .Values.global.platformServiceAddress $) (toString .Values.global.platformServicePort) | quote }}
   HUB_API_ENDPOINT: {{ tpl .Values.hubApiEndpoint $ | quote }}
   WAVE_API_ENDPOINT: {{ tpl .Values.waveApiEndpoint $ | quote }}
   REGISTRY_API_ENDPOINT: {{ tpl .Values.registryApiEndpoint $ | quote }}

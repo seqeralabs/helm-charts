@@ -2,7 +2,7 @@
 
 Wave
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.32.4](https://img.shields.io/badge/AppVersion-v1.32.4-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.32.4](https://img.shields.io/badge/AppVersion-v1.32.4-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -35,7 +35,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/wave \
-  --version 0.2.0 \
+  --version 0.2.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -85,7 +85,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/wave"` | Container image repository |
+| image.repository | string | `"enterprise/platform/wave"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

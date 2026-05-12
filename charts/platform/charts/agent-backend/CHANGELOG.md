@@ -5,6 +5,40 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-11
+
+### Added
+
+- Add link to [Seqera AI prerequisites](https://docs.seqera.io/platform-enterprise/seqera-ai/prerequisites) documentation in the README.
+
+### Changed
+
+- **BREAKING**: Redesign provider configuration to support multiple LLM providers. The flat Bedrock-only
+  values have been replaced with a structured `inference` / `embeddings` / `sandbox` routing layer and
+  per-provider configuration blocks (`bedrock`, `anthropic`). Operators must now declare which provider
+  serves each capability. See migration table below.
+
+  | Old key                              | New key                                  |
+  |--------------------------------------|------------------------------------------|
+  | `bedrockAgentCoreArn`                | `bedrock.sandbox.runtimeArn`             |
+  | `bedrockAssumeRoleArn`               | `bedrock.default.assumeRoleArn`          |
+  | `bedrockAnthropicModel`              | `bedrock.inference.anthropicModel`       |
+  | `embeddings.bedrock.region`          | `bedrock.embeddings.region`              |
+  | `embeddings.bedrock.modelId`         | `bedrock.embeddings.model`               |
+  | `embeddings.bedrock.dimensions`      | _(removed — see below)_                  |
+  | `anthropicApiKey`                    | `anthropic.apiKey`                       |
+  | `anthropicApiKeyExistingSecretName`  | `anthropic.existingSecretName`           |
+  | `anthropicApiKeyExistingSecretKey`   | `anthropic.existingSecretKey`            |
+  | _(was hardcoded `true`)_             | `inference.provider: bedrock`            |
+  | _(was hardcoded `"bedrock"`)_        | `embeddings.provider: bedrock`           |
+  | _(was implicit)_                     | `sandbox.provider: bedrock`              |
+
+- **BREAKING**: Remove `bedrock.embeddings.dimensions` value and `NEXTFLOW_DOCS_BEDROCK_DIMENSIONS` env var: the application provides a good default.
+- Remove redundant Anthropic API key validation from `NOTES.txt`; fully covered by `validateProviders` in `_helpers.tpl`.
+- Add validator: `sandbox.provider: bedrock` now requires `bedrock.sandbox.runtimeArn` to be set.
+- Replace deprecated `NEXTFLOW_DOCS_USE_REDIS_INDEX` env var with `NEXTFLOW_DOCS_TOOL` (`memory` when `embeddings.provider` is set, `disabled` otherwise). Remove `nextflowDocs.useRedisIndex` value.
+- Update image paths in the README and values.yaml - the chart does not hardcode `cr.seqera.io` as the registry, customers are invited to vendor the images to their private registry as well as the charts.
+
 ## [0.5.0] - 2026-05-05
 
 - **Enhancement**: allow global configuration of Ingress options. A new `global.ingress` block (`enabled`, `path`, `defaultPathType`, `ingressClassName`, `annotations`, `extraLabels`, `tls`) lets cluster-wide Ingress defaults be set once at the parent and propagate to every subchart, removing the need to repeat controller-wide config per subchart. `enabled` is OR-merged; scalar fields fall back to global when local is unset; `annotations` and `extraLabels` are merged with local winning on key collision; `tls` is concatenated (useful for a single wildcard certificate across all services).

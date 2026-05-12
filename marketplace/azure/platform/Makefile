@@ -4,7 +4,7 @@ SRC_REGISTRY ?= cr.seqera.io
 
 # Optional image overrides as registry/repository:tag.
 # When set, these take precedence over the appVersion from Chart.yaml.
-# Example: IMAGE_BACKEND=cr.seqera.io/private/nf-tower-enterprise/backend:24.1.0
+# Example: IMAGE_BACKEND=cr.seqera.io/enterprise/platform/backend:v25.3.6
 IMAGE_BACKEND ?=
 IMAGE_FRONTEND ?=
 IMAGE_CRON_MIGRATEDB ?=
@@ -42,7 +42,7 @@ copy-images:
 	 if [ -n "$(IMAGE_BACKEND)" ]; then \
 	   SRC_BACKEND="$(IMAGE_BACKEND)"; \
 	 else \
-	   SRC_BACKEND="$(SRC_REGISTRY)/private/nf-tower-enterprise/backend:$${PLATFORM_TAG}"; \
+	   SRC_BACKEND="$(SRC_REGISTRY)/enterprise/platform/backend:$${PLATFORM_TAG}"; \
 	 fi && \
 	 DST_BACKEND_TAG=$$(echo "$${SRC_BACKEND}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[1/6] $${SRC_BACKEND} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/backend:$${DST_BACKEND_TAG} ... " && \
@@ -55,7 +55,7 @@ copy-images:
 	   SRC_FRONTEND="$(IMAGE_FRONTEND)"; \
 	   DST_FRONTEND_TAG=$$(echo "$${SRC_FRONTEND}" | rev | cut -d: -f1 | rev); \
 	 else \
-	   SRC_FRONTEND="$(SRC_REGISTRY)/private/nf-tower-enterprise/frontend:$${PLATFORM_TAG}-unprivileged"; \
+	   SRC_FRONTEND="$(SRC_REGISTRY)/enterprise/platform/frontend:$${PLATFORM_TAG}-unprivileged"; \
 	   DST_FRONTEND_TAG="$${PLATFORM_TAG}"; \
 	 fi && \
 	 echo -n "[2/6] $${SRC_FRONTEND} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/frontend:$${DST_FRONTEND_TAG} ... " && \
@@ -67,7 +67,7 @@ copy-images:
 	 if [ -n "$(IMAGE_CRON_MIGRATEDB)" ]; then \
 	   SRC_MIGRATEDB="$(IMAGE_CRON_MIGRATEDB)"; \
 	 else \
-	   SRC_MIGRATEDB="$(SRC_REGISTRY)/private/nf-tower-enterprise/migrate-db:$${PLATFORM_TAG}"; \
+	   SRC_MIGRATEDB="$(SRC_REGISTRY)/enterprise/platform/migrate-db:$${PLATFORM_TAG}"; \
 	 fi && \
 	 DST_MIGRATEDB_TAG=$$(echo "$${SRC_MIGRATEDB}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[3/6] $${SRC_MIGRATEDB} → $(REGISTRY)/$(IMAGE_PREFIX)/platform/migrate-db:$${DST_MIGRATEDB_TAG} ... " && \
@@ -79,7 +79,7 @@ copy-images:
 	 if [ -n "$(IMAGE_STUDIOS_PROXY)" ]; then \
 	   SRC_STUDIOS_PROXY="$(IMAGE_STUDIOS_PROXY)"; \
 	 else \
-	   SRC_STUDIOS_PROXY="$(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-proxy:$${STUDIOS_TAG}"; \
+	   SRC_STUDIOS_PROXY="$(SRC_REGISTRY)/enterprise/platform/data-studio/connect-proxy:$${STUDIOS_TAG}"; \
 	 fi && \
 	 DST_STUDIOS_PROXY_TAG=$$(echo "$${SRC_STUDIOS_PROXY}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[4/6] $${SRC_STUDIOS_PROXY} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${DST_STUDIOS_PROXY_TAG} ... " && \
@@ -91,7 +91,7 @@ copy-images:
 	 if [ -n "$(IMAGE_STUDIOS_SERVER)" ]; then \
 	   SRC_STUDIOS_SERVER="$(IMAGE_STUDIOS_SERVER)"; \
 	 else \
-	   SRC_STUDIOS_SERVER="$(SRC_REGISTRY)/private/nf-tower-enterprise/data-studio/connect-server:$${STUDIOS_TAG}"; \
+	   SRC_STUDIOS_SERVER="$(SRC_REGISTRY)/enterprise/platform/data-studio/connect-server:$${STUDIOS_TAG}"; \
 	 fi && \
 	 DST_STUDIOS_SERVER_TAG=$$(echo "$${SRC_STUDIOS_SERVER}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[5/6] $${SRC_STUDIOS_SERVER} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${DST_STUDIOS_SERVER_TAG} ... " && \
@@ -103,7 +103,7 @@ copy-images:
 	 if [ -n "$(IMAGE_PIPELINE_OPTIMIZATION)" ]; then \
 	   SRC_PIPEOPT="$(IMAGE_PIPELINE_OPTIMIZATION)"; \
 	 else \
-	   SRC_PIPEOPT="$(SRC_REGISTRY)/private/nf-tower-enterprise/groundswell:$${PIPEOPT_TAG}"; \
+	   SRC_PIPEOPT="$(SRC_REGISTRY)/enterprise/platform/groundswell:$${PIPEOPT_TAG}"; \
 	 fi && \
 	 DST_PIPEOPT_TAG=$$(echo "$${SRC_PIPEOPT}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[6/6] $${SRC_PIPEOPT} → $(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${DST_PIPEOPT_TAG} ... " && \

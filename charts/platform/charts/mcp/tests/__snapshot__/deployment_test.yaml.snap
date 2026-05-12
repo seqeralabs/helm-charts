@@ -21,7 +21,7 @@ should render a Deployment with default values:
       template:
         metadata:
           annotations:
-            checksum/configmap: 16f769ed028fde925ece3abfcb4bf4d07ef7afa2bfb2516c2f683e336d5af811
+            checksum/configmap: 131d459188a558e18ce5b09f1d9f3d992733e6fbe2278b6b8ab48e068461bfa4
             checksum/secret: c02f86a51632209a540a8a0e36bd7bf3aadaf054e628be683b4c60c100b3e3b5
           labels:
             app.kubernetes.io/component: mcp
@@ -46,7 +46,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-mcp
-              image: private/nf-tower-enterprise/mcp:v9.9.9
+              image: ai/mcp/server:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10

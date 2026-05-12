@@ -25,6 +25,8 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+set:
+  inference.provider: bedrock
 tests:
   - it: should use custom image from global registry override
     template: deployment.yaml

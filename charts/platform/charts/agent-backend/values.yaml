@@ -80,6 +80,70 @@ global:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
+# Service routing: define which provider handles each capability.
+inference:
+  # -- Inference provider. One of: "bedrock", "anthropic". Required.
+  provider: ""
+
+embeddings:
+  # -- Embeddings provider. One of: "bedrock". When empty, embeddings are disabled.
+  provider: ""
+
+sandbox:
+  # -- Sandbox provider. One of: "bedrock". When empty, sandbox is disabled.
+  provider: ""
+
+# Provider configuration blocks. Required when the corresponding provider is selected above.
+bedrock:
+  # Default credentials/region applied to any Bedrock-backed service that does not set its own.
+  default:
+    # -- Optional default IAM role ARN to assume before invoking the Bedrock APIs.
+    assumeRoleArn: ""
+    # -- Default AWS region to use for all Bedrock services.
+    region: ""
+
+  # Inference-specific Bedrock overrides. Each field maps to one env var; leave empty to omit
+  # and let the backend fall back to bedrock.default.*
+  inference:
+    # -- Optional IAM role ARN to assume for Bedrock inference (overrides
+    # bedrock.default.assumeRoleArn).
+    assumeRoleArn: ""
+    # -- AWS region for Bedrock inference (overrides bedrock.default.region).
+    region: ""
+    # -- Anthropic inference profile ARN to use on Bedrock (e.g. a custom or
+    # cross-region/cross-account profile).
+    anthropicModel: ""
+
+  # Embeddings-specific Bedrock overrides.
+  embeddings:
+    # -- Optional IAM role ARN to assume for Bedrock embeddings (overrides
+    # bedrock.default.assumeRoleArn).
+    assumeRoleArn: ""
+    # -- AWS region for Bedrock embeddings (overrides bedrock.default.region).
+    region: ""
+    # -- Bedrock model ID used for embeddings.
+    model: "amazon.titan-embed-text-v2:0"
+
+  # Sandbox (AWS Bedrock AgentCore) configuration.
+  sandbox:
+    # -- Optional IAM role ARN to assume before invoking AgentCore (overrides
+    # bedrock.default.assumeRoleArn).
+    assumeRoleArn: ""
+    # -- AWS region for AgentCore.
+    region: ""
+    # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions.
+    runtimeArn: ""
+
+anthropic:
+  # -- Anthropic API key. Set this OR existingSecretName, not both.
+  apiKey: ""
+  # -- Name of an existing Secret containing the Anthropic API key.
+  # Note: the Secret must already exist in the same namespace at the time of deployment
+  existingSecretName: ""
+  # -- Key in the existing Secret containing the Anthropic API key
+  # @default -- `"ANTHROPIC_API_KEY"`
+  existingSecretKey: ""
+
 database:
   # -- MySQL database hostname
   host: ""
@@ -124,43 +188,6 @@ redis:
   # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
   existingSecretKey: ""
 
-# -- AWS Bedrock AgentCore runtime ARN for sandbox sessions
-bedrockAgentCoreArn: ""
-
-# -- Optional IAM role ARN that the Agent Backend assumes for cross-account Bedrock access.
-# Leave empty to let the pod directly use the AWS credentials provided to it (single-account setup).
-bedrockAssumeRoleArn: ""
-
-# -- Override the Anthropic model used on Bedrock by specifying an inference profile ARN. You can
-# create a custom inference profile that uses the Anthropic model you want or use the default
-# inference profile for the model provided by AWS. When doing cross-account access with
-# `bedrockAssumeRoleArn`, you may want to specify an inference profile ARN on the account where the
-# hop role is defined
-bedrockAnthropicModel: ""
-
-embeddings:
-  bedrock:
-    # -- AWS region where the Bedrock model is hosted
-    region: ""
-    # -- Bedrock model ID used for embeddings
-    modelId: "amazon.titan-embed-text-v2:0"
-    # -- Embedding vector dimensions expected from the configured Bedrock model
-    dimensions: "1024"
-
-nextflowDocs:
-  # -- Use a Redis-backed vector index for the Nextflow documentation knowledge base.
-  # Disabled by default.
-  useRedisIndex: false
-
-# -- Anthropic API key. Define the value as a String or a Secret, not both at the same time
-anthropicApiKey: ""
-# -- Name of an existing Secret containing the Anthropic API key.
-# Note: the Secret must already exist in the same namespace at the time of deployment
-anthropicApiKeyExistingSecretName: ""
-# -- Key in the existing Secret containing the Anthropic API key
-# @default -- `"ANTHROPIC_API_KEY"`
-anthropicApiKeyExistingSecretKey: ""
-
 # -- Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret,
 # not both at the same time. If not defined, a random Fernet key will be auto-generated at each
 # deployment.
@@ -180,7 +207,7 @@ image:
   # -- Container image registry
   registry: ""
   # -- Container image repository
-  repository: private/nf-tower-enterprise/agent-backend
+  repository: ai/agent-backend/backend
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""

@@ -4,13 +4,15 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.1.0](https://img.shields.io/badge/AppVersion-1.1.0-informational?style=flat-square)
+![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.3.0](https://img.shields.io/badge/AppVersion-1.3.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
 > The public API SHOULD NOT be considered stable.
 
 ## Requirements and configuration
+
+For a full list of prerequisites needed to deploy Seqera AI, refer to the [Seqera AI prerequisites](https://docs.seqera.io/platform-enterprise/seqera-ai/prerequisites) documentation.
 
 The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
 
@@ -27,7 +29,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.1.0`.
+By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.3.0`.
 
 When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
 Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
@@ -38,7 +40,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/mcp \
-  --version 0.4.0 \
+  --version 0.4.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -86,7 +88,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | oauth.jwtSeedSecretName | string | `""` | Name of an existing Secret containing the JWT seed, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | oauth.jwtSeedSecretKey | string | `"MCP_OAUTH_JWT_SECRET"` | Key in the existing Secret containing the JWT seed |
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/mcp"` | Container image repository |
+| image.repository | string | `"ai/mcp/server"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
