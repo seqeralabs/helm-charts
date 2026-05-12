@@ -46,7 +46,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-mcp
-              image: private/nf-tower-enterprise/mcp:v9.9.9
+              image: ai/mcp/server:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10

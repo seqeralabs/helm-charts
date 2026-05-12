@@ -591,7 +591,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: private/nf-tower-enterprise/agent-backend:v9.9.9
+          value: ai/agent-backend/backend:v9.9.9
 
   - it: should evaluate templates in azure override fields for the agent-backend container
     template: deployment.yaml

@@ -31,7 +31,7 @@ should produce a Deployment resource with minimal values:
               name: release-name-platform-cron
           - configMapRef:
               name: release-name-platform-shared-backend-cron
-        image: private/nf-tower-enterprise/backend:v9.9.9
+        image: enterprise/platform/backend:v9.9.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 10
@@ -163,7 +163,7 @@ should produce a Deployment resource with minimal values:
               name: release-name-platform-shared-backend-cron
           - secretRef:
               name: release-name-platform-backend
-        image: private/nf-tower-enterprise/migrate-db:v9.9.9
+        image: enterprise/platform/migrate-db:v9.9.9
         imagePullPolicy: IfNotPresent
         name: migrate-db
         securityContext:
@@ -268,7 +268,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-cron
                 - configMapRef:
                     name: release-name-platform-shared-backend-cron
-              image: private/nf-tower-enterprise/backend:9.9.9
+              image: enterprise/platform/backend:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -400,7 +400,7 @@ should render the cron deployment with the correct checksums, labels and annotat
                     name: release-name-platform-shared-backend-cron
                 - secretRef:
                     name: release-name-platform-backend
-              image: private/nf-tower-enterprise/migrate-db:9.9.9
+              image: enterprise/platform/migrate-db:9.9.9
               imagePullPolicy: IfNotPresent
               name: migrate-db
               securityContext:

@@ -71,7 +71,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/portal-web"` | Container image repository |
+| image.repository | string | `"ai/portal/web"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

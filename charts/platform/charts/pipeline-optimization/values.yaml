@@ -117,7 +117,7 @@ image:
   # -- Pipeline Optimization container image registry
   registry: ""
   # -- Pipeline Optimization container image repository
-  repository: private/nf-tower-enterprise/groundswell
+  repository: enterprise/platform/groundswell
   # -- Pipeline Optimization container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""
@@ -140,7 +140,7 @@ dbMigrationInitContainer:
     # -- Migrate DB init container image registry
     registry: ""
     # -- Migrate DB init container image repository
-    repository: private/nf-tower-enterprise/groundswell
+    repository: enterprise/platform/groundswell
     # -- Migrate DB init container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""

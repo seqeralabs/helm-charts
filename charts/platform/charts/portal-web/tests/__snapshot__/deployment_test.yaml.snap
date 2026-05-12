@@ -35,7 +35,7 @@ should render a Deployment with default values:
             - envFrom:
                 - configMapRef:
                     name: release-name-portal-web
-              image: private/nf-tower-enterprise/portal-web:v9.9.9
+              image: ai/portal/web:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 3

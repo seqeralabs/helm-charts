@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove redundant Anthropic API key validation from `NOTES.txt`; fully covered by `validateProviders` in `_helpers.tpl`.
 - Add validator: `sandbox.provider: bedrock` now requires `bedrock.sandbox.runtimeArn` to be set.
 - Replace deprecated `NEXTFLOW_DOCS_USE_REDIS_INDEX` env var with `NEXTFLOW_DOCS_TOOL` (`memory` when `embeddings.provider` is set, `disabled` otherwise). Remove `nextflowDocs.useRedisIndex` value.
+- Update image paths in the README and values.yaml - the chart does not hardcode `cr.seqera.io` as the registry, customers are invited to vendor the images to their private registry as well as the charts.
 
 ## [0.5.0] - 2026-05-05
 
