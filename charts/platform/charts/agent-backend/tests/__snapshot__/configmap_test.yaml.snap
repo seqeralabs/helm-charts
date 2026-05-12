@@ -14,7 +14,7 @@ should render a ConfigMap with default bedrock-only values:
       AGENT_BACKEND_REDIS_PORT: "6379"
       AGENT_BACKEND_REDIS_TLS: "false"
       LOG_LEVEL: INFO
-      NEXTFLOW_DOCS_USE_REDIS_INDEX: "false"
+      NEXTFLOW_DOCS_TOOL: disabled
       SEQERA_MCP_URL: https://mcp.test.example.com/mcp
       SEQERA_PLATFORM_API_URL: http://my-platform-backend:8080
       SEQERA_PLATFORM_URL: https://test.example.com

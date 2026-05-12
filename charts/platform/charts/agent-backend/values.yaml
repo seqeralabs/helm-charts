@@ -184,11 +184,6 @@ redis:
   # @default -- `"AGENT_BACKEND_REDIS_PASSWORD"`
   existingSecretKey: ""
 
-nextflowDocs:
-  # -- Use a Redis-backed vector index for the Nextflow documentation knowledge base.
-  # Disabled by default.
-  useRedisIndex: false
-
 # -- Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret,
 # not both at the same time. If not defined, a random Fernet key will be auto-generated at each
 # deployment.

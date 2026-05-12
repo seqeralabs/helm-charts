@@ -85,7 +85,7 @@ data:
   {{- end }}
   NEXTFLOW_DOCS_BEDROCK_MODEL_ID: {{ tpl (toString .Values.bedrock.embeddings.model) . | quote }}
 {{- end }}
-  NEXTFLOW_DOCS_USE_REDIS_INDEX: {{ .Values.nextflowDocs.useRedisIndex | quote }}
+  NEXTFLOW_DOCS_TOOL: {{ ternary "memory" "disabled" (not (empty .Values.embeddings.provider)) | quote }}
 
 {{- if .Values.sandbox.provider }}
   {{- if .Values.bedrock.sandbox.runtimeArn }}
