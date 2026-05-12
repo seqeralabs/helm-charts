@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bump appVersion to 1.3.0.
 - Update image paths in the README and values.yaml - the chart does not hardcode `cr.seqera.io` as the registry, customers are invited to vendor the images to their private registry as well as the charts.
 - `TOWER_API_ENDPOINT` now uses the internal platform service address and port (`global.platformServiceAddress`/`global.platformServicePort`) instead of the external domain, so MCP communicates with the platform over the cluster-internal network, skipping the ingress layer and removing traffic from the platform frontend container.
 
