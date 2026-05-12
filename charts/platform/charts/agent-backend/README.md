@@ -84,15 +84,15 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | inference.provider | string | `""` | Inference provider. One of: "bedrock", "anthropic". Required. |
 | embeddings.provider | string | `""` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
 | sandbox.provider | string | `""` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
-| bedrock.default.assumeRoleArn | string | `""` | Optional default IAM role ARN to assume for all Bedrock services (cross-account access). |
-| bedrock.default.region | string | `""` | Default AWS region for all Bedrock services. |
+| bedrock.default.assumeRoleArn | string | `""` | Optional default IAM role ARN to assume before invoking the Bedrock APIs. |
+| bedrock.default.region | string | `""` | Default AWS region to use for all Bedrock services. |
 | bedrock.inference.assumeRoleArn | string | `""` | Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
 | bedrock.inference.region | string | `""` | AWS region for Bedrock inference (overrides bedrock.default.region). |
-| bedrock.inference.anthropicModel | string | `""` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region profile). |
+| bedrock.inference.anthropicModel | string | `""` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile). |
 | bedrock.embeddings.assumeRoleArn | string | `""` | Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
 | bedrock.embeddings.region | string | `""` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
 | bedrock.embeddings.model | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings. |
-| bedrock.sandbox.assumeRoleArn | string | `""` | Optional IAM role ARN to assume for AgentCore (overrides bedrock.default.assumeRoleArn). |
+| bedrock.sandbox.assumeRoleArn | string | `""` | Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn). |
 | bedrock.sandbox.region | string | `""` | AWS region for AgentCore. |
 | bedrock.sandbox.runtimeArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
 | anthropic.apiKey | string | `""` | Anthropic API key. Set this OR existingSecretName, not both. |

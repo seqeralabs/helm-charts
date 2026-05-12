@@ -97,9 +97,9 @@ sandbox:
 bedrock:
   # Default credentials/region applied to any Bedrock-backed service that does not set its own.
   default:
-    # -- Optional default IAM role ARN to assume for all Bedrock services (cross-account access).
+    # -- Optional default IAM role ARN to assume before invoking the Bedrock APIs.
     assumeRoleArn: ""
-    # -- Default AWS region for all Bedrock services.
+    # -- Default AWS region to use for all Bedrock services.
     region: ""
 
   # Inference-specific Bedrock overrides. Each field maps to one env var; leave empty to omit
@@ -110,7 +110,8 @@ bedrock:
     assumeRoleArn: ""
     # -- AWS region for Bedrock inference (overrides bedrock.default.region).
     region: ""
-    # -- Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region profile).
+    # -- Anthropic inference profile ARN to use on Bedrock (e.g. a custom or
+    # cross-region/cross-account profile).
     anthropicModel: ""
 
   # Embeddings-specific Bedrock overrides.
@@ -125,7 +126,8 @@ bedrock:
 
   # Sandbox (AWS Bedrock AgentCore) configuration.
   sandbox:
-    # -- Optional IAM role ARN to assume for AgentCore (overrides bedrock.default.assumeRoleArn).
+    # -- Optional IAM role ARN to assume before invoking AgentCore (overrides
+    # bedrock.default.assumeRoleArn).
     assumeRoleArn: ""
     # -- AWS region for AgentCore.
     region: ""
