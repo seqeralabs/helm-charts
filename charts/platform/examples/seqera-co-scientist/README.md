@@ -29,6 +29,10 @@ When using Bedrock for any capability, configure the `bedrock` block accordingly
 AWS Bedrock AgentCore runtime ARN must be provided in `bedrock.sandbox.runtimeArn` when sandboxing
 is enabled with `sandbox.provider: bedrock`.
 
+When using AWS Bedrock services, the application can optionally be provided with IAM roles to assume
+before invoking the bedrock APIs. This is useful to allow the application to access Bedrock
+resources in a different account.
+
 The example doesn't provide values for the Platform chart, but it can be used as a reference for how to set the values for the Seqera Co-Scientist components.
 
 Private registry credentials are required to pull the Seqera Co-Scientist images. Refer to the
