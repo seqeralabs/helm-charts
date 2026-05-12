@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `mcp`: Bump app version to 1.3.0.
+- `mcp`: `TOWER_API_ENDPOINT` now uses the internal platform service address and port (`global.platformServiceAddress`/`global.platformServicePort`) instead of the external domain.
 - Bump `agent-backend` to 1.0.0: provider configuration redesigned to support multiple LLM providers. See [agent-backend CHANGELOG](charts/agent-backend/CHANGELOG.md) for the full migration guide.
 - `agent-backend`: remove redundant Anthropic validation from NOTES.txt, add `bedrock.sandbox.runtimeArn` required validator, replace `NEXTFLOW_DOCS_USE_REDIS_INDEX` with `NEXTFLOW_DOCS_TOOL`.
 - Update image paths in the README and values.yaml - the chart does not hardcode `cr.seqera.io` as the registry, customers are invited to vendor the images to their private registry as well as the charts.
