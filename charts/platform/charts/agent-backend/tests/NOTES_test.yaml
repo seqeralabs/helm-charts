@@ -33,7 +33,6 @@ set:
   database.name: "agent_backend"
   database.username: "agent"
   database.password: "test-password"
-  anthropic.apiKey: "test-anthropic-key"
   redis.host: "redis.example.com"
 
 tests:
@@ -103,36 +102,6 @@ tests:
       - hasDocuments:
           count: 1
 
-  # Anthropic API key tests
-  - it: should fail when anthropic.apiKey is not defined and no existingSecretName
-    set:
-      anthropic.apiKey: ""
-      anthropic.existingSecretName: ""
-    asserts:
-      - failedTemplate:
-          errorPattern: "Define the Anthropic API key at 'anthropic.apiKey' or provide an existing secret name at 'anthropic.existingSecretName'\\."
-
-  - it: should fail when both anthropic.apiKey and anthropic.existingSecretName are defined
-    set:
-      anthropic.apiKey: "test-anthropic-key"
-      anthropic.existingSecretName: "my-anthropic-secret"
-    asserts:
-      - failedTemplate:
-          errorPattern: "Either provide 'anthropic.apiKey' or an existing secret name in 'anthropic.existingSecretName', but not both\\."
-
-  - it: should pass when only anthropic.apiKey is set
-    asserts:
-      - hasDocuments:
-          count: 1
-
-  - it: should pass when only anthropic.existingSecretName is set
-    set:
-      anthropic.apiKey: ""
-      anthropic.existingSecretName: "my-anthropic-secret"
-    asserts:
-      - hasDocuments:
-          count: 1
-
   # Redis host tests
   - it: should fail when redis.host is not defined
     set:
@@ -159,8 +128,6 @@ tests:
     set:
       database.password: ""
       database.existingSecretName: "db-secret"
-      anthropic.apiKey: ""
-      anthropic.existingSecretName: "anthropic-secret"
       redis.existingSecretName: "redis-secret"
     asserts:
       - hasDocuments:

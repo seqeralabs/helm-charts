@@ -54,16 +54,6 @@
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if and (not .Values.anthropic.apiKey) (not .Values.anthropic.existingSecretName) -}}
-{{- $message := "Define the Anthropic API key at 'anthropic.apiKey' or provide an existing secret name at 'anthropic.existingSecretName'." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
-{{- if and .Values.anthropic.apiKey .Values.anthropic.existingSecretName -}}
-{{- $message := "Either provide 'anthropic.apiKey' or an existing secret name in 'anthropic.existingSecretName', but not both." -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
-{{- end -}}
-
 {{- if not .Values.redis.host -}}
 {{- $message := "Define the Agent Backend Redis host at 'redis.host'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
