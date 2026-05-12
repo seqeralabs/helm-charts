@@ -9,7 +9,7 @@ should render a ConfigMap with default values:
       MICRONAUT_ENVIRONMENTS: oauth-platform
       MICRONAUT_SERVER_PORT: "6010"
       REGISTRY_API_ENDPOINT: https://registry.nextflow.io
-      TOWER_API_ENDPOINT: https://test.example.com/api
+      TOWER_API_ENDPOINT: http://release-name-platform-backend:8080
       WAVE_API_ENDPOINT: https://wave.seqera.io
     kind: ConfigMap
     metadata:
