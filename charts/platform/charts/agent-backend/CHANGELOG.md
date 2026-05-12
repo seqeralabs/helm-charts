@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   | _(was implicit)_                     | `sandbox.provider: bedrock`              |
 
 - **BREAKING**: Remove `bedrock.embeddings.dimensions` value and `NEXTFLOW_DOCS_BEDROCK_DIMENSIONS` env var: the application provides a good default.
+- Remove redundant Anthropic API key validation from `NOTES.txt`; fully covered by `validateProviders` in `_helpers.tpl`.
+- Add validator: `sandbox.provider: bedrock` now requires `bedrock.sandbox.runtimeArn` to be set.
+- Replace deprecated `NEXTFLOW_DOCS_USE_REDIS_INDEX` env var with `NEXTFLOW_DOCS_TOOL` (`memory` when `embeddings.provider` is set, `disabled` otherwise). Remove `nextflowDocs.useRedisIndex` value.
 
 ## [0.5.0] - 2026-05-05
 

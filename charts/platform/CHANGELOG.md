@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump `agent-backend` to 1.0.0: provider configuration redesigned to support multiple LLM providers. See [agent-backend CHANGELOG](charts/agent-backend/CHANGELOG.md) for the full migration guide.
+- `agent-backend`: remove redundant Anthropic validation from NOTES.txt, add `bedrock.sandbox.runtimeArn` required validator, replace `NEXTFLOW_DOCS_USE_REDIS_INDEX` with `NEXTFLOW_DOCS_TOOL`.
 
 ## [0.33.0] - 2026-04-30
 
