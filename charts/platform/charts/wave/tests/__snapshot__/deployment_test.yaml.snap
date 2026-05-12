@@ -41,7 +41,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-wave
-              image: private/nf-tower-enterprise/wave:v1.32.4
+              image: enterprise/platform/wave:v1.32.4
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -78,7 +78,7 @@ should render a Deployment with default values:
                 - sh
                 - -c
                 - '> /tmp/config.yml'
-              image: private/nf-tower-enterprise/wave:v1.32.4
+              image: enterprise/platform/wave:v1.32.4
               imagePullPolicy: IfNotPresent
               name: touch-config-file
               volumeMounts:

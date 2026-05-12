@@ -84,7 +84,7 @@ image:
   # -- Container image registry
   registry: ""
   # -- Container image repository
-  repository: private/nf-tower-enterprise/portal-web
+  repository: ai/portal/web
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""

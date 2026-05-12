@@ -203,7 +203,7 @@ image:
   # -- Container image registry
   registry: ""
   # -- Container image repository
-  repository: private/nf-tower-enterprise/agent-backend
+  repository: ai/agent-backend/backend
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
   tag: ""

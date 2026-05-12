@@ -53,7 +53,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/data-studio/connect-proxy:1.2.3
+      value: enterprise/platform/data-studio/connect-proxy:1.2.3
 - it: should render the proxy deployment with the specified digest
   template: deployment-proxy.yaml
   set:
@@ -63,7 +63,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef
+      value: enterprise/platform/data-studio/connect-proxy@sha256:1234abcdef
 - it: should render the proxy deployment with the correct checksums
   template: deployment-proxy.yaml
   chart:
@@ -451,7 +451,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: my-registry.example.com/private/nf-tower-enterprise/data-studio/connect-proxy@sha256:1234abcdef
+      value: my-registry.example.com/enterprise/platform/data-studio/connect-proxy@sha256:1234abcdef
 - it: should render default caddy-temp-data-volume
   template: deployment-proxy.yaml
   asserts:
@@ -681,7 +681,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/data-studio/connect-proxy:9.9.9
+      value: enterprise/platform/data-studio/connect-proxy:9.9.9
 
 - it: should evaluate templates in azure override fields for the proxy container
   template: deployment-proxy.yaml

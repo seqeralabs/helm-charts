@@ -198,7 +198,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing Secret containing the password for Redis |
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
 | backend.image.registry | string | `""` | Backend container image registry |
-| backend.image.repository | string | `"private/nf-tower-enterprise/backend"` | Backend container image repository |
+| backend.image.repository | string | `"enterprise/platform/backend"` | Backend container image repository |
 | backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |
 | backend.image.digest | string | `""` | Backend container image digest in the format `sha256:1234abcdef` |
 | backend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the backend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -255,7 +255,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container |
 | backend.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored) |
 | frontend.image.registry | string | `""` | Frontend container image registry |
-| frontend.image.repository | string | `"private/nf-tower-enterprise/frontend"` | Frontend container image repository |
+| frontend.image.repository | string | `"enterprise/platform/frontend"` | Frontend container image repository |
 | frontend.image.tag | string | `"{{ .chart.AppVersion }}-unprivileged"` | Specify a tag to override the version defined in .Chart.appVersion |
 | frontend.image.digest | string | `""` | Frontend container image digest in the format `sha256:1234abcdef` |
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the frontend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -312,7 +312,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container |
 | frontend.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored) |
 | cron.image.registry | string | `""` | Cron container image registry |
-| cron.image.repository | string | `"private/nf-tower-enterprise/backend"` | Cron container image repository |
+| cron.image.repository | string | `"enterprise/platform/backend"` | Cron container image repository |
 | cron.image.tag | string | `"{{ .chart.AppVersion }}"` | Cron container image tag |
 | cron.image.digest | string | `""` | Cron container image digest in the format `sha256:1234abcdef` |
 | cron.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the cron container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -370,7 +370,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container |
 | cron.livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored) |
 | cron.dbMigrationInitContainer.image.registry | string | `""` | Database migration container image registry |
-| cron.dbMigrationInitContainer.image.repository | string | `"private/nf-tower-enterprise/migrate-db"` | Database migration container image repository |
+| cron.dbMigrationInitContainer.image.repository | string | `"enterprise/platform/migrate-db"` | Database migration container image repository |
 | cron.dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Specify a tag to override the version defined in .Chart.appVersion |
 | cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format `sha256:1234abcdef` |
 | cron.dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the database migration init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

@@ -45,7 +45,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/backend:9.0.0
+      value: enterprise/platform/backend:9.0.0
 - it: should render the cron deployment with the specified digest, overriding the tag
   template: deployment-cron.yaml
   set:
@@ -56,7 +56,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/backend@sha256:1234abcdef
+      value: enterprise/platform/backend@sha256:1234abcdef
 - it: should render the cron deployment with the correct checksums, labels and annotations
   template: deployment-cron.yaml
   chart:
@@ -292,7 +292,7 @@ tests:
       value: migrate-db
   - equal:
       path: spec.template.spec.initContainers[2].image
-      value: private/nf-tower-enterprise/migrate-db:v9.9.9
+      value: enterprise/platform/migrate-db:v9.9.9
   - equal:
       path: spec.template.spec.initContainers[0].env
       value:
@@ -959,7 +959,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: private/nf-tower-enterprise/backend:v9.9.9
+      value: enterprise/platform/backend:v9.9.9
 
 - it: should prefer azure override over custom cron.image when both are set
   template: deployment-cron.yaml
@@ -1022,7 +1022,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.initContainers[2].image
-      value: private/nf-tower-enterprise/migrate-db:v9.9.9
+      value: enterprise/platform/migrate-db:v9.9.9
 
 - it: should use azure override with digest for the migrate-db initContainer
   template: deployment-cron.yaml

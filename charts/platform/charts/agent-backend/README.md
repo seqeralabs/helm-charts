@@ -119,12 +119,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.password | string | `""` | Redis password |
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
-| nextflowDocs.useRedisIndex | bool | `false` | Use a Redis-backed vector index for the Nextflow documentation knowledge base. Disabled by default. |
 | tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
 | tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
 | tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/agent-backend"` | Container image repository |
+| image.repository | string | `"ai/agent-backend/backend"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

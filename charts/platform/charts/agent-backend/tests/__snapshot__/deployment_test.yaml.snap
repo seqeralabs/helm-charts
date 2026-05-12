@@ -51,7 +51,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-agent-backend
-              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: ai/agent-backend/backend:v9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -167,7 +167,7 @@ should render a Deployment with default values:
               envFrom:
                 - configMapRef:
                     name: release-name-agent-backend
-              image: private/nf-tower-enterprise/agent-backend:v9.9.9
+              image: ai/agent-backend/backend:v9.9.9
               imagePullPolicy: IfNotPresent
               name: init
               resources:

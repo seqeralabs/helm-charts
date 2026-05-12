@@ -6,7 +6,7 @@ internal OCI registry.
 
 Seqera images are hosted on `cr.seqera.io`. Similarly, we recommend vendoring (replicating) images
 into your own internal container registry. Refer to the [Seqera
-documentation](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry)
+documentation](https://docs.seqera.io/platform-enterprise/enterprise/configuration/mirroring)
 for more information.
 
 ## Automatic replication via Container Registry feature - recommended approach

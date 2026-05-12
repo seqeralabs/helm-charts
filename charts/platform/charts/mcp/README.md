@@ -88,7 +88,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | oauth.jwtSeedSecretName | string | `""` | Name of an existing Secret containing the JWT seed, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | oauth.jwtSeedSecretKey | string | `"MCP_OAUTH_JWT_SECRET"` | Key in the existing Secret containing the JWT seed |
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"private/nf-tower-enterprise/mcp"` | Container image repository |
+| image.repository | string | `"ai/mcp/server"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
