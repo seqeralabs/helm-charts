@@ -30,7 +30,7 @@ pipeline-optimization:
     # Container registry where Pipeline Optimization images are stored
     # Options: cr.seqera.io or your private registry
     registry: "cr.seqera.io"
-    repository: "enterprise/platform/groundswell"
+    repository: "enterprise/platform/pipeline-optimization"
     tag: "" # An empty tag string uses Chart.yaml appVersion
 
   # Database migration init container configuration
@@ -38,7 +38,7 @@ pipeline-optimization:
   dbMigrationInitContainer:
     image:
       registry: "cr.seqera.io"
-      repository: "enterprise/platform/groundswell"
+      repository: "enterprise/platform/pipeline-optimization"
       tag: "" # An empty tag string uses Chart.yaml appVersion
 
   database:

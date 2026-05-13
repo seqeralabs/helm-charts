@@ -17,7 +17,7 @@ should produce a Deployment resource with minimal values:
         envFrom:
           - configMapRef:
               name: release-name-pipeline-optimization
-        image: enterprise/platform/groundswell:v9.9.9
+        image: enterprise/platform/pipeline-optimization:v9.9.9
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 10
@@ -150,7 +150,7 @@ should produce a Deployment resource with minimal values:
         envFrom:
           - configMapRef:
               name: release-name-pipeline-optimization
-        image: enterprise/platform/groundswell:v9.9.9
+        image: enterprise/platform/pipeline-optimization:v9.9.9
         imagePullPolicy: IfNotPresent
         name: migrate-db
     securityContext:
@@ -221,7 +221,7 @@ should render the deployment with the correct checksums, labels and annotations:
               envFrom:
                 - configMapRef:
                     name: release-name-pipeline-optimization
-              image: enterprise/platform/groundswell:9.9.9
+              image: enterprise/platform/pipeline-optimization:9.9.9
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 10
@@ -354,7 +354,7 @@ should render the deployment with the correct checksums, labels and annotations:
               envFrom:
                 - configMapRef:
                     name: release-name-pipeline-optimization
-              image: enterprise/platform/groundswell:9.9.9
+              image: enterprise/platform/pipeline-optimization:9.9.9
               imagePullPolicy: IfNotPresent
               name: migrate-db
           securityContext:

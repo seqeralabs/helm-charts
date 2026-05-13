@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 2.0.7](https://img.shields.io/badge/Version-2.0.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
+![Version: 2.0.8](https://img.shields.io/badge/Version-2.0.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.13](https://img.shields.io/badge/AppVersion-0.4.13-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -37,7 +37,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 2.0.7 \
+  --version 2.0.8 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -87,13 +87,13 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | platformDatabase.sslCert | string | `""` | Path to a client certificate file for mutual TLS authentication |
 | platformDatabase.sslKey | string | `""` | Path to a client key file for mutual TLS authentication |
 | image.registry | string | `""` | Pipeline Optimization container image registry |
-| image.repository | string | `"enterprise/platform/groundswell"` | Pipeline Optimization container image repository |
+| image.repository | string | `"enterprise/platform/pipeline-optimization"` | Pipeline Optimization container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag |
 | image.digest | string | `""` | Pipeline Optimization container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Pipeline Optimization container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 | dbMigrationInitContainer.image.registry | string | `""` | Migrate DB init container image registry |
-| dbMigrationInitContainer.image.repository | string | `"enterprise/platform/groundswell"` | Migrate DB init container image repository |
+| dbMigrationInitContainer.image.repository | string | `"enterprise/platform/pipeline-optimization"` | Migrate DB init container image repository |
 | dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Migrate DB init container image tag |
 | dbMigrationInitContainer.image.digest | string | `""` | Migrate DB init container image digest in the format `sha256:1234abcdef` |
 | dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Migrate DB init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
