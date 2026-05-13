@@ -83,6 +83,68 @@ entries:
   platform:
   - apiVersion: v2
     appVersion: v25.3.4
+    created: "2026-05-13T13:48:43.93700503Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.2.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.4.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.3.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 447f24a36dec64aa140171c1f58d682536d6752b34f972fa55f97400f5bfb18e
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.33.3/platform-0.33.3.tgz
+    version: 0.33.3
+  - apiVersion: v2
+    appVersion: v25.3.4
     created: "2026-04-29T17:08:10.309009+01:00"
     dependencies:
     - name: common
@@ -255,6 +317,32 @@ entries:
     version: 2.1.0
   studios:
   - apiVersion: v2
+    appVersion: 0.11.1
+    created: "2026-05-13T13:48:44.224120091Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Studios is a unified platform for interactive analysis
+    digest: e556b49daf2f783c7c9f649586d044f1c809fbc7b766ed9e08b662df559ef3ed
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: studios
+    sources:
+    - https://github.com/seqeralabs/helm-charts/tree/main/seqera/charts/studios
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/studios-1.4.1/studios-1.4.1.tgz
+    version: 1.4.1
+  - apiVersion: v2
     appVersion: 0.11.0
     created: "2026-04-29T17:08:11.322483+01:00"
     dependencies:
@@ -283,6 +371,31 @@ entries:
   wave:
   - apiVersion: v2
     appVersion: v1.32.4
+    created: "2026-05-13T13:48:44.459183022Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Wave
+    digest: 4664b04d374edf926c5775dfa1e424e809f908a0c8a1b3c4f2424f5cfb0b7cdc
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: wave
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.2.2/wave-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: v1.32.4
     created: "2026-04-29T17:08:11.607853+01:00"
     dependencies:
     - name: common
@@ -306,4 +419,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-29T17:08:11.607861+01:00"
+generated: "2026-05-13T13:48:44.459205395Z"
