@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update pipeline-optimization container image paths to `enterprise/platform/pipeline-optimization`.
+- Update pipeline-optimization to 2.0.8.
+- Update studios to 1.4.0.
 
 ## [0.33.1] - 2026-05-11
 
