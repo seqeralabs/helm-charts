@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update Studios container image paths.
+- Update Studios container image paths to `cr.seqera.io/enterprise/studios/{server,proxy}`.
 
 ## [1.4.0] - 2026-05-13
 
