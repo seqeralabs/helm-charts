@@ -10,10 +10,10 @@ dependencies:
   version: 2.0.8
 - name: studios
   repository: file://charts/studios
-  version: 1.4.0
+  version: 1.4.1
 - name: wave
   repository: file://charts/wave
-  version: 0.2.1
+  version: 0.2.2
 - name: mcp
   repository: file://charts/mcp
   version: 0.4.1

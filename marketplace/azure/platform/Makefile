@@ -79,7 +79,7 @@ copy-images:
 	 if [ -n "$(IMAGE_STUDIOS_PROXY)" ]; then \
 	   SRC_STUDIOS_PROXY="$(IMAGE_STUDIOS_PROXY)"; \
 	 else \
-	   SRC_STUDIOS_PROXY="$(SRC_REGISTRY)/enterprise/platform/data-studio/connect-proxy:$${STUDIOS_TAG}"; \
+	   SRC_STUDIOS_PROXY="$(SRC_REGISTRY)/enterprise/studios/proxy:$${STUDIOS_TAG}"; \
 	 fi && \
 	 DST_STUDIOS_PROXY_TAG=$$(echo "$${SRC_STUDIOS_PROXY}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[4/6] $${SRC_STUDIOS_PROXY} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-proxy:$${DST_STUDIOS_PROXY_TAG} ... " && \
@@ -91,7 +91,7 @@ copy-images:
 	 if [ -n "$(IMAGE_STUDIOS_SERVER)" ]; then \
 	   SRC_STUDIOS_SERVER="$(IMAGE_STUDIOS_SERVER)"; \
 	 else \
-	   SRC_STUDIOS_SERVER="$(SRC_REGISTRY)/enterprise/platform/data-studio/connect-server:$${STUDIOS_TAG}"; \
+	   SRC_STUDIOS_SERVER="$(SRC_REGISTRY)/enterprise/studios/server:$${STUDIOS_TAG}"; \
 	 fi && \
 	 DST_STUDIOS_SERVER_TAG=$$(echo "$${SRC_STUDIOS_SERVER}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[5/6] $${SRC_STUDIOS_SERVER} → $(REGISTRY)/$(IMAGE_PREFIX)/studios/connect-server:$${DST_STUDIOS_SERVER_TAG} ... " && \

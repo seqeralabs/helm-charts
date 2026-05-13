@@ -41,7 +41,7 @@ should run using config requested by the user:
                   name: CMContainingExtraEnvVars
               - secretRef:
                   name: SecretContainingExtraEnvVars
-            image: enterprise/platform/data-studio/connect-proxy:9.9.9
+            image: enterprise/studios/proxy:9.9.9
             imagePullPolicy: Always
             name: proxy
             ports:
@@ -153,7 +153,7 @@ should set the proxy deployment image using the chart version and use sane defau
                     name: release-name-studios-common
                 - configMapRef:
                     name: release-name-studios-proxy
-              image: enterprise/platform/data-studio/connect-proxy:9.9.9
+              image: enterprise/studios/proxy:9.9.9
               imagePullPolicy: IfNotPresent
               name: proxy
               ports:
