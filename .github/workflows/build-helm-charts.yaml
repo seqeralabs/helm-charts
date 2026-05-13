@@ -171,6 +171,8 @@ jobs:
           # are hosted as GitHub Release assets (uploaded in the previous step);
           # cr uses this directory to discover which charts to include and queries
           # the GitHub API to resolve each one to its release-asset URL.
+          git fetch origin gh-pages
+
           mkdir -p .cr-release-packages .cr-index
           for chart in $charts_to_package; do
             chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
