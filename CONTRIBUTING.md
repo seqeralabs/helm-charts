@@ -9,11 +9,11 @@ When submitting a PR make sure that it:
 
 - Must follow [Helm best practices](https://helm.sh/docs/chart_best_practices/).
 - Any change to a chart requires a version bump following [semver](https://semver.org/) principles.
-- Run the following commands to set up pre-commit hooks:
+- Run the following commands to set up [prek](https://github.com/j178/prek) (a drop-in replacement fork of "pre-commit") hooks:
 
 ```console
-$ pre-commit install
-$ pre-commit install-hooks
+$ prek install
+$ prek install-hooks
 ```
 
 To build the charts locally, use `make` from each chart directory.
