@@ -692,7 +692,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: enterprise/platform/groundswell:v9.9.9
+          value: enterprise/platform/pipeline-optimization:v9.9.9
 
   - it: should evaluate templates in azure override fields for the pipeline-optimization container
     template: deployment.yaml
@@ -735,7 +735,7 @@ tests:
     asserts:
       - equal:
           path: spec.template.spec.initContainers[2].image
-          value: enterprise/platform/groundswell:v9.9.9
+          value: enterprise/platform/pipeline-optimization:v9.9.9
 
   - it: should evaluate templates in azure override fields for migrate-db initContainer
     template: deployment.yaml

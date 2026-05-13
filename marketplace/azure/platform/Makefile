@@ -103,7 +103,7 @@ copy-images:
 	 if [ -n "$(IMAGE_PIPELINE_OPTIMIZATION)" ]; then \
 	   SRC_PIPEOPT="$(IMAGE_PIPELINE_OPTIMIZATION)"; \
 	 else \
-	   SRC_PIPEOPT="$(SRC_REGISTRY)/enterprise/platform/groundswell:$${PIPEOPT_TAG}"; \
+	   SRC_PIPEOPT="$(SRC_REGISTRY)/enterprise/platform/pipeline-optimization:$${PIPEOPT_TAG}"; \
 	 fi && \
 	 DST_PIPEOPT_TAG=$$(echo "$${SRC_PIPEOPT}" | rev | cut -d: -f1 | rev) && \
 	 echo -n "[6/6] $${SRC_PIPEOPT} → $(REGISTRY)/$(IMAGE_PREFIX)/pipeline-optimization/groundswell:$${DST_PIPEOPT_TAG} ... " && \
