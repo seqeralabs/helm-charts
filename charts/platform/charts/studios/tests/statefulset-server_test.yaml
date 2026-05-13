@@ -50,7 +50,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: enterprise/platform/data-studio/connect-server:1.2.3
+      value: enterprise/studios/server:1.2.3
 - it: should render the server deployment with the specified digest
   template: statefulset-server.yaml
   set:
@@ -60,7 +60,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: enterprise/platform/data-studio/connect-server@sha256:1234abcdef
+      value: enterprise/studios/server@sha256:1234abcdef
 - it: should render the server deployment with the correct checksums
   template: statefulset-server.yaml
   chart:
@@ -510,7 +510,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: my-registry.example.com/enterprise/platform/data-studio/connect-server@sha256:abcd1234
+      value: my-registry.example.com/enterprise/studios/server@sha256:abcd1234
 - it: should render container with correct imagePullPolicy
   template: statefulset-server.yaml
   set:
@@ -602,7 +602,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: enterprise/platform/data-studio/connect-server:9.9.9
+      value: enterprise/studios/server:9.9.9
 
 - it: should evaluate templates in azure override fields for the server container
   template: statefulset-server.yaml

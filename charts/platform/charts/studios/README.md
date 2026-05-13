@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
+![Version: 1.4.1](https://img.shields.io/badge/Version-1.4.1-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.4.0 \
+  --version 1.4.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -92,7 +92,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
 | redis.prefix | string | `"connect:session"` | Key prefix to use when storing Studios sessions in Redis |
 | proxy.image.registry | string | `""` | Proxy container image registry |
-| proxy.image.repository | string | `"enterprise/platform/data-studio/connect-proxy"` | Proxy container image repository |
+| proxy.image.repository | string | `"enterprise/studios/proxy"` | Proxy container image repository |
 | proxy.image.tag | string | `"{{ .chart.AppVersion }}"` | Proxy container image tag |
 | proxy.image.digest | string | `""` | Proxy container image digest in the format `sha256:1234abcdef` |
 | proxy.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -132,7 +132,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | proxy.containerSecurityContext.capabilities | object | `{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 | proxy.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 | server.image.registry | string | `""` | Server container image registry |
-| server.image.repository | string | `"enterprise/platform/data-studio/connect-server"` | Server container image repository |
+| server.image.repository | string | `"enterprise/studios/server"` | Server container image repository |
 | server.image.tag | string | `"{{ .chart.AppVersion }}"` | Server container image tag |
 | server.image.digest | string | `""` | Server container image digest in the format `sha256:1234abcdef` |
 | server.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |

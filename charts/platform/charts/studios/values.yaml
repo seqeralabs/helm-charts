@@ -110,7 +110,7 @@ proxy:
     # -- Proxy container image registry
     registry: ""
     # -- Proxy container image repository
-    repository: enterprise/platform/data-studio/connect-proxy
+    repository: enterprise/studios/proxy
     # -- Proxy container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
@@ -281,7 +281,7 @@ server:
     # -- Server container image registry
     registry: ""
     # -- Server container image repository
-    repository: enterprise/platform/data-studio/connect-server
+    repository: enterprise/studios/server
     # -- Server container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
     tag: ""
