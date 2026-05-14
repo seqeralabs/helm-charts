@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.4] - 2026-05-14
+
+### Fixed
+
+- Add `wave` to the cron pod's `micronautEnvironments` so cron can resolve wave-related configuration in enterprise deployments.
+
 ## [0.33.3] - 2026-05-13
 
 ### Changed
