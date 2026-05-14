@@ -39,7 +39,7 @@ tests:
   - equal:
       path: data
       value:
-        MICRONAUT_ENVIRONMENTS: prod,redis,cron
+        MICRONAUT_ENVIRONMENTS: prod,redis,cron,wave
         TOWER_CRON_SERVER_PORT: '8082'
 
 - it: should setup requested micronaut envs for cron when required, in addition to the mandatory ones
@@ -57,7 +57,19 @@ tests:
       of: ConfigMap
   - equal:
       path: data.MICRONAUT_ENVIRONMENTS
-      value: prod,whatever1,whatever2,redis,cron
+      value: prod,whatever1,whatever2,redis,cron,wave
+
+- it: should not include wave in cron micronaut envs when waveServerUrl is empty
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-cron
+  set:
+    platform:
+      waveServerUrl: ""
+  asserts:
+  - equal:
+      path: data.MICRONAUT_ENVIRONMENTS
+      value: prod,redis,cron
 
 - it: should not include TOWER_DATA_STUDIO_CONNECT_URL when studios is disabled
   documentSelector:

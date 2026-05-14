@@ -137,6 +137,10 @@ Build the cron micronaut envs list: add envs if features are requested in other 
 {{- $list = append $list "prod" -}}
 {{- $list = append $list "redis" -}}
 {{- $list = append $list "cron" -}}
+  {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
+  {{- if not (empty .Values.platform.waveServerUrl) -}}
+{{- $list = append $list "wave" -}}
+  {{- end -}}
 {{- uniq $list | join "," | quote -}}
 {{- end -}}
 
