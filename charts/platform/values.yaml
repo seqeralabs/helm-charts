@@ -933,7 +933,7 @@ cron:
     #   - myRegistryKeySecretName
 
   # -- List of Micronaut Environments to enable on the cron pod
-  micronautEnvironments: [prod, redis, cron]
+  micronautEnvironments: [prod, redis, cron, wave]
 
   service:
     # -- Cron Service type.
