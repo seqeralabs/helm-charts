@@ -83,6 +83,68 @@ entries:
   platform:
   - apiVersion: v2
     appVersion: v25.3.4
+    created: "2026-05-14T15:16:54.490933561Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.2.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.4.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.3.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 2c8ee568e579d74b8841dc8ac3664509bf261b46722d8b520135a9dbc56482b3
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.33.5/platform-0.33.5.tgz
+    version: 0.33.5
+  - apiVersion: v2
+    appVersion: v25.3.4
     created: "2026-05-14T12:13:03.640713432Z"
     dependencies:
     - name: common
@@ -481,4 +543,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-14T12:13:03.640732501Z"
+generated: "2026-05-14T15:16:54.49095439Z"
