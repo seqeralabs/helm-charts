@@ -43,7 +43,7 @@ data:
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
 {{- if (index .Values "portal-web" "enabled") }}
-  TOWER_SEQERA_AI_PORTAL_URL: {{ printf "http://%s" (tpl .Values.global.portalWebDomain $) | quote }}
+  TOWER_SEQERA_AI_PORTAL_URL: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
 {{- end }}
 ---
 kind: ConfigMap
