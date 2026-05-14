@@ -120,7 +120,7 @@ Build the backend micronaut envs list: add envs if features are requested in oth
 {{- $list = append $list "oauth-client" -}}
   {{/* Add wave to the list of microenvs if waveServerUrl is defined. */}}
   {{- if tpl .Values.platform.waveServerUrl $ -}}
-    {{- $list = append $list "wave" -}}
+{{- $list = append $list "wave" -}}
   {{- end -}}
   {{- /* Add groundswell to the list of microenvs if pipeline-optimization is enabled. */}}
   {{- if (index .Values "pipeline-optimization" "enabled") -}}
