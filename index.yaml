@@ -2,6 +2,31 @@ apiVersion: v1
 entries:
   agent-backend:
   - apiVersion: v2
+    appVersion: 1.10.0
+    created: "2026-05-15T07:34:20.00926306Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Backend service for Seqera CLI AI capabilities
+    digest: 51f91ff12800b3a1559b5824d37a805bcfbf098154c562544fa6e7fb8058a624
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: agent-backend
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/agent-backend-1.0.1/agent-backend-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
     appVersion: 2.0.0
     created: "2026-04-29T17:08:09.103567+01:00"
     dependencies:
@@ -81,6 +106,68 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/pipeline-optimization-2.0.3/pipeline-optimization-2.0.3.tgz
     version: 2.0.3
   platform:
+  - apiVersion: v2
+    appVersion: v25.3.4
+    created: "2026-05-15T07:34:20.221827575Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.2.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.4.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.3.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 78a183b1bec801d5baf24a6a9e535b8bac9d7f94fb9302d3c8e8fc408d526043
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.33.6/platform-0.33.6.tgz
+    version: 0.33.6
   - apiVersion: v2
     appVersion: v25.3.4
     created: "2026-05-14T15:16:54.490933561Z"
@@ -393,6 +480,30 @@ entries:
     version: 0.32.2
   portal-web:
   - apiVersion: v2
+    appVersion: 1.5.0
+    created: "2026-05-15T07:34:20.411677585Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: seqera-common.enabled
+      name: seqera-common
+      repository: file://../../../seqera-common
+      version: 2.x.x
+    description: Portal web frontend for Seqera Platform
+    digest: b49308b589089f3a04e2b9667bac1fb847d37710adb626f1495a642b935765d5
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: portal-web
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/portal-web-0.3.2/portal-web-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2026-04-29T17:08:10.746403+01:00"
     dependencies:
@@ -543,4 +654,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-14T15:16:54.49095439Z"
+generated: "2026-05-15T07:34:20.411730183Z"
