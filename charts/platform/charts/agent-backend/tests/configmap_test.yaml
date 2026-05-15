@@ -313,7 +313,7 @@ tests:
     set:
       redis.host: redis.example.com
       redis.port: 6380
-      redis.db: 5
+      redis.database: 5
       redis.enableTls: true
     asserts:
       - equal:
