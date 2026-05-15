@@ -13,15 +13,15 @@ dependencies:
   version: 1.4.1
 - name: wave
   repository: file://charts/wave
-  version: 0.2.2
+  version: 0.2.3
 - name: mcp
   repository: file://charts/mcp
   version: 0.4.1
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.0.1
+  version: 1.0.2
 - name: portal-web
   repository: file://charts/portal-web
   version: 0.3.2
-digest: sha256:13bf2abdc12ad0782eab052065837ee5b5edee59ae03fc8d2b3bc576548475b1
-generated: "2026-05-12T12:30:11.733560019+02:00"
+digest: sha256:314337355882cd7799e4582cd7ccc6bcda2811bbcb3a759d79c041a48d166b1d
+generated: "2026-05-15T13:00:51.669433+02:00"

@@ -101,7 +101,7 @@ redis:
   # -- Redis port
   port: 6379
   # -- Redis database index
-  db: 0
+  database: 0
   # -- Enable TLS when connecting to Redis
   enableTls: false
   # -- Redis password
