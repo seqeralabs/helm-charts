@@ -19,9 +19,9 @@ dependencies:
   version: 0.4.1
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.0.0
+  version: 1.0.1
 - name: portal-web
   repository: file://charts/portal-web
-  version: 0.3.1
+  version: 0.3.2
 digest: sha256:13bf2abdc12ad0782eab052065837ee5b5edee59ae03fc8d2b3bc576548475b1
 generated: "2026-05-12T12:30:11.733560019+02:00"
