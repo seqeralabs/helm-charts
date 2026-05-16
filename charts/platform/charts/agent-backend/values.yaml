@@ -382,7 +382,7 @@ initContainerDependencies:
       # -- Override default wait for Redis init container image
       registry: ""
       repository: redis
-      tag: 7-alpine
+      tag: 8-alpine
       # Digest must be in the format `sha256:1234abcdef`
       digest: ""
       pullPolicy: IfNotPresent
