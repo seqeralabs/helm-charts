@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Platform application version to v26.1.0.
 - Update Studios template naming from RStudio to R-IDE.
+- Update agent-backend to 1.0.4 (do not render `ANTHROPIC_API_KEY` in the Secret when `anthropic.apiKey` is empty and no `existingSecretName` is set).
 
 ## [0.33.8] - 2026-05-22
 
