@@ -1,3 +1,13 @@
+should apply common labels:
+  1: |
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: platform
+    app.kubernetes.io/version: v1.2.3_abcdef
+    environment: dev
+    helm.sh/chart: platform-9.8.7
+    numericLabelAsString: "8080"
+    team: platform
 should render Studios tools environment variables when studios is enabled with default tools:
   1: |
     apiVersion: v1
@@ -176,3 +186,36 @@ should render custom Studios tool with deprecated and experimental versions when
         helm.sh/chart: platform-1.2.3
       name: release-name-platform-backend
       namespace: NAMESPACE
+should render labels in all configmaps when provided via platform.configMapLabels:
+  1: |
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: platform
+    app.kubernetes.io/version: v1.2.3_abcdef
+    helm.sh/chart: platform-9.8.7
+    labelA: valueA
+    labelB: "1234"
+  2: |
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: platform
+    app.kubernetes.io/version: v1.2.3_abcdef
+    helm.sh/chart: platform-9.8.7
+    labelA: valueA
+    labelB: "1234"
+  3: |
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: platform
+    app.kubernetes.io/version: v1.2.3_abcdef
+    helm.sh/chart: platform-9.8.7
+    labelA: valueA
+    labelB: "1234"
+  4: |
+    app.kubernetes.io/instance: RELEASE-NAME
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: platform
+    app.kubernetes.io/version: v1.2.3_abcdef
+    helm.sh/chart: platform-9.8.7
+    labelA: valueA
+    labelB: "1234"
