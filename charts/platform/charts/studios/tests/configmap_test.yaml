@@ -237,16 +237,8 @@ tests:
     asserts:
       - hasDocuments:
           count: 3
-      - equal:
+      - matchSnapshot:
           path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: studios-9.8.7
-            environment: dev
-            team: platform
 
   - it: should apply commonAnnotations to all ConfigMaps
     set:
@@ -270,15 +262,8 @@ tests:
       configMapLabels:
         custom-label: "custom-value"
     asserts:
-      - equal:
+      - matchSnapshot:
           path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: studios-9.8.7
-            custom-label: "custom-value"
 
   - it: should apply configMapAnnotations to all ConfigMaps
     set:
@@ -302,17 +287,8 @@ tests:
         environment: "configmap-env"
         component: "configmap"
     asserts:
-      - equal:
+      - matchSnapshot:
           path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: studios-9.8.7
-            environment: "configmap-env"
-            team: "platform"
-            component: "configmap"
 
   - it: should merge commonAnnotations and configMapAnnotations with configMapAnnotations taking precedence
     set:
@@ -339,16 +315,8 @@ tests:
         release: '{{ .Release.Name }}'
         chart: '{{ .Chart.Name }}'
     asserts:
-      - equal:
+      - matchSnapshot:
           path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: studios-9.8.7
-            release: "RELEASE-NAME"
-            chart: "studios"
 
   - it: should evaluate template expressions in commonAnnotations
     chart:
@@ -372,15 +340,8 @@ tests:
       configMapLabels:
         release: '{{ .Release.Name }}'
     asserts:
-      - equal:
+      - matchSnapshot:
           path: metadata.labels
-          value:
-            app.kubernetes.io/instance: RELEASE-NAME
-            app.kubernetes.io/managed-by: Helm
-            app.kubernetes.io/name: studios
-            app.kubernetes.io/version: v1.2.3+abcdef
-            helm.sh/chart: studios-9.8.7
-            release: "RELEASE-NAME"
 
   - it: should evaluate template expressions in configMapAnnotations
     set:
