@@ -19,7 +19,7 @@ apiVersion: v2
 name: wave
 description: Wave
 type: application
-version: 0.2.3
+version: 0.2.4
 appVersion: "v1.32.4"
 maintainers:
   - name: Seqera Labs

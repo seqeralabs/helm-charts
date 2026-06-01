@@ -19,7 +19,7 @@ apiVersion: v2
 name: portal-web
 description: Portal web frontend for Seqera Platform
 type: application
-version: 0.3.3
+version: 0.3.4
 appVersion: "1.6.0"
 maintainers:
   - name: Seqera Labs
