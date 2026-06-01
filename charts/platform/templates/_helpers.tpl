@@ -245,11 +245,19 @@ false
 {{/*
 Return the Redis URI. */}}
 {{- define "platform.redis.uri" -}}
-  {{- printf "%s://%s:%d"
-  (ternary "rediss" "redis" (eq (include "platform.redis.tlsEnabled" .) "true"))
-  (include "platform.redis.host" .)
-  (include "platform.redis.port" . | int )
-  -}}
+  {{- $tls := eq (include "platform.redis.tlsEnabled" .) "true" -}}
+  {{- $isValkey := eq .Values.redis.engineType "valkey" -}}
+  {{- $scheme := "" -}}
+  {{- if and $isValkey $tls -}}
+    {{- $scheme = "valkeyss" -}}
+  {{- else if $isValkey -}}
+    {{- $scheme = "valkey" -}}
+  {{- else if $tls -}}
+    {{- $scheme = "rediss" -}}
+  {{- else -}}
+    {{- $scheme = "redis" -}}
+  {{- end -}}
+  {{- printf "%s://%s:%d" $scheme (include "platform.redis.host" .) (include "platform.redis.port" . | int) -}}
 {{- end -}}
 
 {{/*

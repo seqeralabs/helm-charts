@@ -479,3 +479,55 @@ tests:
   asserts:
   - notExists:
       path: data.TOWER_OIDC_PEM_PATH
+
+- it: should set TOWER_REDIS_URL with redis scheme by default
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    redis.host: my-redis-host
+    platformDatabase.host: my-db-host
+  asserts:
+  - equal:
+      path: data.TOWER_REDIS_URL
+      value: redis://my-redis-host:6379
+
+- it: should set TOWER_REDIS_URL with rediss scheme when TLS is enabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    redis.host: my-redis-host
+    redis.enableTls: true
+    platformDatabase.host: my-db-host
+  asserts:
+  - equal:
+      path: data.TOWER_REDIS_URL
+      value: rediss://my-redis-host:6379
+
+- it: should set TOWER_REDIS_URL with valkey scheme when engineType is valkey
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    redis.host: my-valkey-host
+    redis.engineType: valkey
+    platformDatabase.host: my-db-host
+  asserts:
+  - equal:
+      path: data.TOWER_REDIS_URL
+      value: valkey://my-valkey-host:6379
+
+- it: should set TOWER_REDIS_URL with valkeyss scheme when engineType is valkey and TLS is enabled
+  documentSelector:
+    path: metadata.name
+    value: release-name-platform-shared-backend-cron
+  set:
+    redis.host: my-valkey-host
+    redis.engineType: valkey
+    redis.enableTls: true
+    platformDatabase.host: my-db-host
+  asserts:
+  - equal:
+      path: data.TOWER_REDIS_URL
+      value: valkeyss://my-valkey-host:6379

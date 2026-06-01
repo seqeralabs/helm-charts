@@ -197,6 +197,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | redis.existingSecretName | string | `""` | Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
 | redis.existingSecretKey | string | `"TOWER_REDIS_PASSWORD"` | Key in the existing Secret containing the password for Redis |
 | redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
+| redis.engineType | string | `"redis"` | Cache backend engine type. Valid values: `redis`, `valkey`. Controls the URL scheme used in `TOWER_REDIS_URL`: `redis://` / `rediss://` for Redis, `valkey://` / `valkeyss://` for Valkey. TLS variants are selected automatically via `enableTls`. Valkey requires Seqera Platform 26.1+. |
 | backend.image.registry | string | `""` | Backend container image registry |
 | backend.image.repository | string | `"enterprise/platform/backend"` | Backend container image repository |
 | backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |

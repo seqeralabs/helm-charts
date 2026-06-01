@@ -490,6 +490,11 @@ redis:
   existingSecretKey: ""
   # -- Enable TLS when connecting to Redis
   enableTls: false
+  # -- Cache backend engine type. Valid values: `redis`, `valkey`.
+  # Controls the URL scheme used in `TOWER_REDIS_URL`: `redis://` / `rediss://` for Redis,
+  # `valkey://` / `valkeyss://` for Valkey. TLS variants are selected automatically via `enableTls`.
+  # Valkey requires Seqera Platform 26.1+.
+  engineType: redis
 
 # Options specific to the Platform backend deployment
 backend:

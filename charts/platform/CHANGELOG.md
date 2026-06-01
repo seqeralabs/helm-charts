@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.0] - 2026-05-26
 
+### Added
+
+- Add `redis.engineType` value (`redis` or `valkey`, default `redis`) to control the URL scheme used
+  in `TOWER_REDIS_URL`. When set to `valkey`, the chart renders `valkey://` (plain) or `valkeyss://`
+  (TLS) instead of the `redis://` / `rediss://` schemes. Requires Seqera Platform 26.1+.
+
 ### Changed
 
 - Update Platform application version to v26.1.0.

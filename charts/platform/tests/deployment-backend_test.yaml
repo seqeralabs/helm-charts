@@ -1342,3 +1342,30 @@ tests:
       content:
         name: REDISCLI_TLS
         value: "1"
+
+- it: should set REDIS_URI with valkey scheme on wait-for-redis init container when engineType is valkey
+  template: deployment-backend.yaml
+  set:
+    redis.host: my-valkey-host
+    redis.port: 6379
+    redis.engineType: valkey
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[1].env
+      content:
+        name: REDIS_URI
+        value: valkey://my-valkey-host:6379
+
+- it: should set REDIS_URI with valkeyss scheme on wait-for-redis init container when engineType is valkey and TLS is enabled
+  template: deployment-backend.yaml
+  set:
+    redis.host: my-valkey-host
+    redis.port: 6380
+    redis.engineType: valkey
+    redis.enableTls: true
+  asserts:
+  - contains:
+      path: spec.template.spec.initContainers[1].env
+      content:
+        name: REDIS_URI
+        value: valkeyss://my-valkey-host:6380
