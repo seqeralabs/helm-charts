@@ -395,6 +395,14 @@ tests:
                   name: release-name-agent-backend
                   key: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
 
+  - it: should NOT include ANTHROPIC_API_KEY env var when anthropic.apiKey is empty and no existingSecret is set
+    template: deployment.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ANTHROPIC_API_KEY
+
   - it: should configure wait-for-db init container env vars correctly
     template: deployment.yaml
     set:
