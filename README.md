@@ -1,5 +1,6 @@
 # Seqera Community Kubernetes Helm Charts
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/seqera)](https://artifacthub.io/packages/search?repo=seqera)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The code is provided as-is with no warranties.
