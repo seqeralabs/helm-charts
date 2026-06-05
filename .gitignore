@@ -11,6 +11,7 @@ values-*.y*ml
 *-values.y*ml
 
 .claude
+__pycache__
 
 .helm_ls_cache/
 
