@@ -37,6 +37,10 @@ jobs:
         # package based on the changed files
         run: python3 .github/scripts/extract_charts.py
 
+      - name: Inject ArtifactHub changes annotation
+        if: env.charts_to_package != ''
+        run: python3 .github/scripts/inject_artifacthub_changes.py
+
       - name: Run chart test linter
         if: env.charts_to_package != ''
         run: python3 .github/scripts/helm_unittests_files_exist.py
