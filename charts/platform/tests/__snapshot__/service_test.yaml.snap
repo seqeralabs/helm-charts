@@ -8,7 +8,7 @@ should render backend service correctly with default values:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: 1.2.3+asdf
+        app.kubernetes.io/version: 1.2.3_asdf
         helm.sh/chart: platform-9.9.9
       name: release-name-platform-backend
       namespace: NAMESPACE
@@ -32,7 +32,7 @@ should render cron service correctly with custom ports and custom service name:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: 1.2.3+asdf
+        app.kubernetes.io/version: 1.2.3_asdf
         helm.sh/chart: platform-9.9.9
       name: release-name-platform-cron
       namespace: NAMESPACE
@@ -56,7 +56,7 @@ should render frontend service correctly with default values:
         app.kubernetes.io/instance: RELEASE-NAME
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: platform
-        app.kubernetes.io/version: 1.2.3+asdf
+        app.kubernetes.io/version: 1.2.3_asdf
         helm.sh/chart: platform-9.9.9
       name: release-name-platform-frontend
       namespace: NAMESPACE

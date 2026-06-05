@@ -115,11 +115,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "agent-backend.database.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.database.existingSecret.secretKey" . }}
+{{- if or (include "agent-backend.anthropic.existingSecret" .) .Values.anthropic.apiKey }}
             - name: ANTHROPIC_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "agent-backend.anthropic.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.anthropic.existingSecret.secretKey" . }}
+{{- end }}
             - name: AGENT_BACKEND_TOKEN_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:

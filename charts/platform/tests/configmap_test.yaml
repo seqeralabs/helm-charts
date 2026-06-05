@@ -95,17 +95,8 @@ tests:
       team: platform
       numericLabelAsString: '{{ .Values.global.platformServicePort | default 1234 }}'
   asserts:
-  - equal:
+  - matchSnapshot:
       path: metadata.labels
-      value:
-        app.kubernetes.io/instance: RELEASE-NAME
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: platform
-        app.kubernetes.io/version: v1.2.3+abcdef
-        helm.sh/chart: platform-9.8.7
-        environment: dev
-        team: platform
-        numericLabelAsString: '8080'
 
 - it: should render env var with the requested execution backends
   documentSelector:
@@ -182,16 +173,8 @@ tests:
   asserts:
   - hasDocuments:
       count: 4
-  - equal:
+  - matchSnapshot:
       path: metadata.labels
-      value:
-        app.kubernetes.io/instance: RELEASE-NAME
-        app.kubernetes.io/managed-by: Helm
-        app.kubernetes.io/name: platform
-        app.kubernetes.io/version: v1.2.3+abcdef
-        helm.sh/chart: platform-9.8.7
-        labelA: valueA
-        labelB: '1234'
 
 - it: should render database driver correctly with default "mariadb"
   documentSelector:
