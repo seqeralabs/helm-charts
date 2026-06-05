@@ -170,7 +170,7 @@ def main() -> int:
             print(f"WARNING: {chart_dir}/CHANGELOG.md not found — skipping annotation injection.")
             continue
 
-        with open(changelog_path) as f:
+        with open(changelog_path, encoding="utf-8") as f:
             changelog_text = f.read()
 
         version_from_changelog, changes = parse_top_version_block(changelog_text)
