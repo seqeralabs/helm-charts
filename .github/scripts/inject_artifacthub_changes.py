@@ -152,3 +152,67 @@ def inject_annotation(chart_dir: str, yaml_string: str) -> None:
         env=env,
         check=True,
     )
+
+
+def main() -> int:
+    charts_to_package = os.environ.get("charts_to_package", "").strip()
+    if not charts_to_package:
+        print("No charts to package — skipping ArtifactHub annotation injection.")
+        return 0
+
+    chart_dirs = charts_to_package.split()
+    exit_code = 0
+
+    for chart_dir in chart_dirs:
+        changelog_path = os.path.join(chart_dir, "CHANGELOG.md")
+
+        if not os.path.isfile(changelog_path):
+            print(f"WARNING: {chart_dir}/CHANGELOG.md not found — skipping annotation injection.")
+            continue
+
+        with open(changelog_path) as f:
+            changelog_text = f.read()
+
+        version_from_changelog, changes = parse_top_version_block(changelog_text)
+
+        if version_from_changelog is None:
+            print(f"WARNING: {changelog_path} has no version block — skipping.")
+            continue
+
+        try:
+            version_from_chart = get_chart_version(chart_dir)
+        except subprocess.CalledProcessError as e:
+            print(f"ERROR: Could not read version from {chart_dir}/Chart.yaml: {e}", file=sys.stderr)
+            exit_code = 1
+            continue
+
+        if version_from_changelog != version_from_chart:
+            print(
+                f"ERROR: Version mismatch in {chart_dir}: "
+                f"CHANGELOG.md top version is {version_from_changelog!r} "
+                f"but Chart.yaml version is {version_from_chart!r}",
+                file=sys.stderr,
+            )
+            exit_code = 1
+            continue
+
+        if not changes:
+            print(f"WARNING: {changelog_path} top version block has no entries — skipping injection.")
+            continue
+
+        yaml_string = changes_to_yaml_string(changes)
+
+        try:
+            inject_annotation(chart_dir, yaml_string)
+        except subprocess.CalledProcessError as e:
+            print(f"ERROR: yq injection failed for {chart_dir}: {e}", file=sys.stderr)
+            exit_code = 1
+            continue
+
+        print(f"Injected artifacthub.io/changes for {chart_dir} ({len(changes)} entries)")
+
+    return exit_code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

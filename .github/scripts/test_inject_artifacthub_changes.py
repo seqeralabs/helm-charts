@@ -2,9 +2,13 @@
 """Tests for inject_artifacthub_changes CHANGELOG parser."""
 import sys
 import os
+import subprocess
+import tempfile
+import shutil
 sys.path.insert(0, os.path.dirname(__file__))
 
 from inject_artifacthub_changes import parse_top_version_block, changes_to_yaml_string
+from inject_artifacthub_changes import main as inject_main
 
 
 def test_single_section():
@@ -179,6 +183,86 @@ def test_changes_to_yaml_string_escapes_single_quotes():
 
 def test_changes_to_yaml_string_empty():
     assert changes_to_yaml_string([]) == ""
+
+
+def test_main_injects_annotation_into_real_chart():
+    """End-to-end: create a temp chart dir, run main(), verify yq can read back the annotation."""
+    tmpdir = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(tmpdir, "Chart.yaml"), "w") as f:
+            f.write("apiVersion: v2\nname: test-chart\nversion: 1.2.3\n")
+
+        with open(os.path.join(tmpdir, "CHANGELOG.md"), "w") as f:
+            f.write("""# Changelog
+
+## [1.2.3] - 2026-06-05
+
+### Fixed
+
+- Fix the widget.
+
+### Added
+
+- Add new feature.
+
+## [1.2.2] - 2026-06-01
+
+### Changed
+
+- Something old.
+""")
+
+        os.environ["charts_to_package"] = tmpdir
+        result = inject_main()
+        assert result == 0, "main() should return 0"
+
+        proc = subprocess.run(
+            ["yq", "-r", '.annotations["artifacthub.io/changes"]', os.path.join(tmpdir, "Chart.yaml")],
+            capture_output=True, text=True, check=True,
+        )
+        annotation = proc.stdout.strip()
+        assert "fixed" in annotation
+        assert "Fix the widget" in annotation
+        assert "added" in annotation
+        assert "Add new feature" in annotation
+        assert "Something old" not in annotation
+    finally:
+        if "charts_to_package" in os.environ:
+            del os.environ["charts_to_package"]
+        shutil.rmtree(tmpdir)
+
+
+def test_main_fails_on_version_mismatch():
+    tmpdir = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(tmpdir, "Chart.yaml"), "w") as f:
+            f.write("apiVersion: v2\nname: test-chart\nversion: 1.0.0\n")
+        with open(os.path.join(tmpdir, "CHANGELOG.md"), "w") as f:
+            f.write("## [9.9.9] - 2026-06-05\n\n### Fixed\n\n- Something.\n")
+
+        os.environ["charts_to_package"] = tmpdir
+        result = inject_main()
+        assert result == 1, "main() should return 1 on version mismatch"
+    finally:
+        if "charts_to_package" in os.environ:
+            del os.environ["charts_to_package"]
+        shutil.rmtree(tmpdir)
+
+
+def test_main_skips_missing_changelog():
+    tmpdir = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(tmpdir, "Chart.yaml"), "w") as f:
+            f.write("apiVersion: v2\nname: test-chart\nversion: 1.0.0\n")
+        # No CHANGELOG.md
+
+        os.environ["charts_to_package"] = tmpdir
+        result = inject_main()
+        assert result == 0, "main() should return 0 (warn, not fail) when CHANGELOG is missing"
+    finally:
+        if "charts_to_package" in os.environ:
+            del os.environ["charts_to_package"]
+        shutil.rmtree(tmpdir)
 
 
 if __name__ == "__main__":
