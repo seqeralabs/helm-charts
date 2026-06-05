@@ -108,16 +108,20 @@ def changes_to_yaml_string(changes: list[dict]) -> str:
     Serialise a list of change dicts to a YAML string suitable for the
     artifacthub.io/changes annotation value.
 
+    Uses single-quoted YAML scalars for descriptions so that characters like
+    double-quotes, backslashes, and colons are passed through without escaping.
+    The only character that needs escaping in single-quoted YAML is a literal
+    single-quote, which becomes ''.
+
     Example output:
       - kind: fixed
-        description: Do not inject ANTHROPIC_API_KEY env var.
+        description: 'Do not inject ANTHROPIC_API_KEY env var.'
     """
     lines = []
     for entry in changes:
-        # Escape double-quotes in description for safe YAML scalar
-        desc = entry["description"].replace('"', '\\"')
-        lines.append(f'- kind: {entry["kind"]}')
-        lines.append(f'  description: "{desc}"')
+        escaped = entry["description"].replace("'", "''")
+        lines.append(f"- kind: {entry['kind']}")
+        lines.append(f"  description: '{escaped}'")
     return "\n".join(lines)
 
 

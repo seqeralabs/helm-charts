@@ -158,17 +158,23 @@ def test_changes_to_yaml_string_basic():
     ]
     result = changes_to_yaml_string(changes)
     assert result == (
-        '- kind: fixed\n'
-        '  description: "Fix the thing."\n'
-        '- kind: changed\n'
-        '  description: "Update dependency."'
+        "- kind: fixed\n"
+        "  description: 'Fix the thing.'\n"
+        "- kind: changed\n"
+        "  description: 'Update dependency.'"
     )
 
 
-def test_changes_to_yaml_string_escapes_double_quotes():
+def test_changes_to_yaml_string_double_quotes_pass_through():
     changes = [{"kind": "fixed", "description": 'Fix "quoted" value.'}]
     result = changes_to_yaml_string(changes)
-    assert '\\\"quoted\\\"' in result or '\\"quoted\\"' in result
+    assert result == "- kind: fixed\n  description: 'Fix \"quoted\" value.'"
+
+
+def test_changes_to_yaml_string_escapes_single_quotes():
+    changes = [{"kind": "fixed", "description": "Don't break."}]
+    result = changes_to_yaml_string(changes)
+    assert result == "- kind: fixed\n  description: 'Don''t break.'"
 
 
 def test_changes_to_yaml_string_empty():
