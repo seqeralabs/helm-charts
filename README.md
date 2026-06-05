@@ -1,5 +1,7 @@
 # Seqera Helm charts library
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/seqera)](https://artifacthub.io/packages/search?repo=seqera)
+
 This repository contains Helm charts for deploying Seqera products on Kubernetes clusters.
 
 Currently, it includes charts for:
