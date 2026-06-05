@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
 
-from inject_artifacthub_changes import parse_top_version_block
+from inject_artifacthub_changes import parse_top_version_block, changes_to_yaml_string
 
 
 def test_single_section():
@@ -149,6 +149,30 @@ def test_unrecognised_section_heading_defaults_to_changed():
     version, changes = parse_top_version_block(text)
     assert version == "1.0.0"
     assert changes == [{"kind": "changed", "description": "Fixed a thing."}]
+
+
+def test_changes_to_yaml_string_basic():
+    changes = [
+        {"kind": "fixed", "description": "Fix the thing."},
+        {"kind": "changed", "description": "Update dependency."},
+    ]
+    result = changes_to_yaml_string(changes)
+    assert result == (
+        '- kind: fixed\n'
+        '  description: "Fix the thing."\n'
+        '- kind: changed\n'
+        '  description: "Update dependency."'
+    )
+
+
+def test_changes_to_yaml_string_escapes_double_quotes():
+    changes = [{"kind": "fixed", "description": 'Fix "quoted" value.'}]
+    result = changes_to_yaml_string(changes)
+    assert '\\\"quoted\\\"' in result or '\\"quoted\\"' in result
+
+
+def test_changes_to_yaml_string_empty():
+    assert changes_to_yaml_string([]) == ""
 
 
 if __name__ == "__main__":

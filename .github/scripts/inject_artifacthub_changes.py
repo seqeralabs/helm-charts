@@ -101,3 +101,50 @@ def _parse_block(block_lines: list[str]) -> list[dict]:
 
     flush_bullet()
     return changes
+
+
+def changes_to_yaml_string(changes: list[dict]) -> str:
+    """
+    Serialise a list of change dicts to a YAML string suitable for the
+    artifacthub.io/changes annotation value.
+
+    Example output:
+      - kind: fixed
+        description: Do not inject ANTHROPIC_API_KEY env var.
+    """
+    lines = []
+    for entry in changes:
+        # Escape double-quotes in description for safe YAML scalar
+        desc = entry["description"].replace('"', '\\"')
+        lines.append(f'- kind: {entry["kind"]}')
+        lines.append(f'  description: "{desc}"')
+    return "\n".join(lines)
+
+
+def get_chart_version(chart_dir: str) -> str:
+    """Read the version field from Chart.yaml using yq."""
+    result = subprocess.run(
+        ["yq", "-r", ".version", f"{chart_dir}/Chart.yaml"],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.strip()
+
+
+def inject_annotation(chart_dir: str, yaml_string: str) -> None:
+    """
+    Inject artifacthub.io/changes annotation into Chart.yaml in-place using yq.
+    Uses an environment variable to pass the multiline YAML string safely.
+    """
+    env = {**os.environ, "CHANGES_YAML": yaml_string}
+    subprocess.run(
+        [
+            "yq",
+            "-i",
+            '.annotations["artifacthub.io/changes"] = strenv(CHANGES_YAML)',
+            f"{chart_dir}/Chart.yaml",
+        ],
+        env=env,
+        check=True,
+    )
