@@ -83,10 +83,12 @@ def test_multiline_bullet():
 """
     version, changes = parse_top_version_block(text)
     assert version == "1.0.0"
-    assert len(changes) == 1
-    assert changes[0]["kind"] == "changed"
-    assert "Redesign provider configuration" in changes[0]["description"]
-    assert "structured routing layer" in changes[0]["description"]
+    assert changes == [
+        {
+            "kind": "changed",
+            "description": "**BREAKING**: Redesign provider configuration to support multiple LLM providers. The flat Bedrock-only values have been replaced with a structured routing layer.",
+        }
+    ]
 
 
 def test_no_version_block():
@@ -133,6 +135,20 @@ def test_all_kinds():
     assert {"kind": "deprecated", "description": "Old API."} in changes
     assert {"kind": "removed", "description": "Deleted config."} in changes
     assert {"kind": "security", "description": "Patched CVE-2025-1234."} in changes
+
+
+def test_unrecognised_section_heading_defaults_to_changed():
+    text = """## [1.0.0] - 2026-01-01
+
+### Bugfixes
+
+- Fixed a thing.
+
+## [0.9.0] - 2025-12-01
+"""
+    version, changes = parse_top_version_block(text)
+    assert version == "1.0.0"
+    assert changes == [{"kind": "changed", "description": "Fixed a thing."}]
 
 
 if __name__ == "__main__":

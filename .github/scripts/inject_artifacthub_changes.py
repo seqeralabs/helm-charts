@@ -13,14 +13,7 @@ import sys
 from typing import Optional
 
 
-KIND_MAP = {
-    "added": "added",
-    "changed": "changed",
-    "deprecated": "deprecated",
-    "removed": "removed",
-    "fixed": "fixed",
-    "security": "security",
-}
+VALID_KINDS = {"added", "changed", "deprecated", "removed", "fixed", "security"}
 
 
 def parse_top_version_block(changelog_text: str) -> tuple[Optional[str], list[dict]]:
@@ -94,7 +87,7 @@ def _parse_block(block_lines: list[str]) -> list[dict]:
         if section_match:
             flush_bullet()
             heading = section_match.group(1).strip().lower()
-            current_kind = KIND_MAP.get(heading, "changed")
+            current_kind = heading if heading in VALID_KINDS else "changed"
         elif bullet_match:
             flush_bullet()
             current_bullet = bullet_match.group(1)
