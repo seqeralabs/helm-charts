@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "_empty": {
+      "default": "value",
+      "title": "_empty",
+      "type": "string"
+    },
+    "enabled": {
+      "description": "Conditional property used in parent chart",
+      "title": "enabled",
+      "type": "boolean"
+    },
+    "global": {
+      "description": "Global values are values that can be accessed from any chart or subchart by exactly the same name.",
+      "required": [],
+      "title": "global",
+      "type": "object"
+    }
+  },
+  "required": [
+    "_empty"
+  ],
+  "type": "object"
+}

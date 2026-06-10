@@ -1,0 +1,1495 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "_empty": {
+      "default": "value",
+      "title": "_empty",
+      "type": "string"
+    },
+    "anthropic": {
+      "properties": {
+        "apiKey": {
+          "default": "",
+          "description": "Anthropic API key. Set this OR existingSecretName, not both.",
+          "required": [],
+          "title": "apiKey"
+        },
+        "existingSecretKey": {
+          "default": "`\"ANTHROPIC_API_KEY\"`",
+          "description": "Key in the existing Secret containing the Anthropic API key",
+          "required": [],
+          "title": "existingSecretKey"
+        },
+        "existingSecretName": {
+          "default": "",
+          "description": "Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment",
+          "required": [],
+          "title": "existingSecretName"
+        }
+      },
+      "required": [],
+      "title": "anthropic",
+      "type": "object"
+    },
+    "args": {
+      "description": "Override default container args (useful when using custom images)",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "args"
+    },
+    "bedrock": {
+      "description": "Provider configuration blocks. Required when the corresponding provider is selected above.",
+      "properties": {
+        "default": {
+          "description": "Default credentials/region applied to any Bedrock-backed service that does not set its own.",
+          "properties": {
+            "assumeRoleArn": {
+              "default": "",
+              "description": "Optional default IAM role ARN to assume before invoking the Bedrock APIs.",
+              "required": [],
+              "title": "assumeRoleArn"
+            },
+            "region": {
+              "default": "",
+              "description": "Default AWS region to use for all Bedrock services.",
+              "required": [],
+              "title": "region"
+            }
+          },
+          "required": [],
+          "title": "default",
+          "type": "object"
+        },
+        "embeddings": {
+          "description": "Embeddings-specific Bedrock overrides.",
+          "properties": {
+            "assumeRoleArn": {
+              "default": "",
+              "description": "Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn).",
+              "required": [],
+              "title": "assumeRoleArn"
+            },
+            "model": {
+              "default": "amazon.titan-embed-text-v2:0",
+              "description": "Bedrock model ID used for embeddings.",
+              "required": [],
+              "title": "model"
+            },
+            "region": {
+              "default": "",
+              "description": "AWS region for Bedrock embeddings (overrides bedrock.default.region).",
+              "required": [],
+              "title": "region"
+            }
+          },
+          "required": [],
+          "title": "embeddings",
+          "type": "object"
+        },
+        "inference": {
+          "description": " and let the backend fall back to bedrock.default.*",
+          "properties": {
+            "anthropicModel": {
+              "default": "",
+              "description": "Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile).",
+              "required": [],
+              "title": "anthropicModel"
+            },
+            "assumeRoleArn": {
+              "default": "",
+              "description": "Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn).",
+              "required": [],
+              "title": "assumeRoleArn"
+            },
+            "region": {
+              "default": "",
+              "description": "AWS region for Bedrock inference (overrides bedrock.default.region).",
+              "required": [],
+              "title": "region"
+            }
+          },
+          "required": [],
+          "title": "inference"
+        },
+        "sandbox": {
+          "description": "Sandbox (AWS Bedrock AgentCore) configuration.",
+          "properties": {
+            "assumeRoleArn": {
+              "default": "",
+              "description": "Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn).",
+              "required": [],
+              "title": "assumeRoleArn"
+            },
+            "region": {
+              "default": "",
+              "description": "AWS region for AgentCore.",
+              "required": [],
+              "title": "region"
+            },
+            "runtimeArn": {
+              "default": "",
+              "description": "AWS Bedrock AgentCore runtime ARN for sandbox sessions.",
+              "required": [],
+              "title": "runtimeArn"
+            }
+          },
+          "required": [],
+          "title": "sandbox",
+          "type": "object"
+        }
+      },
+      "required": [
+        "default",
+        "embeddings",
+        "sandbox"
+      ],
+      "title": "bedrock",
+      "type": "object"
+    },
+    "command": {
+      "description": "Override default container command (useful when using custom images)",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "command"
+    },
+    "commonAnnotations": {
+      "description": "Annotations to add to all deployed objects",
+      "required": [],
+      "title": "commonAnnotations"
+    },
+    "commonLabels": {
+      "description": "Labels to add to all deployed objects",
+      "required": [],
+      "title": "commonLabels"
+    },
+    "configMapAnnotations": {
+      "description": "Additional annotations for the ConfigMap objects. Evaluated as a template",
+      "required": [],
+      "title": "configMapAnnotations"
+    },
+    "configMapLabels": {
+      "description": "Additional labels for the ConfigMap objects. Evaluated as a template",
+      "required": [],
+      "title": "configMapLabels"
+    },
+    "containerSecurityContext": {
+      "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
+      "properties": {
+        "capabilities": {
+          "description": "Fine-grained Linux kernel privileges to add or drop for the container",
+          "properties": {
+            "drop": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  }
+                ],
+                "required": []
+              },
+              "title": "drop",
+              "type": "array"
+            }
+          },
+          "required": [
+            "drop"
+          ],
+          "title": "capabilities"
+        },
+        "enabled": {
+          "default": "true",
+          "description": "Enable container Security Context",
+          "required": [],
+          "title": "enabled"
+        },
+        "readOnlyRootFilesystem": {
+          "default": "true",
+          "description": "Mounts the container root filesystem read-only to prevent in-place writes or tampering",
+          "required": [],
+          "title": "readOnlyRootFilesystem"
+        },
+        "runAsNonRoot": {
+          "default": "true",
+          "description": "Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)",
+          "required": [],
+          "title": "runAsNonRoot"
+        },
+        "runAsUser": {
+          "default": "101",
+          "description": "UID the container processes run as (overrides container image default)",
+          "required": [],
+          "title": "runAsUser"
+        }
+      },
+      "required": [],
+      "title": "containerSecurityContext"
+    },
+    "database": {
+      "properties": {
+        "enableTls": {
+          "default": "false",
+          "description": "Enable TLS for the MySQL database connection",
+          "required": [],
+          "title": "enableTls"
+        },
+        "existingSecretKey": {
+          "default": "`\"AGENT_BACKEND_DB_PASSWORD\"`",
+          "description": "Key in the existing Secret containing the password for the MySQL database",
+          "required": [],
+          "title": "existingSecretKey"
+        },
+        "existingSecretName": {
+          "default": "",
+          "description": "Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment",
+          "required": [],
+          "title": "existingSecretName"
+        },
+        "host": {
+          "default": "",
+          "description": "MySQL database hostname",
+          "required": [],
+          "title": "host"
+        },
+        "name": {
+          "default": "",
+          "description": "MySQL database name",
+          "required": [],
+          "title": "name"
+        },
+        "password": {
+          "default": "",
+          "description": "MySQL database password",
+          "required": [],
+          "title": "password"
+        },
+        "port": {
+          "default": "3306",
+          "description": "MySQL database port",
+          "required": [],
+          "title": "port"
+        },
+        "sslCa": {
+          "default": "",
+          "description": "Path to a CA certificate file for server certificate verification",
+          "required": [],
+          "title": "sslCa"
+        },
+        "tlsCaVerify": {
+          "default": "true",
+          "description": "Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only)",
+          "required": [],
+          "title": "tlsCaVerify"
+        },
+        "username": {
+          "default": "",
+          "description": "MySQL database username",
+          "required": [],
+          "title": "username"
+        }
+      },
+      "required": [],
+      "title": "database",
+      "type": "object"
+    },
+    "dbMigrationInitContainer": {
+      "properties": {
+        "command": {
+          "description": "Command to run in the init container performing DB migrations",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              }
+            ],
+            "required": []
+          },
+          "required": [],
+          "title": "command"
+        },
+        "resources": {
+          "description": "Container requests and limits for different resources like CPU or memory",
+          "properties": {
+            "limits": {
+              "properties": {
+                "memory": {
+                  "default": "100Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "memory"
+              ],
+              "title": "limits",
+              "type": "object"
+            },
+            "requests": {
+              "properties": {
+                "cpu": {
+                  "default": "0.5",
+                  "title": "cpu",
+                  "type": "string"
+                },
+                "memory": {
+                  "default": "50Mi",
+                  "title": "memory",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "cpu",
+                "memory"
+              ],
+              "title": "requests",
+              "type": "object"
+            }
+          },
+          "required": [
+            "requests",
+            "limits"
+          ],
+          "title": "resources"
+        },
+        "securityContext": {
+          "properties": {
+            "capabilities": {
+              "description": "Fine-grained Linux kernel privileges to add or drop for the container",
+              "properties": {
+                "drop": {
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "required": []
+                  },
+                  "title": "drop",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "drop"
+              ],
+              "title": "capabilities"
+            },
+            "readOnlyRootFilesystem": {
+              "default": "true",
+              "description": "Mount the container root filesystem read-only to prevent in-place writes or tampering",
+              "required": [],
+              "title": "readOnlyRootFilesystem"
+            },
+            "runAsNonRoot": {
+              "default": "true",
+              "description": "Require the container to run as a non-root UID (prevents starting if UID 0)",
+              "required": [],
+              "title": "runAsNonRoot"
+            },
+            "runAsUser": {
+              "default": "101",
+              "description": "UID the container processes run as (overrides container image default)",
+              "required": [],
+              "title": "runAsUser"
+            }
+          },
+          "required": [],
+          "title": "securityContext",
+          "type": "object"
+        }
+      },
+      "required": [
+        "securityContext"
+      ],
+      "title": "dbMigrationInitContainer",
+      "type": "object"
+    },
+    "embeddings": {
+      "properties": {
+        "provider": {
+          "default": "",
+          "description": "Embeddings provider. One of: \"bedrock\". When empty, embeddings are disabled.",
+          "required": [],
+          "title": "provider"
+        }
+      },
+      "required": [],
+      "title": "embeddings",
+      "type": "object"
+    },
+    "enabled": {
+      "description": "Conditional property used in parent chart",
+      "title": "enabled",
+      "type": "boolean"
+    },
+    "exampleValue": {
+      "default": "common-chart",
+      "description": " # It is required by CI/CD tools and processes. # @skip exampleValue #",
+      "required": [],
+      "title": "exampleValue"
+    },
+    "extraDeploy": {
+      "description": "Array of extra objects to deploy with the release",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraDeploy"
+    },
+    "extraEnvVars": {
+      "description": "Extra environment variables",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnvVars"
+    },
+    "extraEnvVarsCMs": {
+      "description": "List of ConfigMaps containing extra env vars",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnvVarsCMs"
+    },
+    "extraEnvVarsSecrets": {
+      "description": "List of Secrets containing extra env vars",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraEnvVarsSecrets"
+    },
+    "extraOptionsSpec": {
+      "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template",
+      "required": [],
+      "title": "extraOptionsSpec"
+    },
+    "extraOptionsTemplateSpec": {
+      "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template",
+      "required": [],
+      "title": "extraOptionsTemplateSpec"
+    },
+    "extraVolumeMounts": {
+      "description": "List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraVolumeMounts"
+    },
+    "extraVolumes": {
+      "description": "List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts`",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "extraVolumes"
+    },
+    "global": {
+      "description": " .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
+      "properties": {
+        "agentBackendDomain": {
+          "default": "{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}",
+          "description": "Domain where the Agent Backend service listens. Evaluated as a template",
+          "required": [],
+          "title": "agentBackendDomain"
+        },
+        "imageCredentials": {
+          "description": "Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imageCredentials"
+        },
+        "imageCredentialsSecrets": {
+          "description": "Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imageCredentialsSecrets"
+        },
+        "ingress": {
+          "description": " `ingress.*` value takes precedence when set; otherwise the global is used.",
+          "properties": {
+            "annotations": {
+              "description": "Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template",
+              "required": [],
+              "title": "annotations"
+            },
+            "defaultPathType": {
+              "default": "Prefix",
+              "description": "Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.",
+              "required": [],
+              "title": "defaultPathType"
+            },
+            "enabled": {
+              "default": "false",
+              "description": "Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses.",
+              "required": [],
+              "title": "enabled"
+            },
+            "extraLabels": {
+              "description": "Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template",
+              "required": [],
+              "title": "extraLabels"
+            },
+            "ingressClassName": {
+              "default": "",
+              "description": "Default ingress class name applied when `ingress.ingressClassName` is not set",
+              "required": [],
+              "title": "ingressClassName"
+            },
+            "path": {
+              "default": "/",
+              "description": "Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`.",
+              "required": [],
+              "title": "path"
+            },
+            "tls": {
+              "description": "TLS entries concatenated with the local `ingress.tls`. Evaluated as a template",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "tls"
+            }
+          },
+          "required": [],
+          "title": "ingress"
+        },
+        "mcpDomain": {
+          "default": "{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}",
+          "description": "Domain where Seqera MCP listens. Evaluated as a template",
+          "required": [],
+          "title": "mcpDomain"
+        },
+        "platformExternalDomain": {
+          "default": "example.com",
+          "description": "Domain where Seqera Platform listens",
+          "required": [],
+          "title": "platformExternalDomain"
+        },
+        "platformServiceAddress": {
+          "default": "",
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "required": [],
+          "title": "platformServiceAddress"
+        },
+        "platformServicePort": {
+          "default": "",
+          "description": "Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "required": [],
+          "title": "platformServicePort"
+        }
+      },
+      "required": [],
+      "title": "global"
+    },
+    "image": {
+      "properties": {
+        "digest": {
+          "default": "",
+          "description": "Container image digest in the format `sha256:1234abcdef`",
+          "required": [],
+          "title": "digest"
+        },
+        "pullPolicy": {
+          "default": "IfNotPresent",
+          "description": "imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
+          "required": [],
+          "title": "pullPolicy"
+        },
+        "pullSecrets": {
+          "description": "List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "pullSecrets"
+        },
+        "registry": {
+          "default": "",
+          "description": "Container image registry",
+          "required": [],
+          "title": "registry"
+        },
+        "repository": {
+          "default": "ai/agent-backend/backend",
+          "description": "Container image repository",
+          "required": [],
+          "title": "repository"
+        },
+        "tag": {
+          "default": "`\"{{ .chart.AppVersion }}\"`",
+          "description": "Container image tag",
+          "required": [],
+          "title": "tag"
+        }
+      },
+      "required": [],
+      "title": "image",
+      "type": "object"
+    },
+    "inference": {
+      "description": "Service routing: define which provider handles each capability.",
+      "properties": {
+        "provider": {
+          "default": "",
+          "description": "Inference provider. One of: \"bedrock\", \"anthropic\". Required.",
+          "required": [],
+          "title": "provider"
+        }
+      },
+      "required": [],
+      "title": "inference",
+      "type": "object"
+    },
+    "ingress": {
+      "properties": {
+        "annotations": {
+          "description": "Ingress annotations specific to your load balancer. Evaluated as a template",
+          "required": [],
+          "title": "annotations"
+        },
+        "defaultBackend": {
+          "description": "Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress \u003cname\u003e' will report problems",
+          "required": [],
+          "title": "defaultBackend"
+        },
+        "defaultPathType": {
+          "default": "",
+          "description": "Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`",
+          "required": [],
+          "title": "defaultPathType"
+        },
+        "enabled": {
+          "default": "false",
+          "description": "Enable ingress for Agent Backend",
+          "required": [],
+          "title": "enabled"
+        },
+        "extraHosts": {
+          "description": "Additional hosts you want to include. Evaluated as a template",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraHosts"
+        },
+        "extraLabels": {
+          "description": "Additional labels for the ingress object. Evaluated as a template",
+          "required": [],
+          "title": "extraLabels"
+        },
+        "ingressClassName": {
+          "default": "",
+          "description": "Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName`",
+          "required": [],
+          "title": "ingressClassName"
+        },
+        "path": {
+          "default": "",
+          "description": "Path for the main ingress rule. When empty, falls back to `global.ingress.path`",
+          "required": [],
+          "title": "path"
+        },
+        "tls": {
+          "description": "TLS configuration. Evaluated as a template",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "tls"
+        }
+      },
+      "required": [],
+      "title": "ingress",
+      "type": "object"
+    },
+    "initContainerDependencies": {
+      "properties": {
+        "enabled": {
+          "default": "true",
+          "description": "Enable init containers that coordinate startup dependencies",
+          "required": [],
+          "title": "enabled"
+        },
+        "waitForMySQL": {
+          "properties": {
+            "enabled": {
+              "default": "true",
+              "description": "Enable wait for MySQL init container before starting the main container",
+              "required": [],
+              "title": "enabled"
+            },
+            "extraEnvVars": {
+              "description": "Additional environment variables for the init container. The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness check command, and can be used to pass TLS flags when connecting to managed MySQL services such as AWS RDS or Azure Database for MySQL that require certificate verification. Pair with `extraVolumeMounts` to mount the CA certificate into the container. Example (TLS with CA certificate mounted from a volume): extraEnvVars:   - name: MYSQL_EXTRA_ARGS     value: \"--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY\"",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraEnvVars"
+            },
+            "extraVolumeMounts": {
+              "description": "Additional volume mounts for the init container. Use this to mount CA certificates (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that `MYSQL_EXTRA_ARGS` can reference them.",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraVolumeMounts"
+            },
+            "image": {
+              "properties": {
+                "digest": {
+                  "default": "",
+                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "title": "digest",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "IfNotPresent",
+                  "title": "pullPolicy",
+                  "type": "string"
+                },
+                "registry": {
+                  "default": "",
+                  "description": "Override default wait for MySQL init container image",
+                  "required": [],
+                  "title": "registry"
+                },
+                "repository": {
+                  "default": "mysql",
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "9",
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "repository",
+                "tag",
+                "digest",
+                "pullPolicy"
+              ],
+              "title": "image",
+              "type": "object"
+            },
+            "resources": {
+              "description": "Container requests and limits for different resources like CPU or memory",
+              "properties": {
+                "limits": {
+                  "properties": {
+                    "memory": {
+                      "default": "100Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "memory"
+                  ],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "properties": {
+                    "cpu": {
+                      "default": "0.5",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "50Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "requests",
+                "limits"
+              ],
+              "title": "resources"
+            },
+            "securityContext": {
+              "properties": {
+                "capabilities": {
+                  "description": "Fine-grained Linux kernel privileges to add or drop for the container",
+                  "properties": {
+                    "drop": {
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          }
+                        ],
+                        "required": []
+                      },
+                      "title": "drop",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "drop"
+                  ],
+                  "title": "capabilities"
+                },
+                "readOnlyRootFilesystem": {
+                  "default": "true",
+                  "description": "Mount the container root filesystem read-only to prevent in-place writes or tampering",
+                  "required": [],
+                  "title": "readOnlyRootFilesystem"
+                },
+                "runAsNonRoot": {
+                  "default": "true",
+                  "description": "Require the container to run as a non-root UID (prevents starting if UID is 0)",
+                  "required": [],
+                  "title": "runAsNonRoot"
+                },
+                "runAsUser": {
+                  "default": "101",
+                  "description": "UID the container processes run as (overrides container image default)",
+                  "required": [],
+                  "title": "runAsUser"
+                }
+              },
+              "required": [],
+              "title": "securityContext",
+              "type": "object"
+            }
+          },
+          "required": [
+            "image",
+            "securityContext"
+          ],
+          "title": "waitForMySQL",
+          "type": "object"
+        },
+        "waitForRedis": {
+          "properties": {
+            "enabled": {
+              "default": "true",
+              "description": "Enable wait for Redis init container before starting the main container",
+              "required": [],
+              "title": "enabled"
+            },
+            "extraEnvVars": {
+              "description": "Additional environment variables for the init container",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraEnvVars"
+            },
+            "extraVolumeMounts": {
+              "description": "Additional volume mounts for the init container (e.g. to mount a CA certificate)",
+              "items": {
+                "required": []
+              },
+              "required": [],
+              "title": "extraVolumeMounts"
+            },
+            "image": {
+              "properties": {
+                "digest": {
+                  "default": "",
+                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "title": "digest",
+                  "type": "string"
+                },
+                "pullPolicy": {
+                  "default": "IfNotPresent",
+                  "title": "pullPolicy",
+                  "type": "string"
+                },
+                "registry": {
+                  "default": "",
+                  "description": "Override default wait for Redis init container image",
+                  "required": [],
+                  "title": "registry"
+                },
+                "repository": {
+                  "default": "redis",
+                  "title": "repository",
+                  "type": "string"
+                },
+                "tag": {
+                  "default": "7-alpine",
+                  "title": "tag",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "repository",
+                "tag",
+                "digest",
+                "pullPolicy"
+              ],
+              "title": "image",
+              "type": "object"
+            },
+            "resources": {
+              "description": "Container requests and limits for different resources like CPU or memory",
+              "properties": {
+                "limits": {
+                  "properties": {
+                    "memory": {
+                      "default": "100Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "memory"
+                  ],
+                  "title": "limits",
+                  "type": "object"
+                },
+                "requests": {
+                  "properties": {
+                    "cpu": {
+                      "default": "0.5",
+                      "title": "cpu",
+                      "type": "string"
+                    },
+                    "memory": {
+                      "default": "50Mi",
+                      "title": "memory",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "cpu",
+                    "memory"
+                  ],
+                  "title": "requests",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "requests",
+                "limits"
+              ],
+              "title": "resources"
+            },
+            "securityContext": {
+              "properties": {
+                "capabilities": {
+                  "description": "Fine-grained Linux kernel privileges to add or drop for the container",
+                  "properties": {
+                    "drop": {
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          }
+                        ],
+                        "required": []
+                      },
+                      "title": "drop",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "drop"
+                  ],
+                  "title": "capabilities"
+                },
+                "readOnlyRootFilesystem": {
+                  "default": "true",
+                  "description": "Mount the container root filesystem read-only to prevent in-place writes or tampering",
+                  "required": [],
+                  "title": "readOnlyRootFilesystem"
+                },
+                "runAsNonRoot": {
+                  "default": "true",
+                  "description": "Require the container to run as a non-root UID (prevents starting if UID is 0)",
+                  "required": [],
+                  "title": "runAsNonRoot"
+                },
+                "runAsUser": {
+                  "default": "101",
+                  "description": "UID the container processes run as (overrides container image default)",
+                  "required": [],
+                  "title": "runAsUser"
+                }
+              },
+              "required": [],
+              "title": "securityContext",
+              "type": "object"
+            }
+          },
+          "required": [
+            "image",
+            "securityContext"
+          ],
+          "title": "waitForRedis",
+          "type": "object"
+        }
+      },
+      "required": [
+        "waitForRedis",
+        "waitForMySQL"
+      ],
+      "title": "initContainerDependencies",
+      "type": "object"
+    },
+    "initContainers": {
+      "description": "Additional init containers for the pod. Evaluated as a template",
+      "items": {
+        "required": []
+      },
+      "required": [],
+      "title": "initContainers"
+    },
+    "livenessProbe": {
+      "description": "Configure extra options for the liveness probe",
+      "properties": {
+        "enabled": {
+          "default": "true",
+          "description": "Enable liveness probe",
+          "required": [],
+          "title": "enabled"
+        },
+        "failureThreshold": {
+          "default": "10",
+          "description": "Consecutive failures before restarting the container",
+          "required": [],
+          "title": "failureThreshold"
+        },
+        "httpGet": {
+          "properties": {
+            "path": {
+              "default": "/health",
+              "description": "HTTP GET path for liveness probe",
+              "required": [],
+              "title": "path"
+            },
+            "port": {
+              "default": "{{ .Values.service.http.targetPort }}",
+              "description": "HTTP GET port for liveness probe. Evaluated as a template",
+              "required": [],
+              "title": "port"
+            }
+          },
+          "required": [],
+          "title": "httpGet",
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "default": "5",
+          "description": "Delay before first check (normal start timing)",
+          "required": [],
+          "title": "initialDelaySeconds"
+        },
+        "periodSeconds": {
+          "default": "10",
+          "description": "Regular check interval during normal operation",
+          "required": [],
+          "title": "periodSeconds"
+        },
+        "successThreshold": {
+          "default": "1",
+          "description": "Typically 1 (usually ignored)",
+          "required": [],
+          "title": "successThreshold"
+        },
+        "timeoutSeconds": {
+          "default": "3",
+          "description": "Short timeout to detect hung containers quickly",
+          "required": [],
+          "title": "timeoutSeconds"
+        }
+      },
+      "required": [
+        "httpGet"
+      ],
+      "title": "livenessProbe",
+      "type": "object"
+    },
+    "logLevel": {
+      "default": "INFO",
+      "description": "Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG)",
+      "required": [],
+      "title": "logLevel"
+    },
+    "podAnnotations": {
+      "description": "Additional annotations for the pod. Evaluated as a template",
+      "required": [],
+      "title": "podAnnotations"
+    },
+    "podLabels": {
+      "description": "Additional labels for the pod. Evaluated as a template",
+      "required": [],
+      "title": "podLabels"
+    },
+    "podSecurityContext": {
+      "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod Empty map to disable Pod Security Context configuration",
+      "properties": {
+        "enabled": {
+          "default": "true",
+          "description": "Enable pod Security Context",
+          "required": [],
+          "title": "enabled"
+        },
+        "fsGroup": {
+          "default": "101",
+          "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access",
+          "required": [],
+          "title": "fsGroup"
+        }
+      },
+      "required": [],
+      "title": "podSecurityContext"
+    },
+    "readinessProbe": {
+      "description": "Configure extra options for the readiness probe",
+      "properties": {
+        "enabled": {
+          "default": "true",
+          "description": "Enable readiness probe",
+          "required": [],
+          "title": "enabled"
+        },
+        "failureThreshold": {
+          "default": "5",
+          "description": "Consecutive failures before marking the container Unready (no restart)",
+          "required": [],
+          "title": "failureThreshold"
+        },
+        "httpGet": {
+          "properties": {
+            "path": {
+              "default": "/health",
+              "description": "HTTP GET path for readiness probe",
+              "required": [],
+              "title": "path"
+            },
+            "port": {
+              "default": "{{ .Values.service.http.targetPort }}",
+              "description": "HTTP GET port for readiness probe. Evaluated as a template",
+              "required": [],
+              "title": "port"
+            }
+          },
+          "required": [],
+          "title": "httpGet",
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "default": "5",
+          "description": "Delay before first check (normal start timing)",
+          "required": [],
+          "title": "initialDelaySeconds"
+        },
+        "periodSeconds": {
+          "default": "5",
+          "description": "Regular check interval during normal operation",
+          "required": [],
+          "title": "periodSeconds"
+        },
+        "successThreshold": {
+          "default": "1",
+          "description": "Number of consecutive successes required to mark the container Ready after failures",
+          "required": [],
+          "title": "successThreshold"
+        },
+        "timeoutSeconds": {
+          "default": "3",
+          "description": "Short timeout to detect unresponsive containers for readiness",
+          "required": [],
+          "title": "timeoutSeconds"
+        }
+      },
+      "required": [
+        "httpGet"
+      ],
+      "title": "readinessProbe",
+      "type": "object"
+    },
+    "redis": {
+      "properties": {
+        "database": {
+          "default": "0",
+          "description": "Redis database index",
+          "required": [],
+          "title": "database"
+        },
+        "enableTls": {
+          "default": "false",
+          "description": "Enable TLS when connecting to Redis",
+          "required": [],
+          "title": "enableTls"
+        },
+        "existingSecretKey": {
+          "default": "`\"AGENT_BACKEND_REDIS_PASSWORD\"`",
+          "description": "Key in the existing Secret containing the Redis password",
+          "required": [],
+          "title": "existingSecretKey"
+        },
+        "existingSecretName": {
+          "default": "",
+          "description": "Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment",
+          "required": [],
+          "title": "existingSecretName"
+        },
+        "host": {
+          "default": "",
+          "description": "Redis hostname",
+          "required": [],
+          "title": "host"
+        },
+        "password": {
+          "default": "",
+          "description": "Redis password",
+          "required": [],
+          "title": "password"
+        },
+        "port": {
+          "default": "6379",
+          "description": "Redis port",
+          "required": [],
+          "title": "port"
+        }
+      },
+      "required": [],
+      "title": "redis",
+      "type": "object"
+    },
+    "resources": {
+      "description": "Container requests and limits for different resources like CPU or memory",
+      "required": [],
+      "title": "resources"
+    },
+    "sandbox": {
+      "properties": {
+        "provider": {
+          "default": "",
+          "description": "Sandbox provider. One of: \"bedrock\". When empty, sandbox is disabled.",
+          "required": [],
+          "title": "provider"
+        }
+      },
+      "required": [],
+      "title": "sandbox",
+      "type": "object"
+    },
+    "secretAnnotations": {
+      "description": "Additional annotations for the Secret objects. Evaluated as a template",
+      "required": [],
+      "title": "secretAnnotations"
+    },
+    "secretLabels": {
+      "description": "Additional labels for the Secret objects. Evaluated as a template",
+      "required": [],
+      "title": "secretLabels"
+    },
+    "service": {
+      "description": "Service configuration",
+      "properties": {
+        "extraOptions": {
+          "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template",
+          "required": [],
+          "title": "extraOptions"
+        },
+        "extraServices": {
+          "description": "Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "extraServices"
+        },
+        "http": {
+          "properties": {
+            "name": {
+              "default": "http",
+              "description": "Service name to use",
+              "required": [],
+              "title": "name"
+            },
+            "nodePort": {
+              "default": "null",
+              "description": "Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default",
+              "required": [],
+              "title": "nodePort"
+            },
+            "port": {
+              "default": "80",
+              "description": "Service port",
+              "required": [],
+              "title": "port"
+            },
+            "targetPort": {
+              "default": "8002",
+              "description": "Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port)",
+              "required": [],
+              "title": "targetPort"
+            }
+          },
+          "required": [],
+          "title": "http",
+          "type": "object"
+        },
+        "type": {
+          "default": "ClusterIP",
+          "description": "Service type. Note: ingresses using AWS ALB require the service to be NodePort",
+          "required": [],
+          "title": "type"
+        }
+      },
+      "required": [
+        "http"
+      ],
+      "title": "service"
+    },
+    "serviceAccount": {
+      "description": "Service account configuration",
+      "properties": {
+        "annotations": {
+          "description": "Service account annotations",
+          "required": [],
+          "title": "annotations"
+        },
+        "automountServiceAccountToken": {
+          "default": "true",
+          "description": "Automatically mount service account token",
+          "required": [],
+          "title": "automountServiceAccountToken"
+        },
+        "imagePullSecretNames": {
+          "description": "Names of Secrets containing credentials to pull images from registries",
+          "items": {
+            "required": []
+          },
+          "required": [],
+          "title": "imagePullSecretNames"
+        },
+        "name": {
+          "default": "",
+          "description": "Service account name",
+          "required": [],
+          "title": "name"
+        }
+      },
+      "required": [],
+      "title": "serviceAccount"
+    },
+    "startupProbe": {
+      "description": "Configure extra options for the startup probe",
+      "properties": {
+        "enabled": {
+          "default": "false",
+          "description": "Enable startup probe",
+          "required": [],
+          "title": "enabled"
+        },
+        "failureThreshold": {
+          "default": "5",
+          "description": "Consecutive failures during startup before killing the container (instead of immediate restarts)",
+          "required": [],
+          "title": "failureThreshold"
+        },
+        "httpGet": {
+          "properties": {
+            "path": {
+              "default": "/health",
+              "description": "HTTP GET path for startup probe",
+              "required": [],
+              "title": "path"
+            },
+            "port": {
+              "default": "{{ .Values.service.http.targetPort }}",
+              "description": "HTTP GET port for startup probe. Evaluated as a template",
+              "required": [],
+              "title": "port"
+            }
+          },
+          "required": [],
+          "title": "httpGet",
+          "type": "object"
+        },
+        "initialDelaySeconds": {
+          "default": "5",
+          "description": "Longer initial wait to accommodate slow-starting apps",
+          "required": [],
+          "title": "initialDelaySeconds"
+        },
+        "periodSeconds": {
+          "default": "10",
+          "description": "Often set longer to avoid frequent checks while starting",
+          "required": [],
+          "title": "periodSeconds"
+        },
+        "successThreshold": {
+          "default": "1",
+          "description": "Number of consecutive successes required to consider startup complete and enable liveness/readiness",
+          "required": [],
+          "title": "successThreshold"
+        },
+        "timeoutSeconds": {
+          "default": "3",
+          "description": "Can be longer to allow slow initialization responses",
+          "required": [],
+          "title": "timeoutSeconds"
+        }
+      },
+      "required": [
+        "httpGet"
+      ],
+      "title": "startupProbe",
+      "type": "object"
+    },
+    "tokenEncryptionKey": {
+      "default": "",
+      "description": "Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade",
+      "required": [],
+      "title": "tokenEncryptionKey"
+    },
+    "tokenEncryptionKeyExistingSecretKey": {
+      "default": "`\"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY\"`",
+      "description": "Key in the existing Secret containing the token encryption key",
+      "required": [],
+      "title": "tokenEncryptionKeyExistingSecretKey"
+    },
+    "tokenEncryptionKeyExistingSecretName": {
+      "default": "",
+      "description": "Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment",
+      "required": [],
+      "title": "tokenEncryptionKeyExistingSecretName"
+    }
+  },
+  "required": [
+    "inference",
+    "embeddings",
+    "sandbox",
+    "bedrock",
+    "anthropic",
+    "database",
+    "redis",
+    "image",
+    "dbMigrationInitContainer",
+    "initContainerDependencies",
+    "startupProbe",
+    "readinessProbe",
+    "livenessProbe",
+    "ingress"
+  ],
+  "type": "object"
+}

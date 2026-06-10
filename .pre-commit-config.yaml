@@ -8,6 +8,17 @@ repos:
           - --chart-search-root=charts
         exclude: ^\.claude/
 
+  - repo: https://github.com/dadav/helm-schema
+    rev: 0.23.4
+    hooks:
+      - id: helm-schema-container
+        always_run: true
+        args:
+          - --append-newline
+          - --chart-search-root=charts
+          - --helm-docs-compatibility-mode
+          - --skip-auto-generation=additionalProperties
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
