@@ -532,9 +532,9 @@ backend:
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
       # versions were hardcoded to 8080
       targetPort: 8080
-      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
-      nodePort: null
+      nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
@@ -543,7 +543,7 @@ backend:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   nodePort: null
+    #   nodePort: 0
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
@@ -742,7 +742,7 @@ frontend:
       targetPort: 8083
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
-      nodePort: null
+      nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
@@ -751,7 +751,7 @@ frontend:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   nodePort: null
+    #   nodePort: 0
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
@@ -947,9 +947,9 @@ cron:
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
       targetPort: 8082
-      # -- Service node port, only used when service.type is Nodeport or LoadBalancer
+      # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
-      nodePort: null
+      nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
@@ -958,7 +958,7 @@ cron:
     # - name: myspecialservice
     #   port: 1234
     #   targetPort: 5678
-    #   nodePort: null
+    #   nodePort: 0
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template

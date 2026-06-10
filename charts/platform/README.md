@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.34.0](https://img.shields.io/badge/Version-0.34.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.0](https://img.shields.io/badge/AppVersion-v26.1.0-informational?style=flat-square)
+![Version: 0.34.1](https://img.shields.io/badge/Version-0.34.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.0](https://img.shields.io/badge/AppVersion-v26.1.0-informational?style=flat-square)
 
 > [!WARNING]
 > This chart is currently still in development and breaking changes are expected.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/platform \
-  --version 0.34.0 \
+  --version 0.34.1 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -207,7 +207,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | backend.service.type | string | `"ClusterIP"` | Backend Service type. Note: ingresses using AWS ALB require the service to be NodePort |
 | backend.service.http.name | string | `"http"` | Service name to use |
 | backend.service.http.targetPort | int | `8080` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port). Platform v25.3+ only; previous versions were hardcoded to 8080 |
-| backend.service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| backend.service.http.nodePort | int | `0` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
 | backend.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
 | backend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
 | backend.initContainers | list | `[]` | Additional init containers for the backend pod. Evaluated as a template |
@@ -264,7 +264,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | frontend.service.http.name | string | `"http"` | Service name to use |
 | frontend.service.http.port | int | `80` | Service port |
 | frontend.service.http.targetPort | int | `8083` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
-| frontend.service.http.nodePort | int | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| frontend.service.http.nodePort | int | `0` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
 | frontend.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
 | frontend.service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
 | frontend.initContainers | list | `[]` | Additional init containers for the frontend pod. Evaluated as a template |
@@ -322,7 +322,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | cron.service.http.name | string | `"http"` | Service name to use |
 | cron.service.http.port | int | `8080` | Service port |
 | cron.service.http.targetPort | int | `8082` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
-| cron.service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| cron.service.http.nodePort | int | `0` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
 | cron.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
 | cron.service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
 | cron.initContainers | list | `[]` | Additional init containers for the cron pod. Evaluated as a template |
