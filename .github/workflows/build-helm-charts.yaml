@@ -12,14 +12,15 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      id-token: write # required for keyless signing with Cosign
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # ratchet:actions/checkout@v6.0.3
       - name: Get changed files
         id: changed-files
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # ratchet:tj-actions/changed-files@v47.0.6
         with:
           json: true
           write_output_files: true
@@ -54,6 +55,9 @@ jobs:
           REPO_PASSWORD: ${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}
         run: python3 .github/scripts/check_chart_versions.py
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # ratchet:sigstore/cosign-installer@v4.1.2
+
       - name: 'Build Helm charts'
         if: env.charts_to_package != ''
         run: |
@@ -78,7 +82,7 @@ jobs:
 
       - name: Install crane
         if: github.ref_name == 'master' && env.charts_to_package != ''
-        uses: imjasonh/setup-crane@6da1ae018866400525525ce74ff892880c099987 # ratchet:imjasonh/setup-crane@v0.5
+        uses: imjasonh/setup-crane@59c71e96a00b28651f10369ba3359a6d730740a0 # ratchet:imjasonh/setup-crane@v0.6
 
       - name: 'Push Helm charts only if we are on master'
         if: github.ref_name == 'master' && env.charts_to_package != ''
@@ -117,6 +121,12 @@ jobs:
             digest=$(echo "${push_output}" | grep -oP 'Digest: \K\S+')
             pushed_digests+=("${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}")
             echo "Pushed chart ${chart_name} in $(($(date +%s) - push_start))s"
+
+            echo "Signing ${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}.."
+            cosign sign --yes "${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}" || {
+              rollback
+              exit 1
+            }
           done
 
       - name: 'Create GitHub releases for packaged charts'
