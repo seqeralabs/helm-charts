@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Include Helm values schema.
+- Include Helm values JSON schema.
 - Bump agent-backend to 1.0.7, mcp to 0.4.3, pipeline-optimization to 2.0.10, portal-web to 0.3.5, studios to 1.4.3, wave to 0.2.5, seqera-common to 2.1.4 to include new schemas.
 
 ## [0.34.0] - 2026-05-26

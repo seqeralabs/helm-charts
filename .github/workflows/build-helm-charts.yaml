@@ -123,7 +123,7 @@ jobs:
             echo "Pushed chart ${chart_name} in $(($(date +%s) - push_start))s"
 
             echo "Signing ${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}.."
-            cosign sign --yes "${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}" || {
+            cosign sign --registry-username "${REPO_USERNAME}" --registry-password "${REPO_PASSWORD}" --yes "${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}" || {
               rollback
               exit 1
             }
