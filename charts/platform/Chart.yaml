@@ -19,6 +19,7 @@
 apiVersion: v2
 name: platform
 description: A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
+icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/refs/heads/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io
@@ -37,7 +38,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.34.1
+version: 0.34.2
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

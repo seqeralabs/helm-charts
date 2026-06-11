@@ -19,8 +19,9 @@ apiVersion: v2
 name: portal-web
 description: Portal web frontend for Seqera Platform
 type: application
-version: 0.3.5
+version: 0.3.6
 appVersion: "1.6.0"
+icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/refs/heads/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io
