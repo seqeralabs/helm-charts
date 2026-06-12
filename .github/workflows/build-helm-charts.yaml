@@ -78,7 +78,7 @@ jobs:
 
             # Package the chart. When signing, pass any section of the GPG identifier (e.g. email or
             # name) that matches the imported key.
-            echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" |helm package --sign --key "${{ env.GPG_HELM_SIGNING_KEY_IDENTIFIER }}" --keyring path/to/keyring.secret ${chart}/ --passphrase-file -
+            echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" |helm package --sign --key "${{ vars.GPG_HELM_SIGNING_KEY_IDENTIFIER }}" --keyring ~/.gnupg/secring.gpg ${chart}/ --passphrase-file -
 
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             echo "Packaged chart ${chart} ($(du -sh ${chart_name}-${chart_version}.tgz | cut -f1))"
