@@ -16,7 +16,6 @@ repos:
         args:
           - --append-newline
           - --chart-search-root=charts
-          - --helm-docs-compatibility-mode
           - --skip-auto-generation=additionalProperties
 
   - repo: https://github.com/pre-commit/pre-commit-hooks

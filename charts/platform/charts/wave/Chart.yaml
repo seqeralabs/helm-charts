@@ -19,8 +19,9 @@ apiVersion: v2
 name: wave
 description: Wave
 type: application
-version: 0.2.5
+version: 0.2.6
 appVersion: "v1.32.4"
+icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io

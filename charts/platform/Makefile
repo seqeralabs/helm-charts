@@ -176,4 +176,4 @@ check-unittest-plugin:
 # Install helm-unittest plugin
 install-unittest-plugin:
 	@echo "Installing helm-unittest plugin..."
-	@helm plugin install https://github.com/quintush/helm-unittest --version 1.0.1
+	@helm plugin install https://github.com/quintush/helm-unittest --version 1.1.1

@@ -43,7 +43,10 @@ global:
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template
   platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
-  # -- Seqera Platform Service port
+  # @schema
+  # type: [integer, string, null]
+  # @schema
+  # -- (int) Seqera Platform Service port
   platformServicePort: 8080
 
   # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
@@ -121,142 +124,289 @@ global:
   azure:
     images:
       platformBackend:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Platform backend image deployed on Azure. Example:
         # `myregistry.azurecr.io`. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Platform backend image deployed on Azure. Example:
         # `myteam/platform-backend`. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Platform backend on Azure. Defaults to the application version
         # defined in the Chart.yaml file. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Platform backend on Azure, in the format `sha256:1234abcdef`.
         # Takes precedence over the tag if both are set. Evaluated as a template
         digest:
       platformFrontend:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Platform frontend image deployed on Azure. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Platform frontend image deployed on Azure. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Platform frontend on Azure. Defaults to the application version
         # defined in the Chart.yaml file. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Platform frontend on Azure, in the format `sha256:1234abcdef`.
         # Takes precedence over the tag if both are set. Evaluated as a template
         digest:
       platformCronMigrateDB:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Platform cron migrate-db init container image deployed on Azure.
         # Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Platform cron migrate-db init container image deployed on Azure.
         # Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Platform cron migrate-db init container on Azure. Defaults to the
         # application version defined in the Chart.yaml file. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Platform cron migrate-db init container on Azure, in the format
         # `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template
         digest:
       studiosProxy:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Studios proxy image deployed on Azure. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Studios proxy image deployed on Azure. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Studios proxy on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Studios proxy on Azure. Evaluated as a template
         digest:
       studiosServer:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Studios server image deployed on Azure. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Studios server image deployed on Azure. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Studios server on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Studios server on Azure. Evaluated as a template
         digest:
       pipelineOptimization:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Pipeline Optimization image deployed on Azure. Evaluated as a
         # template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Pipeline Optimization image deployed on Azure. Evaluated as a
         # template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Pipeline Optimization on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Pipeline Optimization on Azure. Evaluated as a template
         digest:
       pipelineOptimizationMigrateDB:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Pipeline Optimization migrate-db init container image deployed
         # on Azure. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Pipeline Optimization migrate-db init container image deployed
         # on Azure. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Pipeline Optimization migrate-db init container on Azure. Evaluated
         # as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Pipeline Optimization migrate-db init container on Azure, in the
         # format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a
         # template
         digest:
       agentBackend:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the Agent Backend image deployed on Azure. Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the Agent Backend image deployed on Azure. Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the Agent Backend on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the Agent Backend on Azure. Evaluated as a template
         digest:
       waitForCron:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the wait-for-cron init container image deployed on Azure. Evaluated
         # as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the wait-for-cron init container image deployed on Azure. Evaluated
         # as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the wait-for-cron init container on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the wait-for-cron init container on Azure. Evaluated as a template
         digest:
       waitForPlatform:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the wait-for-platform init container image deployed on Azure.
         # Evaluated as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the wait-for-platform init container image deployed on Azure.
         # Evaluated as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the wait-for-platform init container on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the wait-for-platform init container on Azure. Evaluated as a template
         digest:
       waitForMySQL:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the wait-for-MySQL init container image deployed on Azure. Evaluated
         # as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the wait-for-MySQL init container image deployed on Azure. Evaluated
         # as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the wait-for-MySQL init container on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the wait-for-MySQL init container on Azure. Evaluated as a template
         digest:
       waitForRedis:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image registry for the wait-for-Redis init container image deployed on Azure. Evaluated
         # as a template
         registry:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image repository for the wait-for-Redis init container image deployed on Azure. Evaluated
         # as a template
         image:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image tag for the wait-for-Redis init container on Azure. Evaluated as a template
         tag:
+        # @schema
+        # type: [string, null]
+        # @schema
         # -- Image digest for the wait-for-Redis init container on Azure. Evaluated as a template
         digest:
 
 platformDatabase:
   # -- Platform MySQL database hostname
   host: ""
+  # @schema
+  # type: [integer, string]
+  # @schema
   # -- Platform MySQL database port
   port: 3306
   # -- Platform MySQL database name
@@ -528,6 +678,9 @@ backend:
       # The external port is defined as the global variable
       # `.global.platformServicePort`, so it can be used by subcharts too
 
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
       # versions were hardcoded to 8080
@@ -646,6 +799,9 @@ backend:
     httpGet:
       # -- HTTP GET path for startup probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
       port: '{{ .Values.backend.service.http.targetPort }}'
@@ -669,6 +825,9 @@ backend:
     httpGet:
       # -- HTTP GET path for readiness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
       port: '{{ .Values.backend.service.http.targetPort }}'
@@ -690,6 +849,9 @@ backend:
     httpGet:
       # -- HTTP GET path for liveness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
       port: '{{ .Values.backend.service.http.targetPort }}'
@@ -735,8 +897,14 @@ frontend:
     http:
       # -- Service name to use
       name: http
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- Service port
       port: 80
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
       targetPort: 8083
@@ -853,6 +1021,9 @@ frontend:
     httpGet:
       # -- HTTP GET path for startup probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Longer initial wait to accommodate slow-starting apps
@@ -875,6 +1046,9 @@ frontend:
     httpGet:
       # -- HTTP GET path for readiness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
@@ -895,6 +1069,9 @@ frontend:
     httpGet:
       # -- HTTP GET path for liveness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
@@ -942,8 +1119,14 @@ cron:
     http:
       # -- Service name to use
       name: http
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- Service port
       port: 8080
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
       targetPort: 8082
@@ -1056,6 +1239,9 @@ cron:
     httpGet:
       # -- HTTP GET path for startup probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Longer initial wait to accommodate slow-starting apps
@@ -1076,6 +1262,9 @@ cron:
     httpGet:
       # -- HTTP GET path for readiness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
@@ -1096,6 +1285,9 @@ cron:
     httpGet:
       # -- HTTP GET path for liveness probe
       path: "/health"
+      # @schema
+      # type: [integer, string]
+      # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
@@ -1324,6 +1516,9 @@ serviceAccount:
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
+  # @schema
+  # type: [boolean, string]
+  # @schema
   # -- Automount service account token when the service account is generated
   automountServiceAccountToken: false
 

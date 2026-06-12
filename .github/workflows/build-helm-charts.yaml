@@ -12,7 +12,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
-      id-token: write # required for keyless signing with Cosign
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -55,8 +54,14 @@ jobs:
           REPO_PASSWORD: ${{secrets.SEQERA_HELM_CHARTS_CR_PASSWORD}}
         run: python3 .github/scripts/check_chart_versions.py
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # ratchet:sigstore/cosign-installer@v4.1.2
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_BASE64 }}" | base64 -d | gpg --batch --import
+
+          # Prepare the public and secret keyrings for helm's gpg signing. Helm expects these to be
+          # in the older "keyring" format.
+          gpg --export >~/.gnupg/pubring.gpg
+          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" | gpg --export-secret-keys --pinentry-mode loopback --passphrase-fd 0 >~/.gnupg/secring.gpg
 
       - name: 'Build Helm charts'
         if: env.charts_to_package != ''
@@ -70,8 +75,10 @@ jobs:
             # For subcharts like platform/charts/pipeline-optimization, use the last component
             chart_name=$(basename ${chart})
 
-            # Package the chart
-            helm package ${chart}/
+            # Package the chart. When signing, pass any section of the GPG identifier (e.g. email or
+            # name) that matches the imported key.
+            echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" |helm package --sign --key "${{ vars.GPG_HELM_SIGNING_KEY_IDENTIFIER }}" --keyring ~/.gnupg/secring.gpg ${chart}/ --passphrase-file -
+
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             echo "Packaged chart ${chart} ($(du -sh ${chart_name}-${chart_version}.tgz | cut -f1))"
           done
@@ -121,12 +128,6 @@ jobs:
             digest=$(echo "${push_output}" | grep -oP 'Digest: \K\S+')
             pushed_digests+=("${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}")
             echo "Pushed chart ${chart_name} in $(($(date +%s) - push_start))s"
-
-            echo "Signing ${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}.."
-            cosign sign --registry-username "${REPO_USERNAME}" --registry-password "${REPO_PASSWORD}" --yes "${REPO_HOSTNAME}/${REPO_PROJECT}/${chart_name}@${digest}" || {
-              rollback
-              exit 1
-            }
           done
 
       - name: 'Create GitHub releases for packaged charts'

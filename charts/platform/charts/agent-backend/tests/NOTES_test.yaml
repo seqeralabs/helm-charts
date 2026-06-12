@@ -46,7 +46,7 @@ tests:
 
   - it: should fail when global.platformServicePort is not defined
     set:
-      global.platformServicePort: ""
+      global.platformServicePort:
     asserts:
       - failedTemplate:
           errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"

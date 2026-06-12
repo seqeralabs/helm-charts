@@ -51,7 +51,7 @@ It contains validations that are run at install/upgrade time.
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}
 
-{{- if eq (toString .Values.global.platformServicePort) "" -}}
+{{- if not .Values.global.platformServicePort -}}
 {{- $message := "Define the Seqera Platform Service port at 'global.platformServicePort'." -}}
 {{- printf "\nVALUES VALIDATION:\n%s" $message | fail -}}
 {{- end -}}

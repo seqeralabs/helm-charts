@@ -22,8 +22,9 @@ description: |
   Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
   RAG-based natural language interactions.
 type: application
-version: 0.4.3
+version: 0.4.4
 appVersion: "1.3.0"
+icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io

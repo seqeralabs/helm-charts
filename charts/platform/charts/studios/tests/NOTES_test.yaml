@@ -147,7 +147,7 @@ tests:
         oidcClientRegistrationTokenSecretName: ""
       global:
         platformServiceAddress: "platform.example.com"
-        platformServicePort: ""
+        platformServicePort:
     asserts:
       - failedTemplate:
           errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
