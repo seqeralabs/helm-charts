@@ -1,6 +1,9 @@
 */charts/*.tgz
 */*.tgz
 *.tgz
+*/charts/*.tgz.prov
+*/*.tgz.prov
+*.tgz.prov
 .vscode
 .debug/
 
