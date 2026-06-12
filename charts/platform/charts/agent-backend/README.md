@@ -69,7 +69,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.platformServiceAddress | string | `""` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
-| global.platformServicePort | string | `""` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.platformServicePort | int | `nil` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.ingress.enabled | bool | `false` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |

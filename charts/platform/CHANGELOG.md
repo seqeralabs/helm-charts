@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add chart icon to all subcharts: agent-backend to 1.0.8, mcp to 0.4.4, pipeline-optimization to 2.0.11, portal-web to 0.3.6, studios to 1.4.4, wave to 0.2.6, seqera-common to 2.1.5.
+- Auto-infer types for JSON schema values file.
 
 ## [0.34.1] - 2026-06-10
 

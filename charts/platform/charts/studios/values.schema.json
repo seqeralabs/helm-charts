@@ -9,22 +9,26 @@
     "commonAnnotations": {
       "description": "Annotations to add to all deployed objects",
       "required": [],
-      "title": "commonAnnotations"
+      "title": "commonAnnotations",
+      "type": "object"
     },
     "commonLabels": {
       "description": "Labels to add to all deployed objects",
       "required": [],
-      "title": "commonLabels"
+      "title": "commonLabels",
+      "type": "object"
     },
     "configMapAnnotations": {
       "description": "Additional annotations for the ConfigMap objects. Evaluated as a template",
       "required": [],
-      "title": "configMapAnnotations"
+      "title": "configMapAnnotations",
+      "type": "object"
     },
     "configMapLabels": {
       "description": "Additional labels for the ConfigMap objects. Evaluated as a template",
       "required": [],
-      "title": "configMapLabels"
+      "title": "configMapLabels",
+      "type": "object"
     },
     "enabled": {
       "description": "Conditional property used in parent chart",
@@ -33,248 +37,292 @@
     },
     "exampleValue": {
       "default": "common-chart",
-      "description": " # It is required by CI/CD tools and processes. # @skip exampleValue #",
-      "required": [],
-      "title": "exampleValue"
+      "description": "# bitnami/common\n# It is required by CI/CD tools and processes.\n#\n#",
+      "title": "exampleValue",
+      "type": "string"
     },
     "extraDeploy": {
       "description": "Array of extra objects to deploy with the release",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraDeploy"
+      "title": "extraDeploy",
+      "type": "array"
     },
     "global": {
-      "description": " .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
+      "description": "Values in the .global section can be accessed by both parent and child subcharts as\n.Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
       "properties": {
         "imageCredentials": {
-          "description": "Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically",
+          "description": "Optional credentials to log in and fetch images from a private registry. These credentials\nare shared with all the subcharts automatically",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imageCredentials"
+          "title": "imageCredentials",
+          "type": "array"
         },
         "imageCredentialsSecrets": {
-          "description": "Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically",
+          "description": "Optional list of existing Secrets containing image pull credentials to use for pulling\nimages from private registries. These Secrets are shared with all the subcharts automatically",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imageCredentialsSecrets"
+          "title": "imageCredentialsSecrets",
+          "type": "array"
         },
         "ingress": {
-          "description": " `ingress.*` value takes precedence when set; otherwise the global is used.",
+          "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
           "properties": {
             "annotations": {
-              "description": "Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template",
+              "description": "Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision.\nEvaluated as a template",
               "required": [],
-              "title": "annotations"
+              "title": "annotations",
+              "type": "object"
             },
             "defaultPathType": {
               "default": "Prefix",
-              "description": "Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.",
-              "required": [],
-              "title": "defaultPathType"
+              "description": "Default path type applied to ingress rules when `ingress.defaultPathType` is not set.\n`Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.",
+              "title": "defaultPathType",
+              "type": "string"
             },
             "enabled": {
-              "default": "false",
-              "description": "Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses.",
-              "required": [],
-              "title": "enabled"
+              "default": false,
+              "description": "Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so\nsetting this once at the parent enables all subchart Ingresses.",
+              "title": "enabled",
+              "type": "boolean"
             },
             "extraLabels": {
-              "description": "Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template",
+              "description": "Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision.\nEvaluated as a template",
               "required": [],
-              "title": "extraLabels"
+              "title": "extraLabels",
+              "type": "object"
             },
             "ingressClassName": {
               "default": "",
               "description": "Default ingress class name applied when `ingress.ingressClassName` is not set",
-              "required": [],
-              "title": "ingressClassName"
+              "title": "ingressClassName",
+              "type": "string"
             },
             "path": {
               "default": "/",
-              "description": "Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`.",
-              "required": [],
-              "title": "path"
+              "description": "Default path applied to ingress rules when `ingress.path` is not set.\nAWS ALB users should override to `/*`.",
+              "title": "path",
+              "type": "string"
             },
             "tls": {
               "description": "TLS entries concatenated with the local `ingress.tls`. Evaluated as a template",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "tls"
+              "title": "tls",
+              "type": "array"
             }
           },
-          "required": [],
-          "title": "ingress"
+          "required": [
+            "enabled",
+            "path",
+            "defaultPathType",
+            "ingressClassName",
+            "annotations",
+            "extraLabels",
+            "tls"
+          ],
+          "title": "ingress",
+          "type": "object"
         },
         "platformExternalDomain": {
           "default": "example.com",
           "description": "Domain where Seqera Platform listens",
-          "required": [],
-          "title": "platformExternalDomain"
+          "title": "platformExternalDomain",
+          "type": "string"
         },
         "platformServiceAddress": {
           "default": "",
-          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
-          "required": [],
-          "title": "platformServiceAddress"
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template.\nRequired when deploying this subchart standalone. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "title": "platformServiceAddress",
+          "type": "string"
         },
         "platformServicePort": {
           "default": "",
-          "description": "Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "description": "(int) Seqera Platform Service port.\nRequired when deploying this subchart standalone. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section",
           "required": [],
-          "title": "platformServicePort"
+          "title": "platformServicePort",
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
         },
         "studiosConnectionUrl": {
           "default": "{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}",
-          "description": "Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template",
-          "required": [],
-          "title": "studiosConnectionUrl"
+          "description": "Base URL for Studios connections: can be any value, since each session will use a unique\nsubdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template",
+          "title": "studiosConnectionUrl",
+          "type": "string"
         },
         "studiosDomain": {
           "default": "{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}",
-          "description": "Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template",
-          "required": [],
-          "title": "studiosDomain"
+          "description": "Domain where the Studios service listens. Make sure the TLS certificate covers this and its\nwildcard subdomains. Evaluated as a template",
+          "title": "studiosDomain",
+          "type": "string"
         }
       },
-      "required": [],
-      "title": "global"
+      "required": [
+        "platformExternalDomain",
+        "platformServiceAddress",
+        "studiosDomain",
+        "studiosConnectionUrl",
+        "ingress",
+        "imageCredentials",
+        "imageCredentialsSecrets"
+      ],
+      "title": "global",
+      "type": "object"
     },
     "ingress": {
       "properties": {
         "annotations": {
           "description": "Ingress annotations specific to your load balancer. Evaluated as a template",
           "required": [],
-          "title": "annotations"
+          "title": "annotations",
+          "type": "object"
         },
         "defaultBackend": {
-          "description": "Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress \u003cname\u003e' will report problems",
+          "description": "Configure the default service for the ingress (evaluated as template)\nImportant: make sure only one defaultBackend is defined across the k8s cluster: if the\ningress doesn't reconcile successfully, 'describe ingress \u003cname\u003e' will report problems",
           "required": [],
-          "title": "defaultBackend"
+          "title": "defaultBackend",
+          "type": "object"
         },
         "defaultPathType": {
           "default": "",
           "description": "Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`",
-          "required": [],
-          "title": "defaultPathType"
+          "title": "defaultPathType",
+          "type": "string"
         },
         "enabled": {
-          "default": "false",
+          "default": false,
           "description": "Enable ingress for Studios Proxy",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "extraHosts": {
           "description": "Additional hosts you want to include. Evaluated as a template",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraHosts"
+          "title": "extraHosts",
+          "type": "array"
         },
         "extraLabels": {
           "description": "Additional labels for the ingress object. Evaluated as a template",
           "required": [],
-          "title": "extraLabels"
+          "title": "extraLabels",
+          "type": "object"
         },
         "ingressClassName": {
           "default": "",
-          "description": "Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName`",
-          "required": [],
-          "title": "ingressClassName"
+          "description": "Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).\nWhen empty, falls back to `global.ingress.ingressClassName`",
+          "title": "ingressClassName",
+          "type": "string"
         },
         "path": {
           "default": "",
           "description": "Path for the main ingress rule. When empty, falls back to `global.ingress.path`",
-          "required": [],
-          "title": "path"
+          "title": "path",
+          "type": "string"
         },
         "tls": {
           "description": "TLS configuration. Evaluated as a template",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "tls"
+          "title": "tls",
+          "type": "array"
         }
       },
-      "required": [],
+      "required": [
+        "enabled",
+        "path",
+        "defaultPathType",
+        "defaultBackend",
+        "extraHosts",
+        "annotations",
+        "extraLabels",
+        "ingressClassName",
+        "tls"
+      ],
       "title": "ingress",
       "type": "object"
     },
     "initContainerDependencies": {
       "properties": {
         "enabled": {
-          "default": "true",
-          "description": "Enable init containers that coordinate startup dependencies (for example, wait for Seqera Platform readiness before starting, etc)",
-          "required": [],
-          "title": "enabled"
+          "default": true,
+          "description": "Enable init containers that coordinate startup dependencies (for example, wait for Seqera\nPlatform readiness before starting, etc)",
+          "title": "enabled",
+          "type": "boolean"
         },
         "waitForPlatform": {
           "properties": {
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable wait for Seqera Platform init container before starting the proxy",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "extraEnvVars": {
               "description": "Additional environment variables for the init container",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraEnvVars"
+              "title": "extraEnvVars",
+              "type": "array"
             },
             "extraVolumeMounts": {
               "description": "Additional volume mounts for the init container (e.g. to mount a CA certificate)",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraVolumeMounts"
+              "title": "extraVolumeMounts",
+              "type": "array"
             },
             "image": {
               "properties": {
                 "digest": {
                   "default": "",
                   "description": "Wait for Platform init container image digest in the format `sha256:1234abcdef`",
-                  "required": [],
-                  "title": "digest"
+                  "title": "digest",
+                  "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
                   "description": "imagePullPolicy for the wait for Platform init container",
-                  "required": [],
-                  "title": "pullPolicy"
+                  "title": "pullPolicy",
+                  "type": "string"
                 },
                 "registry": {
                   "default": "",
                   "description": "Wait for Platform init container image registry",
-                  "required": [],
-                  "title": "registry"
+                  "title": "registry",
+                  "type": "string"
                 },
                 "repository": {
                   "default": "curlimages/curl",
                   "description": "Wait for Platform init container image repository",
-                  "required": [],
-                  "title": "repository"
+                  "title": "repository",
+                  "type": "string"
                 },
                 "tag": {
                   "default": "latest",
                   "description": "Wait for Platform init container image tag",
-                  "required": [],
-                  "title": "tag"
+                  "title": "tag",
+                  "type": "string"
                 }
               },
-              "required": [],
+              "required": [
+                "registry",
+                "repository",
+                "tag",
+                "digest",
+                "pullPolicy"
+              ],
               "title": "image",
               "type": "object"
             },
@@ -320,7 +368,8 @@
                 "requests",
                 "limits"
               ],
-              "title": "resources"
+              "title": "resources",
+              "type": "object"
             },
             "securityContext": {
               "properties": {
@@ -343,41 +392,52 @@
                   "required": [
                     "drop"
                   ],
-                  "title": "capabilities"
+                  "title": "capabilities",
+                  "type": "object"
                 },
                 "readOnlyRootFilesystem": {
-                  "default": "true",
+                  "default": true,
                   "description": "Mount the container root filesystem read-only to prevent in-place writes or tampering",
-                  "required": [],
-                  "title": "readOnlyRootFilesystem"
+                  "title": "readOnlyRootFilesystem",
+                  "type": "boolean"
                 },
                 "runAsNonRoot": {
-                  "default": "true",
+                  "default": true,
                   "description": "Require the container to run as a non-root UID (prevents starting if UID 0)",
-                  "required": [],
-                  "title": "runAsNonRoot"
+                  "title": "runAsNonRoot",
+                  "type": "boolean"
                 },
                 "runAsUser": {
-                  "default": "101",
+                  "default": 101,
                   "description": "UID the container processes run as (overrides container image default)",
-                  "required": [],
-                  "title": "runAsUser"
+                  "title": "runAsUser",
+                  "type": "integer"
                 }
               },
-              "required": [],
+              "required": [
+                "runAsUser",
+                "runAsNonRoot",
+                "readOnlyRootFilesystem",
+                "capabilities"
+              ],
               "title": "securityContext",
               "type": "object"
             }
           },
           "required": [
+            "enabled",
             "image",
-            "securityContext"
+            "securityContext",
+            "resources",
+            "extraEnvVars",
+            "extraVolumeMounts"
           ],
           "title": "waitForPlatform",
           "type": "object"
         }
       },
       "required": [
+        "enabled",
         "waitForPlatform"
       ],
       "title": "initContainerDependencies",
@@ -391,19 +451,19 @@
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "args"
+          "title": "args",
+          "type": "array"
         },
         "command": {
           "description": "Override default container command (useful when using custom images)",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "command"
+          "title": "command",
+          "type": "array"
         },
         "containerSecurityContext": {
-          "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
+          "description": "Configure Container Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
           "properties": {
             "capabilities": {
               "description": "Fine-grained Linux kernel privileges to add or drop for the container",
@@ -437,68 +497,77 @@
                 "drop",
                 "add"
               ],
-              "title": "capabilities"
+              "title": "capabilities",
+              "type": "object"
             },
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable container Security Context",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "readOnlyRootFilesystem": {
-              "default": "false",
+              "default": false,
               "description": "Mounts the container root filesystem read-only to prevent in-place writes or tampering",
-              "required": [],
-              "title": "readOnlyRootFilesystem"
+              "title": "readOnlyRootFilesystem",
+              "type": "boolean"
             },
             "runAsGroup": {
-              "default": "65532",
+              "default": 65532,
               "description": "GID the container processes run as (overrides container image default)",
-              "required": [],
-              "title": "runAsGroup"
+              "title": "runAsGroup",
+              "type": "integer"
             },
             "runAsNonRoot": {
-              "default": "true",
+              "default": true,
               "description": "Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)",
-              "required": [],
-              "title": "runAsNonRoot"
+              "title": "runAsNonRoot",
+              "type": "boolean"
             },
             "runAsUser": {
-              "default": "65532",
+              "default": 65532,
               "description": "UID the container processes run as (overrides container image default)",
-              "required": [],
-              "title": "runAsUser"
+              "title": "runAsUser",
+              "type": "integer"
             }
           },
-          "required": [],
-          "title": "containerSecurityContext"
+          "required": [
+            "enabled",
+            "runAsUser",
+            "runAsGroup",
+            "runAsNonRoot",
+            "readOnlyRootFilesystem",
+            "capabilities"
+          ],
+          "title": "containerSecurityContext",
+          "type": "object"
         },
         "extraEnvVars": {
           "description": "Extra environment variables to set on the proxy pod",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVars"
+          "title": "extraEnvVars",
+          "type": "array"
         },
         "extraEnvVarsCMs": {
           "description": "List of ConfigMaps containing extra env vars",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVarsCMs"
+          "title": "extraEnvVarsCMs",
+          "type": "array"
         },
         "extraEnvVarsSecrets": {
           "description": "List of Secrets containing extra env vars",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVarsSecrets"
+          "title": "extraEnvVarsSecrets",
+          "type": "array"
         },
         "extraOptionsSpec": {
-          "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template",
+          "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).\nEvaluated as a template",
           "properties": {
             "replicas": {
               "default": 2,
@@ -509,71 +578,80 @@
           "required": [
             "replicas"
           ],
-          "title": "extraOptionsSpec"
+          "title": "extraOptionsSpec",
+          "type": "object"
         },
         "extraOptionsTemplateSpec": {
-          "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template",
+          "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,\netc). Evaluated as a template",
           "required": [],
-          "title": "extraOptionsTemplateSpec"
+          "title": "extraOptionsTemplateSpec",
+          "type": "object"
         },
         "extraVolumeMounts": {
-          "description": "List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`",
+          "description": "List of volume mounts to add to the container (evaluated as template). Normally used with\n`extraVolumes`",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraVolumeMounts"
+          "title": "extraVolumeMounts",
+          "type": "array"
         },
         "extraVolumes": {
-          "description": "List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts`",
+          "description": "List of volumes to add to the deployment (evaluated as template). Requires setting\n`extraVolumeMounts`",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraVolumes"
+          "title": "extraVolumes",
+          "type": "array"
         },
         "image": {
           "properties": {
             "digest": {
               "default": "",
               "description": "Proxy container image digest in the format `sha256:1234abcdef`",
-              "required": [],
-              "title": "digest"
+              "title": "digest",
+              "type": "string"
             },
             "pullPolicy": {
               "default": "IfNotPresent",
-              "description": "imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
-              "required": [],
-              "title": "pullPolicy"
+              "description": "imagePullPolicy for the Proxy container\nRef: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
+              "title": "pullPolicy",
+              "type": "string"
             },
             "pullSecrets": {
-              "description": "List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
+              "description": "List of imagePullSecrets\nSecrets must be created in the same namespace, for example using the .extraDeploy array\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "pullSecrets"
+              "title": "pullSecrets",
+              "type": "array"
             },
             "registry": {
               "default": "",
               "description": "Proxy container image registry",
-              "required": [],
-              "title": "registry"
+              "title": "registry",
+              "type": "string"
             },
             "repository": {
               "default": "enterprise/studios/proxy",
               "description": "Proxy container image repository",
-              "required": [],
-              "title": "repository"
+              "title": "repository",
+              "type": "string"
             },
             "tag": {
-              "default": "`\"{{ .chart.AppVersion }}\"`",
+              "default": "",
               "description": "Proxy container image tag",
-              "required": [],
-              "title": "tag"
+              "title": "tag",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "registry",
+            "repository",
+            "tag",
+            "digest",
+            "pullPolicy",
+            "pullSecrets"
+          ],
           "title": "image",
           "type": "object"
         },
@@ -582,122 +660,147 @@
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "initContainers"
+          "title": "initContainers",
+          "type": "array"
         },
         "localCacheTTL": {
           "default": "2m",
           "description": "TTL for local cache of Redis keys used for resiliency against Redis failures",
-          "required": [],
-          "title": "localCacheTTL"
+          "title": "localCacheTTL",
+          "type": "string"
         },
         "oidcClientRegistrationToken": {
           "default": "",
-          "description": "Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade",
-          "required": [],
-          "title": "oidcClientRegistrationToken"
+          "description": "Initial access token to share with Seqera Platform to restrict registration requests to\nonly authorized OIDC clients. The token can be provided as a string of random chars or as an\nexternal k8s Secret: in the latter case, a key can also be provided. If neither a string nor a\nSecret is provided, the chart will generate a random token\nWARNING: Always explicitly set this value or use an existing secret when using Kustomize.\nAuto-generated random values are incompatible with Kustomize. When upgrading releases via\nKustomize, Helm cannot query the cluster to check if a secret already exists, causing it to\nregenerate a new random value on each upgrade",
+          "title": "oidcClientRegistrationToken",
+          "type": "string"
         },
         "oidcClientRegistrationTokenSecretKey": {
-          "default": "`\"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN\"`",
+          "default": "",
           "description": "Key in the existing Secret containing the OIDC client registration token",
-          "required": [],
-          "title": "oidcClientRegistrationTokenSecretKey"
+          "title": "oidcClientRegistrationTokenSecretKey",
+          "type": "string"
         },
         "oidcClientRegistrationTokenSecretName": {
           "default": "",
-          "description": "Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment",
-          "required": [],
-          "title": "oidcClientRegistrationTokenSecretName"
+          "description": "Name of an existing Secret containing the OIDC client registration token\nas an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist\nin the same namespace at the time of deployment",
+          "title": "oidcClientRegistrationTokenSecretName",
+          "type": "string"
         },
         "podAnnotations": {
           "description": "Additional annotations for the proxy pod. Evaluated as a template",
           "required": [],
-          "title": "podAnnotations"
+          "title": "podAnnotations",
+          "type": "object"
         },
         "podLabels": {
           "description": "Additional labels for the proxy pod. Evaluated as a template",
           "required": [],
-          "title": "podLabels"
+          "title": "podLabels",
+          "type": "object"
         },
         "podSecurityContext": {
-          "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod Empty map to disable Pod Security Context configuration",
+          "description": "Configure Pods Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod\nEmpty map to disable Pod Security Context configuration",
           "properties": {
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable pod Security Context",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "fsGroup": {
-              "default": "65532",
-              "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access",
-              "required": [],
-              "title": "fsGroup"
+              "default": 65532,
+              "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes\nin the pod can share group-owned access",
+              "title": "fsGroup",
+              "type": "integer"
             }
           },
-          "required": [],
-          "title": "podSecurityContext"
+          "required": [
+            "enabled",
+            "fsGroup"
+          ],
+          "title": "podSecurityContext",
+          "type": "object"
         },
         "resources": {
           "description": "Container requests and limits for different resources like CPU or memory",
           "required": [],
-          "title": "resources"
+          "title": "resources",
+          "type": "object"
         },
         "service": {
           "properties": {
             "extraOptions": {
-              "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template",
+              "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,\nexternalTrafficPolicy, externalIPs). Evaluated as a template",
               "required": [],
-              "title": "extraOptions"
+              "title": "extraOptions",
+              "type": "object"
             },
             "extraServices": {
-              "description": "Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
+              "description": "Other services that should live in the Service object\nhttps://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraServices"
+              "title": "extraServices",
+              "type": "array"
             },
             "http": {
               "properties": {
                 "name": {
                   "default": "http",
                   "description": "Service name to use",
-                  "required": [],
-                  "title": "name"
+                  "title": "name",
+                  "type": "string"
                 },
                 "nodePort": {
                   "default": "null",
-                  "description": "Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default",
+                  "description": "Service node port, only used when service.type is Nodeport or LoadBalancer\nChoose port between 30000-32767, unless the cluster was configured differently than default",
                   "required": [],
-                  "title": "nodePort"
+                  "title": "nodePort",
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
                 },
                 "port": {
-                  "default": "80",
+                  "default": 80,
                   "description": "Service port",
                   "required": [],
-                  "title": "port"
+                  "title": "port",
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
                 },
                 "targetPort": {
-                  "default": "8081",
-                  "description": "Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port)",
+                  "default": 8081,
+                  "description": "Port on the pod/container that the Service forwards traffic to (can be a number or\nnamed port, distinct from the Service's external port)",
                   "required": [],
-                  "title": "targetPort"
+                  "title": "targetPort",
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
                 }
               },
-              "required": [],
+              "required": [
+                "name"
+              ],
               "title": "http",
               "type": "object"
             },
             "type": {
               "default": "ClusterIP",
               "description": "Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort",
-              "required": [],
-              "title": "type"
+              "title": "type",
+              "type": "string"
             }
           },
           "required": [
-            "http"
+            "type",
+            "http",
+            "extraServices",
+            "extraOptions"
           ],
           "title": "service",
           "type": "object"
@@ -705,85 +808,120 @@
         "serviceAnnotations": {
           "description": "Additional annotations for the Service objects. Evaluated as a template",
           "required": [],
-          "title": "serviceAnnotations"
+          "title": "serviceAnnotations",
+          "type": "object"
         },
         "serviceLabels": {
           "description": "Additional labels for the Service objects. Evaluated as a template",
           "required": [],
-          "title": "serviceLabels"
+          "title": "serviceLabels",
+          "type": "object"
         }
       },
       "required": [
         "image",
-        "service"
+        "oidcClientRegistrationToken",
+        "oidcClientRegistrationTokenSecretName",
+        "oidcClientRegistrationTokenSecretKey",
+        "localCacheTTL",
+        "service",
+        "initContainers",
+        "command",
+        "args",
+        "podLabels",
+        "podAnnotations",
+        "serviceLabels",
+        "serviceAnnotations",
+        "extraEnvVars",
+        "extraEnvVarsCMs",
+        "extraEnvVarsSecrets",
+        "extraVolumes",
+        "extraVolumeMounts",
+        "extraOptionsSpec",
+        "extraOptionsTemplateSpec",
+        "podSecurityContext",
+        "containerSecurityContext",
+        "resources"
       ],
       "title": "proxy",
       "type": "object"
     },
     "redis": {
-      "description": " provided by an external provider.",
+      "description": "Seqera Studios requires a Redis cache. Seqera recommends using a managed Redis installation\nprovided by an external provider.",
       "properties": {
         "database": {
-          "default": "0",
+          "default": 0,
           "description": "Redis database number",
-          "required": [],
-          "title": "database"
+          "title": "database",
+          "type": "integer"
         },
         "enableTls": {
-          "default": "false",
+          "default": false,
           "description": "Enable TLS when connecting to Redis",
-          "required": [],
-          "title": "enableTls"
+          "title": "enableTls",
+          "type": "boolean"
         },
         "existingSecretKey": {
-          "default": "`\"CONNECT_REDIS_PASSWORD\"`",
+          "default": "",
           "description": "Key in the existing Secret containing the password for Redis",
-          "required": [],
-          "title": "existingSecretKey"
+          "title": "existingSecretKey",
+          "type": "string"
         },
         "existingSecretName": {
           "default": "",
-          "description": "Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment",
-          "required": [],
-          "title": "existingSecretName"
+          "description": "Name of an existing Secret containing credentials for Redis, as an alternative to the\npassword field. Note: the Secret must already exist in the same namespace at the time of\ndeployment",
+          "title": "existingSecretName",
+          "type": "string"
         },
         "host": {
           "default": "",
           "description": "Redis hostname",
-          "required": [],
-          "title": "host"
+          "title": "host",
+          "type": "string"
         },
         "password": {
           "default": "",
           "description": "Redis password if the installation requires it",
-          "required": [],
-          "title": "password"
+          "title": "password",
+          "type": "string"
         },
         "port": {
-          "default": "6379",
+          "default": 6379,
           "description": "Redis port",
-          "required": [],
-          "title": "port"
+          "title": "port",
+          "type": "integer"
         },
         "prefix": {
           "default": "connect:session",
           "description": "Key prefix to use when storing Studios sessions in Redis",
-          "required": [],
-          "title": "prefix"
+          "title": "prefix",
+          "type": "string"
         }
       },
-      "required": [],
-      "title": "redis"
+      "required": [
+        "host",
+        "port",
+        "database",
+        "password",
+        "existingSecretName",
+        "existingSecretKey",
+        "enableTls",
+        "prefix"
+      ],
+      "title": "redis",
+      "type": "object"
     },
     "secretAnnotations": {
       "description": "Additional annotations for the Secret objects. Evaluated as a template",
       "required": [],
-      "title": "secretAnnotations"
+      "title": "secretAnnotations",
+      "type": "object"
     },
     "secretLabels": {
       "description": "Additional labels for the Secret objects. Evaluated as a template",
       "required": [],
-      "title": "secretLabels"
+      "title": "secretLabels",
+      "type": "object"
     },
     "server": {
       "properties": {
@@ -792,19 +930,19 @@
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "args"
+          "title": "args",
+          "type": "array"
         },
         "command": {
           "description": "Override default container command (useful when using custom images)",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "command"
+          "title": "command",
+          "type": "array"
         },
         "containerSecurityContext": {
-          "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
+          "description": "Configure Container Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
           "properties": {
             "capabilities": {
               "description": "Fine-grained Linux kernel privileges to add or drop for the container",
@@ -838,68 +976,77 @@
                 "drop",
                 "add"
               ],
-              "title": "capabilities"
+              "title": "capabilities",
+              "type": "object"
             },
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable container Security Context",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "readOnlyRootFilesystem": {
-              "default": "false",
+              "default": false,
               "description": "Mounts the container root filesystem read-only to prevent in-place writes or tampering",
-              "required": [],
-              "title": "readOnlyRootFilesystem"
+              "title": "readOnlyRootFilesystem",
+              "type": "boolean"
             },
             "runAsGroup": {
-              "default": "65532",
+              "default": 65532,
               "description": "GID the container processes run as (overrides container image default)",
-              "required": [],
-              "title": "runAsGroup"
+              "title": "runAsGroup",
+              "type": "integer"
             },
             "runAsNonRoot": {
-              "default": "true",
+              "default": true,
               "description": "Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)",
-              "required": [],
-              "title": "runAsNonRoot"
+              "title": "runAsNonRoot",
+              "type": "boolean"
             },
             "runAsUser": {
-              "default": "65532",
+              "default": 65532,
               "description": "UID the container processes run as (overrides container image default)",
-              "required": [],
-              "title": "runAsUser"
+              "title": "runAsUser",
+              "type": "integer"
             }
           },
-          "required": [],
-          "title": "containerSecurityContext"
+          "required": [
+            "enabled",
+            "runAsUser",
+            "runAsGroup",
+            "runAsNonRoot",
+            "readOnlyRootFilesystem",
+            "capabilities"
+          ],
+          "title": "containerSecurityContext",
+          "type": "object"
         },
         "extraEnvVars": {
           "description": "Extra environment variables to set on the server pod",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVars"
+          "title": "extraEnvVars",
+          "type": "array"
         },
         "extraEnvVarsCMs": {
           "description": "List of ConfigMaps containing extra env vars",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVarsCMs"
+          "title": "extraEnvVarsCMs",
+          "type": "array"
         },
         "extraEnvVarsSecrets": {
           "description": "List of Secrets containing extra env vars",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraEnvVarsSecrets"
+          "title": "extraEnvVarsSecrets",
+          "type": "array"
         },
         "extraOptionsSpec": {
-          "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template",
+          "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).\nEvaluated as a template",
           "properties": {
             "replicas": {
               "default": 2,
@@ -910,71 +1057,80 @@
           "required": [
             "replicas"
           ],
-          "title": "extraOptionsSpec"
+          "title": "extraOptionsSpec",
+          "type": "object"
         },
         "extraOptionsTemplateSpec": {
-          "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template",
+          "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,\netc). Evaluated as a template",
           "required": [],
-          "title": "extraOptionsTemplateSpec"
+          "title": "extraOptionsTemplateSpec",
+          "type": "object"
         },
         "extraVolumeMounts": {
-          "description": "List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`",
+          "description": "List of volume mounts to add to the container (evaluated as template). Normally used with\n`extraVolumes`",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraVolumeMounts"
+          "title": "extraVolumeMounts",
+          "type": "array"
         },
         "extraVolumes": {
-          "description": "List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts`",
+          "description": "List of volumes to add to the deployment (evaluated as template). Requires setting\n`extraVolumeMounts`",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraVolumes"
+          "title": "extraVolumes",
+          "type": "array"
         },
         "image": {
           "properties": {
             "digest": {
               "default": "",
               "description": "Server container image digest in the format `sha256:1234abcdef`",
-              "required": [],
-              "title": "digest"
+              "title": "digest",
+              "type": "string"
             },
             "pullPolicy": {
               "default": "IfNotPresent",
-              "description": "imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
-              "required": [],
-              "title": "pullPolicy"
+              "description": "imagePullPolicy for the Server container\nRef: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
+              "title": "pullPolicy",
+              "type": "string"
             },
             "pullSecrets": {
-              "description": "List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
+              "description": "List of imagePullSecrets\nSecrets must be created in the same namespace, for example using the .extraDeploy array\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "pullSecrets"
+              "title": "pullSecrets",
+              "type": "array"
             },
             "registry": {
               "default": "",
               "description": "Server container image registry",
-              "required": [],
-              "title": "registry"
+              "title": "registry",
+              "type": "string"
             },
             "repository": {
               "default": "enterprise/studios/server",
               "description": "Server container image repository",
-              "required": [],
-              "title": "repository"
+              "title": "repository",
+              "type": "string"
             },
             "tag": {
-              "default": "`\"{{ .chart.AppVersion }}\"`",
+              "default": "",
               "description": "Server container image tag",
-              "required": [],
-              "title": "tag"
+              "title": "tag",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "registry",
+            "repository",
+            "tag",
+            "digest",
+            "pullPolicy",
+            "pullSecrets"
+          ],
           "title": "image",
           "type": "object"
         },
@@ -983,109 +1139,145 @@
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "initContainers"
+          "title": "initContainers",
+          "type": "array"
         },
         "listenerPort": {
-          "default": "7777",
+          "default": 7777,
           "description": "Port where the server listens for connections from the Studios clients",
-          "required": [],
-          "title": "listenerPort"
+          "title": "listenerPort",
+          "type": "integer"
         },
         "logLevel": {
           "default": "info",
           "description": "Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal`",
-          "required": [],
-          "title": "logLevel"
+          "title": "logLevel",
+          "type": "string"
         },
         "podAnnotations": {
           "description": "Additional annotations for the server pod. Evaluated as a template",
           "required": [],
-          "title": "podAnnotations"
+          "title": "podAnnotations",
+          "type": "object"
         },
         "podLabels": {
           "description": "Additional labels for the server pod. Evaluated as a template",
           "required": [],
-          "title": "podLabels"
+          "title": "podLabels",
+          "type": "object"
         },
         "podSecurityContext": {
-          "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod Empty map to disable Pod Security Context configuration",
+          "description": "Configure Pods Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod\nEmpty map to disable Pod Security Context configuration",
           "properties": {
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable pod Security Context",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "fsGroup": {
-              "default": "65532",
-              "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access",
-              "required": [],
-              "title": "fsGroup"
+              "default": 65532,
+              "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes\nin the pod can share group-owned access",
+              "title": "fsGroup",
+              "type": "integer"
             }
           },
-          "required": [],
-          "title": "podSecurityContext"
+          "required": [
+            "enabled",
+            "fsGroup"
+          ],
+          "title": "podSecurityContext",
+          "type": "object"
         },
         "resources": {
           "description": "Container requests and limits for different resources like CPU or memory",
           "required": [],
-          "title": "resources"
+          "title": "resources",
+          "type": "object"
         },
         "service": {
           "properties": {
             "extraOptions": {
-              "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template",
+              "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,\nexternalTrafficPolicy, externalIPs). Evaluated as a template",
               "properties": {
                 "clusterIP": {
                   "default": "None",
-                  "description": " server pods, which will be discovered by DNS and contacted directly, not through the Service",
-                  "required": [],
-                  "title": "clusterIP"
+                  "description": "A headless ClusterIP service is ideal for server because there could be multiple Studios\nserver pods, which will be discovered by DNS and contacted directly, not through the Service",
+                  "title": "clusterIP",
+                  "type": "string"
                 }
               },
-              "required": [],
-              "title": "extraOptions"
+              "required": [
+                "clusterIP"
+              ],
+              "title": "extraOptions",
+              "type": "object"
             },
             "extraServices": {
-              "description": "Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
+              "description": "Other services that should live in the Service object\nhttps://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraServices"
+              "title": "extraServices",
+              "type": "array"
             },
             "type": {
               "default": "ClusterIP",
-              "description": "Server Service type. There should be no need to expose the Studios Server service outside of the cluster, since traffic goes through the proxy",
-              "required": [],
-              "title": "type"
+              "description": "Server Service type. There should be no need to expose the Studios Server service outside\nof the cluster, since traffic goes through the proxy",
+              "title": "type",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "type",
+            "extraServices",
+            "extraOptions"
+          ],
           "title": "service",
           "type": "object"
         },
         "serviceAnnotations": {
           "description": "Additional annotations for the Service objects. Evaluated as a template",
           "required": [],
-          "title": "serviceAnnotations"
+          "title": "serviceAnnotations",
+          "type": "object"
         },
         "serviceLabels": {
           "description": "Additional labels for the Service objects. Evaluated as a template",
           "required": [],
-          "title": "serviceLabels"
+          "title": "serviceLabels",
+          "type": "object"
         },
         "tunnelPort": {
-          "default": "7070",
+          "default": 7070,
           "description": "Port that proxy contacts the server at to create a new tunnel",
-          "required": [],
-          "title": "tunnelPort"
+          "title": "tunnelPort",
+          "type": "integer"
         }
       },
       "required": [
         "image",
-        "service"
+        "tunnelPort",
+        "listenerPort",
+        "service",
+        "logLevel",
+        "initContainers",
+        "command",
+        "args",
+        "podLabels",
+        "podAnnotations",
+        "serviceLabels",
+        "serviceAnnotations",
+        "extraEnvVars",
+        "extraEnvVarsCMs",
+        "extraEnvVarsSecrets",
+        "extraVolumes",
+        "extraVolumeMounts",
+        "extraOptionsSpec",
+        "extraOptionsTemplateSpec",
+        "podSecurityContext",
+        "containerSecurityContext",
+        "resources"
       ],
       "title": "server",
       "type": "object"
@@ -1095,40 +1287,58 @@
         "annotations": {
           "description": "Additional annotations for the ServiceAccount to generate",
           "required": [],
-          "title": "annotations"
+          "title": "annotations",
+          "type": "object"
         },
         "automountServiceAccountToken": {
-          "default": "true",
+          "default": true,
           "description": "Automount service account token when the ServiceAccount is generated",
           "required": [],
-          "title": "automountServiceAccountToken"
+          "title": "automountServiceAccountToken",
+          "type": [
+            "boolean",
+            "string"
+          ]
         },
         "imagePullSecretNames": {
           "description": "Names of Secrets containing credentials to pull images from registries",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imagePullSecretNames"
+          "title": "imagePullSecretNames",
+          "type": "array"
         },
         "name": {
           "default": "",
-          "description": "Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name",
-          "required": [],
-          "title": "name"
+          "description": "Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on\nthe release name",
+          "title": "name",
+          "type": "string"
         }
       },
-      "required": [],
+      "required": [
+        "name",
+        "annotations",
+        "imagePullSecretNames"
+      ],
       "title": "serviceAccount",
       "type": "object"
     }
   },
   "required": [
+    "global",
+    "redis",
     "proxy",
     "server",
     "initContainerDependencies",
     "serviceAccount",
-    "ingress"
+    "ingress",
+    "extraDeploy",
+    "commonAnnotations",
+    "commonLabels",
+    "secretLabels",
+    "secretAnnotations",
+    "configMapLabels",
+    "configMapAnnotations"
   ],
   "type": "object"
 }

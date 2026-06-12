@@ -141,11 +141,17 @@ service:
   http:
     # -- Service name to use
     name: http
+    # @schema
+    # type: [integer, string]
+    # @schema
     # -- Service port
     port: 9090
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port)
     targetPort: 9090
+    # @schema
+    # type: [integer, null]
+    # @schema
     # -- Service node port, only used when service.type is Nodeport or LoadBalancer
     # Choose port between 30000-32767, unless the cluster was configured differently than default
     nodePort: null
@@ -414,6 +420,9 @@ serviceAccount:
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
   imagePullSecretNames: []
+  # @schema
+  # type: [boolean, string]
+  # @schema
   # -- Automatically mount service account token
   automountServiceAccountToken: true
 

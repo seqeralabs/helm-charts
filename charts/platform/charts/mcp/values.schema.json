@@ -11,39 +11,43 @@
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "args"
+      "title": "args",
+      "type": "array"
     },
     "command": {
       "description": "Override default container command (useful when using custom images)",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "command"
+      "title": "command",
+      "type": "array"
     },
     "commonAnnotations": {
       "description": "Annotations to add to all deployed objects",
       "required": [],
-      "title": "commonAnnotations"
+      "title": "commonAnnotations",
+      "type": "object"
     },
     "commonLabels": {
       "description": "Labels to add to all deployed objects",
       "required": [],
-      "title": "commonLabels"
+      "title": "commonLabels",
+      "type": "object"
     },
     "configMapAnnotations": {
       "description": "Additional annotations for the ConfigMap objects. Evaluated as a template",
       "required": [],
-      "title": "configMapAnnotations"
+      "title": "configMapAnnotations",
+      "type": "object"
     },
     "configMapLabels": {
       "description": "Additional labels for the ConfigMap objects. Evaluated as a template",
       "required": [],
-      "title": "configMapLabels"
+      "title": "configMapLabels",
+      "type": "object"
     },
     "containerSecurityContext": {
-      "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
+      "description": "Configure Container Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container",
       "properties": {
         "capabilities": {
           "description": "Fine-grained Linux kernel privileges to add or drop for the container",
@@ -64,35 +68,43 @@
           "required": [
             "drop"
           ],
-          "title": "capabilities"
+          "title": "capabilities",
+          "type": "object"
         },
         "enabled": {
-          "default": "true",
+          "default": true,
           "description": "Enable container Security Context",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "readOnlyRootFilesystem": {
-          "default": "true",
+          "default": true,
           "description": "Mounts the container root filesystem read-only to prevent in-place writes or tampering",
-          "required": [],
-          "title": "readOnlyRootFilesystem"
+          "title": "readOnlyRootFilesystem",
+          "type": "boolean"
         },
         "runAsNonRoot": {
-          "default": "true",
+          "default": true,
           "description": "Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)",
-          "required": [],
-          "title": "runAsNonRoot"
+          "title": "runAsNonRoot",
+          "type": "boolean"
         },
         "runAsUser": {
-          "default": "101",
+          "default": 101,
           "description": "UID the container processes run as (overrides container image default)",
-          "required": [],
-          "title": "runAsUser"
+          "title": "runAsUser",
+          "type": "integer"
         }
       },
-      "required": [],
-      "title": "containerSecurityContext"
+      "required": [
+        "enabled",
+        "runAsUser",
+        "runAsNonRoot",
+        "readOnlyRootFilesystem",
+        "capabilities"
+      ],
+      "title": "containerSecurityContext",
+      "type": "object"
     },
     "enabled": {
       "description": "Conditional property used in parent chart",
@@ -101,212 +113,245 @@
     },
     "exampleValue": {
       "default": "common-chart",
-      "description": " # It is required by CI/CD tools and processes. # @skip exampleValue #",
-      "required": [],
-      "title": "exampleValue"
+      "description": "# bitnami/common\n# It is required by CI/CD tools and processes.\n#\n#",
+      "title": "exampleValue",
+      "type": "string"
     },
     "extraDeploy": {
       "description": "Array of extra objects to deploy with the release",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraDeploy"
+      "title": "extraDeploy",
+      "type": "array"
     },
     "extraEnvVars": {
       "description": "Extra environment variables",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraEnvVars"
+      "title": "extraEnvVars",
+      "type": "array"
     },
     "extraEnvVarsCMs": {
       "description": "List of ConfigMaps containing extra env vars",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraEnvVarsCMs"
+      "title": "extraEnvVarsCMs",
+      "type": "array"
     },
     "extraEnvVarsSecrets": {
       "description": "List of Secrets containing extra env vars",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraEnvVarsSecrets"
+      "title": "extraEnvVarsSecrets",
+      "type": "array"
     },
     "extraOptionsSpec": {
-      "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template",
+      "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).\nEvaluated as a template",
       "required": [],
-      "title": "extraOptionsSpec"
+      "title": "extraOptionsSpec",
+      "type": "object"
     },
     "extraOptionsTemplateSpec": {
-      "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template",
+      "description": "Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,\netc). Evaluated as a template",
       "required": [],
-      "title": "extraOptionsTemplateSpec"
+      "title": "extraOptionsTemplateSpec",
+      "type": "object"
     },
     "extraVolumeMounts": {
-      "description": "List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes`",
+      "description": "List of volume mounts to add to the container (evaluated as template). Normally used with\n`extraVolumes`",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraVolumeMounts"
+      "title": "extraVolumeMounts",
+      "type": "array"
     },
     "extraVolumes": {
-      "description": "List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts`",
+      "description": "List of volumes to add to the deployment (evaluated as template). Requires setting\n`extraVolumeMounts`",
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "extraVolumes"
+      "title": "extraVolumes",
+      "type": "array"
     },
     "global": {
-      "description": " .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
+      "description": "Values in the .global section can be accessed by both parent and child subcharts as\n.Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
       "properties": {
         "imageCredentials": {
-          "description": "Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically",
+          "description": "Optional credentials to log in and fetch images from a private registry. These credentials\nare shared with all the subcharts automatically",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imageCredentials"
+          "title": "imageCredentials",
+          "type": "array"
         },
         "imageCredentialsSecrets": {
-          "description": "Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically",
+          "description": "Optional list of existing Secrets containing image pull credentials to use for pulling\nimages from private registries. These Secrets are shared with all the subcharts automatically",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imageCredentialsSecrets"
+          "title": "imageCredentialsSecrets",
+          "type": "array"
         },
         "ingress": {
-          "description": " `ingress.*` value takes precedence when set; otherwise the global is used.",
+          "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
           "properties": {
             "annotations": {
-              "description": "Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template",
+              "description": "Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision.\nEvaluated as a template",
               "required": [],
-              "title": "annotations"
+              "title": "annotations",
+              "type": "object"
             },
             "defaultPathType": {
               "default": "Prefix",
-              "description": "Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.",
-              "required": [],
-              "title": "defaultPathType"
+              "description": "Default path type applied to ingress rules when `ingress.defaultPathType` is not set.\n`Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.",
+              "title": "defaultPathType",
+              "type": "string"
             },
             "enabled": {
-              "default": "false",
-              "description": "Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses.",
-              "required": [],
-              "title": "enabled"
+              "default": false,
+              "description": "Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so\nsetting this once at the parent enables all subchart Ingresses.",
+              "title": "enabled",
+              "type": "boolean"
             },
             "extraLabels": {
-              "description": "Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template",
+              "description": "Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision.\nEvaluated as a template",
               "required": [],
-              "title": "extraLabels"
+              "title": "extraLabels",
+              "type": "object"
             },
             "ingressClassName": {
               "default": "",
               "description": "Default ingress class name applied when `ingress.ingressClassName` is not set",
-              "required": [],
-              "title": "ingressClassName"
+              "title": "ingressClassName",
+              "type": "string"
             },
             "path": {
               "default": "/",
-              "description": "Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`.",
-              "required": [],
-              "title": "path"
+              "description": "Default path applied to ingress rules when `ingress.path` is not set.\nAWS ALB users should override to `/*`.",
+              "title": "path",
+              "type": "string"
             },
             "tls": {
               "description": "TLS entries concatenated with the local `ingress.tls`. Evaluated as a template",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "tls"
+              "title": "tls",
+              "type": "array"
             }
           },
-          "required": [],
-          "title": "ingress"
+          "required": [
+            "enabled",
+            "path",
+            "defaultPathType",
+            "ingressClassName",
+            "annotations",
+            "extraLabels",
+            "tls"
+          ],
+          "title": "ingress",
+          "type": "object"
         },
         "mcpDomain": {
           "default": "{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}",
-          "description": "Domain where Seqera MCP listens. Evaluated as a template. Note: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain",
-          "required": [],
-          "title": "mcpDomain"
+          "description": "Domain where Seqera MCP listens. Evaluated as a template.\nNote: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain",
+          "title": "mcpDomain",
+          "type": "string"
         },
         "platformExternalDomain": {
           "default": "example.com",
           "description": "Domain where Seqera Platform listens",
-          "required": [],
-          "title": "platformExternalDomain"
+          "title": "platformExternalDomain",
+          "type": "string"
         },
         "platformServiceAddress": {
           "default": "",
-          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
-          "required": [],
-          "title": "platformServiceAddress"
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template.\nRequired when deploying this subchart standalone. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "title": "platformServiceAddress",
+          "type": "string"
         },
         "platformServicePort": {
           "default": "",
-          "description": "Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section",
+          "description": "(int) Seqera Platform Service port.\nRequired when deploying this subchart standalone. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section",
           "required": [],
-          "title": "platformServicePort"
+          "title": "platformServicePort",
+          "type": [
+            "integer",
+            "string",
+            "null"
+          ]
         }
       },
-      "required": [],
-      "title": "global"
+      "required": [
+        "platformExternalDomain",
+        "platformServiceAddress",
+        "mcpDomain",
+        "ingress",
+        "imageCredentials",
+        "imageCredentialsSecrets"
+      ],
+      "title": "global",
+      "type": "object"
     },
     "hubApiEndpoint": {
       "default": "https://hub.seqera.io",
       "description": "API endpoint of Seqera Hub.",
-      "required": [],
-      "title": "hubApiEndpoint"
+      "title": "hubApiEndpoint",
+      "type": "string"
     },
     "image": {
       "properties": {
         "digest": {
           "default": "",
           "description": "Container image digest in the format `sha256:1234abcdef`",
-          "required": [],
-          "title": "digest"
+          "title": "digest",
+          "type": "string"
         },
         "pullPolicy": {
           "default": "IfNotPresent",
-          "description": "imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
-          "required": [],
-          "title": "pullPolicy"
+          "description": "imagePullPolicy for the container\nRef: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images",
+          "title": "pullPolicy",
+          "type": "string"
         },
         "pullSecrets": {
-          "description": "List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
+          "description": "List of imagePullSecrets\nSecrets must be created in the same namespace, for example using the .extraDeploy array\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "pullSecrets"
+          "title": "pullSecrets",
+          "type": "array"
         },
         "registry": {
           "default": "",
           "description": "Container image registry",
-          "required": [],
-          "title": "registry"
+          "title": "registry",
+          "type": "string"
         },
         "repository": {
           "default": "ai/mcp/server",
           "description": "Container image repository",
-          "required": [],
-          "title": "repository"
+          "title": "repository",
+          "type": "string"
         },
         "tag": {
-          "default": "`\"{{ .chart.AppVersion }}\"`",
+          "default": "",
           "description": "Container image tag",
-          "required": [],
-          "title": "tag"
+          "title": "tag",
+          "type": "string"
         }
       },
-      "required": [],
+      "required": [
+        "registry",
+        "repository",
+        "tag",
+        "digest",
+        "pullPolicy",
+        "pullSecrets"
+      ],
       "title": "image",
       "type": "object"
     },
@@ -315,129 +360,148 @@
         "annotations": {
           "description": "Ingress annotations specific to your load balancer. Evaluated as a template",
           "required": [],
-          "title": "annotations"
+          "title": "annotations",
+          "type": "object"
         },
         "defaultBackend": {
-          "description": "Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress \u003cname\u003e' will report problems",
+          "description": "Configure the default service for the ingress (evaluated as template)\nImportant: make sure only one defaultBackend is defined across the k8s cluster: if the\ningress doesn't reconcile successfully, 'describe ingress \u003cname\u003e' will report problems",
           "required": [],
-          "title": "defaultBackend"
+          "title": "defaultBackend",
+          "type": "object"
         },
         "defaultPathType": {
           "default": "",
           "description": "Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`",
-          "required": [],
-          "title": "defaultPathType"
+          "title": "defaultPathType",
+          "type": "string"
         },
         "enabled": {
-          "default": "false",
+          "default": false,
           "description": "Enable ingress for MCP",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "extraHosts": {
           "description": "Additional hosts you want to include. Evaluated as a template",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraHosts"
+          "title": "extraHosts",
+          "type": "array"
         },
         "extraLabels": {
           "description": "Additional labels for the ingress object. Evaluated as a template",
           "required": [],
-          "title": "extraLabels"
+          "title": "extraLabels",
+          "type": "object"
         },
         "ingressClassName": {
           "default": "",
-          "description": "Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName`",
-          "required": [],
-          "title": "ingressClassName"
+          "description": "Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).\nWhen empty, falls back to `global.ingress.ingressClassName`",
+          "title": "ingressClassName",
+          "type": "string"
         },
         "path": {
           "default": "",
           "description": "Path for the main ingress rule. When empty, falls back to `global.ingress.path`",
-          "required": [],
-          "title": "path"
+          "title": "path",
+          "type": "string"
         },
         "tls": {
           "description": "TLS configuration. Evaluated as a template",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "tls"
+          "title": "tls",
+          "type": "array"
         }
       },
-      "required": [],
+      "required": [
+        "enabled",
+        "path",
+        "defaultPathType",
+        "defaultBackend",
+        "extraHosts",
+        "annotations",
+        "extraLabels",
+        "ingressClassName",
+        "tls"
+      ],
       "title": "ingress",
       "type": "object"
     },
     "initContainerDependencies": {
       "properties": {
         "enabled": {
-          "default": "true",
-          "description": "Enable init containers that coordinate startup dependencies (for example, wait for Seqera Platform readiness before starting, etc)",
-          "required": [],
-          "title": "enabled"
+          "default": true,
+          "description": "Enable init containers that coordinate startup dependencies (for example, wait for Seqera\nPlatform readiness before starting, etc)",
+          "title": "enabled",
+          "type": "boolean"
         },
         "waitForPlatform": {
           "properties": {
             "enabled": {
-              "default": "true",
+              "default": true,
               "description": "Enable wait for Seqera Platform init container before starting the MCP server",
-              "required": [],
-              "title": "enabled"
+              "title": "enabled",
+              "type": "boolean"
             },
             "extraEnvVars": {
               "description": "Additional environment variables for the init container",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraEnvVars"
+              "title": "extraEnvVars",
+              "type": "array"
             },
             "extraVolumeMounts": {
               "description": "Additional volume mounts for the init container (e.g. to mount a CA certificate)",
               "items": {
                 "required": []
               },
-              "required": [],
-              "title": "extraVolumeMounts"
+              "title": "extraVolumeMounts",
+              "type": "array"
             },
             "image": {
               "properties": {
                 "digest": {
                   "default": "",
                   "description": "Wait for Platform init container image digest in the format `sha256:1234abcdef`",
-                  "required": [],
-                  "title": "digest"
+                  "title": "digest",
+                  "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
                   "description": "imagePullPolicy for the wait for Platform init container",
-                  "required": [],
-                  "title": "pullPolicy"
+                  "title": "pullPolicy",
+                  "type": "string"
                 },
                 "registry": {
                   "default": "",
                   "description": "Wait for Platform init container image registry",
-                  "required": [],
-                  "title": "registry"
+                  "title": "registry",
+                  "type": "string"
                 },
                 "repository": {
                   "default": "curlimages/curl",
                   "description": "Wait for Platform init container image repository",
-                  "required": [],
-                  "title": "repository"
+                  "title": "repository",
+                  "type": "string"
                 },
                 "tag": {
                   "default": "latest",
                   "description": "Wait for Platform init container image tag",
-                  "required": [],
-                  "title": "tag"
+                  "title": "tag",
+                  "type": "string"
                 }
               },
-              "required": [],
+              "required": [
+                "registry",
+                "repository",
+                "tag",
+                "digest",
+                "pullPolicy"
+              ],
               "title": "image",
               "type": "object"
             },
@@ -483,7 +547,8 @@
                 "requests",
                 "limits"
               ],
-              "title": "resources"
+              "title": "resources",
+              "type": "object"
             },
             "securityContext": {
               "properties": {
@@ -506,41 +571,52 @@
                   "required": [
                     "drop"
                   ],
-                  "title": "capabilities"
+                  "title": "capabilities",
+                  "type": "object"
                 },
                 "readOnlyRootFilesystem": {
-                  "default": "true",
+                  "default": true,
                   "description": "Mount the container root filesystem read-only to prevent in-place writes or tampering",
-                  "required": [],
-                  "title": "readOnlyRootFilesystem"
+                  "title": "readOnlyRootFilesystem",
+                  "type": "boolean"
                 },
                 "runAsNonRoot": {
-                  "default": "true",
+                  "default": true,
                   "description": "Require the container to run as a non-root UID (prevents starting if UID 0)",
-                  "required": [],
-                  "title": "runAsNonRoot"
+                  "title": "runAsNonRoot",
+                  "type": "boolean"
                 },
                 "runAsUser": {
-                  "default": "101",
+                  "default": 101,
                   "description": "UID the container processes run as (overrides container image default)",
-                  "required": [],
-                  "title": "runAsUser"
+                  "title": "runAsUser",
+                  "type": "integer"
                 }
               },
-              "required": [],
+              "required": [
+                "runAsUser",
+                "runAsNonRoot",
+                "readOnlyRootFilesystem",
+                "capabilities"
+              ],
               "title": "securityContext",
               "type": "object"
             }
           },
           "required": [
+            "enabled",
             "image",
-            "securityContext"
+            "securityContext",
+            "resources",
+            "extraEnvVars",
+            "extraVolumeMounts"
           ],
           "title": "waitForPlatform",
           "type": "object"
         }
       },
       "required": [
+        "enabled",
         "waitForPlatform"
       ],
       "title": "initContainerDependencies",
@@ -551,70 +627,79 @@
       "items": {
         "required": []
       },
-      "required": [],
-      "title": "initContainers"
+      "title": "initContainers",
+      "type": "array"
     },
     "livenessProbe": {
       "description": "Configure extra options for the liveness probe",
       "properties": {
         "enabled": {
-          "default": "true",
+          "default": true,
           "description": "Enable liveness probe",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "failureThreshold": {
-          "default": "10",
+          "default": 10,
           "description": "Consecutive failures before restarting the container",
-          "required": [],
-          "title": "failureThreshold"
+          "title": "failureThreshold",
+          "type": "integer"
         },
         "httpGet": {
           "properties": {
             "path": {
               "default": "/health",
               "description": "HTTP GET path for liveness probe",
-              "required": [],
-              "title": "path"
+              "title": "path",
+              "type": "string"
             },
             "port": {
               "default": "{{ .Values.service.http.targetPort }}",
               "description": "HTTP GET port for liveness probe. Evaluated as a template",
-              "required": [],
-              "title": "port"
+              "title": "port",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "path",
+            "port"
+          ],
           "title": "httpGet",
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": "5",
+          "default": 5,
           "description": "Delay before first check (normal start timing)",
-          "required": [],
-          "title": "initialDelaySeconds"
+          "title": "initialDelaySeconds",
+          "type": "integer"
         },
         "periodSeconds": {
-          "default": "10",
+          "default": 10,
           "description": "Regular check interval during normal operation",
-          "required": [],
-          "title": "periodSeconds"
+          "title": "periodSeconds",
+          "type": "integer"
         },
         "successThreshold": {
-          "default": "1",
+          "default": 1,
           "description": "Typically 1 (usually ignored)",
-          "required": [],
-          "title": "successThreshold"
+          "title": "successThreshold",
+          "type": "integer"
         },
         "timeoutSeconds": {
-          "default": "3",
+          "default": 3,
           "description": "Short timeout to detect hung containers quickly",
-          "required": [],
-          "title": "timeoutSeconds"
+          "title": "timeoutSeconds",
+          "type": "integer"
         }
       },
       "required": [
-        "httpGet"
+        "enabled",
+        "httpGet",
+        "initialDelaySeconds",
+        "periodSeconds",
+        "timeoutSeconds",
+        "failureThreshold",
+        "successThreshold"
       ],
       "title": "livenessProbe",
       "type": "object"
@@ -629,161 +714,186 @@
         ],
         "required": []
       },
-      "required": [],
-      "title": "micronautEnvironments"
+      "title": "micronautEnvironments",
+      "type": "array"
     },
     "oauth": {
       "properties": {
         "audience": {
           "default": "platform",
-          "description": "OAuth audience for MCP to authenticate with. This is the expected audience claim in the tokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this should be set to \"platform\" to match the audience of the internal client that Platform creates for MCP. When using a custom OAuth provider, this should match the audience configured for the client that MCP uses to authenticate with that provider",
-          "required": [],
-          "title": "audience"
+          "description": "OAuth audience for MCP to authenticate with. This is the expected audience claim in the\ntokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this\nshould be set to \"platform\" to match the audience of the internal client that Platform creates\nfor MCP. When using a custom OAuth provider, this should match the audience configured for the\nclient that MCP uses to authenticate with that provider",
+          "title": "audience",
+          "type": "string"
         },
         "issuerUrl": {
           "default": "",
-          "description": "OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform API endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default behavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.",
-          "required": [],
-          "title": "issuerUrl"
+          "description": "OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform\nAPI endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default\nbehavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.",
+          "title": "issuerUrl",
+          "type": "string"
         },
         "jwtSeedSecretKey": {
-          "default": "`\"MCP_OAUTH_JWT_SECRET\"`",
+          "default": "",
           "description": "Key in the existing Secret containing the JWT seed",
-          "required": [],
-          "title": "jwtSeedSecretKey"
+          "title": "jwtSeedSecretKey",
+          "type": "string"
         },
         "jwtSeedSecretName": {
           "default": "",
-          "description": "Name of an existing Secret containing the JWT seed, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment",
-          "required": [],
-          "title": "jwtSeedSecretName"
+          "description": "Name of an existing Secret containing the JWT seed, as an alternative to the string field.\nNote: the Secret must already exist in the same namespace at the time of deployment",
+          "title": "jwtSeedSecretName",
+          "type": "string"
         },
         "jwtSeedString": {
           "default": "",
-          "description": "JWT seed, defined as string, used to sign authentication tokens. Define the value as a String or a Secret, not both at the same time. If neither is defined, Helm generates a random 35-character string. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication",
-          "required": [],
-          "title": "jwtSeedString"
+          "description": "JWT seed, defined as string, used to sign authentication tokens.\nDefine the value as a String or a Secret, not both at the same time.\nIf neither is defined, Helm generates a random 35-character string.\nWARNING: Always explicitly set this value or use an existing secret when using Kustomize.\nAuto-generated random values are incompatible with Kustomize. When upgrading releases via\nKustomize, Helm cannot query the cluster to check if a secret already exists, causing it to\nregenerate a new random value on each upgrade, which will break authentication",
+          "title": "jwtSeedString",
+          "type": "string"
         }
       },
-      "required": [],
+      "required": [
+        "issuerUrl",
+        "audience",
+        "jwtSeedString",
+        "jwtSeedSecretName",
+        "jwtSeedSecretKey"
+      ],
       "title": "oauth",
       "type": "object"
     },
     "oidcToken": {
       "properties": {
         "existingSecretKey": {
-          "default": "`\"MCP_OAUTH_INITIAL_ACCESS_TOKEN\"`",
+          "default": "",
           "description": "Key in the existing Secret containing the OIDC client registration token.",
-          "required": [],
-          "title": "existingSecretKey"
+          "title": "existingSecretKey",
+          "type": "string"
         },
         "existingSecretName": {
           "default": "",
-          "description": "Name of an existing Secret containing the OIDC client registration token, as an alternative to the string field. Note: the Secret must already exist in the same namespace at the time of deployment.",
-          "required": [],
-          "title": "existingSecretName"
+          "description": "Name of an existing Secret containing the OIDC client registration token, as an alternative\nto the string field. Note: the Secret must already exist in the same namespace at the time of\ndeployment.",
+          "title": "existingSecretName",
+          "type": "string"
         },
         "tokenString": {
           "default": "",
-          "description": "OIDC client registration token as a string. Used to dynamically register an OAuth client with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random value is generated. When deployed via the platform parent chart, this is automatically defined with the value of the OIDC client registration token from the platform backend secret, so it should not be set in that case. When deploying independently of the platform parent chart, this must be set to the same value defined in the platform backend secret. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade, which will break authentication",
-          "required": [],
-          "title": "tokenString"
+          "description": "OIDC client registration token as a string. Used to dynamically register an OAuth client\nwith Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random\nvalue is generated. When deployed via the platform parent chart, this is automatically defined\nwith the value of the OIDC client registration token from the platform backend secret, so it\nshould not be set in that case. When deploying independently of the platform parent chart, this\nmust be set to the same value defined in the platform backend secret.\nWARNING: Always explicitly set this value or use an existing secret when using Kustomize.\nAuto-generated random values are incompatible with Kustomize. When upgrading releases via\nKustomize, Helm cannot query the cluster to check if a secret already exists, causing it to\nregenerate a new random value on each upgrade, which will break authentication",
+          "title": "tokenString",
+          "type": "string"
         }
       },
-      "required": [],
+      "required": [
+        "tokenString",
+        "existingSecretName",
+        "existingSecretKey"
+      ],
       "title": "oidcToken",
       "type": "object"
     },
     "podAnnotations": {
       "description": "Additional annotations for the pod. Evaluated as a template",
       "required": [],
-      "title": "podAnnotations"
+      "title": "podAnnotations",
+      "type": "object"
     },
     "podLabels": {
       "description": "Additional labels for the pod. Evaluated as a template",
       "required": [],
-      "title": "podLabels"
+      "title": "podLabels",
+      "type": "object"
     },
     "podSecurityContext": {
-      "description": " Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod Empty map to disable Pod Security Context configuration",
+      "description": "Configure Pods Security Context.\nRef: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod\nEmpty map to disable Pod Security Context configuration",
       "properties": {
         "enabled": {
-          "default": "true",
+          "default": true,
           "description": "Enable pod Security Context",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "fsGroup": {
-          "default": "101",
-          "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access",
-          "required": [],
-          "title": "fsGroup"
+          "default": 101,
+          "description": "Sets the GID that Kubernetes will apply to mounted volumes and created files so processes\nin the pod can share group-owned access",
+          "title": "fsGroup",
+          "type": "integer"
         }
       },
-      "required": [],
-      "title": "podSecurityContext"
+      "required": [
+        "enabled",
+        "fsGroup"
+      ],
+      "title": "podSecurityContext",
+      "type": "object"
     },
     "readinessProbe": {
       "description": "Configure extra options for the readiness probe",
       "properties": {
         "enabled": {
-          "default": "true",
+          "default": true,
           "description": "Enable readiness probe",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "failureThreshold": {
-          "default": "5",
+          "default": 5,
           "description": "Consecutive failures before marking the container Unready (no restart)",
-          "required": [],
-          "title": "failureThreshold"
+          "title": "failureThreshold",
+          "type": "integer"
         },
         "httpGet": {
           "properties": {
             "path": {
               "default": "/health",
               "description": "HTTP GET path for readiness probe",
-              "required": [],
-              "title": "path"
+              "title": "path",
+              "type": "string"
             },
             "port": {
               "default": "{{ .Values.service.http.targetPort }}",
               "description": "HTTP GET port for readiness probe. Evaluated as a template",
-              "required": [],
-              "title": "port"
+              "title": "port",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "path",
+            "port"
+          ],
           "title": "httpGet",
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": "5",
+          "default": 5,
           "description": "Delay before first check (normal start timing)",
-          "required": [],
-          "title": "initialDelaySeconds"
+          "title": "initialDelaySeconds",
+          "type": "integer"
         },
         "periodSeconds": {
-          "default": "5",
+          "default": 5,
           "description": "Regular check interval during normal operation",
-          "required": [],
-          "title": "periodSeconds"
+          "title": "periodSeconds",
+          "type": "integer"
         },
         "successThreshold": {
-          "default": "1",
+          "default": 1,
           "description": "Number of consecutive successes required to mark the container Ready after failures",
-          "required": [],
-          "title": "successThreshold"
+          "title": "successThreshold",
+          "type": "integer"
         },
         "timeoutSeconds": {
-          "default": "3",
+          "default": 3,
           "description": "Short timeout to detect unresponsive containers for readiness",
-          "required": [],
-          "title": "timeoutSeconds"
+          "title": "timeoutSeconds",
+          "type": "integer"
         }
       },
       "required": [
-        "httpGet"
+        "enabled",
+        "httpGet",
+        "initialDelaySeconds",
+        "periodSeconds",
+        "timeoutSeconds",
+        "failureThreshold",
+        "successThreshold"
       ],
       "title": "readinessProbe",
       "type": "object"
@@ -791,82 +901,101 @@
     "registryApiEndpoint": {
       "default": "https://registry.nextflow.io",
       "description": "API endpoint of Seqera Nextflow Registry.",
-      "required": [],
-      "title": "registryApiEndpoint"
+      "title": "registryApiEndpoint",
+      "type": "string"
     },
     "resources": {
       "description": "Container requests and limits for different resources like CPU or memory",
       "required": [],
-      "title": "resources"
+      "title": "resources",
+      "type": "object"
     },
     "secretAnnotations": {
       "description": "Additional annotations for the Secret objects. Evaluated as a template",
       "required": [],
-      "title": "secretAnnotations"
+      "title": "secretAnnotations",
+      "type": "object"
     },
     "secretLabels": {
       "description": "Additional labels for the Secret objects. Evaluated as a template",
       "required": [],
-      "title": "secretLabels"
+      "title": "secretLabels",
+      "type": "object"
     },
     "service": {
       "description": "Service configuration",
       "properties": {
         "extraOptions": {
-          "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template",
+          "description": "Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,\nexternalTrafficPolicy, externalIPs). Evaluated as a template",
           "required": [],
-          "title": "extraOptions"
+          "title": "extraOptions",
+          "type": "object"
         },
         "extraServices": {
-          "description": "Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
+          "description": "Other services that should live in the Service object\nhttps://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "extraServices"
+          "title": "extraServices",
+          "type": "array"
         },
         "http": {
           "properties": {
             "name": {
               "default": "http",
               "description": "Service name to use",
-              "required": [],
-              "title": "name"
+              "title": "name",
+              "type": "string"
             },
             "nodePort": {
               "default": "null",
-              "description": "Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default",
+              "description": "Service node port, only used when service.type is Nodeport or LoadBalancer\nChoose port between 30000-32767, unless the cluster was configured differently than default",
               "required": [],
-              "title": "nodePort"
+              "title": "nodePort",
+              "type": [
+                "integer",
+                "null"
+              ]
             },
             "port": {
-              "default": "6010",
+              "default": 6010,
               "description": "Service port",
               "required": [],
-              "title": "port"
+              "title": "port",
+              "type": [
+                "integer",
+                "string"
+              ]
             },
             "targetPort": {
-              "default": "6010",
-              "description": "Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port)",
-              "required": [],
-              "title": "targetPort"
+              "default": 6010,
+              "description": "Port on the pod/container that the Service forwards traffic to (can be a number or\nnamed port, distinct from the Service's external port)",
+              "title": "targetPort",
+              "type": "integer"
             }
           },
-          "required": [],
+          "required": [
+            "name",
+            "targetPort"
+          ],
           "title": "http",
           "type": "object"
         },
         "type": {
           "default": "ClusterIP",
-          "description": "Service type. Note: ingresses using AWS ALB require the service to be NodePort",
-          "required": [],
-          "title": "type"
+          "description": "Service type.\nNote: ingresses using AWS ALB require the service to be NodePort",
+          "title": "type",
+          "type": "string"
         }
       },
       "required": [
-        "http"
+        "type",
+        "http",
+        "extraServices",
+        "extraOptions"
       ],
-      "title": "service"
+      "title": "service",
+      "type": "object"
     },
     "serviceAccount": {
       "description": "Service account configuration",
@@ -874,93 +1003,112 @@
         "annotations": {
           "description": "Service account annotations",
           "required": [],
-          "title": "annotations"
+          "title": "annotations",
+          "type": "object"
         },
         "automountServiceAccountToken": {
-          "default": "true",
+          "default": true,
           "description": "Automatically mount service account token",
           "required": [],
-          "title": "automountServiceAccountToken"
+          "title": "automountServiceAccountToken",
+          "type": [
+            "boolean",
+            "string"
+          ]
         },
         "imagePullSecretNames": {
           "description": "Names of Secrets containing credentials to pull images from registries",
           "items": {
             "required": []
           },
-          "required": [],
-          "title": "imagePullSecretNames"
+          "title": "imagePullSecretNames",
+          "type": "array"
         },
         "name": {
           "default": "",
           "description": "Service account name",
-          "required": [],
-          "title": "name"
+          "title": "name",
+          "type": "string"
         }
       },
-      "required": [],
-      "title": "serviceAccount"
+      "required": [
+        "name",
+        "annotations",
+        "imagePullSecretNames"
+      ],
+      "title": "serviceAccount",
+      "type": "object"
     },
     "startupProbe": {
       "description": "Configure extra options for the startup probe",
       "properties": {
         "enabled": {
-          "default": "false",
+          "default": false,
           "description": "Enable startup probe",
-          "required": [],
-          "title": "enabled"
+          "title": "enabled",
+          "type": "boolean"
         },
         "failureThreshold": {
-          "default": "5",
-          "description": "Consecutive failures during startup before killing the container (instead of immediate restarts)",
-          "required": [],
-          "title": "failureThreshold"
+          "default": 5,
+          "description": "Consecutive failures during startup before killing the container (instead of immediate\nrestarts)",
+          "title": "failureThreshold",
+          "type": "integer"
         },
         "httpGet": {
           "properties": {
             "path": {
               "default": "/health",
               "description": "HTTP GET path for startup probe",
-              "required": [],
-              "title": "path"
+              "title": "path",
+              "type": "string"
             },
             "port": {
               "default": "{{ .Values.service.http.targetPort }}",
               "description": "HTTP GET port for startup probe. Evaluated as a template",
-              "required": [],
-              "title": "port"
+              "title": "port",
+              "type": "string"
             }
           },
-          "required": [],
+          "required": [
+            "path",
+            "port"
+          ],
           "title": "httpGet",
           "type": "object"
         },
         "initialDelaySeconds": {
-          "default": "5",
+          "default": 5,
           "description": "Longer initial wait to accommodate slow-starting apps",
-          "required": [],
-          "title": "initialDelaySeconds"
+          "title": "initialDelaySeconds",
+          "type": "integer"
         },
         "periodSeconds": {
-          "default": "10",
+          "default": 10,
           "description": "Often set longer to avoid frequent checks while starting",
-          "required": [],
-          "title": "periodSeconds"
+          "title": "periodSeconds",
+          "type": "integer"
         },
         "successThreshold": {
-          "default": "1",
-          "description": "Number of consecutive successes required to consider startup complete and enable liveness/readiness",
-          "required": [],
-          "title": "successThreshold"
+          "default": 1,
+          "description": "Number of consecutive successes required to consider startup complete and enable\nliveness/readiness",
+          "title": "successThreshold",
+          "type": "integer"
         },
         "timeoutSeconds": {
-          "default": "3",
+          "default": 3,
           "description": "Can be longer to allow slow initialization responses",
-          "required": [],
-          "title": "timeoutSeconds"
+          "title": "timeoutSeconds",
+          "type": "integer"
         }
       },
       "required": [
-        "httpGet"
+        "enabled",
+        "httpGet",
+        "initialDelaySeconds",
+        "periodSeconds",
+        "timeoutSeconds",
+        "failureThreshold",
+        "successThreshold"
       ],
       "title": "startupProbe",
       "type": "object"
@@ -968,19 +1116,48 @@
     "waveApiEndpoint": {
       "default": "https://wave.seqera.io",
       "description": "API endpoint of Seqera Wave.",
-      "required": [],
-      "title": "waveApiEndpoint"
+      "title": "waveApiEndpoint",
+      "type": "string"
     }
   },
   "required": [
+    "global",
+    "micronautEnvironments",
+    "hubApiEndpoint",
+    "waveApiEndpoint",
+    "registryApiEndpoint",
     "oidcToken",
     "oauth",
     "image",
+    "service",
     "initContainerDependencies",
+    "initContainers",
+    "command",
+    "args",
+    "podLabels",
+    "podAnnotations",
+    "extraOptionsSpec",
+    "extraOptionsTemplateSpec",
+    "extraEnvVars",
+    "extraEnvVarsCMs",
+    "extraEnvVarsSecrets",
+    "extraVolumes",
+    "extraVolumeMounts",
+    "podSecurityContext",
+    "containerSecurityContext",
+    "resources",
     "startupProbe",
     "readinessProbe",
     "livenessProbe",
-    "ingress"
+    "serviceAccount",
+    "ingress",
+    "extraDeploy",
+    "commonAnnotations",
+    "commonLabels",
+    "secretLabels",
+    "secretAnnotations",
+    "configMapLabels",
+    "configMapAnnotations"
   ],
   "type": "object"
 }

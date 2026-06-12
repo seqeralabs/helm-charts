@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add chart icon.
+- Auto-infer types for JSON schema values file.
 
 ## [1.0.7] - 2026-06-10
 

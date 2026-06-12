@@ -41,7 +41,7 @@ tests:
     set:
       global:
         platformServiceAddress: "platform-backend"
-        platformServicePort: ""
+        platformServicePort:
       micronautEnvironments:
         - oauth-platform
       oidcToken.existingSecretName: "my-oidc-secret"

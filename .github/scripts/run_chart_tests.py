@@ -61,7 +61,7 @@ def main():
         install_result = subprocess.run([
             "helm", "plugin", "install",
             "https://github.com/quintush/helm-unittest",
-            "--version", "1.0.1"
+            "--version", "1.1.1"
         ])
         if install_result.returncode != 0:
             print("Failed to install helm-unittest plugin.")

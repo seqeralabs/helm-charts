@@ -46,7 +46,7 @@ tests:
     set:
       global:
         platformServiceAddress: "platform-backend"
-        platformServicePort: ""
+        platformServicePort:
     asserts:
       - failedTemplate:
           errorPattern: "Define the Seqera Platform Service port at 'global.platformServicePort'"
