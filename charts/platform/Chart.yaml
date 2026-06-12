@@ -19,7 +19,7 @@
 apiVersion: v2
 name: platform
 description: A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
-icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/refs/heads/master/media/seqera-icon-light.svg
+icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io
