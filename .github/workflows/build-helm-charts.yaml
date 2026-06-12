@@ -56,13 +56,12 @@ jobs:
 
       - name: Import GPG key
         run: |
-          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY }}" > private.key
-          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" |gpg --batch --import private.key
+          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_BASE64 }}" | base64 -d | gpg --batch --import
 
           # Prepare the public and secret keyrings for helm's gpg signing. Helm expects these to be
           # in the older "keyring" format.
           gpg --export >~/.gnupg/pubring.gpg
-          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" |gpg --export-secret-keys --pinentry-mode loopback --passphrase-fd 0 >~/.gnupg/secring.gpg
+          echo "${{ secrets.GPG_HELM_SIGNING_PRIVATE_KEY_PASSPHRASE }}" | gpg --export-secret-keys --pinentry-mode loopback --passphrase-fd 0 >~/.gnupg/secring.gpg
 
       - name: 'Build Helm charts'
         if: env.charts_to_package != ''
