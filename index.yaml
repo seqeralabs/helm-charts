@@ -4,6 +4,38 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 1.11.0
+    created: "2026-06-12T12:22:41.458303921Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Backend service for Seqera CLI AI capabilities
+    digest: e96963ed2da2f884b9fb96c6bf4945190174960888f74b85cae232d23367faae
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: agent-backend
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/agent-backend-1.0.8/agent-backend-1.0.8.tgz
+    version: 1.0.8
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: 'Include Helm values JSON schema.'
     apiVersion: v2
     appVersion: 1.11.0
@@ -163,6 +195,39 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 1.3.0
+    created: "2026-06-12T12:22:41.628241954Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: seqera-common.enabled
+      name: seqera-common
+      repository: file://../../../seqera-common
+      version: 2.x.x
+    description: 'A Model Context Protocol (MCP) server that provides comprehensive
+      access to the Seqera Platform, Wave container provisioning, bioinformatics data,
+      and nf-core modules through intelligent RAG-based natural language interactions. '
+    digest: e30947ef13f2dca5c1201ae0febbd15884b7a6f00ad1bf951f472e3ceb848a43
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: mcp
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/mcp-0.4.4/mcp-0.4.4.tgz
+    version: 0.4.4
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: 'Include Helm values JSON schema.'
     apiVersion: v2
     appVersion: 1.3.0
@@ -250,6 +315,39 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 0.4.13
+    created: "2026-06-12T12:22:41.786321627Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: A Helm chart to deploy the Seqera Pipeline Optimization service (referred
+      to as Groundswell in Platform configuration files).
+    digest: b8c237386b5cf656b6b0c777449ed355786421a76e5b9a861ae787bb213c1db7
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: pipeline-optimization
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/pipeline-optimization-2.0.11/pipeline-optimization-2.0.11.tgz
+    version: 2.0.11
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: 'Include Helm values JSON schema.'
     apiVersion: v2
     appVersion: 0.4.13
@@ -334,6 +432,75 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/pipeline-optimization-2.0.3/pipeline-optimization-2.0.3.tgz
     version: 2.0.3
   platform:
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
+          description: 'Add chart icon to all subcharts: agent-backend to 1.0.8, mcp to 0.4.4, pipeline-optimization to 2.0.11, portal-web to 0.3.6, studios to 1.4.4, wave to 0.2.6, seqera-common to 2.1.5.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: v26.1.0
+    created: "2026-06-12T12:22:42.033154846Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.2.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.4.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.3.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: c0f1285586f2ba20354057870ad135aefd15e96836f0f5ac1946fd087064a2eb
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.34.2/platform-0.34.2.tgz
+    version: 0.34.2
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
@@ -976,6 +1143,37 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 1.6.0
+    created: "2026-06-12T12:22:42.21218577Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: seqera-common.enabled
+      name: seqera-common
+      repository: file://../../../seqera-common
+      version: 2.x.x
+    description: Portal web frontend for Seqera Platform
+    digest: d8dfafc6887b4b3c0d6f8ee1e6c4a7e58ff9b3242eafc9f20ea255dba641e013
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: portal-web
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/portal-web-0.3.6/portal-web-0.3.6.tgz
+    version: 0.3.6
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: 'Include Helm values JSON schema.'
     apiVersion: v2
     appVersion: 1.6.0
@@ -1105,6 +1303,35 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-06-12T12:22:42.365378812Z"
+    description: A Library Helm Chart for grouping common logic between Seqera charts.
+      This chart is not deployable by itself.
+    digest: 278d7b3d928c80e197dfcaa716c438c0e8599b7ac734a4d666b00347a4950e2d
+    home: https://github.com/seqeralabs/helm-charts
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    keywords:
+    - common
+    - helper
+    - template
+    - function
+    maintainers:
+    - name: Seqera Labs
+      url: https://github.com/seqeralabs/helm-charts
+    name: seqera-common
+    sources:
+    - https://github.com/seqeralabs/helm-charts/tree/main/seqera-common
+    type: library
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/seqera-common-2.1.5/seqera-common-2.1.5.tgz
+    version: 2.1.5
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: 'Include Helm values JSON schema.'
     apiVersion: v2
     appVersion: 1.0.0
@@ -1177,6 +1404,39 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/seqera-common-2.1.0/seqera-common-2.1.0.tgz
     version: 2.1.0
   studios:
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: 0.11.1
+    created: "2026-06-12T12:22:42.530625816Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Studios is a unified platform for interactive analysis
+    digest: 37135f8839df729efe29a380ed40709a4954a8783532205e0143c83af0406eb8
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: studios
+    sources:
+    - https://github.com/seqeralabs/helm-charts/tree/main/seqera/charts/studios
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/studios-1.4.4/studios-1.4.4.tgz
+    version: 1.4.4
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
@@ -1290,6 +1550,38 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/studios-1.2.11/studios-1.2.11.tgz
     version: 1.2.11
   wave:
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
+          description: 'Add chart icon.'
+        - kind: added
+          description: 'Auto-infer types for JSON schema values file.'
+    apiVersion: v2
+    appVersion: v1.32.4
+    created: "2026-06-12T12:22:42.715089535Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 2.x.x
+    description: Wave
+    digest: b4c8477bdebeb333322522c5e7296a1d069d90b1b6e76affdd6c5bc2053ad9c9
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: wave
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.2.6/wave-0.2.6.tgz
+    version: 0.2.6
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
@@ -1423,4 +1715,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-10T13:28:07.028626421Z"
+generated: "2026-06-12T12:22:42.715191559Z"
