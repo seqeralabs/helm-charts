@@ -4,6 +4,12 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.7] - 2026-06-24
+
+### Added
+
+- Add ArtifactHub annotations: license, links, and sign key.
+
 ## [0.3.6] - 2026-06-11
 
 ### Added

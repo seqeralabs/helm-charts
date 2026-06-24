@@ -260,6 +260,47 @@ def test_main_skips_missing_changelog():
         shutil.rmtree(tmpdir)
 
 
+def test_main_preserves_existing_annotations():
+    """Inject must add artifacthub.io/changes without overwriting other annotations."""
+    tmpdir = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(tmpdir, "Chart.yaml"), "w") as f:
+            f.write(
+                "apiVersion: v2\n"
+                "name: test-chart\n"
+                "version: 2.0.0\n"
+                "annotations:\n"
+                "  artifacthub.io/signKey: |\n"
+                "    fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0\n"
+                "    url: https://keybase.io/seqeradevops/pgp_keys.asc\n"
+            )
+
+        with open(os.path.join(tmpdir, "CHANGELOG.md"), "w") as f:
+            f.write("## [2.0.0] - 2026-06-24\n\n### Fixed\n\n- Fix something.\n")
+
+        with unittest.mock.patch.dict(os.environ, {"charts_to_package": tmpdir}):
+            result = inject_main()
+            assert result == 0, "main() should return 0"
+
+            # artifacthub.io/changes was injected
+            proc = subprocess.run(
+                ["yq", "-r", '.annotations["artifacthub.io/changes"]', os.path.join(tmpdir, "Chart.yaml")],
+                capture_output=True, text=True, check=True,
+            )
+            assert "fixed" in proc.stdout
+            assert "Fix something" in proc.stdout
+
+            # Pre-existing signKey annotation was NOT clobbered
+            proc2 = subprocess.run(
+                ["yq", "-r", '.annotations["artifacthub.io/signKey"]', os.path.join(tmpdir, "Chart.yaml")],
+                capture_output=True, text=True, check=True,
+            )
+            assert "F69F12932C6F3E0EED47964BCE031B0C243F50E0" in proc2.stdout
+            assert "keybase.io/seqeradevops" in proc2.stdout
+    finally:
+        shutil.rmtree(tmpdir)
+
+
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     passed = 0
