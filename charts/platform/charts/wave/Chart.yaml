@@ -19,13 +19,23 @@ apiVersion: v2
 name: wave
 description: Wave
 type: application
-version: 0.2.6
+version: 0.2.7
 appVersion: "v1.32.4"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
     email: devops@seqera.io
     url: https://seqera.io
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Seqera Docs
+      url: https://docs.seqera.io
+    - name: Helm charts repository
+      url: https://github.com/seqeralabs/helm-charts/
+  artifacthub.io/signKey: |
+    fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+    url: https://keybase.io/seqeradevops/pgp_keys.asc
 dependencies:
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
