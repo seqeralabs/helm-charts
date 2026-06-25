@@ -159,13 +159,16 @@ jobs:
           EOF
 
             # Create the release with auto-generated notes and attach the
-            # packaged chart as a release asset.
+            # packaged chart and its GPG provenance file as release assets.
+            # The .prov file is required by ArtifactHub and `helm verify` to
+            # confirm the package signature.
             gh release create "${release_tag}" \
               --repo ${{ github.repository }} \
               --title "${chart_name} ${chart_version}" \
               --generate-notes \
               --notes-file ${temp_file} \
-              "${chart_name}-${chart_version}.tgz"
+              "${chart_name}-${chart_version}.tgz" \
+              "${chart_name}-${chart_version}.tgz.prov"
 
             echo "Created release ${release_tag}"
           done
@@ -195,6 +198,7 @@ jobs:
             chart_name=$(yq -r '.name' ${chart}/Chart.yaml)
             chart_version=$(yq -r '.version' ${chart}/Chart.yaml)
             mv "${chart_name}-${chart_version}.tgz" .cr-release-packages/
+            mv "${chart_name}-${chart_version}.tgz.prov" .cr-release-packages/
           done
 
           owner="${GITHUB_REPOSITORY%%/*}"
