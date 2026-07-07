@@ -5,6 +5,12 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.5] - xxx
+
+### Fixed
+
+- Fix TLS in platform examples: align `agent-backend` and `pipeline-optimization` sections in `aws-tls-offline.yaml` to use `rds-ca-bundle`/`/rds-ca` naming consistent with the online example; make ConfigMap name region-agnostic (`aws-rds-ca-bundle`); add missing `initContainerDependencies.waitForMySQL` to `agent-backend` in offline example.
+
 ## [0.34.4] - 2026-06-24
 
 ### Added
