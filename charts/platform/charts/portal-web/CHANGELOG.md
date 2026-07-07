@@ -4,6 +4,12 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.8] - 2026-07-07
+
+### Changed
+
+- Revamp README documentation.
+
 ## [0.3.7] - 2026-06-24
 
 ### Added

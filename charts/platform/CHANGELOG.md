@@ -5,11 +5,19 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.34.5] - xxx
+## [0.34.5] - 2026-07-07
+
+### Changed
+
+- Revamp README documentation across platform and all subcharts (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave): clarify prerequisites, image registry vendoring, credentials handling, sensitive value management, and link to full examples on GitHub.
+- Bump agent-backend to 1.0.10, mcp to 0.4.6, pipeline-optimization to 2.0.13, portal-web to 0.3.8, studios to 1.4.6, wave to 0.2.8.
 
 ### Fixed
 
 - Fix TLS in platform examples: align `agent-backend` and `pipeline-optimization` sections in `aws-tls-offline.yaml` to use `rds-ca-bundle`/`/rds-ca` naming consistent with the online example; make ConfigMap name region-agnostic (`aws-rds-ca-bundle`); add missing `initContainerDependencies.waitForMySQL` to `agent-backend` in offline example.
+- Specify CA certificate to validate TLS for MySQL client connections (the MySQL client does not validate TLS by default).
+- Fix default value for `.platform.oidcClientRegistrationTokenSecretKey` to `OIDC_CLIENT_REGISTRATION_TOKEN`.
+- Improve "sensitive values in secrets" example.
 
 ## [0.34.4] - 2026-06-24
 

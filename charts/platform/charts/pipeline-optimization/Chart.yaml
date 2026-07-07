@@ -23,7 +23,7 @@ maintainers:
     email: devops@seqera.io
     url: https://seqera.io
 type: application
-version: 2.0.12
+version: 2.0.13
 appVersion: "0.4.13"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 annotations:
