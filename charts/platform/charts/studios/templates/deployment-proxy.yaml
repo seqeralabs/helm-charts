@@ -71,12 +71,12 @@ spec:
         {{- include "common.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
-        {{- include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "cloudProviderImageKey" "waitForPlatform" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $) | nindent 8 }}
 {{- end }}
 
       containers:
         - name: proxy
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.proxy.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "studiosProxy" "context" $) }}
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.proxy.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.proxy.service.http.targetPort }}

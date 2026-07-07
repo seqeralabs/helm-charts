@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.4.6](https://img.shields.io/badge/Version-1.4.6-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
+![Version: 1.5.0](https://img.shields.io/badge/Version-1.5.0-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry in the `values.yaml` file is documented with comments describing its purpose and usage.
@@ -41,7 +41,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/studios \
-  --version 1.4.6 \
+  --version 1.5.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -56,7 +56,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../seqera-common | seqera-common | 2.x.x |
+| file://../../../seqera-common | seqera-common | 3.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values

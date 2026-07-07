@@ -4,24 +4,24 @@ dependencies:
   version: 2.41.0
 - name: seqera-common
   repository: file://../seqera-common
-  version: 2.1.6
+  version: 3.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 2.0.13
+  version: 2.1.0
 - name: studios
   repository: file://charts/studios
-  version: 1.4.6
+  version: 1.5.0
 - name: wave
   repository: file://charts/wave
-  version: 0.2.8
+  version: 0.3.0
 - name: mcp
   repository: file://charts/mcp
-  version: 0.4.6
+  version: 0.5.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.0.10
+  version: 1.1.0
 - name: portal-web
   repository: file://charts/portal-web
-  version: 0.3.8
-digest: sha256:225990f4d40f67be22dc60b8d4a8c4662fba5c7920ed10ed4c54a766497a79b9
-generated: "2026-07-07T16:15:22.961252172+02:00"
+  version: 0.4.0
+digest: sha256:921838d01ff691d0339030d6797f9f8a9ee86028539a466b66302f3c42a00951
+generated: "2026-07-07T23:10:14.691027242+02:00"

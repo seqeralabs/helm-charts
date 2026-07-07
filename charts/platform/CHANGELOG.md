@@ -5,6 +5,21 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.0] - 2026-07-07
+
+### Removed
+
+- **BREAKING**: Removed support for overriding container images via `global.azure.images`
+  (introduced in #68). All Platform, cron, frontend, and subchart deployments now resolve their
+  images through `common.images.image` only. Users who relied on `global.azure.images.*` to
+  override images per-cloud must switch to the standard per-component `image.registry` /
+  `image.repository` / `image.tag` / `image.digest` values.
+- Bumped `seqera-common` dependency to `3.x.x`, which no longer exposes the
+  `seqera.images.image` helper nor the `cloudProviderImageKey` parameter on
+  `seqera.initContainers.waitFor*` helpers.
+- Bumped agent-backend to 1.1.0, mcp to 0.5.0, pipeline-optimization to 2.1.0,
+  portal-web to 0.4.0, studios to 1.5.0, wave to 0.3.0.
+
 ## [0.34.5] - 2026-07-07
 
 ### Changed
