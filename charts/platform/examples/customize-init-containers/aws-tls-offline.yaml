@@ -92,6 +92,16 @@ pipeline-optimization:
       mountPath: /rds-ca
       readOnly: true
 
+  initContainerDependencies:
+    waitForMySQL:
+      extraEnvVars:
+        - name: MYSQL_EXTRA_ARGS
+          value: "--ssl-ca=/rds-ca/rds-ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
+      extraVolumeMounts:
+        - name: rds-ca-bundle
+          mountPath: /rds-ca
+          readOnly: true
+
   database:
     # pipeline-optimization db details
     enableTls: true
