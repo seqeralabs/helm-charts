@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-07-07
 
+### Changed
+
+- Bumped `appVersion` to `1.13.1`.
+
 ### Removed
 
 - **BREAKING**: Removed `global.azure.images` image overrides for `agentBackend` and the

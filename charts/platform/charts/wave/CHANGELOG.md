@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.0] - 2026-07-07
 
+### Changed
+
+- Bumped `appVersion` to `v1.35.0`.
+
 ### Removed
 
 - **BREAKING**: Removed `global.azure.images` image overrides for the `wave` container, its

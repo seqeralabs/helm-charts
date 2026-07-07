@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Bumped `appVersion` to `1.4.2`.
 - Bumped `seqera-common` dependency to `3.x.x`. The `waitForPlatform` init container no longer
   accepts a `cloudProviderImageKey` — `global.azure.images` overrides are no longer honored.
 

@@ -20,7 +20,7 @@ name: portal-web
 description: Portal web frontend for Seqera Platform
 type: application
 version: 0.4.0
-appVersion: "1.6.0"
+appVersion: "1.7.2"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
