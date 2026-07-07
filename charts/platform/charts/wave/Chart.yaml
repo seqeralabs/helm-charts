@@ -19,7 +19,7 @@ apiVersion: v2
 name: wave
 description: Wave
 type: application
-version: 0.2.8
+version: 0.3.0
 appVersion: "v1.32.4"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
@@ -43,7 +43,7 @@ dependencies:
       - bitnami-common
     version: "2.x.x"
   - name: seqera-common
-    version: "2.x.x"
+    version: "3.x.x"
     repository: file://../../../seqera-common
     tags:
       - seqera-common

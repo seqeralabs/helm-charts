@@ -1,5 +1,5 @@
 {{/*
- Copyright (c) 2025 Seqera Labs
+ Copyright (c) 2025 - 2026 Seqera Labs
  All rights reserved.
 
  SPDX-License-Identifier: Apache-2.0

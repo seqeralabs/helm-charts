@@ -5,6 +5,15 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-07
+
+### Removed
+
+- **BREAKING**: Removed `global.azure.images` image overrides for `studiosProxy`, `studiosServer`,
+  and the `waitForPlatform` init container. Deployments now resolve images through
+  `common.images.image` only.
+- Bumped `seqera-common` dependency to `3.x.x`.
+
 ## [1.4.6] - 2026-07-07
 
 ### Changed
