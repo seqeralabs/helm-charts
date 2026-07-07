@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix default value for `.platform.oidcClientRegistrationTokenSecretKey` to `OIDC_CLIENT_REGISTRATION_TOKEN`.
 - Improve "sensitive values in secrets" example.
 
+### Removed
+
+- Removed azure marketplace values from platform chart.
+
 ## [0.34.4] - 2026-06-24
 
 ### Added
