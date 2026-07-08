@@ -34,6 +34,7 @@ database:
 redis:
   host: redis.example.com
   # port: 6379  # default
+  # database: 1  # optional: set if sharing a Redis instance with other services
   existingSecretName: wave-redis-credentials
   existingSecretKey: password
 

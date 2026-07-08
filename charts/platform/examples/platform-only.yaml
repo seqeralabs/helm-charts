@@ -8,6 +8,7 @@
 # - MySQL database provisioned
 # - Redis provisioned
 # - Seqera license key available
+# - SMTP server or access to AWS SES for email notifications
 #
 # Deploy with:
 #   helm repo add seqera https://seqeralabs.github.io/helm-charts
@@ -31,6 +32,7 @@ platformDatabase:
 redis:
   host: redis.example.com
   # port: 6379  # default
+  # Platform doesn't accept a database number, so it must use the default 0.
   existingSecretName: platform-redis-credentials
   existingSecretKey: password
 
