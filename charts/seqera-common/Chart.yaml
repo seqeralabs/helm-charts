@@ -19,7 +19,7 @@ apiVersion: v2
 type: library
 name: seqera-common
 appVersion: 1.0.0
-version: 2.1.6
+version: 3.0.0
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 description: A Library Helm Chart for grouping common logic between Seqera charts.
   This chart is not deployable by itself.

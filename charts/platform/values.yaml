@@ -41,8 +41,11 @@ global:
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
-  # hostname. Evaluated as a template
-  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+  # hostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned
+  # with the backend Deployment/Secret naming and collapses correctly when the release name
+  # already contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than
+  # `seqera-platform-platform-backend`)
+  platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) | lower }}'
   # @schema
   # type: [integer, string, null]
   # @schema
@@ -116,290 +119,6 @@ global:
   # `.dockerconfigjson` with value created with:
   #   kubectl create secret docker-registry mycreds --docker-server='cr.example.com' --docker-username='robot$robotnamehere' --docker-password='passwordhere' --dry-run=client -o yaml
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
-
-  # Cloud provider-specific configuration for subcharts. Each subchart may use these values to
-  # configure itself when deployed on the corresponding cloud provider, for example to set the
-  # correct image for the Platform backend, etc. Cloud-provider values take precedence over the
-  # general ones. Evaluated as a template
-  azure:
-    images:
-      platformBackend:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Platform backend image deployed on Azure. Example:
-        # `myregistry.azurecr.io`. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Platform backend image deployed on Azure. Example:
-        # `myteam/platform-backend`. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Platform backend on Azure. Defaults to the application version
-        # defined in the Chart.yaml file. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Platform backend on Azure, in the format `sha256:1234abcdef`.
-        # Takes precedence over the tag if both are set. Evaluated as a template
-        digest:
-      platformFrontend:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Platform frontend image deployed on Azure. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Platform frontend image deployed on Azure. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Platform frontend on Azure. Defaults to the application version
-        # defined in the Chart.yaml file. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Platform frontend on Azure, in the format `sha256:1234abcdef`.
-        # Takes precedence over the tag if both are set. Evaluated as a template
-        digest:
-      platformCronMigrateDB:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Platform cron migrate-db init container image deployed on Azure.
-        # Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Platform cron migrate-db init container image deployed on Azure.
-        # Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Platform cron migrate-db init container on Azure. Defaults to the
-        # application version defined in the Chart.yaml file. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Platform cron migrate-db init container on Azure, in the format
-        # `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template
-        digest:
-      studiosProxy:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Studios proxy image deployed on Azure. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Studios proxy image deployed on Azure. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Studios proxy on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Studios proxy on Azure. Evaluated as a template
-        digest:
-      studiosServer:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Studios server image deployed on Azure. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Studios server image deployed on Azure. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Studios server on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Studios server on Azure. Evaluated as a template
-        digest:
-      pipelineOptimization:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Pipeline Optimization image deployed on Azure. Evaluated as a
-        # template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Pipeline Optimization image deployed on Azure. Evaluated as a
-        # template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Pipeline Optimization on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Pipeline Optimization on Azure. Evaluated as a template
-        digest:
-      pipelineOptimizationMigrateDB:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Pipeline Optimization migrate-db init container image deployed
-        # on Azure. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Pipeline Optimization migrate-db init container image deployed
-        # on Azure. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Pipeline Optimization migrate-db init container on Azure. Evaluated
-        # as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Pipeline Optimization migrate-db init container on Azure, in the
-        # format `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a
-        # template
-        digest:
-      agentBackend:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the Agent Backend image deployed on Azure. Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the Agent Backend image deployed on Azure. Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the Agent Backend on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the Agent Backend on Azure. Evaluated as a template
-        digest:
-      waitForCron:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the wait-for-cron init container image deployed on Azure. Evaluated
-        # as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the wait-for-cron init container image deployed on Azure. Evaluated
-        # as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the wait-for-cron init container on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the wait-for-cron init container on Azure. Evaluated as a template
-        digest:
-      waitForPlatform:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the wait-for-platform init container image deployed on Azure.
-        # Evaluated as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the wait-for-platform init container image deployed on Azure.
-        # Evaluated as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the wait-for-platform init container on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the wait-for-platform init container on Azure. Evaluated as a template
-        digest:
-      waitForMySQL:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the wait-for-MySQL init container image deployed on Azure. Evaluated
-        # as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the wait-for-MySQL init container image deployed on Azure. Evaluated
-        # as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the wait-for-MySQL init container on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the wait-for-MySQL init container on Azure. Evaluated as a template
-        digest:
-      waitForRedis:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image registry for the wait-for-Redis init container image deployed on Azure. Evaluated
-        # as a template
-        registry:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image repository for the wait-for-Redis init container image deployed on Azure. Evaluated
-        # as a template
-        image:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image tag for the wait-for-Redis init container on Azure. Evaluated as a template
-        tag:
-        # @schema
-        # type: [string, null]
-        # @schema
-        # -- Image digest for the wait-for-Redis init container on Azure. Evaluated as a template
-        digest:
 
 platformDatabase:
   # -- Platform MySQL database hostname
@@ -545,7 +264,7 @@ platform:
   # deployment
   oidcClientRegistrationTokenSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
-  # @default -- `"MCP_OAUTH_INITIAL_ACCESS_TOKEN"`
+  # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
   oidcClientRegistrationTokenSecretKey: ""
 
   smtp:
@@ -1598,7 +1317,10 @@ studios:
   proxy:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
     # same token. Override these values only if you want studios to use a different secret.
-    oidcClientRegistrationTokenSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
+    # value is `tpl`-evaluated inside the studios subchart context where `.Chart.Name` is `studios`,
+    # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    oidcClientRegistrationTokenSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     oidcClientRegistrationTokenSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 pipeline-optimization:
@@ -1613,7 +1335,10 @@ mcp:
   oidcToken:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
     # same token. Override these values only if you want mcp to use a different secret.
-    existingSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
+    # value is `tpl`-evaluated inside the mcp subchart context where `.Chart.Name` is `mcp`, not
+    # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    existingSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 agent-backend:

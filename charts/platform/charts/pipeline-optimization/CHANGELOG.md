@@ -5,6 +5,25 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-07-07
+
+### Changed
+
+- Bumped `appVersion` to `0.4.15`.
+
+### Removed
+
+- **BREAKING**: Removed `global.azure.images` image overrides for `pipelineOptimization`,
+  `pipelineOptimizationMigrateDB`, and the `waitForMySQL` init container. Deployments now resolve
+  images through `common.images.image` only.
+- Bumped `seqera-common` dependency to `3.x.x`.
+
+## [2.0.13] - 2026-07-07
+
+### Changed
+
+- Revamp README documentation.
+
 ## [2.0.12] - 2026-06-24
 
 ### Added

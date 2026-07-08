@@ -23,8 +23,8 @@ maintainers:
     email: devops@seqera.io
     url: https://seqera.io
 type: application
-version: 2.0.12
-appVersion: "0.4.13"
+version: 2.1.0
+appVersion: "0.4.15"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 annotations:
   artifacthub.io/license: Apache-2.0
@@ -43,7 +43,7 @@ dependencies:
     tags:
       - bitnami-common
   - name: seqera-common
-    version: "2.x.x"
+    version: "3.x.x"
     repository: "file://../../../seqera-common"
     tags:
       - seqera-common

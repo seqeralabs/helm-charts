@@ -2,31 +2,33 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 1.0.9](https://img.shields.io/badge/Version-1.0.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.11.0](https://img.shields.io/badge/AppVersion-1.11.0-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.13.1](https://img.shields.io/badge/AppVersion-1.13.1-informational?style=flat-square)
 
-> [!WARNING]
-> This chart is currently still in development and breaking changes are expected.
-> The public API SHOULD NOT be considered stable.
+Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
+We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry in the `values.yaml` file is documented with comments describing its purpose and usage.
 
 ## Requirements and configuration
 
 For a full list of prerequisites needed to deploy Seqera AI, refer to the [Seqera AI prerequisites](https://docs.seqera.io/platform-enterprise/seqera-ai/prerequisites) documentation.
 
-The chart does not automatically define `cr.seqera.io` as the registry where to take the images from: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/prerequisites/common#vendoring-seqera-container-images-to-your-own-registry).
+Note that the Seqera charts do not automatically set `cr.seqera.io` as the registry where to pull images from, as we want to encourage users to use their own registries to improve reliability: instructions are available to [vendor the Seqera container images to your private registry](https://docs.seqera.io/platform-enterprise/enterprise/configuration/mirroring). We also recommend [vendoring the Seqera charts](https://github.com/seqeralabs/helm-charts/blob/master/VENDORING.md).
 
 The required values to set in order to have a working installation are:
-- The `.image` section to point to your container registry.
+- The agent-backend domain need to be set at `.global.agentBackendDomain`.
+- The domain where Seqera Platform and MCP are installed, set at `.global.platformExternalDomain` and `.global.mcpDomain`, respectively (Agent Backend requires requires the Seqera Platform and the Seqera MCP installed).
+- The `.image` section pointing to your container registry.
 - The Seqera Platform Service connection details under `.global.platformServiceAddress` and `.global.platformServicePort`. These point to the Platform backend service that the Agent Backend communicates with. When deploying this subchart as part of the parent `platform` umbrella chart, these values are inherited automatically from the parent chart's `global` section.
 - The database connection details for the MySQL database under the `.database` section.
 - The Redis connection details under the `.redis` section.
 - The inference provider under `.inference.provider` (one of `bedrock`, `anthropic`) and the corresponding provider credentials:
   * For Bedrock: optionally set `.bedrock.default.region` and `.bedrock.default.assumeRoleArn` as defaults applied to all Bedrock-backed services, with per-service overrides available under `.bedrock.inference.*`.
   * For Anthropic: set `.anthropic.apiKey` or reference an existing Secret via `.anthropic.existingSecretName`.
-- Container registry credentials under the `.global.imageCredentials` section (can be the credentials for cr.seqera.io or your private registry where you vendored the images to).
+- Container registry credentials under the `.global.imageCredentials` section (can be the credentials for `cr.seqera.io` or your private registry where you vendored the images to).
+  Alternatively, to avoid storing sensitive credentials in the values file, you can create a Kubernetes Secret containing the credentials and reference it in the `.global.imageCredentialsSecrets` value. Refer to [the Kubernetes docs](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line) to create a Kubernetes Secret to store image pull credentials.
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
-  * Multiple credentials can be specified to cover different registries.
-  * Specific pull secrets can be defined in each `.image` section to extend the global credentials.
-  * Image pull secrets defined in the specific `.image` section will be added to the global ones, not replacing them.
+  * Multiple credentials can be specified to cover different registries or repositories within the same registry, e.g. you can set credentials for `cr.seqera.io/enterprise` (where Platform images are located) and `cr.seqera.io/ai` (where Seqera AI products are located).
+  * Additional pull secrets can be defined in each `.image` section to extend the global credentials, if that image is located in a different registry.
+  * Image pull secrets defined in the specific `.image` section will be added to the global ones, they won't replace them.
 
 The following capabilities are **optional** and disabled when their provider is not set:
 - **Embeddings** (AWS Bedrock only): set `.embeddings.provider: bedrock` and configure `.bedrock.embeddings.*` (model, dimensions, region, assumeRoleArn).
@@ -34,10 +36,11 @@ The following capabilities are **optional** and disabled when their provider is 
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.11.0`.
+By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.13.1`.
 
-When a sensitive value is required (e.g. the database password), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
+When a sensitive value is required (e.g. the database password, the Seqera license key), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
 Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
+Refer to [this example](https://github.com/seqeralabs/helm-charts/tree/master/charts/platform/examples/passwords-from-secrets) for a demonstration of how to create a Kubernetes Secret to store sensitive values.
 
 ## Installing the chart
 
@@ -45,7 +48,7 @@ To install the chart with the release name `my-release`:
 
 ```console
 helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-  --version 1.0.9 \
+  --version 1.1.0 \
   --namespace my-namespace \
   --create-namespace
 ```
@@ -60,7 +63,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../../../seqera-common | seqera-common | 2.x.x |
+| file://../../../seqera-common | seqera-common | 3.x.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values

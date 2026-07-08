@@ -67,7 +67,7 @@ spec:
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
-        {{- include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "cloudProviderImageKey" "waitForPlatform" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitValues" .Values.initContainerDependencies.waitForPlatform "platformHost" .Values.global.platformServiceAddress "platformPort" .Values.global.platformServicePort "context" $) | nindent 8 }}
 {{- end }}
       containers:
         - name: mcp

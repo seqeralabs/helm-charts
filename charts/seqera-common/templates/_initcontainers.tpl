@@ -26,7 +26,7 @@ include "seqera.initContainers.waitForMySQL" (dict "name" "platform-db"         
 */}}
 {{- define "seqera.initContainers.waitForMySQL" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
+  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
@@ -72,7 +72,7 @@ include "seqera.initContainers.waitForPostgres" (dict "name" "db" "waitValues" .
 */}}
 {{- define "seqera.initContainers.waitForPostgres" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
+  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
@@ -118,7 +118,7 @@ include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .
 */}}
 {{- define "seqera.initContainers.waitForRedis" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
+  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
@@ -164,7 +164,7 @@ include "seqera.initContainers.waitForPlatform" (dict "name" "platform" "waitVal
 */}}
 {{- define "seqera.initContainers.waitForPlatform" -}}
 - name: wait-for-{{ .name }}
-  image: {{ include "seqera.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global "chart" .context.Chart "cloudProviderImageKey" .cloudProviderImageKey "context" .context) }}
+  image: {{ include "common.images.image" (dict "imageRoot" .waitValues.image "global" .context.Values.global) }}
   imagePullPolicy: {{ .waitValues.image.pullPolicy }}
   command:
     - 'sh'
