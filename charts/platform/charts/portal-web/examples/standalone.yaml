@@ -6,8 +6,6 @@
 # Prerequisites:
 # - Seqera Platform already running and accessible
 # - Agent Backend already running and accessible
-# - AWS Load Balancer Controller installed in the cluster
-# - ACM certificate ARN for TLS
 #
 # Deploy with:
 #   helm repo add seqera https://seqeralabs.github.io/helm-charts
@@ -23,24 +21,17 @@ global:
   # agentBackendDomain: ai-api.platform.example.com  # default: ai-api.<platformExternalDomain>
   # portalWebDomain: ai.platform.example.com          # default: ai.<platformExternalDomain>
 
-# ALB requires NodePort service type
-service:
-  type: NodePort
+# AWS ALB requires NodePort service type:
+# service:
+#   type: NodePort
 
-ingress:
-  enabled: true
-  ingressClassName: alb
-  # ALB requires path "/*" instead of "/"
-  path: "/*"
-  defaultPathType: Prefix
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: "443"
-  # TLS is handled by ACM; no tls section needed
-  tls: []
+# Expose this service to the internet via an ingress controller.
+# See ../../../examples/ingress-configurations/README.md for controller-specific examples
+# (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>
 
 # resources:           # chart defaults: 100m CPU / 500Mi memory
 #   requests:

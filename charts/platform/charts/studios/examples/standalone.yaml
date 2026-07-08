@@ -6,10 +6,9 @@
 # Prerequisites:
 # - Seqera Platform already running and accessible with OIDC enabled
 # - Redis provisioned for session storage
-# - Wildcard DNS configured: *.studios.platform.example.com -> your ALB
-# - ACM wildcard certificate covering *.studios.platform.example.com
+# - Wildcard DNS configured: *.studios.platform.example.com -> your ingress
+# - Wildcard TLS certificate covering *.studios.platform.example.com
 # - The OIDC initial access token from Platform (used to register Studios as an OAuth client)
-# - AWS Load Balancer Controller installed in the cluster
 #
 # Deploy with:
 #   helm repo add seqera https://seqeralabs.github.io/helm-charts
@@ -31,7 +30,7 @@ global:
 
   # studiosDomain: studios.platform.example.com  # default: studios.<platformExternalDomain>
   # studiosConnectionUrl: 'https://connect.studios.platform.example.com'  # default: https://connect.<studiosDomain>
-  # Each Studios session uses a unique subdomain, so DNS and the ACM certificate must cover the
+  # Each Studios session uses a unique subdomain, so DNS and the TLS certificate must cover the
   # wildcard: *.<studiosDomain>
 
 redis:
@@ -48,9 +47,9 @@ proxy:
   oidcClientRegistrationTokenSecretName: platform-backend-secret
   oidcClientRegistrationTokenSecretKey: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
 
-  # ALB requires NodePort service type
-  service:
-    type: NodePort
+  # AWS ALB requires NodePort service type:
+  # service:
+  #   type: NodePort
 
   # resources:
   #   requests:
@@ -73,19 +72,12 @@ initContainerDependencies:
     enabled: false
 
 # Studios requires a wildcard ingress so each session subdomain is routed correctly.
-# The ACM certificate must cover the wildcard *.studios.platform.example.com
-ingress:
-  enabled: true
-  ingressClassName: alb
-  # ALB requires path "/*" instead of "/"
-  path: "/*"
-  defaultPathType: Prefix
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
-  # TLS is handled by ACM; no tls section needed
-  tls: []
+# The TLS certificate must cover the wildcard *.studios.platform.example.com
+#
+# Expose this service to the internet via an ingress controller.
+# See ../../../examples/ingress-configurations/README.md for controller-specific examples
+# (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>

@@ -6,8 +6,6 @@
 # Prerequisites:
 # - PostgreSQL database provisioned
 # - Redis provisioned
-# - AWS Load Balancer Controller installed in the cluster
-# - ACM certificate ARN for TLS
 #
 # Note: Wave can run independently of Seqera Platform. The platformExternalDomain
 # global value is used to derive the waveDomain default; set waveDomain explicitly
@@ -44,26 +42,17 @@ redis:
   existingSecretName: wave-redis-credentials
   existingSecretKey: password
 
-# ALB requires NodePort service type
-service:
-  type: NodePort
+# AWS ALB requires NodePort service type:
+# service:
+#   type: NodePort
 
-ingress:
-  enabled: true
-  ingressClassName: alb
-  # ALB requires path "/*" instead of "/"
-  path: "/*"
-  defaultPathType: Prefix
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:123456789012:certificate/abcd-1234
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/healthcheck-path: /health
-    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=3600
-  # TLS is handled by ACM; no tls section needed
-  tls: []
+# Expose this service to the internet via an ingress controller.
+# See ../../../examples/ingress-configurations/README.md for controller-specific examples
+# (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>
 
 # resources:
 #   requests:
