@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.0] - 2026-07-07
 
+### Added
+
+- Added `examples/standalone.yaml` to each subchart with minimal values for deploying it independently of the parent `platform` chart.
+- Added `examples/platform-only.yaml` and `examples/complete.yaml` for deploying the core platform and the full stack respectively. Ingress configuration is intentionally left generic across all examples; see `examples/ingress-configurations/README.md` for controller-specific examples (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+
 ### Changed
 
 - Bumped Platform `appVersion` to `v26.1.3`.
+- Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
 
 ### Fixed
 
