@@ -28,15 +28,12 @@ global:
   # mcpDomain: mcp.platform.example.com  # default: mcp.<platformExternalDomain>
   # The OAuth redirect URL is automatically derived as: <mcpDomain>/oauth/callback
 
-# micronautEnvironments:   # default: [oauth-platform]
-#   - oauth-platform
-# Remove 'oauth-platform' and set oauth.issuerUrl explicitly if using a separate OIDC provider.
-
 # OIDC initial access token — must match the value configured in Seqera Platform.
 # When deploying alongside the platform chart, this is wired up automatically.
 # For standalone, retrieve it from the Platform backend Secret:
 #   kubectl get secret <platform-backend-secret> -o jsonpath='{.data.TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN}' | base64 -d
 oidcToken:
+  # tokenString: "the token can be provided directly here, but it is more secure to use a Secret, see the related example"
   existingSecretName: platform-backend-secret
   existingSecretKey: TOWER_OIDC_REGISTRATION_INITIAL_ACCESS_TOKEN
 

@@ -23,11 +23,6 @@ global:
 
   # waveDomain: wave.platform.example.com  # default: wave.<platformExternalDomain>
 
-# micronautEnvironments:  # default: [postgres, redis, lite]
-#   - postgres
-#   - redis
-#   - lite
-
 database:
   host: postgres.example.com
   # port: 5432  # default
