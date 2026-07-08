@@ -41,8 +41,11 @@ global:
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
-  # hostname. Evaluated as a template
-  platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+  # hostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned
+  # with the backend Deployment/Secret naming and collapses correctly when the release name
+  # already contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than
+  # `seqera-platform-platform-backend`)
+  platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) | lower }}'
   # @schema
   # type: [integer, string, null]
   # @schema
@@ -1314,7 +1317,10 @@ studios:
   proxy:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
     # same token. Override these values only if you want studios to use a different secret.
-    oidcClientRegistrationTokenSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
+    # value is `tpl`-evaluated inside the studios subchart context where `.Chart.Name` is `studios`,
+    # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    oidcClientRegistrationTokenSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     oidcClientRegistrationTokenSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 pipeline-optimization:
@@ -1329,7 +1335,10 @@ mcp:
   oidcToken:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
     # same token. Override these values only if you want mcp to use a different secret.
-    existingSecretName: '{{ printf "%s-platform-backend" .Release.Name }}'
+    # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
+    # value is `tpl`-evaluated inside the mcp subchart context where `.Chart.Name` is `mcp`, not
+    # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    existingSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 agent-backend:

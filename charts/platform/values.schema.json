@@ -3538,8 +3538,8 @@
           "type": "string"
         },
         "platformServiceAddress": {
-          "default": "{{ printf \"%s-platform-backend\" .Release.Name | lower }}",
-          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template",
+          "default": "{{ printf \"%s-backend\" (include \"common.names.fullname\" .) | lower }}",
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned\nwith the backend Deployment/Secret naming and collapses correctly when the release name\nalready contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than\n`seqera-platform-platform-backend`)",
           "title": "platformServiceAddress",
           "type": "string"
         },

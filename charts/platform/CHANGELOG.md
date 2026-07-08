@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bumped Platform `appVersion` to `v26.1.3`.
 
+### Fixed
+
+- Align the default `.global.platformServiceAddress`, `.studios.proxy.oidcClientRegistrationTokenSecretName`,
+  and `.mcp.oidcToken.existingSecretName` templates with the naming rule used by the backend
+  Deployment and Secret (`common.names.fullname` + `-backend`). Previously these defaults were
+  hard-coded to `{{ .Release.Name }}-platform-backend`, which produced a name like
+  `seqera-platform-platform-backend` for releases whose name already contained `platform` — a
+  resource that never exists in-cluster, because `common.names.fullname` collapses the repeated
+  chart name. The subchart references now use `common.names.dependency.fullname` with an explicit
+  `chartName: platform` so the correct parent name is produced from the subchart's render context.
+  Resolved names are unchanged for releases whose name does not contain `platform`.
+
 ### Removed
 
 - **BREAKING**: Removed support for overriding container images via `global.azure.images`

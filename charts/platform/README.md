@@ -80,7 +80,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.contentDomain | string | `"{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}"` | Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS) attacks. If unset, data is served through the main domain `.global.platformExternalDomain`. Evaluated as a template |
-| global.platformServiceAddress | string | `"{{ printf \"%s-platform-backend\" .Release.Name | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template |
+| global.platformServiceAddress | string | `"{{ printf \"%s-backend\" (include \"common.names.fullname\" .) | lower }}"` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned with the backend Deployment/Secret naming and collapses correctly when the release name already contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than `seqera-platform-platform-backend`) |
 | global.platformServicePort | int | `8080` | Seqera Platform Service port |
 | global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
 | global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
@@ -401,11 +401,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
 | commonLabels | object | `{}` | Labels to add to all deployed objects |
 | studios.enabled | bool | `true` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
-| studios.proxy.oidcClientRegistrationTokenSecretName | string | `"{{ printf \"%s-platform-backend\" .Release.Name }}"` |  |
+| studios.proxy.oidcClientRegistrationTokenSecretName | string | `"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"` |  |
 | studios.proxy.oidcClientRegistrationTokenSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` |  |
 | pipeline-optimization.enabled | bool | `true` | Enable pipeline optimization feature. Refer to the subchart README for more details and the full list of configuration options |
 | mcp.enabled | bool | `true` | Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more details and the full list of configuration options |
-| mcp.oidcToken.existingSecretName | string | `"{{ printf \"%s-platform-backend\" .Release.Name }}"` |  |
+| mcp.oidcToken.existingSecretName | string | `"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"` |  |
 | mcp.oidcToken.existingSecretKey | string | `"OIDC_CLIENT_REGISTRATION_TOKEN"` |  |
 | agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
 | portal-web.enabled | bool | `true` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
