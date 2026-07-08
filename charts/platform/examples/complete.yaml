@@ -149,11 +149,20 @@ agent-backend:
     # port: 6379  # default
     existingSecretName: agent-backend-redis-credentials
     existingSecretKey: password
-  bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1:123456789012:agent-runtime/XXXXXXXXXX"
+  inference:
+    provider: anthropic  # "bedrock" or "anthropic"
   embeddings:
-    bedrock:
+    provider: bedrock    # "bedrock", or leave empty to disable
+  sandbox:
+    provider: bedrock    # "bedrock", or leave empty to disable
+  bedrock:
+    default:
+      assumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account-role
       region: us-east-1
-      # modelId: amazon.titan-embed-text-v2:0  # default
+    sandbox:
+      runtimeArn: arn:aws:bedrock-agentcore:us-east-1:123456789012:runtime/my-runtime
+  anthropic:
+    existingSecretName: agent-backend-anthropic-credentials
   tokenEncryptionKeyExistingSecretName: agent-backend-secrets
   tokenEncryptionKeyExistingSecretKey: token-encryption-key
   # AWS ALB requires NodePort service type:

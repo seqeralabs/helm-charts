@@ -44,23 +44,34 @@ redis:
   existingSecretName: agent-backend-redis-credentials
   existingSecretKey: password
 
-# AWS Bedrock configuration (required for AI capabilities)
-bedrockAgentCoreArn: "arn:aws:bedrock:us-east-1:123456789012:agent-runtime/XXXXXXXXXX"
-# Optional: cross-account access via an assumed role
-# bedrockAssumeRoleArn: "arn:aws:iam::123456789012:role/BedrockAccessRole"
+# Which provider serves each capability. inference.provider is required;
+# embeddings and sandbox are optional — leave provider empty to disable.
+inference:
+  provider: anthropic  # "bedrock" or "anthropic"
 
 embeddings:
-  bedrock:
-    region: us-east-1
-    # modelId: amazon.titan-embed-text-v2:0  # default
-    # dimensions: "1024"                      # default
+  provider: bedrock    # "bedrock", or leave empty to disable
 
-# Alternatively, use Anthropic directly instead of Bedrock:
-# anthropicApiKeyExistingSecretName: agent-backend-anthropic-credentials
-# anthropicApiKeyExistingSecretKey: api-key
+sandbox:
+  provider: bedrock    # "bedrock", or leave empty to disable
+
+# Bedrock configuration (required when any provider above is "bedrock")
+bedrock:
+  # Default credentials applied to all Bedrock-backed services unless overridden per-service.
+  default:
+    assumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account-role
+    region: us-east-1
+  sandbox:
+    # AgentCore runtime ARN: required when sandbox.provider is "bedrock".
+    runtimeArn: arn:aws:bedrock-agentcore:us-east-1:123456789012:runtime/my-runtime
+
+# Anthropic configuration (required when inference.provider is "anthropic")
+anthropic:
+  existingSecretName: agent-backend-anthropic-credentials
 
 # Token encryption key — must be a valid Fernet key.
 # Generate one with: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# Set explicitly so it remains stable across upgrades.
 tokenEncryptionKeyExistingSecretName: agent-backend-secrets
 tokenEncryptionKeyExistingSecretKey: token-encryption-key
 
