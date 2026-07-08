@@ -3605,8 +3605,8 @@
           "type": "object"
         },
         "contentPath": {
-          "default": "/",
-          "description": "Path for the content domain ingress rule",
+          "default": "",
+          "description": "Path for the content domain ingress rule. When empty, falls back to `ingress.path`",
           "title": "contentPath",
           "type": "string"
         },

@@ -188,6 +188,35 @@ tests:
   - equal:
       path: spec.rules[1].http.paths[0].path
       value: /platform/*
+- it: should fall back to ingress.path for content domain when contentPath is empty
+  set:
+    ingress:
+      enabled: true
+      path: /*
+      contentPath: ""
+    global:
+      platformExternalDomain: platform.example.com
+  asserts:
+  - equal:
+      path: spec.rules[1].http.paths[0].path
+      value: /*
+- it: should fall back to global.ingress.path for content domain when both local path and contentPath are empty
+  set:
+    ingress:
+      enabled: true
+      path: ""
+      contentPath: ""
+    global:
+      platformExternalDomain: platform.example.com
+      ingress:
+        path: /global/*
+  asserts:
+  - equal:
+      path: spec.rules[0].http.paths[0].path
+      value: /global/*
+  - equal:
+      path: spec.rules[1].http.paths[0].path
+      value: /global/*
 - it: should configure extra hosts with multiple paths
   set:
     ingress:

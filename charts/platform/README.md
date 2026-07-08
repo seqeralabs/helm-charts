@@ -389,7 +389,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | serviceAccount.automountServiceAccountToken | bool | `false` | Automount service account token when the service account is generated |
 | ingress.enabled | bool | `false` | Enable ingress for Platform |
 | ingress.path | string | `""` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
-| ingress.contentPath | string | `"/"` | Path for the content domain ingress rule |
+| ingress.contentPath | string | `""` | Path for the content domain ingress rule. When empty, falls back to `ingress.path` |
 | ingress.defaultPathType | string | `""` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
 | ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
 | ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |

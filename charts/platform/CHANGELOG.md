@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   chart name. The subchart references now use `common.names.dependency.fullname` with an explicit
   `chartName: platform` so the correct parent name is produced from the subchart's render context.
   Resolved names are unchanged for releases whose name does not contain `platform`.
+- `ingress.contentPath` now falls back to `ingress.path` (and then `global.ingress.path`) when left empty, consistent with how other path values are resolved.
 
 ### Removed
 
