@@ -24,7 +24,7 @@ maintainers:
     url: https://seqera.io
 type: application
 version: 2.1.0
-appVersion: "0.4.13"
+appVersion: "0.4.15"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 annotations:
   artifacthub.io/license: Apache-2.0

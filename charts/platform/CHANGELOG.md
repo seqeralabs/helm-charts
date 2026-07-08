@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.0] - 2026-07-07
 
+### Changed
+
+- Bumped Platform `appVersion` to `v26.1.3`.
+
 ### Removed
 
 - **BREAKING**: Removed support for overriding container images via `global.azure.images`

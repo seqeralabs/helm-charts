@@ -20,7 +20,7 @@ name: wave
 description: Wave
 type: application
 version: 0.3.0
-appVersion: "v1.32.4"
+appVersion: "v1.35.0"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
