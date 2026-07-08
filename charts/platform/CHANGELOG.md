@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Provide complete examples to deploy each Helm chart standalone, along with a full end-to-end example deploying the entire platform with all subcharts. See `examples/` directory for details.
+- Added `examples/standalone.yaml` to each subchart with minimal values for deploying it independently of the parent `platform` chart.
+- Added `examples/platform-only.yaml` and `examples/complete.yaml` for deploying the core platform and the full stack respectively. Ingress configuration is intentionally left generic across all examples; see `examples/ingress-configurations/README.md` for controller-specific examples (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
 
 ### Changed
 

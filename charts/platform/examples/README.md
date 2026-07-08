@@ -2,7 +2,14 @@
 
 This directory contains practical examples demonstrating different deployment configurations for the Seqera Platform Helm chart. Each example focuses on a specific use case or deployment pattern.
 
-## Available Examples
+## Deployment examples
+
+| Example | Description |
+|---------|-------------|
+| [platform-only.yaml](platform-only.yaml) | Core Platform deployment (backend, cron, frontend) with all optional subcharts disabled |
+| [complete.yaml](complete.yaml) | Full stack deployment with all subcharts enabled: Studios, MCP, Wave, Agent Backend, Portal Web, and Pipeline Optimization |
+
+## Configuration examples
 
 | Example | Description |
 |---------|-------------|
@@ -13,13 +20,16 @@ This directory contains practical examples demonstrating different deployment co
 | [passwords-from-secrets/](passwords-from-secrets/) | Managing sensitive credentials using Kubernetes secrets |
 | [pod-allocation-strategies/](pod-allocation-strategies/) | Node selectors, affinity rules, anti-affinity, and topology spread constraints |
 
+## Subchart examples
+
 The following examples demonstrate possible configurations for enabling and customizing specific subcharts within the Platform Helm chart:
 
 | Example | Description |
 |---------|-------------|
 | [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline Optimization service subchart with database setup and registry access |
 | [studios/](studios/) | Studios subchart configuration for interactive data analysis environments with ingress setup |
-| [seqera-co-scientist](seqera-co-scientist/) | Enabling the Seqera Co-Scientist agent backend, Model Context Protocol server, and Portal web interface |
+| [seqera-co-scientist/](seqera-co-scientist/) | Enabling the Seqera Co-Scientist agent backend, Model Context Protocol server, and Portal web interface |
+| [seqera-ai/](seqera-ai/) | Alternative Co-Scientist example: enabling the agent backend, MCP server, and Portal web interface |
 
 ## Additional Resources
 
