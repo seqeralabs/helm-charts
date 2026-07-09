@@ -40,4 +40,4 @@ data:
   REGISTRY_API_ENDPOINT: {{ tpl .Values.registryApiEndpoint $ | quote }}
 
   MCP_OAUTH_ISSUER_URL: {{ include "mcp.oauth.issuerUrl" . | quote }}
-  MCP_OAUTH_AUDIENCE: {{ tpl .Values.oauth.audience $ | quote }}
+  MCP_OAUTH_AUDIENCE: "platform"

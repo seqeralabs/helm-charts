@@ -25,16 +25,10 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Return the OAuth issuer URL for MCP.
-When using 'oauth-platform' in micronautEnvironments, defaults to the Platform API endpoint.
-When using 'oauth', the value must be explicitly set in oauth.issuerUrl.
+Return the OAuth issuer URL for MCP, derived from the Platform external domain.
 */}}
 {{- define "mcp.oauth.issuerUrl" -}}
-  {{- if .Values.oauth.issuerUrl -}}
-    {{- tpl .Values.oauth.issuerUrl $ -}}
-  {{- else if has "oauth-platform" .Values.micronautEnvironments -}}
-    {{- printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) -}}
-  {{- end -}}
+  {{- printf "https://%s/api" (tpl .Values.global.platformExternalDomain $) -}}
 {{- end -}}
 
 {{/*

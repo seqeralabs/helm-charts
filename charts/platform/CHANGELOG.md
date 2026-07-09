@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped Platform `appVersion` to `v26.1.3`.
 - Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- **BREAKING** The `mcp.oauth.issuerUrl` value has been removed from the `mcp` subchart; the OAuth
+  issuer URL is now always derived from `global.platformExternalDomain`. Remove any
+  `mcp.oauth.issuerUrl` overrides before upgrading.
+- **BREAKING** The `mcp.oauth.audience` value has been removed from the `mcp` subchart; the audience
+  is now hardcoded to `"platform"`. Remove any `mcp.oauth.audience` overrides before upgrading.
 
 ### Fixed
 
