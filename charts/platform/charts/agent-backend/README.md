@@ -97,6 +97,53 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.imageCredentials | list | ``[]`` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
 | global.imageCredentialsSecrets | list | ``[]`` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 
+### Service Routing
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| inference.provider | string | ``""`` | Inference provider. One of: "bedrock", "anthropic". Required. |
+| embeddings.provider | string | ``""`` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
+| sandbox.provider | string | ``""`` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
+
+### Bedrock: Default
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.default.assumeRoleArn | string | ``""`` | Optional default IAM role ARN to assume before invoking the Bedrock APIs. |
+| bedrock.default.region | string | ``""`` | Default AWS region to use for all Bedrock services. |
+
+### Bedrock: Inference
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.inference.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
+| bedrock.inference.region | string | ``""`` | AWS region for Bedrock inference (overrides bedrock.default.region). |
+| bedrock.inference.anthropicModel | string | ``""`` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile). |
+
+### Bedrock: Embeddings
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.embeddings.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
+| bedrock.embeddings.region | string | ``""`` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
+| bedrock.embeddings.model | string | ``"amazon.titan-embed-text-v2:0"`` | Bedrock model ID used for embeddings. |
+
+### Bedrock: Sandbox
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.sandbox.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn). |
+| bedrock.sandbox.region | string | ``""`` | AWS region for AgentCore. |
+| bedrock.sandbox.runtimeArn | string | ``""`` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
+
+### Anthropic
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| anthropic.apiKey | string | ``""`` | Anthropic API key. Set this OR existingSecretName, not both. |
+| anthropic.existingSecretName | string | ``""`` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| anthropic.existingSecretKey | string | ``"ANTHROPIC_API_KEY"`` | Key in the existing Secret containing the Anthropic API key |
+
 ### Database
 
 | Key | Type | Default | Description |
@@ -220,6 +267,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForRedis.enabled | bool | ``true`` | Enable wait for Redis init container before starting the main container |
 | initContainerDependencies.waitForRedis.image.registry | string | ``""`` | Override default wait for Redis init container image |
+| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` | Init container image repository |
+| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` | Init container image tag |
+| initContainerDependencies.waitForRedis.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForRedis.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
 | initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -234,6 +285,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForMySQL.enabled | bool | ``true`` | Enable wait for MySQL init container before starting the main container |
 | initContainerDependencies.waitForMySQL.image.registry | string | ``""`` | Override default wait for MySQL init container image |
+| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` | Init container image repository |
+| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` | Init container image tag |
+| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -321,36 +376,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | secretAnnotations | object | ``{}`` | Additional annotations for the Secret objects. Evaluated as a template |
 | configMapLabels | object | ``{}`` | Additional labels for the ConfigMap objects. Evaluated as a template |
 | configMapAnnotations | object | ``{}`` | Additional annotations for the ConfigMap objects. Evaluated as a template |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| inference.provider | string | ``""`` | Inference provider. One of: "bedrock", "anthropic". Required. |
-| embeddings.provider | string | ``""`` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
-| sandbox.provider | string | ``""`` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
-| bedrock.default.assumeRoleArn | string | ``""`` | Optional default IAM role ARN to assume before invoking the Bedrock APIs. |
-| bedrock.default.region | string | ``""`` | Default AWS region to use for all Bedrock services. |
-| bedrock.inference.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
-| bedrock.inference.region | string | ``""`` | AWS region for Bedrock inference (overrides bedrock.default.region). |
-| bedrock.inference.anthropicModel | string | ``""`` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile). |
-| bedrock.embeddings.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
-| bedrock.embeddings.region | string | ``""`` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
-| bedrock.embeddings.model | string | ``"amazon.titan-embed-text-v2:0"`` | Bedrock model ID used for embeddings. |
-| bedrock.sandbox.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn). |
-| bedrock.sandbox.region | string | ``""`` | AWS region for AgentCore. |
-| bedrock.sandbox.runtimeArn | string | ``""`` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
-| anthropic.apiKey | string | ``""`` | Anthropic API key. Set this OR existingSecretName, not both. |
-| anthropic.existingSecretName | string | ``""`` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| anthropic.existingSecretKey | string | ``"ANTHROPIC_API_KEY"`` | Key in the existing Secret containing the Anthropic API key |
-| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` |  |
-| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` |  |
-| initContainerDependencies.waitForRedis.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` |  |
-| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` |  |
-| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` |  |
-| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` |  |
 
 ## Licensing
 

@@ -553,6 +553,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForMySQL.enabled | bool | ``true`` | Enable wait for MySQL init container before starting backend and cron |
 | initContainerDependencies.waitForMySQL.image.registry | string | ``""`` | Override default wait for MySQL init container image |
+| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` | Init container image repository |
+| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` | Init container image tag |
+| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -567,6 +571,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForRedis.enabled | bool | ``true`` | Enable wait for Redis init container before starting backend and cron |
 | initContainerDependencies.waitForRedis.image.registry | string | ``""`` | Override default wait for Redis init container image |
+| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` | Init container image repository |
+| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` | Init container image tag |
+| initContainerDependencies.waitForRedis.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForRedis.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -581,6 +589,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForCron.enabled | bool | ``true`` | Enable wait for Platform cron init container before starting backend |
 | initContainerDependencies.waitForCron.image.registry | string | ``""`` | Override default wait for cron init container image |
+| initContainerDependencies.waitForCron.image.repository | string | ``"curlimages/curl"`` | Init container image repository |
+| initContainerDependencies.waitForCron.image.tag | string | ``"latest"`` | Init container image tag |
+| initContainerDependencies.waitForCron.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForCron.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForCron.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForCron.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | initContainerDependencies.waitForCron.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -626,6 +638,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | studios.enabled | bool | ``true`` | Enable Studios feature. Refer to the subchart README for more details and the full list of configuration options |
+| studios.proxy.oidcClientRegistrationTokenSecretName | string | ``"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"`` | Name of the existing Secret containing the OIDC client registration token to share with the Studios proxy. Defaults to the platform backend secret. Evaluated as a template |
+| studios.proxy.oidcClientRegistrationTokenSecretKey | string | ``"OIDC_CLIENT_REGISTRATION_TOKEN"`` | Key in the existing Secret containing the OIDC client registration token |
 
 ### Subcharts: Pipeline Optimization
 
@@ -638,6 +652,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | mcp.enabled | bool | ``true`` | Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more details and the full list of configuration options |
+| mcp.oidcToken.existingSecretName | string | ``"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"`` | Name of the existing Secret containing the OIDC client registration token to share with MCP. Defaults to the platform backend secret. Evaluated as a template |
+| mcp.oidcToken.existingSecretKey | string | ``"OIDC_CLIENT_REGISTRATION_TOKEN"`` | Key in the existing Secret containing the OIDC client registration token |
 
 ### Subcharts: Agent Backend
 
@@ -650,27 +666,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | portal-web.enabled | bool | ``true`` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` |  |
-| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` |  |
-| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` |  |
-| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` |  |
-| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` |  |
-| initContainerDependencies.waitForRedis.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` |  |
-| initContainerDependencies.waitForCron.image.repository | string | ``"curlimages/curl"`` |  |
-| initContainerDependencies.waitForCron.image.tag | string | ``"latest"`` |  |
-| initContainerDependencies.waitForCron.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForCron.image.pullPolicy | string | ``"IfNotPresent"`` |  |
-| studios.proxy.oidcClientRegistrationTokenSecretName | string | ``"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"`` |  |
-| studios.proxy.oidcClientRegistrationTokenSecretKey | string | ``"OIDC_CLIENT_REGISTRATION_TOKEN"`` |  |
-| mcp.oidcToken.existingSecretName | string | ``"{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) }}"`` |  |
-| mcp.oidcToken.existingSecretKey | string | ``"OIDC_CLIENT_REGISTRATION_TOKEN"`` |  |
 
 ## Licensing
 

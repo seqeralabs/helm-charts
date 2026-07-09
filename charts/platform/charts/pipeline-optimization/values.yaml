@@ -478,10 +478,17 @@ initContainerDependencies:
       # -- Override default wait for MySQL init container image
       # @section -- Init Container Dependencies: Wait For MySQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For MySQL
       tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For MySQL
       pullPolicy: IfNotPresent
 
     securityContext:

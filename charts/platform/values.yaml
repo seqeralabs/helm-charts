@@ -1377,10 +1377,17 @@ initContainerDependencies:
       # -- Override default wait for MySQL init container image
       # @section -- Init Container Dependencies: Wait For MySQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For MySQL
       tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For MySQL
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -1434,10 +1441,17 @@ initContainerDependencies:
       # -- Override default wait for Redis init container image
       # @section -- Init Container Dependencies: Wait For Redis
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For Redis
       repository: redis
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For Redis
       tag: 7-alpine
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For Redis
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For Redis
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -1481,10 +1495,17 @@ initContainerDependencies:
       # -- Override default wait for cron init container image
       # @section -- Init Container Dependencies: Wait For Cron
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For Cron
       repository: curlimages/curl
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For Cron
       tag: latest
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For Cron
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For Cron
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -1631,7 +1652,12 @@ studios:
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the studios subchart context where `.Chart.Name` is `studios`,
     # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    # -- Name of the existing Secret containing the OIDC client registration token to share with the
+    # Studios proxy. Defaults to the platform backend secret. Evaluated as a template
+    # @section -- Subcharts: Studios
     oidcClientRegistrationTokenSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
+    # -- Key in the existing Secret containing the OIDC client registration token
+    # @section -- Subcharts: Studios
     oidcClientRegistrationTokenSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 pipeline-optimization:
@@ -1651,7 +1677,12 @@ mcp:
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the mcp subchart context where `.Chart.Name` is `mcp`, not
     # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    # -- Name of the existing Secret containing the OIDC client registration token to share with
+    # MCP. Defaults to the platform backend secret. Evaluated as a template
+    # @section -- Subcharts: MCP
     existingSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
+    # -- Key in the existing Secret containing the OIDC client registration token
+    # @section -- Subcharts: MCP
     existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 agent-backend:

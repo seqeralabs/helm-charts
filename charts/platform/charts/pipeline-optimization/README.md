@@ -255,6 +255,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForMySQL.enabled | bool | ``true`` | Enable wait for MySQL init container before starting pipeline optimization and cron |
 | initContainerDependencies.waitForMySQL.image.registry | string | ``""`` | Override default wait for MySQL init container image |
+| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` | Init container image repository |
+| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` | Init container image tag |
+| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
 | initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -277,15 +281,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | serviceAccount.annotations | object | ``{}`` | Additional annotations for the Platform ServiceAccount to generate |
 | serviceAccount.imagePullSecretNames | list | ``[]`` | Names of Secrets containing credentials to pull images from registries |
 | serviceAccount.automountServiceAccountToken | bool | ``false`` | Automount service account token when the server service account is generated |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` |  |
-| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` |  |
-| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` |  |
 
 ## Licensing
 

@@ -100,14 +100,17 @@ global:
 # Service routing: define which provider handles each capability.
 inference:
   # -- Inference provider. One of: "bedrock", "anthropic". Required.
+  # @section -- Service Routing
   provider: ""
 
 embeddings:
   # -- Embeddings provider. One of: "bedrock". When empty, embeddings are disabled.
+  # @section -- Service Routing
   provider: ""
 
 sandbox:
   # -- Sandbox provider. One of: "bedrock". When empty, sandbox is disabled.
+  # @section -- Service Routing
   provider: ""
 
 # Provider configuration blocks. Required when the corresponding provider is selected above.
@@ -115,8 +118,10 @@ bedrock:
   # Default credentials/region applied to any Bedrock-backed service that does not set its own.
   default:
     # -- Optional default IAM role ARN to assume before invoking the Bedrock APIs.
+    # @section -- Bedrock: Default
     assumeRoleArn: ""
     # -- Default AWS region to use for all Bedrock services.
+    # @section -- Bedrock: Default
     region: ""
 
   # Inference-specific Bedrock overrides. Each field maps to one env var; leave empty to omit
@@ -124,41 +129,53 @@ bedrock:
   inference:
     # -- Optional IAM role ARN to assume for Bedrock inference (overrides
     # bedrock.default.assumeRoleArn).
+    # @section -- Bedrock: Inference
     assumeRoleArn: ""
     # -- AWS region for Bedrock inference (overrides bedrock.default.region).
+    # @section -- Bedrock: Inference
     region: ""
     # -- Anthropic inference profile ARN to use on Bedrock (e.g. a custom or
     # cross-region/cross-account profile).
+    # @section -- Bedrock: Inference
     anthropicModel: ""
 
   # Embeddings-specific Bedrock overrides.
   embeddings:
     # -- Optional IAM role ARN to assume for Bedrock embeddings (overrides
     # bedrock.default.assumeRoleArn).
+    # @section -- Bedrock: Embeddings
     assumeRoleArn: ""
     # -- AWS region for Bedrock embeddings (overrides bedrock.default.region).
+    # @section -- Bedrock: Embeddings
     region: ""
     # -- Bedrock model ID used for embeddings.
+    # @section -- Bedrock: Embeddings
     model: "amazon.titan-embed-text-v2:0"
 
   # Sandbox (AWS Bedrock AgentCore) configuration.
   sandbox:
     # -- Optional IAM role ARN to assume before invoking AgentCore (overrides
     # bedrock.default.assumeRoleArn).
+    # @section -- Bedrock: Sandbox
     assumeRoleArn: ""
     # -- AWS region for AgentCore.
+    # @section -- Bedrock: Sandbox
     region: ""
     # -- AWS Bedrock AgentCore runtime ARN for sandbox sessions.
+    # @section -- Bedrock: Sandbox
     runtimeArn: ""
 
 anthropic:
   # -- Anthropic API key. Set this OR existingSecretName, not both.
+  # @section -- Anthropic
   apiKey: ""
   # -- Name of an existing Secret containing the Anthropic API key.
   # Note: the Secret must already exist in the same namespace at the time of deployment
+  # @section -- Anthropic
   existingSecretName: ""
   # -- Key in the existing Secret containing the Anthropic API key
   # @default -- `"ANTHROPIC_API_KEY"`
+  # @section -- Anthropic
   existingSecretKey: ""
 
 database:
@@ -468,10 +485,17 @@ initContainerDependencies:
       # -- Override default wait for Redis init container image
       # @section -- Init Container Dependencies: Wait For Redis
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For Redis
       repository: redis
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For Redis
       tag: 7-alpine
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For Redis
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For Redis
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -514,10 +538,17 @@ initContainerDependencies:
       # -- Override default wait for MySQL init container image
       # @section -- Init Container Dependencies: Wait For MySQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For MySQL
       tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For MySQL
       pullPolicy: IfNotPresent
 
     securityContext:

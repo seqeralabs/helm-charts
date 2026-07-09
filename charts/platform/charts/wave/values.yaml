@@ -336,10 +336,17 @@ initContainerDependencies:
       # -- Override default wait for Redis init container image
       # @section -- Init Container Dependencies: Wait for Redis
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait for Redis
       repository: redis
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait for Redis
       tag: 7-alpine
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait for Redis
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait for Redis
       pullPolicy: IfNotPresent
 
     securityContext:
@@ -382,10 +389,17 @@ initContainerDependencies:
       # -- Override default wait for PostgreSQL init container image
       # @section -- Init Container Dependencies: Wait for PostgreSQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait for PostgreSQL
       repository: postgres
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait for PostgreSQL
       tag: "16-alpine"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait for PostgreSQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait for PostgreSQL
       pullPolicy: IfNotPresent
 
     securityContext:

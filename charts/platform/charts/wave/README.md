@@ -194,6 +194,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForRedis.enabled | bool | ``true`` | Enable wait for Redis init container before starting the main container |
 | initContainerDependencies.waitForRedis.image.registry | string | ``""`` | Override default wait for Redis init container image |
+| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` | Init container image repository |
+| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` | Init container image tag |
+| initContainerDependencies.waitForRedis.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForRedis.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
 | initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -208,6 +212,10 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | initContainerDependencies.waitForPostgres.enabled | bool | ``true`` | Enable wait for PostgreSQL init container before starting the main container |
 | initContainerDependencies.waitForPostgres.image.registry | string | ``""`` | Override default wait for PostgreSQL init container image |
+| initContainerDependencies.waitForPostgres.image.repository | string | ``"postgres"`` | Init container image repository |
+| initContainerDependencies.waitForPostgres.image.tag | string | ``"16-alpine"`` | Init container image tag |
+| initContainerDependencies.waitForPostgres.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForPostgres.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForPostgres.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
 | initContainerDependencies.waitForPostgres.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
 | initContainerDependencies.waitForPostgres.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
@@ -295,19 +303,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | secretAnnotations | object | ``{}`` | Additional annotations for the Secret objects. Evaluated as a template |
 | configMapLabels | object | ``{}`` | Additional labels for the ConfigMap objects. Evaluated as a template |
 | configMapAnnotations | object | ``{}`` | Additional annotations for the ConfigMap objects. Evaluated as a template |
-
-### Other Values
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` |  |
-| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` |  |
-| initContainerDependencies.waitForRedis.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` |  |
-| initContainerDependencies.waitForPostgres.image.repository | string | ``"postgres"`` |  |
-| initContainerDependencies.waitForPostgres.image.tag | string | ``"16-alpine"`` |  |
-| initContainerDependencies.waitForPostgres.image.digest | string | ``""`` |  |
-| initContainerDependencies.waitForPostgres.image.pullPolicy | string | ``"IfNotPresent"`` |  |
 
 ## Licensing
 
