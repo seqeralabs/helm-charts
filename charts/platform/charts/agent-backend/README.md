@@ -68,172 +68,314 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 ## Values
 
+### Global
+
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
-| global.platformServiceAddress | string | `""` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
-| global.platformServicePort | int | `nil` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
-| global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
-| global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
-| global.ingress.enabled | bool | `false` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |
-| global.ingress.path | string | `"/"` | Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`. |
-| global.ingress.defaultPathType | string | `"Prefix"` | Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers. |
-| global.ingress.ingressClassName | string | `""` | Default ingress class name applied when `ingress.ingressClassName` is not set |
-| global.ingress.annotations | object | `{}` | Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template |
-| global.ingress.extraLabels | object | `{}` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
-| global.ingress.tls | list | `[]` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
-| global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
-| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
-| inference.provider | string | `""` | Inference provider. One of: "bedrock", "anthropic". Required. |
-| embeddings.provider | string | `""` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
-| sandbox.provider | string | `""` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
-| bedrock.default.assumeRoleArn | string | `""` | Optional default IAM role ARN to assume before invoking the Bedrock APIs. |
-| bedrock.default.region | string | `""` | Default AWS region to use for all Bedrock services. |
-| bedrock.inference.assumeRoleArn | string | `""` | Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
-| bedrock.inference.region | string | `""` | AWS region for Bedrock inference (overrides bedrock.default.region). |
-| bedrock.inference.anthropicModel | string | `""` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile). |
-| bedrock.embeddings.assumeRoleArn | string | `""` | Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
-| bedrock.embeddings.region | string | `""` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
-| bedrock.embeddings.model | string | `"amazon.titan-embed-text-v2:0"` | Bedrock model ID used for embeddings. |
-| bedrock.sandbox.assumeRoleArn | string | `""` | Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn). |
-| bedrock.sandbox.region | string | `""` | AWS region for AgentCore. |
-| bedrock.sandbox.runtimeArn | string | `""` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
-| anthropic.apiKey | string | `""` | Anthropic API key. Set this OR existingSecretName, not both. |
-| anthropic.existingSecretName | string | `""` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| anthropic.existingSecretKey | string | `"ANTHROPIC_API_KEY"` | Key in the existing Secret containing the Anthropic API key |
-| database.host | string | `""` | MySQL database hostname |
-| database.port | int | `3306` | MySQL database port |
-| database.name | string | `""` | MySQL database name |
-| database.username | string | `""` | MySQL database username |
-| database.password | string | `""` | MySQL database password |
-| database.existingSecretName | string | `""` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
-| database.existingSecretKey | string | `"AGENT_BACKEND_DB_PASSWORD"` | Key in the existing Secret containing the password for the MySQL database |
-| database.enableTls | bool | `false` | Enable TLS for the MySQL database connection |
-| database.tlsCaVerify | bool | `true` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
-| database.sslCa | string | `""` | Path to a CA certificate file for server certificate verification |
-| redis.host | string | `""` | Redis hostname |
-| redis.port | int | `6379` | Redis port |
-| redis.database | int | `0` | Redis database index |
-| redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
-| redis.password | string | `""` | Redis password |
-| redis.existingSecretName | string | `""` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
-| redis.existingSecretKey | string | `"AGENT_BACKEND_REDIS_PASSWORD"` | Key in the existing Secret containing the Redis password |
-| tokenEncryptionKey | string | `""` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
-| tokenEncryptionKeyExistingSecretName | string | `""` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
-| tokenEncryptionKeyExistingSecretKey | string | `"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"` | Key in the existing Secret containing the token encryption key |
-| image.registry | string | `""` | Container image registry |
-| image.repository | string | `"ai/agent-backend/backend"` | Container image repository |
-| image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag |
-| image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
-| image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
-| image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
-| logLevel | string | `"INFO"` | Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG) |
-| service | object | `{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}` | Service configuration |
-| service.type | string | `"ClusterIP"` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
-| service.http.name | string | `"http"` | Service name to use |
-| service.http.port | int | `80` | Service port |
-| service.http.targetPort | int | `8002` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
-| service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
-| service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
-| service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
-| dbMigrationInitContainer.command | list | `["./init.sh"]` | Command to run in the init container performing DB migrations |
-| dbMigrationInitContainer.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
-| dbMigrationInitContainer.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
-| dbMigrationInitContainer.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
-| dbMigrationInitContainer.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
-| dbMigrationInitContainer.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| initContainers | list | `[]` | Additional init containers for the pod. Evaluated as a template |
-| command | list | `[]` | Override default container command (useful when using custom images) |
-| args | list | `[]` | Override default container args (useful when using custom images) |
-| podLabels | object | `{}` | Additional labels for the pod. Evaluated as a template |
-| podAnnotations | object | `{}` | Additional annotations for the pod. Evaluated as a template |
-| extraOptionsSpec | object | `{}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
-| extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
-| extraEnvVars | list | `[]` | Extra environment variables |
-| extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
-| extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
-| extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
-| podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
-| podSecurityContext.fsGroup | int | `101` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
-| containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
-| containerSecurityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
-| containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
-| containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
-| containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
-| resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
-| initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies |
-| initContainerDependencies.waitForRedis.enabled | bool | `true` | Enable wait for Redis init container before starting the main container |
-| initContainerDependencies.waitForRedis.image.registry | string | `""` | Override default wait for Redis init container image |
-| initContainerDependencies.waitForRedis.image.repository | string | `"redis"` |  |
-| initContainerDependencies.waitForRedis.image.tag | string | `"7-alpine"` |  |
-| initContainerDependencies.waitForRedis.image.digest | string | `""` |  |
-| initContainerDependencies.waitForRedis.image.pullPolicy | string | `"IfNotPresent"` |  |
-| initContainerDependencies.waitForRedis.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
-| initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
-| initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
-| initContainerDependencies.waitForRedis.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
-| initContainerDependencies.waitForRedis.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| initContainerDependencies.waitForRedis.extraEnvVars | list | `[]` | Additional environment variables for the init container |
-| initContainerDependencies.waitForRedis.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
-| initContainerDependencies.waitForMySQL.enabled | bool | `true` | Enable wait for MySQL init container before starting the main container |
-| initContainerDependencies.waitForMySQL.image.registry | string | `""` | Override default wait for MySQL init container image |
-| initContainerDependencies.waitForMySQL.image.repository | string | `"mysql"` |  |
-| initContainerDependencies.waitForMySQL.image.tag | string | `"9"` |  |
-| initContainerDependencies.waitForMySQL.image.digest | string | `""` |  |
-| initContainerDependencies.waitForMySQL.image.pullPolicy | string | `"IfNotPresent"` |  |
-| initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
-| initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
-| initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
-| initContainerDependencies.waitForMySQL.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
-| initContainerDependencies.waitForMySQL.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
-| initContainerDependencies.waitForMySQL.extraEnvVars | list | `[]` | Additional environment variables for the init container. The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness check command, and can be used to pass TLS flags when connecting to managed MySQL services such as AWS RDS or Azure Database for MySQL that require certificate verification. Pair with `extraVolumeMounts` to mount the CA certificate into the container. Example (TLS with CA certificate mounted from a volume): extraEnvVars:   - name: MYSQL_EXTRA_ARGS     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY" |
-| initContainerDependencies.waitForMySQL.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container. Use this to mount CA certificates (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that `MYSQL_EXTRA_ARGS` can reference them. |
-| startupProbe.enabled | bool | `false` | Enable startup probe |
-| startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe |
-| startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |
-| startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps |
-| startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting |
-| startupProbe.timeoutSeconds | int | `3` | Can be longer to allow slow initialization responses |
-| startupProbe.failureThreshold | int | `5` | Consecutive failures during startup before killing the container (instead of immediate restarts) |
-| startupProbe.successThreshold | int | `1` | Number of consecutive successes required to consider startup complete and enable liveness/readiness |
-| readinessProbe.enabled | bool | `true` | Enable readiness probe |
-| readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe |
-| readinessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for readiness probe. Evaluated as a template |
-| readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
-| readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation |
-| readinessProbe.timeoutSeconds | int | `3` | Short timeout to detect unresponsive containers for readiness |
-| readinessProbe.failureThreshold | int | `5` | Consecutive failures before marking the container Unready (no restart) |
-| readinessProbe.successThreshold | int | `1` | Number of consecutive successes required to mark the container Ready after failures |
-| livenessProbe.enabled | bool | `true` | Enable liveness probe |
-| livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe |
-| livenessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for liveness probe. Evaluated as a template |
-| livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
-| livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation |
-| livenessProbe.timeoutSeconds | int | `3` | Short timeout to detect hung containers quickly |
-| livenessProbe.failureThreshold | int | `10` | Consecutive failures before restarting the container |
-| livenessProbe.successThreshold | int | `1` | Typically 1 (usually ignored) |
-| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":true,"imagePullSecretNames":[],"name":""}` | Service account configuration |
-| serviceAccount.name | string | `""` | Service account name |
-| serviceAccount.annotations | object | `{}` | Service account annotations |
-| serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
-| serviceAccount.automountServiceAccountToken | bool | `true` | Automatically mount service account token |
-| ingress.enabled | bool | `false` | Enable ingress for Agent Backend |
-| ingress.path | string | `""` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
-| ingress.defaultPathType | string | `""` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
-| ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
-| ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
-| ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
-| ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
-| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
-| ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
-| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
-| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
-| commonLabels | object | `{}` | Labels to add to all deployed objects |
-| secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
-| secretAnnotations | object | `{}` | Additional annotations for the Secret objects. Evaluated as a template |
-| configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
-| configMapAnnotations | object | `{}` | Additional annotations for the ConfigMap objects. Evaluated as a template |
+| global.platformExternalDomain | string | ``"example.com"`` | Domain where Seqera Platform listens |
+| global.platformServiceAddress | string | ``""`` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.platformServicePort | int | ``nil`` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.agentBackendDomain | string | ``"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"`` | Domain where the Agent Backend service listens. Evaluated as a template |
+| global.mcpDomain | string | ``"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"`` | Domain where Seqera MCP listens. Evaluated as a template |
+
+### Global: Ingress
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.ingress.enabled | bool | ``false`` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |
+| global.ingress.path | string | ``"/"`` | Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`. |
+| global.ingress.defaultPathType | string | ``"Prefix"`` | Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers. |
+| global.ingress.ingressClassName | string | ``""`` | Default ingress class name applied when `ingress.ingressClassName` is not set |
+| global.ingress.annotations | object | ``{}`` | Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template |
+| global.ingress.extraLabels | object | ``{}`` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
+| global.ingress.tls | list | ``[]`` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
+
+### Global: Image Credentials
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.imageCredentials | list | ``[]`` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | ``[]`` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
+
+### Service Routing
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| inference.provider | string | ``""`` | Inference provider. One of: "bedrock", "anthropic". Required. |
+| embeddings.provider | string | ``""`` | Embeddings provider. One of: "bedrock". When empty, embeddings are disabled. |
+| sandbox.provider | string | ``""`` | Sandbox provider. One of: "bedrock". When empty, sandbox is disabled. |
+
+### Bedrock: Default
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.default.assumeRoleArn | string | ``""`` | Optional default IAM role ARN to assume before invoking the Bedrock APIs. |
+| bedrock.default.region | string | ``""`` | Default AWS region to use for all Bedrock services. |
+
+### Bedrock: Inference
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.inference.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock inference (overrides bedrock.default.assumeRoleArn). |
+| bedrock.inference.region | string | ``""`` | AWS region for Bedrock inference (overrides bedrock.default.region). |
+| bedrock.inference.anthropicModel | string | ``""`` | Anthropic inference profile ARN to use on Bedrock (e.g. a custom or cross-region/cross-account profile). |
+
+### Bedrock: Embeddings
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.embeddings.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume for Bedrock embeddings (overrides bedrock.default.assumeRoleArn). |
+| bedrock.embeddings.region | string | ``""`` | AWS region for Bedrock embeddings (overrides bedrock.default.region). |
+| bedrock.embeddings.model | string | ``"amazon.titan-embed-text-v2:0"`` | Bedrock model ID used for embeddings. |
+
+### Bedrock: Sandbox
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| bedrock.sandbox.assumeRoleArn | string | ``""`` | Optional IAM role ARN to assume before invoking AgentCore (overrides bedrock.default.assumeRoleArn). |
+| bedrock.sandbox.region | string | ``""`` | AWS region for AgentCore. |
+| bedrock.sandbox.runtimeArn | string | ``""`` | AWS Bedrock AgentCore runtime ARN for sandbox sessions. |
+
+### Anthropic
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| anthropic.apiKey | string | ``""`` | Anthropic API key. Set this OR existingSecretName, not both. |
+| anthropic.existingSecretName | string | ``""`` | Name of an existing Secret containing the Anthropic API key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| anthropic.existingSecretKey | string | ``"ANTHROPIC_API_KEY"`` | Key in the existing Secret containing the Anthropic API key |
+
+### Database
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| database.host | string | ``""`` | MySQL database hostname |
+| database.port | int | ``3306`` | MySQL database port |
+| database.name | string | ``""`` | MySQL database name |
+| database.username | string | ``""`` | MySQL database username |
+| database.password | string | ``""`` | MySQL database password |
+| database.existingSecretName | string | ``""`` | Name of an existing Secret containing credentials for the MySQL database, as an alternative to the password field. Note: the Secret must already exist in the  same namespace at the time of deployment |
+| database.existingSecretKey | string | ``"AGENT_BACKEND_DB_PASSWORD"`` | Key in the existing Secret containing the password for the MySQL database |
+| database.enableTls | bool | ``false`` | Enable TLS for the MySQL database connection |
+| database.tlsCaVerify | bool | ``true`` | Verify the CA certificate when connecting via TLS (set to false to skip verification, insecure - for development/testing only) |
+| database.sslCa | string | ``""`` | Path to a CA certificate file for server certificate verification |
+
+### Redis
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| redis.host | string | ``""`` | Redis hostname |
+| redis.port | int | ``6379`` | Redis port |
+| redis.database | int | ``0`` | Redis database index |
+| redis.enableTls | bool | ``false`` | Enable TLS when connecting to Redis |
+| redis.password | string | ``""`` | Redis password |
+| redis.existingSecretName | string | ``""`` | Name of an existing Secret containing the Redis password, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| redis.existingSecretKey | string | ``"AGENT_BACKEND_REDIS_PASSWORD"`` | Key in the existing Secret containing the Redis password |
+
+### Token Encryption Key
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| tokenEncryptionKey | string | ``""`` | Token encryption key (must be a valid Fernet key). Define the value as a String or a Secret, not both at the same time. If not defined, a random Fernet key will be auto-generated at each deployment. WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
+| tokenEncryptionKeyExistingSecretName | string | ``""`` | Name of an existing Secret containing the token encryption key. Note: the Secret must already exist in the same namespace at the time of deployment |
+| tokenEncryptionKeyExistingSecretKey | string | ``"AGENT_BACKEND_TOKEN_ENCRYPTION_KEY"`` | Key in the existing Secret containing the token encryption key |
+
+### Image
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| image.registry | string | ``""`` | Container image registry |
+| image.repository | string | ``"ai/agent-backend/backend"`` | Container image repository |
+| image.tag | string | ``"{{ .chart.AppVersion }}"`` | Container image tag |
+| image.digest | string | ``""`` | Container image digest in the format `sha256:1234abcdef` |
+| image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
+| image.pullSecrets | list | ``[]`` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
+
+### Deployment
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| logLevel | string | ``"INFO"`` | Log level (one of CRITICAL, ERROR, WARNING, INFO, DEBUG) |
+| initContainers | list | ``[]`` | Additional init containers for the pod. Evaluated as a template |
+| command | list | ``[]`` | Override default container command (useful when using custom images) |
+| args | list | ``[]`` | Override default container args (useful when using custom images) |
+| podLabels | object | ``{}`` | Additional labels for the pod. Evaluated as a template |
+| podAnnotations | object | ``{}`` | Additional annotations for the pod. Evaluated as a template |
+| extraOptionsSpec | object | ``{}`` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| extraOptionsTemplateSpec | object | ``{}`` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
+| extraEnvVars | list | ``[]`` | Extra environment variables |
+| extraEnvVarsCMs | list | ``[]`` | List of ConfigMaps containing extra env vars |
+| extraEnvVarsSecrets | list | ``[]`` | List of Secrets containing extra env vars |
+| extraVolumes | list | ``[]`` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| extraVolumeMounts | list | ``[]`` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| resources | object | ``{}`` | Container requests and limits for different resources like CPU or memory |
+
+### Service
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| service | object | ``{"extraOptions":{},"extraServices":[],"http":{"name":"http","nodePort":null,"port":80,"targetPort":8002},"type":"ClusterIP"}`` | Service configuration |
+| service.type | string | ``"ClusterIP"`` | Service type. Note: ingresses using AWS ALB require the service to be NodePort |
+| service.http.name | string | ``"http"`` | Service name to use |
+| service.http.port | int | ``80`` | Service port |
+| service.http.targetPort | int | ``8002`` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
+| service.http.nodePort | string | ``nil`` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| service.extraServices | list | ``[]`` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
+| service.extraOptions | object | ``{}`` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
+
+### DB Migration Init Container
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| dbMigrationInitContainer.command | list | ``["./init.sh"]`` | Command to run in the init container performing DB migrations |
+| dbMigrationInitContainer.resources | object | ``{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}`` | Container requests and limits for different resources like CPU or memory |
+
+### DB Migration Init Container: Security Context
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| dbMigrationInitContainer.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
+| dbMigrationInitContainer.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
+| dbMigrationInitContainer.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| dbMigrationInitContainer.securityContext.capabilities | object | ``{"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+
+### Pod Security Context
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| podSecurityContext.enabled | bool | ``true`` | Enable pod Security Context |
+| podSecurityContext.fsGroup | int | ``101`` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+
+### Container Security Context
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| containerSecurityContext.enabled | bool | ``true`` | Enable container Security Context |
+| containerSecurityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
+| containerSecurityContext.runAsNonRoot | bool | ``true`` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| containerSecurityContext.readOnlyRootFilesystem | bool | ``true`` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| containerSecurityContext.capabilities | object | ``{"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+
+### Init Container Dependencies
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| initContainerDependencies.enabled | bool | ``true`` | Enable init containers that coordinate startup dependencies |
+
+### Init Container Dependencies: Wait For Redis
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| initContainerDependencies.waitForRedis.enabled | bool | ``true`` | Enable wait for Redis init container before starting the main container |
+| initContainerDependencies.waitForRedis.image.registry | string | ``""`` | Override default wait for Redis init container image |
+| initContainerDependencies.waitForRedis.image.repository | string | ``"redis"`` | Init container image repository |
+| initContainerDependencies.waitForRedis.image.tag | string | ``"7-alpine"`` | Init container image tag |
+| initContainerDependencies.waitForRedis.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForRedis.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
+| initContainerDependencies.waitForRedis.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
+| initContainerDependencies.waitForRedis.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
+| initContainerDependencies.waitForRedis.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| initContainerDependencies.waitForRedis.securityContext.capabilities | object | ``{"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+| initContainerDependencies.waitForRedis.resources | object | ``{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}`` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForRedis.extraEnvVars | list | ``[]`` | Additional environment variables for the init container |
+| initContainerDependencies.waitForRedis.extraVolumeMounts | list | ``[]`` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
+
+### Init Container Dependencies: Wait For MySQL
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| initContainerDependencies.waitForMySQL.enabled | bool | ``true`` | Enable wait for MySQL init container before starting the main container |
+| initContainerDependencies.waitForMySQL.image.registry | string | ``""`` | Override default wait for MySQL init container image |
+| initContainerDependencies.waitForMySQL.image.repository | string | ``"mysql"`` | Init container image repository |
+| initContainerDependencies.waitForMySQL.image.tag | string | ``"9"`` | Init container image tag |
+| initContainerDependencies.waitForMySQL.image.digest | string | ``""`` | Init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForMySQL.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the init container |
+| initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
+| initContainerDependencies.waitForMySQL.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID is 0) |
+| initContainerDependencies.waitForMySQL.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| initContainerDependencies.waitForMySQL.securityContext.capabilities | object | ``{"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+| initContainerDependencies.waitForMySQL.resources | object | ``{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.5","memory":"50Mi"}}`` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForMySQL.extraEnvVars | list | ``[]`` | Additional environment variables for the init container. The special variable `MYSQL_EXTRA_ARGS` is appended verbatim to the `mysql` readiness check command, and can be used to pass TLS flags when connecting to managed MySQL services such as AWS RDS or Azure Database for MySQL that require certificate verification. Pair with `extraVolumeMounts` to mount the CA certificate into the container. Example (TLS with CA certificate mounted from a volume): extraEnvVars:   - name: MYSQL_EXTRA_ARGS     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY" |
+| initContainerDependencies.waitForMySQL.extraVolumeMounts | list | ``[]`` | Additional volume mounts for the init container. Use this to mount CA certificates (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that `MYSQL_EXTRA_ARGS` can reference them. |
+
+### Startup Probe
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| startupProbe.enabled | bool | ``false`` | Enable startup probe |
+| startupProbe.httpGet.path | string | ``"/health"`` | HTTP GET path for startup probe |
+| startupProbe.httpGet.port | string | ``"{{ .Values.service.http.targetPort }}"`` | HTTP GET port for startup probe. Evaluated as a template |
+| startupProbe.initialDelaySeconds | int | ``5`` | Longer initial wait to accommodate slow-starting apps |
+| startupProbe.periodSeconds | int | ``10`` | Often set longer to avoid frequent checks while starting |
+| startupProbe.timeoutSeconds | int | ``3`` | Can be longer to allow slow initialization responses |
+| startupProbe.failureThreshold | int | ``5`` | Consecutive failures during startup before killing the container (instead of immediate restarts) |
+| startupProbe.successThreshold | int | ``1`` | Number of consecutive successes required to consider startup complete and enable liveness/readiness |
+
+### Readiness Probe
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| readinessProbe.enabled | bool | ``true`` | Enable readiness probe |
+| readinessProbe.httpGet.path | string | ``"/health"`` | HTTP GET path for readiness probe |
+| readinessProbe.httpGet.port | string | ``"{{ .Values.service.http.targetPort }}"`` | HTTP GET port for readiness probe. Evaluated as a template |
+| readinessProbe.initialDelaySeconds | int | ``5`` | Delay before first check (normal start timing) |
+| readinessProbe.periodSeconds | int | ``5`` | Regular check interval during normal operation |
+| readinessProbe.timeoutSeconds | int | ``3`` | Short timeout to detect unresponsive containers for readiness |
+| readinessProbe.failureThreshold | int | ``5`` | Consecutive failures before marking the container Unready (no restart) |
+| readinessProbe.successThreshold | int | ``1`` | Number of consecutive successes required to mark the container Ready after failures |
+
+### Liveness Probe
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| livenessProbe.enabled | bool | ``true`` | Enable liveness probe |
+| livenessProbe.httpGet.path | string | ``"/health"`` | HTTP GET path for liveness probe |
+| livenessProbe.httpGet.port | string | ``"{{ .Values.service.http.targetPort }}"`` | HTTP GET port for liveness probe. Evaluated as a template |
+| livenessProbe.initialDelaySeconds | int | ``5`` | Delay before first check (normal start timing) |
+| livenessProbe.periodSeconds | int | ``10`` | Regular check interval during normal operation |
+| livenessProbe.timeoutSeconds | int | ``3`` | Short timeout to detect hung containers quickly |
+| livenessProbe.failureThreshold | int | ``10`` | Consecutive failures before restarting the container |
+| livenessProbe.successThreshold | int | ``1`` | Typically 1 (usually ignored) |
+
+### Service Account
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| serviceAccount | object | ``{"annotations":{},"automountServiceAccountToken":true,"imagePullSecretNames":[],"name":""}`` | Service account configuration |
+| serviceAccount.name | string | ``""`` | Service account name |
+| serviceAccount.annotations | object | ``{}`` | Service account annotations |
+| serviceAccount.imagePullSecretNames | list | ``[]`` | Names of Secrets containing credentials to pull images from registries |
+| serviceAccount.automountServiceAccountToken | bool | ``true`` | Automatically mount service account token |
+
+### Ingress
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| ingress.enabled | bool | ``false`` | Enable ingress for Agent Backend |
+| ingress.path | string | ``""`` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
+| ingress.defaultPathType | string | ``""`` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
+| ingress.defaultBackend | object | ``{}`` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
+| ingress.extraHosts | list | ``[]`` | Additional hosts you want to include. Evaluated as a template |
+| ingress.annotations | object | ``{}`` | Ingress annotations specific to your load balancer. Evaluated as a template |
+| ingress.extraLabels | object | ``{}`` | Additional labels for the ingress object. Evaluated as a template |
+| ingress.ingressClassName | string | ``""`` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
+| ingress.tls | list | ``[]`` | TLS configuration. Evaluated as a template |
+
+### Extra Deploy
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| extraDeploy | list | ``[]`` | Array of extra objects to deploy with the release |
+
+### Common Metadata
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| commonAnnotations | object | ``{}`` | Annotations to add to all deployed objects |
+| commonLabels | object | ``{}`` | Labels to add to all deployed objects |
+| secretLabels | object | ``{}`` | Additional labels for the Secret objects. Evaluated as a template |
+| secretAnnotations | object | ``{}`` | Additional annotations for the Secret objects. Evaluated as a template |
+| configMapLabels | object | ``{}`` | Additional labels for the ConfigMap objects. Evaluated as a template |
+| configMapAnnotations | object | ``{}`` | Additional annotations for the ConfigMap objects. Evaluated as a template |
 
 ## Licensing
 

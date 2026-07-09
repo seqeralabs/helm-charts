@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `examples/standalone.yaml` with a minimal values file for deploying this chart independently.
 - Bumped `appVersion` to `v1.35.0`.
 - Refresh deployment snapshot after `platformServiceAddress` requirement (#131).
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
 
 ### Removed
 

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bumped `appVersion` to `0.4.15`.
 - Bump license-header year range on configmap, secret, service templates and tests (no functional change).
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
 
 ### Removed
 

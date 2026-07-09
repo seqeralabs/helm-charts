@@ -33,11 +33,13 @@
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
   # -- Domain where Seqera Platform listens
+  # @section -- Global
   platformExternalDomain: example.com
 
   # -- Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)
   # attacks. If unset, data is served through the main domain
   # `.global.platformExternalDomain`. Evaluated as a template
+  # @section -- Global
   contentDomain: '{{ printf "user-data.%s" .Values.global.platformExternalDomain }}'
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
@@ -45,30 +47,38 @@ global:
   # with the backend Deployment/Secret naming and collapses correctly when the release name
   # already contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than
   # `seqera-platform-platform-backend`)
+  # @section -- Global
   platformServiceAddress: '{{ printf "%s-backend" (include "common.names.fullname" .) | lower }}'
   # @schema
   # type: [integer, string, null]
   # @schema
   # -- (int) Seqera Platform Service port
+  # @section -- Global
   platformServicePort: 8080
 
   # -- Domain where the Studios service listens. Make sure the TLS certificate covers this and its
   # wildcard subdomains. Evaluated as a template
+  # @section -- Global
   studiosDomain: '{{ printf "studios.%s" .Values.global.platformExternalDomain }}'
   # -- Base URL for Studios connections: can be any value, since each session will use a unique
   # subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template
+  # @section -- Global
   studiosConnectionUrl: '{{ printf "https://connect.%s" (tpl .Values.global.studiosDomain $) }}'
 
   # -- Domain where Wave listens. Evaluated as a template
+  # @section -- Global
   waveDomain: '{{ printf "wave.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where Seqera MCP listens. Evaluated as a template
+  # @section -- Global
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Agent Backend service listens. Evaluated as a template
+  # @section -- Global
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
   # -- Domain where the Portal Web frontend listens. Evaluated as a template
+  # @section -- Global
   portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
   # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
@@ -77,31 +87,39 @@ global:
     # -- Enable Ingress for the parent chart and every subchart that exposes one. Each chart's
     # local `ingress.enabled` is OR'd with this — set this to `true` to turn on all Ingresses
     # in one switch
+    # @section -- Global: Ingress
     enabled: false
     # -- Default path applied to ingress rules when a chart's local `ingress.path` is not set.
     # AWS ALB users should override to `/*`.
+    # @section -- Global: Ingress
     path: "/"
     # -- Default path type applied to ingress rules when a chart's local `ingress.defaultPathType`
     # is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.
     # Override to `ImplementationSpecific` only if your controller requires it (e.g. older GKE).
+    # @section -- Global: Ingress
     defaultPathType: "Prefix"
     # -- Default ingress class name applied to ingress rules when a chart's local
     # `ingress.ingressClassName` is not set. Replaces the deprecated `kubernetes.io/ingress.class`
     # annotation
+    # @section -- Global: Ingress
     ingressClassName: ""
     # -- Annotations merged into every chart's Ingress (e.g. cert-manager issuer, NGINX
     # `proxy-body-size`, ALB SSL config). Local `ingress.annotations` wins on key collision.
     # Evaluated as a template
+    # @section -- Global: Ingress
     annotations: {}
     # -- Extra labels merged into every chart's Ingress. Local `ingress.extraLabels` wins on key
     # collision. Evaluated as a template
+    # @section -- Global: Ingress
     extraLabels: {}
     # -- TLS entries concatenated with each chart's local `ingress.tls`. Useful for a single
     # wildcard cert that covers all services. Evaluated as a template
+    # @section -- Global: Ingress
     tls: []
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
+  # @section -- Global: Image Credentials
   imageCredentials: []
   # imageCredentials:
   # - registry: ""
@@ -111,6 +129,7 @@ global:
 
   # -- Optional list of existing Secrets containing image pull credentials to use for pulling
   # images from private registries. These Secrets are shared with all the subcharts automatically
+  # @section -- Global: Image Credentials
   imageCredentialsSecrets: []
   # imageCredentialsSecrets:
   # - myPrivateRegistryKeySecretName
@@ -122,33 +141,43 @@ global:
 
 platformDatabase:
   # -- Platform MySQL database hostname
+  # @section -- Platform Database
   host: ""
   # @schema
   # type: [integer, string]
   # @schema
   # -- Platform MySQL database port
+  # @section -- Platform Database
   port: 3306
   # -- Platform MySQL database name
+  # @section -- Platform Database
   name: ""
   # -- Platform MySQL database username
+  # @section -- Platform Database
   username: ""
   # -- Platform MySQL database password
+  # @section -- Platform Database
   password: ""
   # -- Name of an existing Secret containing credentials for the Platform MySQL database, as an
   # alternative to the password field. Note: the Secret must already exist in the same namespace at
   # the time of deployment
+  # @section -- Platform Database
   existingSecretName: ""
   # -- Key in the existing Secret containing the password for the Platform MySQL database
   # @default -- `"TOWER_DB_PASSWORD"`
+  # @section -- Platform Database
   existingSecretKey: ""
   # -- Database driver. Possible options: "mariadb" (or its alias "mysql")
+  # @section -- Platform Database
   driver: "mariadb"
   # -- Connection options to compose in the driver URL according to the driver used. The only
   # driver that can be set is 'mariadb'
+  # @section -- Platform Database
   connectionOptions:
     # -- Connection options to use with the MariaDB driver. For the full list of supported
     # options see:
     # https://mariadb.com/docs/connectors/mariadb-connector-j/about-mariadb-connector-j
+    # @section -- Platform Database
     mariadb:
       # permitMysqlScheme=true allows the MariaDB driver to communicate with MySQL databases.
       - permitMysqlScheme=true
@@ -158,21 +187,27 @@ platformDatabase:
       # - sslMode=verify-ca
   # -- Hibernate dialect to use, depending on the database version. Possible options: mysql-8
   # (default), mariadb-10
+  # @section -- Platform Database
   dialect: "mysql-8"
   # -- Connection pool minimum size
+  # @section -- Platform Database
   minPoolSize: "2"
   # -- Connection pool maximum size
+  # @section -- Platform Database
   maxPoolSize: "10"
   # -- Connection pool maximum lifetime
+  # @section -- Platform Database
   maxLifetime: "180000"
 
 platform:
   # TODO: rename variable?
   # -- Content to insert into the tower.yml file (you can use `\|-` YAML multilines). See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview
+  # @section -- Platform
   YAMLConfigFileContent: ""
 
   # -- Sender email address for user support
+  # @section -- Platform
   contactEmail: support@example.com
 
   # -- JWT seed, defined as string, used to sign authentication tokens.
@@ -182,12 +217,15 @@ platform:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade
+  # @section -- Platform: JWT Seed
   jwtSeedString: ""
   # -- Name of an existing Secret containing the JWT seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
+  # @section -- Platform: JWT Seed
   jwtSeedSecretName: ""
   # -- Key in the existing Secret containing the JWT seed
   # @default -- `"TOWER_JWT_SECRET"`
+  # @section -- Platform: JWT Seed
   jwtSeedSecretKey: ""
 
   # -- Crypto seed, defined as string, used to encrypt sensitive data in the database.
@@ -199,16 +237,20 @@ platform:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade
+  # @section -- Platform: Crypto Seed
   cryptoSeedString: ""
   # -- Name of an existing Secret containing the crypto seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
+  # @section -- Platform: Crypto Seed
   cryptoSeedSecretName: ""
   # -- Key in the existing Secret containing the crypto seed
   # @default -- `"TOWER_CRYPTO_SECRETKEY"`
+  # @section -- Platform: Crypto Seed
   cryptoSeedSecretKey: ""
 
   # -- List of execution backends to enable. At least one is required. See
   # https://docs.seqera.io/platform-enterprise/enterprise/configuration/overview#compute-environments
+  # @section -- Platform: Execution Backends
   executionBackends:
     - altair-platform
     - awsbatch-platform
@@ -227,13 +269,16 @@ platform:
 
   # -- Platform license key. A license key is a long alphanumeric string provided by your Seqera
   # account manager. Define the value as a String or a Secret, not both at the same time
+  # @section -- Platform: License
   licenseString: ""
   # -- Name of an existing Secret containing the Platform license key, as an alternative to the
   # string field. Note: the Secret must already exist in the same namespace at the time of
   # deployment
+  # @section -- Platform: License
   licenseSecretName: ""
   # -- Key in the existing Secret containing the Platform license key
   # @default -- `"TOWER_LICENSE"`
+  # @section -- Platform: License
   licenseSecretKey: ""
 
   # -- OIDC private key in PEM format, base64-encoded. Define the value as a String or a Secret, not
@@ -242,13 +287,16 @@ platform:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade
+  # @section -- Platform: OIDC
   oidcPrivateKeyBase64: ""
   # -- Name of an existing Secret containing the OIDC private key in PEM format, as an alternative
   # to the base64-encoded string field. Note: the Secret must already exist in the same namespace at
   # the time of deployment
+  # @section -- Platform: OIDC
   oidcPrivateKeySecretName: ""
   # -- Key in the existing Secret containing the OIDC private key in PEM format
   # @default -- `"oidc.pem"`
+  # @section -- Platform: OIDC
   oidcPrivateKeySecretKey: ""
 
   # -- OIDC client registration token as a string. Used by Studios and MCP to dynamically register
@@ -258,38 +306,49 @@ platform:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade
+  # @section -- Platform: OIDC
   oidcClientRegistrationToken: ""
   # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
   # to the string field. Note: the Secret must already exist in the same namespace at the time of
   # deployment
+  # @section -- Platform: OIDC
   oidcClientRegistrationTokenSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token
   # @default -- `"OIDC_CLIENT_REGISTRATION_TOKEN"`
+  # @section -- Platform: OIDC
   oidcClientRegistrationTokenSecretKey: ""
 
   smtp:
     # -- SMTP server hostname to let users authenticate through email, and to send email
     # notifications for events
+    # @section -- Platform: SMTP
     host: ""
     # -- SMTP server port
+    # @section -- Platform: SMTP
     port: ""
     # -- SMTP server username
+    # @section -- Platform: SMTP
     user: ""
     # -- SMTP server password
+    # @section -- Platform: SMTP
     password: ""
     # -- Name of an existing secret containing the SMTP password
+    # @section -- Platform: SMTP
     existingSecretName: ""
     # -- Key in the existing Secret containing the SMTP password
     # @default -- `"TOWER_SMTP_PASSWORD"`
+    # @section -- Platform: SMTP
     existingSecretKey: ""
 
   # -- URL of the Wave service Platform uses. Evaluated as a template.
   # The Wave service provided by Seqera is `https://wave.seqera.io`
+  # @section -- Platform: Wave & Data Explorer
   waveServerUrl: "https://wave.seqera.io"
 
   dataExplorer:
     # -- Enable the Data Explorer feature:
     # https://docs.seqera.io/platform-enterprise/data/data-explorer
+    # @section -- Platform: Wave & Data Explorer
     enabled: false
 
   # Seqera Studios configuration
@@ -297,15 +356,18 @@ platform:
     # -- Image registry where Wave (defined at `.platform.waveServerUrl`) will push custom Studios
     # images built for user sessions. Credentials to the registry/repository must be defined in each
     # Platform Workspace. Example: `myregistry.example.com`
+    # @section -- Platform: Studios
     customImageRegistry: ""
     # -- Image repository where Wave (defined at `.platform.waveServerUrl`) will push custom Studios
     # images built for user sessions. Example: `myteam/studios-container-repo`
+    # @section -- Platform: Studios
     customImageRepository: ""
 
     # -- Map of tools to make available in Studios. Recommended and deprecated versions can be
     # specified for each tool to allow upgrading from an older version. Refer to the documentation
     # for more details:
     # https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template
+    # @section -- Platform: Studios
     tools:
       jupyter:
         tool: jupyter
@@ -330,69 +392,90 @@ platform:
     # field is 'recommended'.
 
   # -- Additional labels for the ConfigMap objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   configMapLabels: {}
   # -- Additional labels for the Secret objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   secretLabels: {}
   # -- Additional labels for the Service objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   serviceLabels: {}
   # -- Additional annotations for the ConfigMap objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   configMapAnnotations: {}
   # -- Additional annotations for the Secret objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   secretAnnotations: {}
   # -- Additional annotations for the Service objects. Evaluated as a template
+  # @section -- Platform: Labels & Annotations
   serviceAnnotations: {}
 
 # Note that Platform currently doesn't support specifying a Redis database within a Redis instance
 redis:
   # -- Redis hostname
+  # @section -- Redis
   host: ""
   # -- Redis port
+  # @section -- Redis
   port: 6379
   # -- Redis password if the installation requires it
+  # @section -- Redis
   password: ""
   # -- Name of an existing Secret containing credentials for Redis, as an alternative to the
   # password field. Note: the Secret must already exist in the same namespace at the time of
   # deployment
+  # @section -- Redis
   existingSecretName: ""
   # -- Key in the existing Secret containing the password for Redis
   # @default -- `"TOWER_REDIS_PASSWORD"`
+  # @section -- Redis
   existingSecretKey: ""
   # -- Enable TLS when connecting to Redis
+  # @section -- Redis
   enableTls: false
 
 # Options specific to the Platform backend deployment
 backend:
   image:
     # -- Backend container image registry
+    # @section -- Backend: Image
     registry: ""
     # -- Backend container image repository
+    # @section -- Backend: Image
     repository: enterprise/platform/backend
     # -- Backend container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
+    # @section -- Backend: Image
     tag: ""
     # -- Backend container image digest in the format `sha256:1234abcdef`
+    # @section -- Backend: Image
     digest: ""
 
     # -- imagePullPolicy for the backend container
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # @section -- Backend: Image
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # @section -- Backend: Image
     pullSecrets: []
     # pullSecrets:
     #   - myRegistryKeySecretName
 
   # -- List of Micronaut Environments to enable on the backend pod
+  # @section -- Backend: Image
   micronautEnvironments: [prod, redis, ha]
 
   service:
     # -- Backend Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
+    # @section -- Backend: Service
     type: ClusterIP
     http:
       # -- Service name to use
+      # @section -- Backend: Service
       name: http
       # The external port is defined as the global variable
       # `.global.platformServicePort`, so it can be used by subcharts too
@@ -403,13 +486,16 @@ backend:
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port). Platform v25.3+ only; previous
       # versions were hardcoded to 8080
+      # @section -- Backend: Service
       targetPort: 8080
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
+      # @section -- Backend: Service
       nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    # @section -- Backend: Service
     extraServices: []
     # extraServices:
     # - name: myspecialservice
@@ -419,23 +505,30 @@ backend:
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
+    # @section -- Backend: Service
     extraOptions: {}
 
   # -- Additional init containers for the backend pod. Evaluated as a template
+  # @section -- Backend: Pod
   initContainers: []
 
   # -- Override default container command (useful when using custom images)
+  # @section -- Backend: Pod
   command: []
   # -- Override default container args (useful when using custom images)
+  # @section -- Backend: Pod
   args: []
 
   # -- Additional labels for the backend pod. Evaluated as a template
+  # @section -- Backend: Pod
   podLabels: {}
   # -- Additional annotations for the backend pod. Evaluated as a template
+  # @section -- Backend: Pod
   podAnnotations: {}
 
   # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
   # Evaluated as a template
+  # @section -- Backend: Pod
   extraOptionsSpec:
     replicas: 3
   # extraOptionsSpec:
@@ -447,26 +540,32 @@ backend:
 
   # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
   # etc). Evaluated as a template
+  # @section -- Backend: Pod
   extraOptionsTemplateSpec: {}
   # extraOptionsTemplateSpec:
   #   nodeSelector:
   #     service: myspecialnodegroup
 
   # -- Extra environment variables to set on the backend pod
+  # @section -- Backend: Pod
   extraEnvVars: []
   # extraEnvVars:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
   # -- List of ConfigMaps containing extra env vars
+  # @section -- Backend: Pod
   extraEnvVarsCMs: []
   # -- List of Secrets containing extra env vars
+  # @section -- Backend: Pod
   extraEnvVarsSecrets: []
   # -- List of volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
+  # @section -- Backend: Pod
   extraVolumes: []
   # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
+  # @section -- Backend: Pod
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -474,28 +573,36 @@ backend:
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
     # -- Enable pod Security Context
+    # @section -- Backend: Security Context
     enabled: true
     # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
     # in the pod can share group-owned access
+    # @section -- Backend: Security Context
     fsGroup: 101
 
   # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable container Security Context
+    # @section -- Backend: Security Context
     enabled: true
     # -- UID the container processes run as (overrides container image default)
+    # @section -- Backend: Security Context
     runAsUser: 101
     # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+    # @section -- Backend: Security Context
     runAsNonRoot: true
     # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+    # @section -- Backend: Security Context
     readOnlyRootFilesystem: true
     # -- Fine-grained Linux kernel privileges to add or drop for the container
+    # @section -- Backend: Security Context
     capabilities:
       drop:
         - ALL
 
   # -- Container requests and limits for different resources like CPU or memory
+  # @section -- Backend: Resources
   resources: {}
   # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
   # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -514,97 +621,127 @@ backend:
   # Configure extra options for the startup probe
   startupProbe:
     # -- Enable startup probe
+    # @section -- Backend: Startup Probe
     enabled: false
     httpGet:
       # -- HTTP GET path for startup probe
+      # @section -- Backend: Startup Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
+      # @section -- Backend: Startup Probe
       port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Longer initial wait to accommodate slow-starting apps
+    # @section -- Backend: Startup Probe
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting
+    # @section -- Backend: Startup Probe
     periodSeconds: 10
     # -- Can be longer to allow slow initialization responses
+    # @section -- Backend: Startup Probe
     timeoutSeconds: 3
     # -- Consecutive failures during startup before killing the container (instead of immediate
     # restarts)
+    # @section -- Backend: Startup Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to consider startup complete and enable
     # liveness/readiness
+    # @section -- Backend: Startup Probe
     successThreshold: 1
 
   # Configure extra options for the readiness probe
   readinessProbe:
     # -- Enable readiness probe
+    # @section -- Backend: Readiness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for readiness probe
+      # @section -- Backend: Readiness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
+      # @section -- Backend: Readiness Probe
       port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Delay before first check (normal start timing)
+    # @section -- Backend: Readiness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Backend: Readiness Probe
     periodSeconds: 5
     # -- Short timeout to detect unresponsive containers for readiness
+    # @section -- Backend: Readiness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before marking the container Unready (no restart)
+    # @section -- Backend: Readiness Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to mark the container Ready after failures
+    # @section -- Backend: Readiness Probe
     successThreshold: 1
 
   # Configure extra options for the liveness probe
   livenessProbe:
     # -- Enable liveness probe
+    # @section -- Backend: Liveness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for liveness probe
+      # @section -- Backend: Liveness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template. Note: before v25.3 this was
       # hardcoded to 8080
+      # @section -- Backend: Liveness Probe
       port: '{{ .Values.backend.service.http.targetPort }}'
     # -- Delay before first check (normal start timing)
+    # @section -- Backend: Liveness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Backend: Liveness Probe
     periodSeconds: 10
     # -- Short timeout to detect hung containers quickly
+    # @section -- Backend: Liveness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before restarting the container
+    # @section -- Backend: Liveness Probe
     failureThreshold: 10
     # -- Typically 1 (usually ignored)
+    # @section -- Backend: Liveness Probe
     successThreshold: 1
 
 # Options specific to the Platform frontend deployment
 frontend:
   image:
     # -- Frontend container image registry
+    # @section -- Frontend: Image
     registry: ""
     # -- Frontend container image repository
+    # @section -- Frontend: Image
     repository: enterprise/platform/frontend
     # -- Specify a tag to override the version defined in .Chart.appVersion
     # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
+    # @section -- Frontend: Image
     tag: ""
     # -- Frontend container image digest in the format `sha256:1234abcdef`
+    # @section -- Frontend: Image
     digest: ""
 
     # -- imagePullPolicy for the frontend container
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # @section -- Frontend: Image
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # @section -- Frontend: Image
     pullSecrets: []
     # pullSecrets:
     #   - myRegistryKeySecretName
@@ -612,27 +749,33 @@ frontend:
   service:
     # -- Frontend Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
+    # @section -- Frontend: Service
     type: ClusterIP
     http:
       # -- Service name to use
+      # @section -- Frontend: Service
       name: http
       # @schema
       # type: [integer, string]
       # @schema
       # -- Service port
+      # @section -- Frontend: Service
       port: 80
       # @schema
       # type: [integer, string]
       # @schema
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
+      # @section -- Frontend: Service
       targetPort: 8083
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
+      # @section -- Frontend: Service
       nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    # @section -- Frontend: Service
     extraServices: []
     # extraServices:
     # - name: myspecialservice
@@ -642,23 +785,30 @@ frontend:
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
+    # @section -- Frontend: Service
     extraOptions: {}
 
   # -- Additional init containers for the frontend pod. Evaluated as a template
+  # @section -- Frontend: Pod
   initContainers: []
 
   # -- Override default container command (useful when using custom images)
+  # @section -- Frontend: Pod
   command: []
   # -- Override default container args (useful when using custom images)
+  # @section -- Frontend: Pod
   args: []
 
   # -- Additional labels for the frontend pod. Evaluated as a template
+  # @section -- Frontend: Pod
   podLabels: {}
   # -- Additional annotations for the frontend pod. Evaluated as a template
+  # @section -- Frontend: Pod
   podAnnotations: {}
 
   # -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
   # Note: the cron deployment can only run a single replica and use Recreate strategy
+  # @section -- Frontend: Pod
   extraOptionsSpec: {}
   # extraOptionsSpec:
   #   replicas: 2
@@ -669,26 +819,32 @@ frontend:
 
   # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity,
   # restartPolicy). Evaluated as a template
+  # @section -- Frontend: Pod
   extraOptionsTemplateSpec: {}
   # extraOptionsTemplateSpec:
   #   nodeSelector:
   #     service: myspecialnodegroup
 
   # -- Extra environment variables to set on the frontend pod
+  # @section -- Frontend: Pod
   extraEnvVars: []
   # extraEnvVars:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
   # -- List of ConfigMaps containing extra env vars
+  # @section -- Frontend: Pod
   extraEnvVarsCMs: []
   # -- List of Secrets containing extra env vars
+  # @section -- Frontend: Pod
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
+  # @section -- Frontend: Pod
   extraVolumes: []
   # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
+  # @section -- Frontend: Pod
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -696,28 +852,36 @@ frontend:
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
     # -- Enable pod Security Context
+    # @section -- Frontend: Security Context
     enabled: true
     # -- GID that Kubernetes applies to mounted volumes and created files so processes
     # in the pod can share group-owned access
+    # @section -- Frontend: Security Context
     fsGroup: 101
 
   # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable container Security Context
+    # @section -- Frontend: Security Context
     enabled: true
     # -- UID the container processes run as (overrides container image default)
+    # @section -- Frontend: Security Context
     runAsUser: 101
     # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+    # @section -- Frontend: Security Context
     runAsNonRoot: true
     # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+    # @section -- Frontend: Security Context
     readOnlyRootFilesystem: true
     # -- Fine-grained Linux kernel privileges to add or drop for the container
+    # @section -- Frontend: Security Context
     capabilities:
       drop:
         - ALL
 
   # -- Container requests and limits for different resources like CPU or memory
+  # @section -- Frontend: Resources
   resources: {}
   # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
   # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -736,125 +900,162 @@ frontend:
   # Configure extra options for the startup probe
   startupProbe:
     # -- Enable startup probe
+    # @section -- Frontend: Startup Probe
     enabled: false
     httpGet:
       # -- HTTP GET path for startup probe
+      # @section -- Frontend: Startup Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template
+      # @section -- Frontend: Startup Probe
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Longer initial wait to accommodate slow-starting apps
+    # @section -- Frontend: Startup Probe
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting
+    # @section -- Frontend: Startup Probe
     periodSeconds: 10
     # -- Can be longer to allow slow initialization responses
+    # @section -- Frontend: Startup Probe
     timeoutSeconds: 3
     # -- Consecutive failures during startup before killing the container (instead of immediate
     # restarts)
+    # @section -- Frontend: Startup Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to consider startup complete and enable
     # liveness/readiness
+    # @section -- Frontend: Startup Probe
     successThreshold: 1
 
   # Configure extra options for the readiness probe
   readinessProbe:
     # -- Enable readiness probe
+    # @section -- Frontend: Readiness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for readiness probe
+      # @section -- Frontend: Readiness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template
+      # @section -- Frontend: Readiness Probe
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
+    # @section -- Frontend: Readiness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Frontend: Readiness Probe
     periodSeconds: 5
     # -- Short timeout to detect unresponsive containers for readiness
+    # @section -- Frontend: Readiness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before marking the container Unready (no restart)
+    # @section -- Frontend: Readiness Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to mark the container Ready after failures
+    # @section -- Frontend: Readiness Probe
     successThreshold: 1
 
   # Configure extra options for the liveness probe
   livenessProbe:
     # -- Enable liveness probe
+    # @section -- Frontend: Liveness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for liveness probe
+      # @section -- Frontend: Liveness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template
+      # @section -- Frontend: Liveness Probe
       port: "{{ .Values.frontend.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
+    # @section -- Frontend: Liveness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Frontend: Liveness Probe
     periodSeconds: 10
     # -- Short timeout to detect hung containers quickly
+    # @section -- Frontend: Liveness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before restarting the container
+    # @section -- Frontend: Liveness Probe
     failureThreshold: 10
     # -- Typically 1 (usually ignored)
+    # @section -- Frontend: Liveness Probe
     successThreshold: 1
 
 # Options specific to the Platform cron deployment
 cron:
   image:
     # -- Cron container image registry
+    # @section -- Cron: Image
     registry: ""
     # -- Cron container image repository
+    # @section -- Cron: Image
     repository: enterprise/platform/backend
     # -- Cron container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
+    # @section -- Cron: Image
     tag: ""
     # -- Cron container image digest in the format `sha256:1234abcdef`
+    # @section -- Cron: Image
     digest: ""
 
     # -- imagePullPolicy for the cron container
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # @section -- Cron: Image
     pullPolicy: IfNotPresent
 
     # -- List of imagePullSecrets
     # Secrets must be created in the same namespace, for example using the .extraDeploy array
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # @section -- Cron: Image
     pullSecrets: []
     # pullSecrets:
     #   - myRegistryKeySecretName
 
   # -- List of Micronaut Environments to enable on the cron pod
+  # @section -- Cron: Service
   micronautEnvironments: [prod, redis, cron]
 
   service:
     # -- Cron Service type.
     # Note: ingresses using AWS ALB require the service to be NodePort
+    # @section -- Cron: Service
     type: ClusterIP
     http:
       # -- Service name to use
+      # @section -- Cron: Service
       name: http
       # @schema
       # type: [integer, string]
       # @schema
       # -- Service port
+      # @section -- Cron: Service
       port: 8080
       # @schema
       # type: [integer, string]
       # @schema
       # -- Port on the pod/container that the Service forwards traffic to (can be a number or
       # named port, distinct from the Service's external port)
+      # @section -- Cron: Service
       targetPort: 8082
       # -- (int) Service node port, only used when service.type is Nodeport or LoadBalancer
       # Choose port between 30000-32767, unless the cluster was configured differently than default
+      # @section -- Cron: Service
       nodePort: 0
 
     # -- Other services that should live in the Service object
     # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+    # @section -- Cron: Service
     extraServices: []
     # extraServices:
     # - name: myspecialservice
@@ -864,49 +1065,62 @@ cron:
 
     # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
     # externalTrafficPolicy, externalIPs). Evaluated as a template
+    # @section -- Cron: Service
     extraOptions: {}
 
   # -- Additional init containers for the cron pod. Evaluated as a template
+  # @section -- Cron: Pod
   initContainers: []
 
   # -- Override default container command (useful when using custom images)
+  # @section -- Cron: Pod
   command: []
   # -- Override default container args (useful when using custom images)
+  # @section -- Cron: Pod
   args: []
 
   # -- Additional labels for the cron pod. Evaluated as a template
+  # @section -- Cron: Pod
   podLabels: {}
   # -- Additional annotations for the cron pod. Evaluated as a template
+  # @section -- Cron: Pod
   podAnnotations: {}
 
   # -- Extra options to place under .spec (for example, revisionHistoryLimit). Evaluated as a template
   # Note that cron deployment needs to have a single replica with Recreate strategy
+  # @section -- Cron: Pod
   extraOptionsSpec: {}
   # extraOptionsSpec:
   #   revisionHistoryLimit: 4
 
   # -- Extra options to place under .spec.template.spec (for example, nodeSelector, affinity, restartPolicy)
   # Evaluated as a template
+  # @section -- Cron: Pod
   extraOptionsTemplateSpec: {}
   # extraOptionsTemplateSpec:
   #   nodeSelector:
   #     service: myspecialnodegroup
 
   # -- Extra environment variables to set on the cron pod
+  # @section -- Cron: Pod
   extraEnvVars: []
   # extraEnvVars:
   #   - name: "CUSTOM_ENV_VAR"
   #     value: "set-a-value-here"
 
   # -- List of ConfigMaps containing extra env vars
+  # @section -- Cron: Pod
   extraEnvVarsCMs: []
   # -- List of Secrets containing extra env vars
+  # @section -- Cron: Pod
   extraEnvVarsSecrets: []
   # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
   # `extraVolumeMounts`
+  # @section -- Cron: Pod
   extraVolumes: []
   # -- List of volume mounts to add to the container (evaluated as template). Normally used with
   # `extraVolumes`
+  # @section -- Cron: Pod
   extraVolumeMounts: []
 
   # Configure Pods Security Context.
@@ -914,28 +1128,36 @@ cron:
   # Empty map to disable Pod Security Context configuration
   podSecurityContext:
     # -- Enable pod Security Context
+    # @section -- Cron: Security Context
     enabled: true
     # -- GID that Kubernetes applies to mounted volumes and created files so processes
     # in the pod can share group-owned access
+    # @section -- Cron: Security Context
     fsGroup: 101
 
   # Configure Container Security Context.
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   containerSecurityContext:
     # -- Enable container Security Context
+    # @section -- Cron: Security Context
     enabled: true
     # -- UID the container processes run as (overrides container image default)
+    # @section -- Cron: Security Context
     runAsUser: 101
     # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+    # @section -- Cron: Security Context
     runAsNonRoot: true
     # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+    # @section -- Cron: Security Context
     readOnlyRootFilesystem: true
     # -- Fine-grained Linux kernel privileges to add or drop for the container
+    # @section -- Cron: Security Context
     capabilities:
       drop:
         - ALL
 
   # -- Container requests and limits for different resources like CPU or memory
+  # @section -- Cron: Resources
   resources: {}
   # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
   # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -954,134 +1176,177 @@ cron:
   # Configure extra options for the startup probe
   startupProbe:
     # -- Enable startup probe
+    # @section -- Cron: Startup Probe
     enabled: false
     httpGet:
       # -- HTTP GET path for startup probe
+      # @section -- Cron: Startup Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for startup probe. Evaluated as a template
+      # @section -- Cron: Startup Probe
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Longer initial wait to accommodate slow-starting apps
+    # @section -- Cron: Startup Probe
     initialDelaySeconds: 5
     # -- Often set longer to avoid frequent checks while starting
+    # @section -- Cron: Startup Probe
     periodSeconds: 10
     # -- Can be longer to allow slow initialization responses
+    # @section -- Cron: Startup Probe
     timeoutSeconds: 3
     # -- Consecutive failures during startup before killing the container (instead of immediate restarts)
+    # @section -- Cron: Startup Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to consider startup complete and enable liveness/readiness
+    # @section -- Cron: Startup Probe
     successThreshold: 1
 
   # Configure extra options for the readiness probe
   readinessProbe:
     # -- Enable readiness probe
+    # @section -- Cron: Readiness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for readiness probe
+      # @section -- Cron: Readiness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for readiness probe. Evaluated as a template
+      # @section -- Cron: Readiness Probe
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
+    # @section -- Cron: Readiness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Cron: Readiness Probe
     periodSeconds: 5
     # -- Short timeout to detect unresponsive containers for readiness
+    # @section -- Cron: Readiness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before marking the container Unready (no restart)
+    # @section -- Cron: Readiness Probe
     failureThreshold: 5
     # -- Number of consecutive successes required to mark the container Ready after failures
+    # @section -- Cron: Readiness Probe
     successThreshold: 1
 
   # Configure extra options for the liveness probe
   livenessProbe:
     # -- Enable liveness probe
+    # @section -- Cron: Liveness Probe
     enabled: true
     httpGet:
       # -- HTTP GET path for liveness probe
+      # @section -- Cron: Liveness Probe
       path: "/health"
       # @schema
       # type: [integer, string]
       # @schema
       # -- HTTP GET port for liveness probe. Evaluated as a template
+      # @section -- Cron: Liveness Probe
       port: "{{ .Values.cron.service.http.targetPort }}"
     # -- Delay before first check (normal start timing)
+    # @section -- Cron: Liveness Probe
     initialDelaySeconds: 5
     # -- Regular check interval during normal operation
+    # @section -- Cron: Liveness Probe
     periodSeconds: 10
     # -- Short timeout to detect hung containers quickly
+    # @section -- Cron: Liveness Probe
     timeoutSeconds: 3
     # -- Consecutive failures before restarting the container
+    # @section -- Cron: Liveness Probe
     failureThreshold: 10
     # -- Typically 1 (usually ignored)
+    # @section -- Cron: Liveness Probe
     successThreshold: 1
 
   dbMigrationInitContainer:
     image:
       # -- Database migration container image registry
+      # @section -- Cron: DB Migration Init Container
       registry: ""
       # -- Database migration container image repository
+      # @section -- Cron: DB Migration Init Container
       repository: enterprise/platform/migrate-db
       # -- Specify a tag to override the version defined in .Chart.appVersion
       # @default -- `"{{ .chart.AppVersion }}"`
+      # @section -- Cron: DB Migration Init Container
       tag: ""
       # -- Database migration container image digest in the format `sha256:1234abcdef`
+      # @section -- Cron: DB Migration Init Container
       digest: ""
 
       # -- imagePullPolicy for the database migration init container
       # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+      # @section -- Cron: DB Migration Init Container
       pullPolicy: IfNotPresent
 
       # -- List of imagePullSecrets
       # Secrets must be created in the same namespace, for example using the .extraDeploy array
       # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      # @section -- Cron: DB Migration Init Container
       pullSecrets: []
       # pullSecrets:
       #   - myRegistryKeySecretName
 
     # -- Override default container command (useful when using custom images)
+    # @section -- Cron: DB Migration Init Container
     command: ["/bin/sh", "-c", "/migrate-db.sh"]
     # -- Override default container args (useful when using custom images)
+    # @section -- Cron: DB Migration Init Container
     args: []
 
     # -- Extra environment variables to set on the cron pod
+    # @section -- Cron: DB Migration Init Container
     extraEnvVars: []
     # extraEnvVars:
     #   - name: "CUSTOM_ENV_VAR"
     #     value: "set-a-value-here"
 
     # -- List of ConfigMaps containing extra env vars
+    # @section -- Cron: DB Migration Init Container
     extraEnvVarsCMs: []
     # -- List of Secrets containing extra env vars
+    # @section -- Cron: DB Migration Init Container
     extraEnvVarsSecrets: []
     # -- Extra volumes to add to the deployment (evaluated as template). Requires setting
     # `extraVolumeMounts`
+    # @section -- Cron: DB Migration Init Container
     extraVolumes: []
     # -- List of volume mounts to add to the container (evaluated as template). Normally used with
     # `extraVolumes`
+    # @section -- Cron: DB Migration Init Container
     extraVolumeMounts: []
 
     # Configure Init Container Security Context
     # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
     containerSecurityContext:
       # -- Enable container Security Context
+      # @section -- Cron: DB Migration Init Container
       enabled: true
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Cron: DB Migration Init Container
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+      # @section -- Cron: DB Migration Init Container
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Cron: DB Migration Init Container
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Cron: DB Migration Init Container
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Cron: DB Migration Init Container
     resources: {}
     # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
     # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -1101,34 +1366,49 @@ initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies between Platform components
   # (for example, wait for database readiness before cron starts, wait for cron before backend
   # starts, etc)
+  # @section -- Init Container Dependencies
   enabled: true
 
   waitForMySQL:
     # -- Enable wait for MySQL init container before starting backend and cron
+    # @section -- Init Container Dependencies: Wait For MySQL
     enabled: true
     image:
       # -- Override default wait for MySQL init container image
+      # @section -- Init Container Dependencies: Wait For MySQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For MySQL
       tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For MySQL
       pullPolicy: IfNotPresent
 
     securityContext:
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Init Container Dependencies: Wait For MySQL
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
+      # @section -- Init Container Dependencies: Wait For MySQL
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Init Container Dependencies: Wait For MySQL
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Init Container Dependencies: Wait For MySQL
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Init Container Dependencies: Wait For MySQL
     resources:
       requests:
         cpu: "0.5"
@@ -1145,38 +1425,54 @@ initContainerDependencies:
     # extraEnvVars:
     #   - name: MYSQL_EXTRA_ARGS
     #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+    # @section -- Init Container Dependencies: Wait For MySQL
     extraEnvVars: []
     # -- Additional volume mounts for the init container. Use this to mount CA certificates
     # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
     # `MYSQL_EXTRA_ARGS` can reference them.
+    # @section -- Init Container Dependencies: Wait For MySQL
     extraVolumeMounts: []
 
   waitForRedis:
     # -- Enable wait for Redis init container before starting backend and cron
+    # @section -- Init Container Dependencies: Wait For Redis
     enabled: true
     image:
       # -- Override default wait for Redis init container image
+      # @section -- Init Container Dependencies: Wait For Redis
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For Redis
       repository: redis
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For Redis
       tag: 7-alpine
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For Redis
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For Redis
       pullPolicy: IfNotPresent
 
     securityContext:
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Init Container Dependencies: Wait For Redis
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
+      # @section -- Init Container Dependencies: Wait For Redis
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Init Container Dependencies: Wait For Redis
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Init Container Dependencies: Wait For Redis
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Init Container Dependencies: Wait For Redis
     resources:
       requests:
         cpu: "0.5"
@@ -1185,36 +1481,52 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
+    # @section -- Init Container Dependencies: Wait For Redis
     extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    # @section -- Init Container Dependencies: Wait For Redis
     extraVolumeMounts: []
 
   waitForCron:
     # -- Enable wait for Platform cron init container before starting backend
+    # @section -- Init Container Dependencies: Wait For Cron
     enabled: true
     image:
       # -- Override default wait for cron init container image
+      # @section -- Init Container Dependencies: Wait For Cron
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For Cron
       repository: curlimages/curl
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For Cron
       tag: latest
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For Cron
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For Cron
       pullPolicy: IfNotPresent
 
     securityContext:
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Init Container Dependencies: Wait For Cron
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
+      # @section -- Init Container Dependencies: Wait For Cron
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Init Container Dependencies: Wait For Cron
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Init Container Dependencies: Wait For Cron
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Init Container Dependencies: Wait For Cron
     resources:
       requests:
         cpu: "0.5"
@@ -1223,40 +1535,51 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
+    # @section -- Init Container Dependencies: Wait For Cron
     extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    # @section -- Init Container Dependencies: Wait For Cron
     extraVolumeMounts: []
 
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
   # the release name
+  # @section -- Service Account
   name: ""
   # -- Additional annotations for the ServiceAccount to generate
+  # @section -- Service Account
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
+  # @section -- Service Account
   imagePullSecretNames: []
   # @schema
   # type: [boolean, string]
   # @schema
   # -- Automount service account token when the service account is generated
+  # @section -- Service Account
   automountServiceAccountToken: false
 
 ingress:
   # -- Enable ingress for Platform
+  # @section -- Ingress
   enabled: false
 
   # -- Path for the main ingress rule. When empty, falls back to `global.ingress.path`
+  # @section -- Ingress
   path: ""
 
   # -- Path for the content domain ingress rule. When empty, falls back to `ingress.path`
+  # @section -- Ingress
   contentPath: ""
 
   # -- Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`
+  # @section -- Ingress
   defaultPathType: ""
 
   # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
   # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  # @section -- Ingress
   defaultBackend: {}
   # defaultBackend:
   #   service:
@@ -1265,6 +1588,7 @@ ingress:
   #       number: '{{ .Values.frontend.service.http.port }}'
 
   # -- Additional hosts you want to include. Evaluated as a template
+  # @section -- Ingress
   extraHosts: []
   # extraHosts:
   #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
@@ -1281,13 +1605,17 @@ ingress:
   #         portNumber: '{{ .Values.frontend.service.http.port }}'
 
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  # @section -- Ingress
   annotations: {}
   # -- Additional labels for the ingress object. Evaluated as a template
+  # @section -- Ingress
   extraLabels: {}
   # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).
   # When empty, falls back to `global.ingress.ingressClassName`
+  # @section -- Ingress
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
+  # @section -- Ingress
   tls: []
   # tls:
   #   - hosts:
@@ -1296,6 +1624,7 @@ ingress:
   #     secretName: my-tls
 
 # -- Array of extra objects to deploy with the release
+# @section -- Common
 extraDeploy: []
 # extraDeploy:
 #   - apiVersion: v1
@@ -1306,13 +1635,16 @@ extraDeploy: []
 #     ...
 
 # -- Annotations to add to all deployed objects
+# @section -- Common
 commonAnnotations: {}
 # -- Labels to add to all deployed objects
+# @section -- Common
 commonLabels: {}
 
 studios:
   # -- Enable Studios feature. Refer to the subchart README for more details and the full list of
   # configuration options
+  # @section -- Subcharts: Studios
   enabled: true
   proxy:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
@@ -1320,17 +1652,24 @@ studios:
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the studios subchart context where `.Chart.Name` is `studios`,
     # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    # -- Name of the existing Secret containing the OIDC client registration token to share with the
+    # Studios proxy. Defaults to the platform backend secret. Evaluated as a template
+    # @section -- Subcharts: Studios
     oidcClientRegistrationTokenSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
+    # -- Key in the existing Secret containing the OIDC client registration token
+    # @section -- Subcharts: Studios
     oidcClientRegistrationTokenSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 pipeline-optimization:
   # -- Enable pipeline optimization feature. Refer to the subchart README for more details and the
   # full list of configuration options
+  # @section -- Subcharts: Pipeline Optimization
   enabled: true
 
 mcp:
   # -- Enable the Seqera Model Context Protocol (MCP) service. Refer to the subchart README for more
   # details and the full list of configuration options
+  # @section -- Subcharts: MCP
   enabled: true
   oidcToken:
     # Wire the OIDC registration token to the platform backend secret so all consumers share the
@@ -1338,15 +1677,22 @@ mcp:
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the mcp subchart context where `.Chart.Name` is `mcp`, not
     # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
+    # -- Name of the existing Secret containing the OIDC client registration token to share with
+    # MCP. Defaults to the platform backend secret. Evaluated as a template
+    # @section -- Subcharts: MCP
     existingSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
+    # -- Key in the existing Secret containing the OIDC client registration token
+    # @section -- Subcharts: MCP
     existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
 
 agent-backend:
   # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
   # more details and the full list of configuration options
+  # @section -- Subcharts: Agent Backend
   enabled: true
 
 portal-web:
   # -- Enable portal web frontend. Refer to the subchart README for more details and the full list
   # of configuration options
+  # @section -- Subcharts: Portal Web
   enabled: true
