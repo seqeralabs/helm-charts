@@ -9718,15 +9718,9 @@
         },
         "redis": {
           "properties": {
-            "database": {
-              "default": 0,
-              "description": "Redis database index",
-              "title": "database",
-              "type": "integer"
-            },
             "enableTls": {
               "default": false,
-              "description": "Enable TLS when connecting to Redis",
+              "description": "Redis database index\nEnable TLS when connecting to Redis",
               "title": "enableTls",
               "type": "boolean"
             },

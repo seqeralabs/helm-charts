@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bumped Platform `appVersion` to `v26.1.3`.
 - Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
 
 ### Fixed
 
