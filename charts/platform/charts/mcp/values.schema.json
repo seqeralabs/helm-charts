@@ -719,18 +719,6 @@
     },
     "oauth": {
       "properties": {
-        "audience": {
-          "default": "platform",
-          "description": "OAuth audience for MCP to authenticate with. This is the expected audience claim in the\ntokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this\nshould be set to \"platform\" to match the audience of the internal client that Platform creates\nfor MCP. When using a custom OAuth provider, this should match the audience configured for the\nclient that MCP uses to authenticate with that provider",
-          "title": "audience",
-          "type": "string"
-        },
-        "issuerUrl": {
-          "default": "",
-          "description": "OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform\nAPI endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default\nbehavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.",
-          "title": "issuerUrl",
-          "type": "string"
-        },
         "jwtSeedSecretKey": {
           "default": "",
           "description": "Key in the existing Secret containing the JWT seed",
@@ -751,8 +739,6 @@
         }
       },
       "required": [
-        "issuerUrl",
-        "audience",
         "jwtSeedString",
         "jwtSeedSecretName",
         "jwtSeedSecretKey"
