@@ -1647,13 +1647,14 @@ studios:
   # @section -- Subcharts: Studios
   enabled: true
   proxy:
-    # Wire the OIDC registration token to the platform backend secret so all consumers share the
-    # same token. Override these values only if you want studios to use a different secret.
+    # -- studios needs to pass a client registration token to the platform backend so that it can
+    # register studios clients to the platform OIDC provider. If the platform oidc registration
+    # token is coming from a separate secret, you need to update it here too.
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the studios subchart context where `.Chart.Name` is `studios`,
-    # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
-    # -- Name of the existing Secret containing the OIDC client registration token to share with the
-    # Studios proxy. Defaults to the platform backend secret. Evaluated as a template
+    # not `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname.
+    # Name of the existing Secret containing the OIDC client registration token to share with the
+    # Studios proxy. Evaluated as a template
     # @section -- Subcharts: Studios
     oidcClientRegistrationTokenSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     # -- Key in the existing Secret containing the OIDC client registration token
@@ -1672,13 +1673,14 @@ mcp:
   # @section -- Subcharts: MCP
   enabled: true
   oidcToken:
-    # Wire the OIDC registration token to the platform backend secret so all consumers share the
-    # same token. Override these values only if you want mcp to use a different secret.
+    # -- mcp needs to pass a client registration token to the platform backend so that it can register
+    # mcp clients to the platform OIDC provider. If the platform oidc registration token is coming
+    # from a separate secret, you need to update it here too.
     # `common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this
     # value is `tpl`-evaluated inside the mcp subchart context where `.Chart.Name` is `mcp`, not
-    # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname
-    # -- Name of the existing Secret containing the OIDC client registration token to share with
-    # MCP. Defaults to the platform backend secret. Evaluated as a template
+    # `platform`; passing `chartName: platform` explicitly reproduces the parent's fullname.
+    # Name of the existing Secret containing the OIDC client registration token to share with
+    # MCP. Evaluated as a template
     # @section -- Subcharts: MCP
     existingSecretName: '{{ printf "%s-backend" (include "common.names.dependency.fullname" (dict "chartName" "platform" "chartValues" .Values "context" .)) }}'
     # -- Key in the existing Secret containing the OIDC client registration token
