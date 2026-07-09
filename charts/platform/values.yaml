@@ -1248,8 +1248,8 @@ ingress:
   # -- Path for the main ingress rule. When empty, falls back to `global.ingress.path`
   path: ""
 
-  # -- Path for the content domain ingress rule
-  contentPath: "/"
+  # -- Path for the content domain ingress rule. When empty, falls back to `ingress.path`
+  contentPath: ""
 
   # -- Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`
   defaultPathType: ""

@@ -25,6 +25,7 @@
   {{- $annotations := include "common.tplvalues.render" (dict "value" $mergedAnnotations "context" $) -}}
   {{- $defaultPathType := default .Values.global.ingress.defaultPathType .Values.ingress.defaultPathType -}}
   {{- $path := default .Values.global.ingress.path .Values.ingress.path -}}
+  {{- $contentPath := default $path .Values.ingress.contentPath -}}
   {{- $ingressClassName := default .Values.global.ingress.ingressClassName .Values.ingress.ingressClassName -}}
   {{- $tls := concat (default (list) .Values.ingress.tls) (default (list) .Values.global.ingress.tls) -}}
 
@@ -66,7 +67,7 @@ spec:
     - host: {{ tpl .Values.global.contentDomain $ | quote }}
       http:
         paths:
-          - path: {{ .Values.ingress.contentPath | quote }}
+          - path: {{ $contentPath | quote }}
             pathType: {{ $defaultPathType }}
             backend:
               service:
