@@ -1,9 +1,8 @@
 name: Helm chart packager
 on:
   push:
-    paths: # The order of path filtering matters.
-      - 'charts/**' # Trigger on changes under charts/ only.
-      - '!charts/**/Makefile' # Exclude Makefiles under charts.
+    paths:
+      - 'charts/**/Chart.yaml' # Trigger only on Chart.yaml changes under charts/.
 
 jobs:
   check-if-version-is-available-and-update-helm-chart:
