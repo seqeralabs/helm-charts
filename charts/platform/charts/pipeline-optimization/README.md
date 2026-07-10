@@ -5,7 +5,9 @@ A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as 
 ![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.15](https://img.shields.io/badge/AppVersion-0.4.15-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
-We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry in the `values.yaml` file is documented with comments describing its purpose and usage.
+We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
+- `# @section` — groups related values under a heading in the generated README
+- `# @default` — documents a default value that is computed in the templates rather than set literally in `values.yaml`
 
 ## Requirements and configuration
 
@@ -34,16 +36,37 @@ Refer to [this example](https://github.com/seqeralabs/helm-charts/tree/master/ch
 
 ## Installing the chart
 
-To install the chart with the release name `my-release`:
+To install the chart:
 
-```console
-helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-  --version 2.1.0 \
-  --namespace my-namespace \
-  --create-namespace
-```
+1. Download the default values file:
+   ```console
+   helm show values oci://public.cr.seqera.io/charts/pipeline-optimization --version 2.1.0 > values.yaml
+   ```
+2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
+3. Install the chart with the release name `my-release`:
+   ```console
+   helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
+     --version 2.1.0 \
+     --namespace my-namespace \
+     --create-namespace \
+     -f values.yaml
+   ```
 
 For a list of available chart versions, see the chart repository: https://public.cr.seqera.io/repo/charts/pipeline-optimization
+
+### Alternative: installing from the Helm repository
+
+Charts are also published to a traditional Helm repository. This can be useful in environments where pulling from OCI registries is restricted:
+
+```console
+helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
+helm repo update
+helm install my-release seqeralabs/pipeline-optimization \
+  --version 2.1.0 \
+  --namespace my-namespace \
+  --create-namespace \
+  -f values.yaml
+```
 
 ## Upgrading the chart
 
