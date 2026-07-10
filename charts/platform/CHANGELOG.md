@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Revamp README documentation across platform and all subcharts (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave): clarify prerequisites, image registry vendoring, credentials handling, sensitive value management, and link to full examples on GitHub.
+- Bump agent-backend to 1.0.10, mcp to 0.4.6, pipeline-optimization to 2.0.13, portal-web to 0.3.8, studios to 1.4.6, wave to 0.2.8.
 - Bumped Platform `appVersion` to `v26.1.3`.
 - Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
@@ -23,9 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING** The `mcp.oauth.audience` value has been removed from the `mcp` subchart; the audience
   is now hardcoded to `"platform"`. Remove any `mcp.oauth.audience` overrides before upgrading.
 - Add more explanation around OIDC client registration token shared between Platform, Studios and MCP.
+- Bumped agent-backend to 1.1.0, mcp to 0.5.0, pipeline-optimization to 2.1.0, portal-web to 0.4.0, studios to 1.5.0, wave to 0.3.0.
 
 ### Fixed
 
+- Fix TLS in platform examples: align `agent-backend` and `pipeline-optimization` sections in `aws-tls-offline.yaml` to use `rds-ca-bundle`/`/rds-ca` naming consistent with the online example; make ConfigMap name region-agnostic (`aws-rds-ca-bundle`); add missing `initContainerDependencies.waitForMySQL` to `agent-backend` in offline example.
+- Specify CA certificate to validate TLS for MySQL client connections (the MySQL client does not validate TLS by default).
+- Fix default value for `.platform.oidcClientRegistrationTokenSecretKey` to `OIDC_CLIENT_REGISTRATION_TOKEN`.
+- Improve "sensitive values in secrets" example.
 - Align the default `.global.platformServiceAddress`, `.studios.proxy.oidcClientRegistrationTokenSecretName`,
   and `.mcp.oidcToken.existingSecretName` templates with the naming rule used by the backend
   Deployment and Secret (`common.names.fullname` + `-backend`). Previously these defaults were
@@ -47,25 +54,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `seqera-common` dependency to `3.x.x`, which no longer exposes the
   `seqera.images.image` helper nor the `cloudProviderImageKey` parameter on
   `seqera.initContainers.waitFor*` helpers.
-- Bumped agent-backend to 1.1.0, mcp to 0.5.0, pipeline-optimization to 2.1.0,
-  portal-web to 0.4.0, studios to 1.5.0, wave to 0.3.0.
-
-## [0.34.5] - 2026-07-07
-
-### Changed
-
-- Revamp README documentation across platform and all subcharts (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave): clarify prerequisites, image registry vendoring, credentials handling, sensitive value management, and link to full examples on GitHub.
-- Bump agent-backend to 1.0.10, mcp to 0.4.6, pipeline-optimization to 2.0.13, portal-web to 0.3.8, studios to 1.4.6, wave to 0.2.8.
-
-### Fixed
-
-- Fix TLS in platform examples: align `agent-backend` and `pipeline-optimization` sections in `aws-tls-offline.yaml` to use `rds-ca-bundle`/`/rds-ca` naming consistent with the online example; make ConfigMap name region-agnostic (`aws-rds-ca-bundle`); add missing `initContainerDependencies.waitForMySQL` to `agent-backend` in offline example.
-- Specify CA certificate to validate TLS for MySQL client connections (the MySQL client does not validate TLS by default).
-- Fix default value for `.platform.oidcClientRegistrationTokenSecretKey` to `OIDC_CLIENT_REGISTRATION_TOKEN`.
-- Improve "sensitive values in secrets" example.
-
-### Removed
-
 - Removed azure marketplace values from platform chart.
 
 ## [0.34.4] - 2026-06-24

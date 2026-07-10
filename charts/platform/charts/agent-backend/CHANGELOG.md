@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `appVersion` to `1.13.1`.
 - Refresh deployment snapshot after `platformServiceAddress` requirement (#131).
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- Revamp README documentation.
 
 ### Removed
 
@@ -20,12 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `waitForMySQL`/`waitForRedis` init containers. Deployments now resolve images through
   `common.images.image` only.
 - Bumped `seqera-common` dependency to `3.x.x`.
-
-## [1.0.10] - 2026-07-07
-
-### Changed
-
-- Revamp README documentation.
 
 ## [1.0.9] - 2026-06-24
 

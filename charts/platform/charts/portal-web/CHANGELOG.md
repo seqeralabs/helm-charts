@@ -13,11 +13,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Bumped `seqera-common` dependency to `3.x.x` (the library no longer exposes
   `seqera.images.image` nor honors `global.azure.images` overrides).
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
-
-## [0.3.8] - 2026-07-07
-
-### Changed
-
 - Revamp README documentation.
 
 ## [0.3.7] - 2026-06-24

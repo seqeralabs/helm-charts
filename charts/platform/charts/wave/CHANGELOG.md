@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `appVersion` to `v1.35.0`.
 - Refresh deployment snapshot after `platformServiceAddress` requirement (#131).
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- Revamp README documentation.
 
 ### Removed
 
@@ -20,12 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `touch-config-file` init container, and the `waitForPostgres`/`waitForRedis` init containers.
   Deployments now resolve images through `common.images.image` only.
 - Bumped `seqera-common` dependency to `3.x.x`.
-
-## [0.2.8] - 2026-07-07
-
-### Changed
-
-- Revamp README documentation.
 
 ## [0.2.7] - 2026-06-24
 

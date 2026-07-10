@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped `seqera-common` dependency to `3.x.x`. The `waitForPlatform` init container no longer
   accepts a `cloudProviderImageKey` — `global.azure.images` overrides are no longer honored.
 - Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- Revamp README documentation.
 
 ### Removed
 
@@ -26,12 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation references to the `oauth` Micronaut environment. MCP has exclusively used the
   `oauth-platform` environment since 0.2.0 — remaining mentions in comments, helpers, and tests
   have been cleaned up.
-
-## [0.4.6] - 2026-07-07
-
-### Changed
-
-- Revamp README documentation.
 
 ## [0.4.5] - 2026-06-24
 
