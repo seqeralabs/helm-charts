@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `mcp.oauth.issuerUrl` overrides before upgrading.
 - **BREAKING** The `mcp.oauth.audience` value has been removed from the `mcp` subchart; the audience
   is now hardcoded to `"platform"`. Remove any `mcp.oauth.audience` overrides before upgrading.
+- Add more explanation around OIDC client registration token shared between Platform, Studios and MCP.
 
 ### Fixed
 
