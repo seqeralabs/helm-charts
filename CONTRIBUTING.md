@@ -28,9 +28,12 @@ documentation for more details.
 When submitting a pull request, please bump the chart version in the `Chart.yaml` file according to
 the type of change you are making (patch, minor, major).
 
-Each push to a branch will trigger GitHub Actions workflows to lint and test the charts and verify
-that no clash exists in the chart versions. Pull requests merging to the `main` branch will also trigger
-the publication of the charts to the OCI registry at `public.cr.seqera.io/charts`.
+The chart packager GitHub Actions workflow runs only when a push modifies a `Chart.yaml` file under
+`charts/`, and it only packages charts whose `version:` field was changed in that push. Any other
+edit (templates, values, docs, dependencies, annotations without a version bump) will not trigger
+packaging — remember to bump `version:` in the corresponding `Chart.yaml` when you want your change
+to be published. Pull requests merging to the `master` branch will also trigger the publication of
+the charts to the OCI registry at `public.cr.seqera.io/charts`.
 
 ## Helm unittest
 
