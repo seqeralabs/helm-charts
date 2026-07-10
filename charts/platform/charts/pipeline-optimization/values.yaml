@@ -28,6 +28,7 @@
 global:
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
+  # @section -- Global
   imageCredentials: []
   # imageCredentials:
   # - registry: ""
@@ -37,6 +38,7 @@ global:
 
   # -- Optional list of existing Secrets containing image pull credentials to use for pulling
   # images from private registries. These Secrets are shared with all the subcharts automatically
+  # @section -- Global
   imageCredentialsSecrets: []
   # imageCredentialsSecrets:
   # - myPrivateRegistryKeySecretName
@@ -49,94 +51,125 @@ global:
 # MySQL database configuration storing the Platform Optimization service data.
 database:
   # -- Pipeline Optimization MySQL database hostname
+  # @section -- Database
   host: ""
   # @schema
   # type: [integer, string]
   # @schema
   # -- Pipeline Optimization MySQL database port
+  # @section -- Database
   port: 3306
   # -- Pipeline Optimization MySQL database name
+  # @section -- Database
   name: ""
   # -- Pipeline Optimization MySQL database username
+  # @section -- Database
   username: ""
   # -- Pipeline Optimization MySQL database password
+  # @section -- Database
   password: ""
   # -- Name of an existing Secret containing credentials for the Pipeline Optimization MySQL
   # database, as an alternative to the password field. Note: the Secret must already exist in the
   # same namespace at the time of deployment
+  # @section -- Database
   existingSecretName: ""
   # -- Key in the existing Secret containing the password for the Pipeline Optimization MySQL
   # database
   # @default -- `"SWELL_DB_PASSWORD"`
+  # @section -- Database
   existingSecretKey: ""
   # -- Pipeline Optimization database dialect. Currently only 'mysql' is supported
+  # @section -- Database
   dialect: mysql
   # -- Enable TLS for the Pipeline Optimization MySQL database connection
+  # @section -- Database: TLS
   enableTls: true
   # -- Verify the CA certificate when connecting via TLS (set to false to skip verification,
   # insecure - for development/testing only)
+  # @section -- Database: TLS
   tlsCaVerify: true
   # -- Path to a CA certificate file for server certificate verification
+  # @section -- Database: TLS
   sslCa: ""
   # -- Path to a client certificate file for mutual TLS authentication
+  # @section -- Database: TLS
   sslCert: ""
   # -- Path to a client key file for mutual TLS authentication
+  # @section -- Database: TLS
   sslKey: ""
 
 # Platform Optimization communicates with the main Platform database to read pipeline and job
 # details to optimize. Only read-only access is required.
 platformDatabase:
   # -- Platform MySQL database hostname
+  # @section -- Platform Database
   host: ""
   # @schema
   # type: [integer, string]
   # @schema
   # -- Platform MySQL database port
+  # @section -- Platform Database
   port: 3306
   # -- Platform MySQL database name
+  # @section -- Platform Database
   name: ""
   # -- Platform MySQL database username. Can be a read-only user, since Platform Optimization does
   # not perform write operations on the Platform database
+  # @section -- Platform Database
   username: ""
   # -- Platform MySQL database password
+  # @section -- Platform Database
   password: ""
   # -- Name of an existing Secret containing credentials for the Platform MySQL database, as an
   # alternative to the password field. Note: the Secret must already exist in the same namespace at
   # the time of deployment
+  # @section -- Platform Database
   existingSecretName: ""
   # -- Key in the existing Secret containing the password for the Platform MySQL database
   # @default -- `"TOWER_DB_PASSWORD"`
+  # @section -- Platform Database
   existingSecretKey: ""
   # -- Enable TLS for the Platform MySQL database connection
+  # @section -- Platform Database: TLS
   enableTls: true
   # -- Verify the CA certificate when connecting via TLS (set to false to skip verification,
   # insecure - for development/testing only)
+  # @section -- Platform Database: TLS
   tlsCaVerify: true
   # -- Path to a CA certificate file for server certificate verification
+  # @section -- Platform Database: TLS
   sslCa: ""
   # -- Path to a client certificate file for mutual TLS authentication
+  # @section -- Platform Database: TLS
   sslCert: ""
   # -- Path to a client key file for mutual TLS authentication
+  # @section -- Platform Database: TLS
   sslKey: ""
 
 image:
   # -- Pipeline Optimization container image registry
+  # @section -- Image
   registry: ""
   # -- Pipeline Optimization container image repository
+  # @section -- Image
   repository: enterprise/platform/pipeline-optimization
   # -- Pipeline Optimization container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
+  # @section -- Image
   tag: ""
   # -- Pipeline Optimization container image digest in the format `sha256:1234abcdef`
+  # @section -- Image
   digest: ""
 
   # -- imagePullPolicy for the Pipeline Optimization container
   # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  # @section -- Image
   pullPolicy: IfNotPresent
 
   # -- List of imagePullSecrets
   # Secrets must be created in the same namespace, for example using the .extraDeploy array
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # @section -- Image
   pullSecrets: []
   # pullSecrets:
   #   - myRegistryKeySecretName
@@ -144,50 +177,63 @@ image:
 dbMigrationInitContainer:
   image:
     # -- Migrate DB init container image registry
+    # @section -- DB Migration Init Container
     registry: ""
     # -- Migrate DB init container image repository
+    # @section -- DB Migration Init Container
     repository: enterprise/platform/pipeline-optimization
     # -- Migrate DB init container image tag
     # @default -- `"{{ .chart.AppVersion }}"`
+    # @section -- DB Migration Init Container
     tag: ""
     # -- Migrate DB init container image digest in the format `sha256:1234abcdef`
+    # @section -- DB Migration Init Container
     digest: ""
 
     # -- imagePullPolicy for the Migrate DB init container
     # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+    # @section -- DB Migration Init Container
     pullPolicy: IfNotPresent
 
   # -- Command to run to migrate the database schema
+  # @section -- DB Migration Init Container
   command: ['/opt/groundswell/bin/migrate-db.sh']
   # -- Arguments to pass to the pod command
+  # @section -- DB Migration Init Container
   args: []
 
 service:
   # -- Pipeline Optimization Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort
+  # @section -- Service
   type: ClusterIP
   http:
     # -- Service name to use
+    # @section -- Service: HTTP
     name: http
     # @schema
     # type: [integer, string]
     # @schema
     # -- Service port number
+    # @section -- Service: HTTP
     port: 8090
     # @schema
     # type: [integer, string]
     # @schema
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port).
+    # @section -- Service: HTTP
     targetPort: 8090
     # @schema
     # type: [integer, null]
     # @schema
     # -- Service node port, only used when service.type is Nodeport or LoadBalancer
     # Choose port between 30000-32767, unless the cluster was configured differently than default
+    # @section -- Service: HTTP
     nodePort: null
   # -- Other services that should live in the Service object
   # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  # @section -- Service
   extraServices: []
   # extraServices:
   # - name: myspecialservice
@@ -197,33 +243,44 @@ service:
 
   # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
   # externalTrafficPolicy, externalIPs). Evaluated as a template
+  # @section -- Service
   extraOptions: {}
 
 # -- Additional init containers for the pipeline optimization pod. Evaluated as a template
+# @section -- Deployment
 initContainers: []
 
 # -- Override default container command (useful when using custom images)
+# @section -- Deployment
 command: []
 # -- Override default container args (useful when using custom images)
+# @section -- Deployment
 args: []
 
 # -- Additional labels for the pipeline optimization pod. Evaluated as a template
+# @section -- Deployment
 podLabels: {}
 # -- Additional annotations for the pipeline optimization pod. Evaluated as a template
+# @section -- Deployment
 podAnnotations: {}
 
 # -- Annotations to add to all deployed objects
+# @section -- Common Metadata
 commonAnnotations: {}
 # -- Labels to add to all deployed objects
+# @section -- Common Metadata
 commonLabels: {}
 
 # -- Annotations to add specifically to the ConfigMap
+# @section -- Common Metadata
 configMapAnnotations: {}
 # -- Labels to add specifically to the ConfigMap
+# @section -- Common Metadata
 configMapLabels: {}
 
 # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
 # Evaluated as a template
+# @section -- Deployment
 extraOptionsSpec: {}
 # extraOptionsSpec:
 #   replicas: 2
@@ -234,26 +291,32 @@ extraOptionsSpec: {}
 
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template
+# @section -- Deployment
 extraOptionsTemplateSpec: {}
 # extraOptionsTemplateSpec:
 #   nodeSelector:
 #     service: myspecialnodegroup
 
 # -- Extra environment variables to set on the pipeline optimization pod
+# @section -- Environment & Volumes
 extraEnvVars: []
 # extraEnvVars:
 #   - name: "CUSTOM_ENV_VAR"
 #     value: "set-a-value-here"
 
 # -- List of ConfigMaps containing extra env vars
+# @section -- Environment & Volumes
 extraEnvVarsCMs: []
 # -- List of Secrets containing extra env vars
+# @section -- Environment & Volumes
 extraEnvVarsSecrets: []
 # -- List of volumes to add to the deployment (evaluated as template). Requires setting
 # `extraVolumeMounts`
+# @section -- Environment & Volumes
 extraVolumes: []
 # -- List of volume mounts to add to the container (evaluated as template). Normally used with
 # `extraVolumes`
+# @section -- Environment & Volumes
 extraVolumeMounts: []
 
 # Configure Pods Security Context.
@@ -261,28 +324,36 @@ extraVolumeMounts: []
 # Empty map to disable Pod Security Context configuration
 podSecurityContext:
   # -- Enable pod Security Context
+  # @section -- Pod Security Context
   enabled: true
   # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
   # in the pod can share group-owned access
+  # @section -- Pod Security Context
   fsGroup: 1000
 
 # Configure Container Security Context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 containerSecurityContext:
   # -- Enable container Security Context
+  # @section -- Container Security Context
   enabled: true
   # -- UID the container processes run as (overrides container image default)
+  # @section -- Container Security Context
   runAsUser: 1000
   # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  # @section -- Container Security Context
   runAsNonRoot: true
   # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  # @section -- Container Security Context
   readOnlyRootFilesystem: true
   # -- Fine-grained Linux kernel privileges to add or drop for the container
+  # @section -- Container Security Context
   capabilities:
     drop:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
+# @section -- Resources
 resources: {}
 # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
 # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -301,105 +372,144 @@ resources: {}
 # Configure extra options for the startup probe
 startupProbe:
   # -- Enable startup probe
+  # @section -- Startup Probe
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
+    # @section -- Startup Probe
     path: "/api/v1/health"
     # @schema
     # type: [integer, string]
     # @schema
     # -- HTTP GET port for startup probe. Evaluated as a template
+    # @section -- Startup Probe
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
+  # @section -- Startup Probe
   initialDelaySeconds: 5
   # -- Often set longer to avoid frequent checks while starting
+  # @section -- Startup Probe
   periodSeconds: 10
   # -- Can be longer to allow slow initialization responses
+  # @section -- Startup Probe
   timeoutSeconds: 3
   # -- Consecutive failures during startup before killing the container (instead of immediate
   # restarts)
+  # @section -- Startup Probe
   failureThreshold: 5
   # -- Number of consecutive successes required to consider startup complete and enable
   # liveness/readiness
+  # @section -- Startup Probe
   successThreshold: 1
 
 # Configure extra options for the readiness probe
 readinessProbe:
   # -- Enable readiness probe
+  # @section -- Readiness Probe
   enabled: true
   httpGet:
     # -- HTTP GET path for readiness probe
+    # @section -- Readiness Probe
     path: "/api/v1/health"
     # @schema
     # type: [integer, string]
     # @schema
     # -- HTTP GET port for readiness probe. Evaluated as a template
+    # @section -- Readiness Probe
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
+  # @section -- Readiness Probe
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation
+  # @section -- Readiness Probe
   periodSeconds: 5
   # -- Short timeout to detect unresponsive containers for readiness
+  # @section -- Readiness Probe
   timeoutSeconds: 3
   # -- Consecutive failures before marking the container Unready (no restart)
+  # @section -- Readiness Probe
   failureThreshold: 5
   # -- Number of consecutive successes required to mark the container Ready after failures
+  # @section -- Readiness Probe
   successThreshold: 1
 
 # Configure extra options for the liveness probe
 livenessProbe:
   # -- Enable liveness probe
+  # @section -- Liveness Probe
   enabled: true
   httpGet:
     # -- HTTP GET path for liveness probe
+    # @section -- Liveness Probe
     path: "/api/v1/health"
     # @schema
     # type: [integer, string]
     # @schema
     # -- HTTP GET port for liveness probe. Evaluated as a template
+    # @section -- Liveness Probe
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
+  # @section -- Liveness Probe
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation
+  # @section -- Liveness Probe
   periodSeconds: 10
   # -- Short timeout to detect hung containers quickly
+  # @section -- Liveness Probe
   timeoutSeconds: 3
   # -- Consecutive failures before restarting the container
+  # @section -- Liveness Probe
   failureThreshold: 10
   # -- Typically 1 (usually ignored)
+  # @section -- Liveness Probe
   successThreshold: 1
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies (for example, wait for database
   # readiness before starting, etc)
+  # @section -- Init Container Dependencies
   enabled: true
 
   waitForMySQL:
     # -- Enable wait for MySQL init container before starting pipeline optimization and cron
+    # @section -- Init Container Dependencies: Wait For MySQL
     enabled: true
     image:
       # -- Override default wait for MySQL init container image
+      # @section -- Init Container Dependencies: Wait For MySQL
       registry: ""
+      # -- Init container image repository
+      # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # -- Init container image tag
+      # @section -- Init Container Dependencies: Wait For MySQL
       tag: "9"
-      # Digest must be in the format `sha256:1234abcdef`
+      # -- Init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""
+      # -- imagePullPolicy for the init container
+      # @section -- Init Container Dependencies: Wait For MySQL
       pullPolicy: IfNotPresent
 
     securityContext:
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Init Container Dependencies: Wait For MySQL
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID
       # 0)
+      # @section -- Init Container Dependencies: Wait For MySQL
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Init Container Dependencies: Wait For MySQL
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Init Container Dependencies: Wait For MySQL
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Init Container Dependencies: Wait For MySQL
     resources:
       requests:
         cpu: "0.5"
@@ -416,13 +526,16 @@ initContainerDependencies:
     # extraEnvVars:
     #   - name: MYSQL_EXTRA_ARGS
     #     value: "--ssl-ca=/certs/ca.pem --ssl-mode=VERIFY_IDENTITY"
+    # @section -- Init Container Dependencies: Wait For MySQL
     extraEnvVars: []
     # -- Additional volume mounts for the init container. Use this to mount CA certificates
     # (e.g. from a Secret or ConfigMap populated by an extraInitContainer) so that
     # `MYSQL_EXTRA_ARGS` can reference them.
+    # @section -- Init Container Dependencies: Wait For MySQL
     extraVolumeMounts: []
 
 # -- Array of extra objects to deploy with the release
+# @section -- Extra Deploy
 extraDeploy: []
 # extraDeploy:
 #   - apiVersion: v1
@@ -435,13 +548,17 @@ extraDeploy: []
 serviceAccount:
   # -- Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on
   # the release name
+  # @section -- Service Account
   name: ""
   # -- Additional annotations for the Platform ServiceAccount to generate
+  # @section -- Service Account
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
+  # @section -- Service Account
   imagePullSecretNames: []
   # @schema
   # type: [boolean, string]
   # @schema
   # -- Automount service account token when the server service account is generated
+  # @section -- Service Account
   automountServiceAccountToken: false

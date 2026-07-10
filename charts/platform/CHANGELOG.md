@@ -5,6 +5,57 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.0] - 2026-07-07
+
+### Added
+
+- Added `examples/standalone.yaml` to each subchart with minimal values for deploying it independently of the parent `platform` chart.
+- Added `examples/platform-only.yaml` and `examples/complete.yaml` for deploying the core platform and the full stack respectively. Ingress configuration is intentionally left generic across all examples; see `examples/ingress-configurations/README.md` for controller-specific examples (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+
+### Changed
+
+- Revamp README documentation across platform and all subcharts (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave): clarify prerequisites, image registry vendoring, credentials handling, sensitive value management, and link to full examples on GitHub.
+- Bump agent-backend to 1.0.10, mcp to 0.4.6, pipeline-optimization to 2.0.13, portal-web to 0.3.8, studios to 1.4.6, wave to 0.2.8.
+- Bumped Platform `appVersion` to `v26.1.3`.
+- Refresh deployment snapshots after `platformServiceAddress` requirement (#131) and bump license-header year range on `templates/extra-list.yaml` / `tests/extra-list_test.yaml`.
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- **BREAKING** The `mcp.oauth.issuerUrl` value has been removed from the `mcp` subchart; the OAuth
+  issuer URL is now always derived from `global.platformExternalDomain`. Remove any
+  `mcp.oauth.issuerUrl` overrides before upgrading.
+- **BREAKING** The `mcp.oauth.audience` value has been removed from the `mcp` subchart; the audience
+  is now hardcoded to `"platform"`. Remove any `mcp.oauth.audience` overrides before upgrading.
+- Add more explanation around OIDC client registration token shared between Platform, Studios and MCP.
+- Bumped agent-backend to 1.1.0, mcp to 0.5.0, pipeline-optimization to 2.1.0, portal-web to 0.4.0, studios to 1.5.0, wave to 0.3.0.
+
+### Fixed
+
+- Fix TLS in platform examples: align `agent-backend` and `pipeline-optimization` sections in `aws-tls-offline.yaml` to use `rds-ca-bundle`/`/rds-ca` naming consistent with the online example; make ConfigMap name region-agnostic (`aws-rds-ca-bundle`); add missing `initContainerDependencies.waitForMySQL` to `agent-backend` in offline example.
+- Specify CA certificate to validate TLS for MySQL client connections (the MySQL client does not validate TLS by default).
+- Fix default value for `.platform.oidcClientRegistrationTokenSecretKey` to `OIDC_CLIENT_REGISTRATION_TOKEN`.
+- Improve "sensitive values in secrets" example.
+- Align the default `.global.platformServiceAddress`, `.studios.proxy.oidcClientRegistrationTokenSecretName`,
+  and `.mcp.oidcToken.existingSecretName` templates with the naming rule used by the backend
+  Deployment and Secret (`common.names.fullname` + `-backend`). Previously these defaults were
+  hard-coded to `{{ .Release.Name }}-platform-backend`, which produced a name like
+  `seqera-platform-platform-backend` for releases whose name already contained `platform` — a
+  resource that never exists in-cluster, because `common.names.fullname` collapses the repeated
+  chart name. The subchart references now use `common.names.dependency.fullname` with an explicit
+  `chartName: platform` so the correct parent name is produced from the subchart's render context.
+  Resolved names are unchanged for releases whose name does not contain `platform`.
+- `ingress.contentPath` now falls back to `ingress.path` (and then `global.ingress.path`) when left empty, consistent with how other path values are resolved.
+
+### Removed
+
+- **BREAKING**: Removed support for overriding container images via `global.azure.images`
+  (introduced in #68). All Platform, cron, frontend, and subchart deployments now resolve their
+  images through `common.images.image` only. Users who relied on `global.azure.images.*` to
+  override images per-cloud must switch to the standard per-component `image.registry` /
+  `image.repository` / `image.tag` / `image.digest` values.
+- Bumped `seqera-common` dependency to `3.x.x`, which no longer exposes the
+  `seqera.images.image` helper nor the `cloudProviderImageKey` parameter on
+  `seqera.initContainers.waitFor*` helpers.
+- Removed azure marketplace values from platform chart.
+
 ## [0.34.4] - 2026-06-24
 
 ### Added

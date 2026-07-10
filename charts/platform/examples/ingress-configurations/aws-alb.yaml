@@ -49,7 +49,7 @@ ingress:
 
   # ALB requires path "/*" instead of "/"
   path: "/*"
-  contentPath: "/*"
+  # contentPath: "/*"  # defaults to ingress.path if empty
 
   annotations:
     # ALB configuration

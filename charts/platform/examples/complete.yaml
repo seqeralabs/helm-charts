@@ -1,0 +1,230 @@
+# Seqera Platform - Complete Deployment Example
+#
+# Deploys the full Platform stack with all optional subcharts enabled:
+# Studios, MCP, Wave, Agent Backend, Portal Web, and Pipeline Optimization.
+#
+# Prerequisites:
+# - MySQL database provisioned (shared by Platform, Pipeline Optimization and Agent Backend)
+# - PostgreSQL database provisioned (Wave)
+# - Redis provisioned (Platform, Studios, Wave, Agent Backend can share the same Redis instance, but
+#   separate databases are required - note that Platform can't specify a database number, so it must
+#   use the default 0, the other subcharts can use 1, 2, etc.)
+# - Seqera license key available
+# - AWS Bedrock or Anthropic API access for Agent Backend
+# - Wildcard DNS and TLS certificate for Studios: *.studios.platform.example.com
+# - SMTP server or access to AWS SES for email notifications
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/platform > values.yaml  # pull full defaults to customise
+#   helm upgrade --install platform seqera/platform \
+#     -f values.yaml \
+#     -n seqera
+#
+# In this example sensitive values (database and redis passwords, token encryption key, etc) are
+# stored in several Kubernetes secrets, which need to already exist before the chart installation,
+# either created manually or with automated secret extraction tools (like External Secrets, not
+# covered in this tutorial). Rather than using separate secrets, a single one can be used for all
+# sensitive values. Refer to examples/passwords-from-secrets/ for more details.
+#
+# This example does not cover TLS configuration to the database and redis services. Refer to
+# examples/customize-init-containers/ for details.
+
+global:
+  platformExternalDomain: platform.example.com
+  # contentDomain: user-data.platform.example.com   # default: user-data.<platformExternalDomain>
+  # studiosDomain: studios.platform.example.com     # default: studios.<platformExternalDomain>
+  # waveDomain: wave.platform.example.com           # default: wave.<platformExternalDomain>
+  # mcpDomain: mcp.platform.example.com             # default: mcp.<platformExternalDomain>
+  # agentBackendDomain: ai-api.platform.example.com # default: ai-api.<platformExternalDomain>
+  # portalWebDomain: ai.platform.example.com        # default: ai.<platformExternalDomain>
+
+  # Common ingress configurations can be defined here and will be inherited by all subcharts. More
+  # specific ingress configurations can be defined in each subchart. See examples/ingress-configurations/
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+platformDatabase:
+  host: mysql.example.com
+  # port: 3306  # default
+  name: platform
+  username: platform
+  existingSecretName: platform-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  # Platform doesn't accept a database number, so it must use the default 0.
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  contactEmail: support@example.com
+  licenseSecretName: platform-license
+
+  # Stable secrets — must be set explicitly to avoid regeneration on chart reinstallation.
+  jwtSeedSecretName: platform-secrets
+  jwtSeedSecretKey: jwt-seed
+  cryptoSeedSecretName: platform-secrets
+  cryptoSeedSecretKey: crypto-seed
+
+  smtp:
+    host: smtp.example.com
+    port: "587"
+    user: smtp-user
+    existingSecretName: platform-smtp-credentials
+    existingSecretKey: password
+
+  # Required for Studios: Wave registry where custom session images are pushed
+  waveServerUrl: https://wave.platform.example.com
+  studios:
+    customImageRegistry: registry.example.com
+    customImageRepository: my-team/studios-sessions
+
+  dataExplorer:
+    enabled: true
+
+# AWS ALB requires NodePort on the frontend service:
+# frontend:
+#   service:
+#     type: NodePort
+
+# Expose this service to the internet via an ingress controller.
+# See examples/ingress-configurations/ for controller-specific examples (NGINX + cert-manager, AWS
+# ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>
+
+# -- Studios subchart
+studios:
+  enabled: true
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    database: 1 # Redis database number for Studios (Platform must use the default 0).
+    existingSecretName: studios-redis-credentials
+    existingSecretKey: password
+
+  # OIDC token is wired automatically from the platform backend secret
+
+  # AWS ALB requires NodePort on the proxy service:
+  # proxy:
+  #   service:
+  #     type: NodePort
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+# -- Wave subchart
+wave:
+  enabled: true
+  database:
+    host: postgres.example.com
+    # port: 5432  # default
+    name: wave
+    username: wave
+    existingSecretName: wave-db-credentials
+    existingSecretKey: password
+
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    database: 2 # Redis database number for Wave (Platform must use the default 0).
+    existingSecretName: wave-redis-credentials
+    existingSecretKey: password
+
+  # AWS ALB requires NodePort service type:
+  # service:
+  #   type: NodePort
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+# -- MCP subchart
+# OIDC token is wired automatically from the platform backend secret
+mcp:
+  enabled: true
+  oauth:
+    jwtSeedSecretName: mcp-secrets
+    jwtSeedSecretKey: jwt-seed
+  # AWS ALB requires NodePort service type:
+  # service:
+  #   type: NodePort
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+# -- Agent Backend subchart
+agent-backend:
+  enabled: true
+  database:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: agent_backend
+    username: agent_backend
+    existingSecretName: agent-backend-db-credentials
+    existingSecretKey: password
+
+  redis:
+    host: redis.example.com
+    # port: 6379  # default
+    database: 3 # Redis database number for Agent Backend (Platform must use the default 0).
+    existingSecretName: agent-backend-redis-credentials
+    existingSecretKey: password
+
+  inference:
+    provider: anthropic  # "bedrock" or "anthropic"
+  embeddings:
+    provider: bedrock    # "bedrock", or leave empty to disable
+  sandbox:
+    provider: bedrock    # "bedrock", or leave empty to disable
+  bedrock:
+    default:
+      assumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account-role
+      region: us-east-1
+    sandbox:
+      runtimeArn: arn:aws:bedrock-agentcore:us-east-1:123456789012:runtime/my-runtime
+  anthropic:
+    existingSecretName: agent-backend-anthropic-credentials
+  tokenEncryptionKeyExistingSecretName: agent-backend-secrets
+  tokenEncryptionKeyExistingSecretKey: token-encryption-key
+
+  # AWS ALB requires NodePort service type:
+  # service:
+  #   type: NodePort
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+# -- Portal Web subchart
+portal-web:
+  enabled: true
+  # AWS ALB requires NodePort service type:
+  # service:
+  #   type: NodePort
+  # ingress:
+  #   enabled: true
+  #   ingressClassName: <your-ingress-class>
+
+# -- Pipeline Optimization subchart
+pipeline-optimization:
+  enabled: true
+  database:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: pipeline_optimization
+    username: pipeline_optimization
+    existingSecretName: pipeline-optimization-db-credentials
+    existingSecretKey: password
+
+  platformDatabase:
+    host: mysql.example.com
+    # port: 3306  # default
+    name: platform
+    username: platform
+    existingSecretName: platform-db-credentials
+    existingSecretKey: password

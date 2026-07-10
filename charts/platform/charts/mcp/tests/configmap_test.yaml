@@ -53,24 +53,22 @@ tests:
 
   - it: should include OAuth settings in configmap
     set:
+      global.platformExternalDomain: auth.example.com
       global.platformServiceAddress: "platform-backend"
       global.platformServicePort: 8080
-      oauth:
-        issuerUrl: https://auth.example.com
-        audience: mcp
     asserts:
       - equal:
           path: data
           value:
             MICRONAUT_SERVER_PORT: "6010"
-            MCP_SERVER_URL: "https://mcp.example.com"
+            MCP_SERVER_URL: "https://mcp.auth.example.com"
             MICRONAUT_ENVIRONMENTS: "oauth-platform"
             TOWER_API_ENDPOINT: "http://platform-backend:8080"
             HUB_API_ENDPOINT: "https://hub.seqera.io"
             WAVE_API_ENDPOINT: "https://wave.seqera.io"
             REGISTRY_API_ENDPOINT: "https://registry.nextflow.io"
-            MCP_OAUTH_ISSUER_URL: "https://auth.example.com"
-            MCP_OAUTH_AUDIENCE: "mcp"
+            MCP_OAUTH_ISSUER_URL: "https://auth.example.com/api"
+            MCP_OAUTH_AUDIENCE: "platform"
 
   - it: should template values in configmap
     set:
@@ -81,9 +79,6 @@ tests:
       hubApiEndpoint: "https://hub.{{ .Values.global.platformExternalDomain }}"
       waveApiEndpoint: "https://wave.{{ .Values.global.platformExternalDomain }}"
       registryApiEndpoint: "https://registry.{{ .Values.global.platformExternalDomain }}"
-      oauth:
-        issuerUrl: "https://auth.{{ .Values.global.platformExternalDomain }}/auth"
-        audience: "{{ .Release.Name }}-mcp"
     asserts:
       - equal:
           path: data
@@ -95,5 +90,5 @@ tests:
             HUB_API_ENDPOINT: "https://hub.example.com"
             WAVE_API_ENDPOINT: "https://wave.example.com"
             REGISTRY_API_ENDPOINT: "https://registry.example.com"
-            MCP_OAUTH_ISSUER_URL: "https://auth.example.com/auth"
-            MCP_OAUTH_AUDIENCE: "RELEASE-NAME-mcp"
+            MCP_OAUTH_ISSUER_URL: "https://example.com/api"
+            MCP_OAUTH_AUDIENCE: "platform"

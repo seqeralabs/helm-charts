@@ -1,0 +1,58 @@
+# Wave - Standalone Deployment Example
+#
+# Use this file when deploying the wave chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - PostgreSQL database provisioned
+# - Redis provisioned
+#
+# Note: Wave can run independently of Seqera Platform. The platformExternalDomain
+# global value is used to derive the waveDomain default; set waveDomain explicitly
+# if your Wave instance lives on a different domain.
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/wave > values.yaml  # pull full defaults to customise
+#   helm upgrade --install wave seqera/wave \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  platformExternalDomain: platform.example.com
+
+  # waveDomain: wave.platform.example.com  # default: wave.<platformExternalDomain>
+
+database:
+  host: postgres.example.com
+  # port: 5432  # default
+  name: wave
+  username: wave
+  existingSecretName: wave-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  # database: 1  # optional: set if sharing a Redis instance with other services
+  existingSecretName: wave-redis-credentials
+  existingSecretKey: password
+
+# AWS ALB requires NodePort service type:
+# service:
+#   type: NodePort
+
+# Expose this service to the internet via an ingress controller.
+# See ../../../examples/ingress-configurations/README.md for controller-specific examples
+# (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>
+
+# resources:
+#   requests:
+#     cpu: "200m"
+#     memory: "1400Mi"
+#   limits:
+#     memory: "1400Mi"

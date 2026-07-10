@@ -5,6 +5,29 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-07-07
+
+### Changed
+
+- Added `examples/standalone.yaml` with a minimal values file for deploying this chart independently.
+- Bumped `appVersion` to `1.4.2`.
+- Bumped `seqera-common` dependency to `3.x.x`. The `waitForPlatform` init container no longer
+  accepts a `cloudProviderImageKey` — `global.azure.images` overrides are no longer honored.
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- Revamp README documentation.
+
+### Removed
+
+- **BREAKING** Removed `oauth.issuerUrl` value. The OAuth issuer URL is now always derived from
+  `global.platformExternalDomain`. Users who previously set `oauth.issuerUrl` must remove it; if a
+  custom issuer host is required, set `global.platformExternalDomain` accordingly.
+- **BREAKING** Removed `oauth.audience` value. The audience is now hardcoded to `"platform"` in the
+  ConfigMap to match the internal client that Seqera Platform creates for MCP. Remove any
+  `oauth.audience` overrides before upgrading.
+- Documentation references to the `oauth` Micronaut environment. MCP has exclusively used the
+  `oauth-platform` environment since 0.2.0 — remaining mentions in comments, helpers, and tests
+  have been cleaned up.
+
 ## [0.4.5] - 2026-06-24
 
 ### Added

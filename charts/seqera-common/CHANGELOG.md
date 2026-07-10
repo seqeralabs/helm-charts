@@ -5,6 +5,16 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-07-07
+
+### Removed
+
+- **BREAKING**: Removed `seqera.images.image` and `seqera.images.cloudProviderOverride` helpers.
+  Callers should use `common.images.image` from the bitnami/common library chart directly.
+- **BREAKING**: Removed the `cloudProviderImageKey` parameter from `seqera.initContainers.waitFor*`
+  helpers. The init containers now always resolve their image via `common.images.image` and no
+  longer honor `global.azure.images` overrides.
+
 ## [2.1.6] - 2026-06-24
 
 ### Added

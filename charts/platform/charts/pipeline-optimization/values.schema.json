@@ -470,12 +470,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -487,11 +488,13 @@
                 },
                 "repository": {
                   "default": "mysql",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "9",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }

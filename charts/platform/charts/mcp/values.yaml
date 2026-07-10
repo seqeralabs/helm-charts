@@ -19,12 +19,14 @@
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
   # -- Domain where Seqera Platform listens
+  # @section -- Global
   platformExternalDomain: example.com
 
   # -- Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress
   # hostname. Evaluated as a template.
   # Required when deploying this subchart standalone. When deploying as part of the parent
   # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  # @section -- Global
   platformServiceAddress: ""
   # @schema
   # type: [integer, string, null]
@@ -32,10 +34,12 @@ global:
   # -- (int) Seqera Platform Service port.
   # Required when deploying this subchart standalone. When deploying as part of the parent
   # `platform` umbrella chart, this value is inherited from the parent chart's `global` section
+  # @section -- Global
   platformServicePort:
 
   # -- Domain where Seqera MCP listens. Evaluated as a template.
   # Note: The OAuth redirect URL is automatically derived by appending /oauth/callback to the domain
+  # @section -- Global
   mcpDomain: '{{ printf "mcp.%s" .Values.global.platformExternalDomain }}'
 
   # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
@@ -43,26 +47,34 @@ global:
   ingress:
     # -- Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so
     # setting this once at the parent enables all subchart Ingresses.
+    # @section -- Global: Ingress
     enabled: false
     # -- Default path applied to ingress rules when `ingress.path` is not set.
     # AWS ALB users should override to `/*`.
+    # @section -- Global: Ingress
     path: "/"
     # -- Default path type applied to ingress rules when `ingress.defaultPathType` is not set.
     # `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers.
+    # @section -- Global: Ingress
     defaultPathType: "Prefix"
     # -- Default ingress class name applied when `ingress.ingressClassName` is not set
+    # @section -- Global: Ingress
     ingressClassName: ""
     # -- Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision.
     # Evaluated as a template
+    # @section -- Global: Ingress
     annotations: {}
     # -- Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision.
     # Evaluated as a template
+    # @section -- Global: Ingress
     extraLabels: {}
     # -- TLS entries concatenated with the local `ingress.tls`. Evaluated as a template
+    # @section -- Global: Ingress
     tls: []
 
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
+  # @section -- Global: Image credentials
   imageCredentials: []
   # imageCredentials:
   # - registry: ""
@@ -72,6 +84,7 @@ global:
 
   # -- Optional list of existing Secrets containing image pull credentials to use for pulling
   # images from private registries. These Secrets are shared with all the subcharts automatically
+  # @section -- Global: Image credentials
   imageCredentialsSecrets: []
   # imageCredentialsSecrets:
   # - myPrivateRegistryKeySecretName
@@ -82,17 +95,18 @@ global:
   # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line
 
 # -- List of Micronaut environments to enable. Evaluated as a template
+# @section -- MCP application
 micronautEnvironments:
-  # The 'oauth-platform' environment enables built-in support for using Seqera Platform as the OAuth
-  # provider, including auto-registration of an internal client with the correct permissions for MCP
-  # and automatic configuration of the issuer URL and audience.
   - oauth-platform
 
 # -- API endpoint of Seqera Hub.
+# @section -- MCP application
 hubApiEndpoint: https://hub.seqera.io
 # -- API endpoint of Seqera Wave.
+# @section -- MCP application
 waveApiEndpoint: https://wave.seqera.io
 # -- API endpoint of Seqera Nextflow Registry.
+# @section -- MCP application
 registryApiEndpoint: https://registry.nextflow.io
 
 oidcToken:
@@ -106,27 +120,19 @@ oidcToken:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which will break authentication
+  # @section -- OIDC token
   tokenString: ""
   # -- Name of an existing Secret containing the OIDC client registration token, as an alternative
   # to the string field. Note: the Secret must already exist in the same namespace at the time of
   # deployment.
+  # @section -- OIDC token
   existingSecretName: ""
   # -- Key in the existing Secret containing the OIDC client registration token.
   # @default -- `"MCP_OAUTH_INITIAL_ACCESS_TOKEN"`
+  # @section -- OIDC token
   existingSecretKey: ""
 
 oauth:
-  # -- OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform
-  # API endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default
-  # behavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.
-  issuerUrl: ""
-  # -- OAuth audience for MCP to authenticate with. This is the expected audience claim in the
-  # tokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this
-  # should be set to "platform" to match the audience of the internal client that Platform creates
-  # for MCP. When using a custom OAuth provider, this should match the audience configured for the
-  # client that MCP uses to authenticate with that provider
-  audience: platform
-
   # -- JWT seed, defined as string, used to sign authentication tokens.
   # Define the value as a String or a Secret, not both at the same time.
   # If neither is defined, Helm generates a random 35-character string.
@@ -134,59 +140,75 @@ oauth:
   # Auto-generated random values are incompatible with Kustomize. When upgrading releases via
   # Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to
   # regenerate a new random value on each upgrade, which will break authentication
+  # @section -- OAuth
   jwtSeedString: ""
   # -- Name of an existing Secret containing the JWT seed, as an alternative to the string field.
   # Note: the Secret must already exist in the same namespace at the time of deployment
+  # @section -- OAuth
   jwtSeedSecretName: ""
   # -- Key in the existing Secret containing the JWT seed
   # @default -- `"MCP_OAUTH_JWT_SECRET"`
+  # @section -- OAuth
   jwtSeedSecretKey: ""
 
 image:
   # -- Container image registry
+  # @section -- Image
   registry: ""
   # -- Container image repository
+  # @section -- Image
   repository: ai/mcp/server
   # -- Container image tag
   # @default -- `"{{ .chart.AppVersion }}"`
+  # @section -- Image
   tag: ""
   # -- Container image digest in the format `sha256:1234abcdef`
+  # @section -- Image
   digest: ""
   # -- imagePullPolicy for the container
   # Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
+  # @section -- Image
   pullPolicy: IfNotPresent
   # -- List of imagePullSecrets
   # Secrets must be created in the same namespace, for example using the .extraDeploy array
   # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  # @section -- Image
   pullSecrets: []
   # pullSecrets:
   #   - myRegistryKeySecretName
 
 # -- Service configuration
+# @section -- Service
 service:
   # -- Service type.
   # Note: ingresses using AWS ALB require the service to be NodePort
+  # @section -- Service
   type: ClusterIP
   http:
     # -- Service name to use
+    # @section -- Service
     name: http
     # @schema
     # type: [integer, string]
     # @schema
     # -- Service port
+    # @section -- Service
     port: 6010
     # -- Port on the pod/container that the Service forwards traffic to (can be a number or
     # named port, distinct from the Service's external port)
+    # @section -- Service
     targetPort: 6010
     # @schema
     # type: [integer, null]
     # @schema
     # -- Service node port, only used when service.type is Nodeport or LoadBalancer
     # Choose port between 30000-32767, unless the cluster was configured differently than default
+    # @section -- Service
     nodePort: null
 
   # -- Other services that should live in the Service object
   # https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+  # @section -- Service
   extraServices: []
   # extraServices:
   # - name: myspecialservice
@@ -196,41 +218,54 @@ service:
 
   # -- Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP,
   # externalTrafficPolicy, externalIPs). Evaluated as a template
+  # @section -- Service
   extraOptions: {}
 
 initContainerDependencies:
   # -- Enable init containers that coordinate startup dependencies (for example, wait for Seqera
   # Platform readiness before starting, etc)
+  # @section -- Init containers
   enabled: true
 
   waitForPlatform:
     # -- Enable wait for Seqera Platform init container before starting the MCP server
+    # @section -- Init containers: Wait for Platform
     enabled: true
     image:
       # -- Wait for Platform init container image registry
+      # @section -- Init containers: Wait for Platform
       registry: ""
       # -- Wait for Platform init container image repository
+      # @section -- Init containers: Wait for Platform
       repository: curlimages/curl
       # -- Wait for Platform init container image tag
+      # @section -- Init containers: Wait for Platform
       tag: latest
       # -- Wait for Platform init container image digest in the format `sha256:1234abcdef`
+      # @section -- Init containers: Wait for Platform
       digest: ""
       # -- imagePullPolicy for the wait for Platform init container
+      # @section -- Init containers: Wait for Platform
       pullPolicy: IfNotPresent
 
     securityContext:
       # -- UID the container processes run as (overrides container image default)
+      # @section -- Init containers: Wait for Platform
       runAsUser: 101
       # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+      # @section -- Init containers: Wait for Platform
       runAsNonRoot: true
       # -- Mount the container root filesystem read-only to prevent in-place writes or tampering
+      # @section -- Init containers: Wait for Platform
       readOnlyRootFilesystem: true
       # -- Fine-grained Linux kernel privileges to add or drop for the container
+      # @section -- Init containers: Wait for Platform
       capabilities:
         drop:
           - ALL
 
     # -- Container requests and limits for different resources like CPU or memory
+    # @section -- Init containers: Wait for Platform
     resources:
       requests:
         cpu: "0.1"
@@ -239,25 +274,33 @@ initContainerDependencies:
         memory: "100Mi"
 
     # -- Additional environment variables for the init container
+    # @section -- Init containers: Wait for Platform
     extraEnvVars: []
     # -- Additional volume mounts for the init container (e.g. to mount a CA certificate)
+    # @section -- Init containers: Wait for Platform
     extraVolumeMounts: []
 
 # -- Additional init containers for the pod. Evaluated as a template
+# @section -- Init containers
 initContainers: []
 
 # -- Override default container command (useful when using custom images)
+# @section -- Pod
 command: []
 # -- Override default container args (useful when using custom images)
+# @section -- Pod
 args: []
 
 # -- Additional labels for the pod. Evaluated as a template
+# @section -- Pod
 podLabels: {}
 # -- Additional annotations for the pod. Evaluated as a template
+# @section -- Pod
 podAnnotations: {}
 
 # -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
 # Evaluated as a template
+# @section -- Pod
 extraOptionsSpec: {}
 # extraOptionsSpec:
 #   strategy:
@@ -270,26 +313,32 @@ extraOptionsSpec: {}
 
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template
+# @section -- Pod
 extraOptionsTemplateSpec: {}
 # extraOptionsTemplateSpec:
 #   nodeSelector:
 #     service: myspecialnodegroup
 
 # -- Extra environment variables
+# @section -- Pod: Environment
 extraEnvVars: []
 # extraEnvVars:
 #   - name: "CUSTOM_ENV_VAR"
 #     value: "set-a-value-here"
 
 # -- List of ConfigMaps containing extra env vars
+# @section -- Pod: Environment
 extraEnvVarsCMs: []
 # -- List of Secrets containing extra env vars
+# @section -- Pod: Environment
 extraEnvVarsSecrets: []
 # -- List of volumes to add to the deployment (evaluated as template). Requires setting
 # `extraVolumeMounts`
+# @section -- Pod: Volumes
 extraVolumes: []
 # -- List of volume mounts to add to the container (evaluated as template). Normally used with
 # `extraVolumes`
+# @section -- Pod: Volumes
 extraVolumeMounts: []
 
 # Configure Pods Security Context.
@@ -297,28 +346,36 @@ extraVolumeMounts: []
 # Empty map to disable Pod Security Context configuration
 podSecurityContext:
   # -- Enable pod Security Context
+  # @section -- Pod: Security context
   enabled: true
   # -- Sets the GID that Kubernetes will apply to mounted volumes and created files so processes
   # in the pod can share group-owned access
+  # @section -- Pod: Security context
   fsGroup: 101
 
 # Configure Container Security Context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 containerSecurityContext:
   # -- Enable container Security Context
+  # @section -- Container: Security context
   enabled: true
   # -- UID the container processes run as (overrides container image default)
+  # @section -- Container: Security context
   runAsUser: 101
   # -- Boolean that requires the container to run as a non-root UID (prevents starting if UID 0)
+  # @section -- Container: Security context
   runAsNonRoot: true
   # -- Mounts the container root filesystem read-only to prevent in-place writes or tampering
+  # @section -- Container: Security context
   readOnlyRootFilesystem: true
   # -- Fine-grained Linux kernel privileges to add or drop for the container
+  # @section -- Container: Security context
   capabilities:
     drop:
       - ALL
 
 # -- Container requests and limits for different resources like CPU or memory
+# @section -- Container: Resources
 resources: {}
 # `.requests` are the minimum CPU/memory resources the scheduler uses to place a pod;
 # the kubelet then guarantees at least these resources to the pod. `.limits` are the
@@ -337,92 +394,125 @@ resources: {}
 # Configure extra options for the startup probe
 startupProbe:
   # -- Enable startup probe
+  # @section -- Probes: Startup
   enabled: false
   httpGet:
     # -- HTTP GET path for startup probe
+    # @section -- Probes: Startup
     path: "/health"
     # -- HTTP GET port for startup probe. Evaluated as a template
+    # @section -- Probes: Startup
     port: "{{ .Values.service.http.targetPort }}"
   # -- Longer initial wait to accommodate slow-starting apps
+  # @section -- Probes: Startup
   initialDelaySeconds: 5
   # -- Often set longer to avoid frequent checks while starting
+  # @section -- Probes: Startup
   periodSeconds: 10
   # -- Can be longer to allow slow initialization responses
+  # @section -- Probes: Startup
   timeoutSeconds: 3
   # -- Consecutive failures during startup before killing the container (instead of immediate
   # restarts)
+  # @section -- Probes: Startup
   failureThreshold: 5
   # -- Number of consecutive successes required to consider startup complete and enable
   # liveness/readiness
+  # @section -- Probes: Startup
   successThreshold: 1
 
 # Configure extra options for the readiness probe
 readinessProbe:
   # -- Enable readiness probe
+  # @section -- Probes: Readiness
   enabled: true
   httpGet:
     # -- HTTP GET path for readiness probe
+    # @section -- Probes: Readiness
     path: "/health"
     # -- HTTP GET port for readiness probe. Evaluated as a template
+    # @section -- Probes: Readiness
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
+  # @section -- Probes: Readiness
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation
+  # @section -- Probes: Readiness
   periodSeconds: 5
   # -- Short timeout to detect unresponsive containers for readiness
+  # @section -- Probes: Readiness
   timeoutSeconds: 3
   # -- Consecutive failures before marking the container Unready (no restart)
+  # @section -- Probes: Readiness
   failureThreshold: 5
   # -- Number of consecutive successes required to mark the container Ready after failures
+  # @section -- Probes: Readiness
   successThreshold: 1
 
 # Configure extra options for the liveness probe
 livenessProbe:
   # -- Enable liveness probe
+  # @section -- Probes: Liveness
   enabled: true
   httpGet:
     # -- HTTP GET path for liveness probe
+    # @section -- Probes: Liveness
     path: "/health"
     # -- HTTP GET port for liveness probe. Evaluated as a template
+    # @section -- Probes: Liveness
     port: "{{ .Values.service.http.targetPort }}"
   # -- Delay before first check (normal start timing)
+  # @section -- Probes: Liveness
   initialDelaySeconds: 5
   # -- Regular check interval during normal operation
+  # @section -- Probes: Liveness
   periodSeconds: 10
   # -- Short timeout to detect hung containers quickly
+  # @section -- Probes: Liveness
   timeoutSeconds: 3
   # -- Consecutive failures before restarting the container
+  # @section -- Probes: Liveness
   failureThreshold: 10
   # -- Typically 1 (usually ignored)
+  # @section -- Probes: Liveness
   successThreshold: 1
 
 # -- Service account configuration
+# @section -- Service account
 serviceAccount:
   # -- Service account name
+  # @section -- Service account
   name: ""
   # -- Service account annotations
+  # @section -- Service account
   annotations: {}
   # -- Names of Secrets containing credentials to pull images from registries
+  # @section -- Service account
   imagePullSecretNames: []
   # @schema
   # type: [boolean, string]
   # @schema
   # -- Automatically mount service account token
+  # @section -- Service account
   automountServiceAccountToken: true
 
 ingress:
   # -- Enable ingress for MCP
+  # @section -- Ingress
   enabled: false
 
   # -- Path for the main ingress rule. When empty, falls back to `global.ingress.path`
+  # @section -- Ingress
   path: ""
 
   # -- Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType`
+  # @section -- Ingress
   defaultPathType: ""
 
   # -- Configure the default service for the ingress (evaluated as template)
   # Important: make sure only one defaultBackend is defined across the k8s cluster: if the
   # ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems
+  # @section -- Ingress
   defaultBackend: {}
   # defaultBackend:
   #   service:
@@ -431,6 +521,7 @@ ingress:
   #       number: '{{ .Values.frontend.service.http.port }}'
 
   # -- Additional hosts you want to include. Evaluated as a template
+  # @section -- Ingress
   extraHosts: []
   # extraHosts:
   #   - host: '{{ printf "api.%s" .Values.global.platformExternalDomain }}'
@@ -447,13 +538,17 @@ ingress:
   #         portNumber: '{{ .Values.frontend.service.http.port }}'
 
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
+  # @section -- Ingress
   annotations: {}
   # -- Additional labels for the ingress object. Evaluated as a template
+  # @section -- Ingress
   extraLabels: {}
   # -- Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`).
   # When empty, falls back to `global.ingress.ingressClassName`
+  # @section -- Ingress
   ingressClassName: ""
   # -- TLS configuration. Evaluated as a template
+  # @section -- Ingress
   tls: []
   # tls:
   #   - hosts:
@@ -462,6 +557,7 @@ ingress:
   #     secretName: my-tls
 
 # -- Array of extra objects to deploy with the release
+# @section -- Extra deployment
 extraDeploy: []
 # extraDeploy:
 #   - apiVersion: v1
@@ -472,14 +568,20 @@ extraDeploy: []
 #     ...
 
 # -- Annotations to add to all deployed objects
+# @section -- Common metadata
 commonAnnotations: {}
 # -- Labels to add to all deployed objects
+# @section -- Common metadata
 commonLabels: {}
 # -- Additional labels for the Secret objects. Evaluated as a template
+# @section -- Common metadata
 secretLabels: {}
 # -- Additional annotations for the Secret objects. Evaluated as a template
+# @section -- Common metadata
 secretAnnotations: {}
 # -- Additional labels for the ConfigMap objects. Evaluated as a template
+# @section -- Common metadata
 configMapLabels: {}
 # -- Additional annotations for the ConfigMap objects. Evaluated as a template
+# @section -- Common metadata
 configMapAnnotations: {}

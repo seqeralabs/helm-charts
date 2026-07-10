@@ -1,14 +1,14 @@
 # AWS RDS TLS example — offline / air-gapped (CA bundle pre-loaded in a ConfigMap)
 #
-# Before deploying, download the AWS CA bundle for the region where your RDS instances are and store
-# it in a ConfigMap:
+# Before deploying, download the AWS CA bundle for the region where your RDS instances are (or the
+# global bundle) and store it in a ConfigMap:
 #
 #   curl -sSf \
-#     https://truststore.pki.rds.amazonaws.com/us-east-1/us-east-1-bundle.pem \
-#     -o aws-rds-us-east-1-ca-bundle.pem
+#     https://truststore.pki.rds.amazonaws.com/<region>/<region>-bundle.pem \
+#     -o aws-rds-ca-bundle.pem
 #
-#   kubectl create configmap aws-rds-us-east-1-ca-bundle \
-#     --from-file=ca-bundle.pem=aws-rds-us-east-1-ca-bundle.pem \
+#   kubectl create configmap aws-rds-ca-bundle \
+#     --from-file=ca-bundle.pem=aws-rds-ca-bundle.pem \
 #     --namespace <your-namespace>
 #
 # The ConfigMap is then mounted directly into the init containers — no init container
@@ -46,74 +46,94 @@ redis:
 # containers. For the platform chart that is backend and cron.
 backend:
   extraVolumes:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: aws-rds-ca-bundle
       configMap:
-        name: aws-rds-us-east-1-ca-bundle
+        name: aws-rds-ca-bundle
   extraVolumeMounts:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: aws-rds-ca-bundle
       mountPath: /certs
       readOnly: true
 
 cron:
   extraVolumes:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: aws-rds-ca-bundle
       configMap:
-        name: aws-rds-us-east-1-ca-bundle
+        name: aws-rds-ca-bundle
   extraVolumeMounts:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: aws-rds-ca-bundle
       mountPath: /certs
       readOnly: true
   # The migrate-db init container connects to RDS directly and also needs the CA cert.
   dbMigrationInitContainer:
     extraVolumeMounts:
-      - name: aws-rds-us-east-1-ca-bundle
+      - name: aws-rds-ca-bundle
         mountPath: /certs
         readOnly: true
 
 initContainerDependencies:
   waitForMySQL:
-    extraEnv:
+    extraEnvVars:
       - name: MYSQL_EXTRA_ARGS
         value: "--ssl-ca=/certs/ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
     extraVolumeMounts:
-      - name: aws-rds-us-east-1-ca-bundle
+      - name: aws-rds-ca-bundle
         mountPath: /certs
         readOnly: true
 
 pipeline-optimization:
   enabled: true
   extraVolumes:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: rds-ca-bundle
       configMap:
-        name: aws-rds-us-east-1-ca-bundle
+        name: aws-rds-ca-bundle
 
   extraVolumeMounts:
-    - name: aws-rds-us-east-1-ca-bundle
-      mountPath: /certs
+    - name: rds-ca-bundle
+      mountPath: /rds-ca
       readOnly: true
+
+  initContainerDependencies:
+    waitForMySQL:
+      extraEnvVars:
+        - name: MYSQL_EXTRA_ARGS
+          value: "--ssl-ca=/rds-ca/rds-ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
+      extraVolumeMounts:
+        - name: rds-ca-bundle
+          mountPath: /rds-ca
+          readOnly: true
 
   database:
     # pipeline-optimization db details
     enableTls: true
-    sslCa: /certs/ca-bundle.pem
+    sslCa: /rds-ca/rds-ca-bundle.pem
 
   platformDatabase:
     # platform db details
     enableTls: true
-    sslCa: /certs/ca-bundle.pem
+    sslCa: /rds-ca/rds-ca-bundle.pem
 
 agent-backend:
   enabled: true
   extraVolumes:
-    - name: aws-rds-us-east-1-ca-bundle
+    - name: rds-ca-bundle
       configMap:
-        name: aws-rds-us-east-1-ca-bundle
+        name: aws-rds-ca-bundle
 
   extraVolumeMounts:
-    - name: aws-rds-us-east-1-ca-bundle
-      mountPath: /certs
+    - name: rds-ca-bundle
+      mountPath: /rds-ca
       readOnly: true
+
+  initContainerDependencies:
+    waitForMySQL:
+      extraEnvVars:
+        - name: MYSQL_EXTRA_ARGS
+          value: "--ssl-ca=/rds-ca/rds-ca-bundle.pem --ssl-mode=VERIFY_IDENTITY"
+      extraVolumeMounts:
+        - name: rds-ca-bundle
+          mountPath: /rds-ca
+          readOnly: true
 
   database:
     enableTls: true
-    sslCa: /certs/ca-bundle.pem
+    sslCa: /rds-ca/rds-ca-bundle.pem

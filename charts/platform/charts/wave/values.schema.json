@@ -506,12 +506,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -523,11 +524,13 @@
                 },
                 "repository": {
                   "default": "postgres",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "16-alpine",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }
@@ -679,12 +682,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -696,11 +700,13 @@
                 },
                 "repository": {
                   "default": "redis",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "7-alpine",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }
@@ -1045,15 +1051,9 @@
     },
     "redis": {
       "properties": {
-        "database": {
-          "default": 0,
-          "description": "Redis database index",
-          "title": "database",
-          "type": "integer"
-        },
         "enableTls": {
           "default": false,
-          "description": "Enable TLS when connecting to Redis",
+          "description": "Redis database index\nEnable TLS when connecting to Redis",
           "title": "enableTls",
           "type": "boolean"
         },
@@ -1091,7 +1091,6 @@
       "required": [
         "host",
         "port",
-        "database",
         "enableTls",
         "password",
         "existingSecretName",

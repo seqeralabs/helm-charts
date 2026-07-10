@@ -1,0 +1,96 @@
+# Agent Backend - Standalone Deployment Example
+#
+# Use this file when deploying the agent-backend chart independently,
+# without the parent platform chart.
+#
+# Prerequisites:
+# - Seqera Platform already running and accessible
+# - MySQL database provisioned
+# - Redis provisioned
+# - AWS Bedrock or Anthropic API access configured
+#
+# Deploy with:
+#   helm repo add seqera https://seqeralabs.github.io/helm-charts
+#   helm show values seqera/agent-backend > values.yaml  # pull full defaults to customise
+#   helm upgrade --install agent-backend seqera/agent-backend \
+#     -f values.yaml \
+#     -n seqera
+
+global:
+  # Domain where your existing Seqera Platform is accessible
+  platformExternalDomain: platform.example.com
+
+  # Address of the Seqera Platform backend service.
+  # When Platform is deployed in the same cluster, use its internal service name:
+  #   platformServiceAddress: my-platform-platform-backend
+  # When Platform is external, use its hostname:
+  platformServiceAddress: platform.example.com
+  # platformServicePort: 8080  # default
+
+  # Domain where this agent-backend instance will be accessible
+  agentBackendDomain: ai-api.platform.example.com
+
+database:
+  host: mysql.example.com
+  # port: 3306  # default
+  name: agent_backend
+  username: agent_backend
+  existingSecretName: agent-backend-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  # port: 6379  # default
+  # database: 1  # optional: set if sharing a Redis instance with other services
+  existingSecretName: agent-backend-redis-credentials
+  existingSecretKey: password
+
+# Which provider serves each capability. inference.provider is required;
+# embeddings and sandbox are optional — leave provider empty to disable.
+inference:
+  provider: anthropic  # "bedrock" or "anthropic"
+
+embeddings:
+  provider: bedrock    # "bedrock", or leave empty to disable
+
+sandbox:
+  provider: bedrock    # "bedrock", or leave empty to disable
+
+# Bedrock configuration (required when any provider above is "bedrock")
+bedrock:
+  # Default credentials applied to all Bedrock-backed services unless overridden per-service.
+  default:
+    assumeRoleArn: arn:aws:iam::123456789012:role/bedrock-cross-account-role
+    region: us-east-1
+  sandbox:
+    # AgentCore runtime ARN: required when sandbox.provider is "bedrock".
+    runtimeArn: arn:aws:bedrock-agentcore:us-east-1:123456789012:runtime/my-runtime
+
+# Anthropic configuration (required when inference.provider is "anthropic")
+anthropic:
+  existingSecretName: agent-backend-anthropic-credentials
+
+# Token encryption key — must be a valid Fernet key.
+# Generate one with: python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# Set explicitly so it remains stable across upgrades.
+tokenEncryptionKeyExistingSecretName: agent-backend-secrets
+tokenEncryptionKeyExistingSecretKey: token-encryption-key
+
+# AWS ALB requires NodePort service type:
+# service:
+#   type: NodePort
+
+# Expose this service to the internet via an ingress controller.
+# See ../../../examples/ingress-configurations/README.md for controller-specific examples
+# (NGINX + cert-manager, AWS ALB, GKE managed certificates, Traefik, wildcard TLS, etc.).
+#
+# ingress:
+#   enabled: true
+#   ingressClassName: <your-ingress-class>
+
+# resources:
+#   requests:
+#     cpu: "100m"
+#     memory: "1000Mi"
+#   limits:
+#     memory: "1000Mi"

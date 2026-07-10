@@ -68,14 +68,14 @@ spec:
 {{- end }}
 {{- if .Values.initContainerDependencies.enabled }}
   {{- if .Values.initContainerDependencies.waitForMySQL.enabled }}
-        {{- include "seqera.initContainers.waitForMySQL" (dict "name" "db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database "secretNameTemplate" "agent-backend.database.existingSecret.secretName" "secretKeyTemplate" "agent-backend.database.existingSecret.secretKey" "cloudProviderImageKey" "waitForMySQL" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForMySQL" (dict "name" "db" "waitValues" .Values.initContainerDependencies.waitForMySQL "connDetails" .Values.database "secretNameTemplate" "agent-backend.database.existingSecret.secretName" "secretKeyTemplate" "agent-backend.database.existingSecret.secretKey" "context" $) | nindent 8 }}
   {{- end }}
   {{- if .Values.initContainerDependencies.waitForRedis.enabled }}
-        {{- include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "agent-backend.redis.uri" "secretNameTemplate" "agent-backend.redis.existingSecret.secretName" "secretKeyTemplate" "agent-backend.redis.existingSecret.secretKey" "cloudProviderImageKey" "waitForRedis" "context" $) | nindent 8 }}
+        {{- include "seqera.initContainers.waitForRedis" (dict "name" "redis" "waitValues" .Values.initContainerDependencies.waitForRedis "uriTemplate" "agent-backend.redis.uri" "secretNameTemplate" "agent-backend.redis.existingSecret.secretName" "secretKeyTemplate" "agent-backend.redis.existingSecret.secretKey" "context" $) | nindent 8 }}
   {{- end }}
 {{- end }}
         - name: init
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: {{ .Values.dbMigrationInitContainer.command | toYaml | nindent 12 }}
           envFrom:
@@ -101,7 +101,7 @@ spec:
 
       containers:
         - name: agent-backend
-          image: {{ include "seqera.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart "cloudProviderImageKey" "agentBackend" "context" $) }}
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- with .Values.command }}
           command: {{- toYaml . | nindent 12 }}

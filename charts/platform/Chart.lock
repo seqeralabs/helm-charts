@@ -1,27 +1,27 @@
 dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.40.0
+  version: 2.41.0
 - name: seqera-common
   repository: file://../seqera-common
-  version: 2.1.6
+  version: 3.0.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
-  version: 2.0.12
+  version: 2.1.0
 - name: studios
   repository: file://charts/studios
-  version: 1.4.5
+  version: 1.5.0
 - name: wave
   repository: file://charts/wave
-  version: 0.2.7
+  version: 0.3.0
 - name: mcp
   repository: file://charts/mcp
-  version: 0.4.5
+  version: 0.5.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.0.9
+  version: 1.1.0
 - name: portal-web
   repository: file://charts/portal-web
-  version: 0.3.7
-digest: sha256:f75a5af6b10df58bf1c4a47c835aa0ce0b264562250da8a5d54265d7607f230b
-generated: "2026-06-24T11:03:21.815487827+02:00"
+  version: 0.4.0
+digest: sha256:921838d01ff691d0339030d6797f9f8a9ee86028539a466b66302f3c42a00951
+generated: "2026-07-07T23:10:14.691027242+02:00"

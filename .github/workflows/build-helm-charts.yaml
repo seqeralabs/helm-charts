@@ -1,9 +1,8 @@
 name: Helm chart packager
 on:
   push:
-    paths: # The order of path filtering matters.
-      - 'charts/**' # Trigger on changes under charts/ only.
-      - '!charts/**/Makefile' # Exclude Makefiles under charts.
+    paths:
+      - 'charts/**/Chart.yaml' # Trigger only on Chart.yaml changes under charts/.
 
 jobs:
   check-if-version-is-available-and-update-helm-chart:
@@ -16,7 +15,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # ratchet:actions/checkout@v6.0.3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # ratchet:actions/checkout@v7.0.0
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # ratchet:tj-actions/changed-files@v47.0.6
@@ -89,7 +88,7 @@ jobs:
 
       - name: Install crane
         if: github.ref_name == 'master' && env.charts_to_package != ''
-        uses: imjasonh/setup-crane@59c71e96a00b28651f10369ba3359a6d730740a0 # ratchet:imjasonh/setup-crane@v0.6
+        uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # ratchet:imjasonh/setup-crane@v0.7
 
       - name: 'Push Helm charts only if we are on master'
         if: github.ref_name == 'master' && env.charts_to_package != ''

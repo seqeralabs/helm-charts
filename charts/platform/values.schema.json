@@ -761,12 +761,13 @@
                   "properties": {
                     "digest": {
                       "default": "",
-                      "description": "Digest must be in the format `sha256:1234abcdef`",
+                      "description": "Init container image digest in the format `sha256:1234abcdef`",
                       "title": "digest",
                       "type": "string"
                     },
                     "pullPolicy": {
                       "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the init container",
                       "title": "pullPolicy",
                       "type": "string"
                     },
@@ -778,11 +779,13 @@
                     },
                     "repository": {
                       "default": "mysql",
+                      "description": "Init container image repository",
                       "title": "repository",
                       "type": "string"
                     },
                     "tag": {
                       "default": "9",
+                      "description": "Init container image tag",
                       "title": "tag",
                       "type": "string"
                     }
@@ -906,12 +909,13 @@
                   "properties": {
                     "digest": {
                       "default": "",
-                      "description": "Digest must be in the format `sha256:1234abcdef`",
+                      "description": "Init container image digest in the format `sha256:1234abcdef`",
                       "title": "digest",
                       "type": "string"
                     },
                     "pullPolicy": {
                       "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the init container",
                       "title": "pullPolicy",
                       "type": "string"
                     },
@@ -923,11 +927,13 @@
                     },
                     "repository": {
                       "default": "redis",
+                      "description": "Init container image repository",
                       "title": "repository",
                       "type": "string"
                     },
                     "tag": {
                       "default": "7-alpine",
+                      "description": "Init container image tag",
                       "title": "tag",
                       "type": "string"
                     }
@@ -3443,600 +3449,6 @@
           "title": "agentBackendDomain",
           "type": "string"
         },
-        "azure": {
-          "description": "Cloud provider-specific configuration for subcharts. Each subchart may use these values to\nconfigure itself when deployed on the corresponding cloud provider, for example to set the\ncorrect image for the Platform backend, etc. Cloud-provider values take precedence over the\ngeneral ones. Evaluated as a template",
-          "properties": {
-            "images": {
-              "properties": {
-                "agentBackend": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Agent Backend on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Agent Backend image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Agent Backend image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Agent Backend on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "agentBackend",
-                  "type": "object"
-                },
-                "pipelineOptimization": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Pipeline Optimization on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Pipeline Optimization image deployed on Azure. Evaluated as a\ntemplate",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Pipeline Optimization image deployed on Azure. Evaluated as a\ntemplate",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Pipeline Optimization on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "pipelineOptimization",
-                  "type": "object"
-                },
-                "pipelineOptimizationMigrateDB": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Pipeline Optimization migrate-db init container on Azure, in the\nformat `sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a\ntemplate",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Pipeline Optimization migrate-db init container image deployed\non Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Pipeline Optimization migrate-db init container image deployed\non Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Pipeline Optimization migrate-db init container on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "pipelineOptimizationMigrateDB",
-                  "type": "object"
-                },
-                "platformBackend": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Platform backend on Azure, in the format `sha256:1234abcdef`.\nTakes precedence over the tag if both are set. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Platform backend image deployed on Azure. Example:\n`myteam/platform-backend`. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Platform backend image deployed on Azure. Example:\n`myregistry.azurecr.io`. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Platform backend on Azure. Defaults to the application version\ndefined in the Chart.yaml file. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "platformBackend",
-                  "type": "object"
-                },
-                "platformCronMigrateDB": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Platform cron migrate-db init container on Azure, in the format\n`sha256:1234abcdef`. Takes precedence over the tag if both are set. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Platform cron migrate-db init container image deployed on Azure.\nEvaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Platform cron migrate-db init container image deployed on Azure.\nEvaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Platform cron migrate-db init container on Azure. Defaults to the\napplication version defined in the Chart.yaml file. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "platformCronMigrateDB",
-                  "type": "object"
-                },
-                "platformFrontend": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Platform frontend on Azure, in the format `sha256:1234abcdef`.\nTakes precedence over the tag if both are set. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Platform frontend image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Platform frontend image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Platform frontend on Azure. Defaults to the application version\ndefined in the Chart.yaml file. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "platformFrontend",
-                  "type": "object"
-                },
-                "studiosProxy": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Studios proxy on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Studios proxy image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Studios proxy image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Studios proxy on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "studiosProxy",
-                  "type": "object"
-                },
-                "studiosServer": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the Studios server on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the Studios server image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the Studios server image deployed on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the Studios server on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "studiosServer",
-                  "type": "object"
-                },
-                "waitForCron": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the wait-for-cron init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the wait-for-cron init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the wait-for-cron init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the wait-for-cron init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "waitForCron",
-                  "type": "object"
-                },
-                "waitForMySQL": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the wait-for-MySQL init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the wait-for-MySQL init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the wait-for-MySQL init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the wait-for-MySQL init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "waitForMySQL",
-                  "type": "object"
-                },
-                "waitForPlatform": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the wait-for-platform init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the wait-for-platform init container image deployed on Azure.\nEvaluated as a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the wait-for-platform init container image deployed on Azure.\nEvaluated as a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the wait-for-platform init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "waitForPlatform",
-                  "type": "object"
-                },
-                "waitForRedis": {
-                  "properties": {
-                    "digest": {
-                      "default": "",
-                      "description": "Image digest for the wait-for-Redis init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "digest",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "image": {
-                      "default": "",
-                      "description": "Image repository for the wait-for-Redis init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "image",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "registry": {
-                      "default": "",
-                      "description": "Image registry for the wait-for-Redis init container image deployed on Azure. Evaluated\nas a template",
-                      "required": [],
-                      "title": "registry",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    },
-                    "tag": {
-                      "default": "",
-                      "description": "Image tag for the wait-for-Redis init container on Azure. Evaluated as a template",
-                      "required": [],
-                      "title": "tag",
-                      "type": [
-                        "string",
-                        "null"
-                      ]
-                    }
-                  },
-                  "required": [],
-                  "title": "waitForRedis",
-                  "type": "object"
-                }
-              },
-              "required": [
-                "platformBackend",
-                "platformFrontend",
-                "platformCronMigrateDB",
-                "studiosProxy",
-                "studiosServer",
-                "pipelineOptimization",
-                "pipelineOptimizationMigrateDB",
-                "agentBackend",
-                "waitForCron",
-                "waitForPlatform",
-                "waitForMySQL",
-                "waitForRedis"
-              ],
-              "title": "images",
-              "type": "object"
-            }
-          },
-          "required": [
-            "images"
-          ],
-          "title": "azure",
-          "type": "object"
-        },
         "contentDomain": {
           "default": "{{ printf \"user-data.%s\" .Values.global.platformExternalDomain }}",
           "description": "Domain where user-created Platform reports are exposed, to avoid Cross-Site Scripting (XSS)\nattacks. If unset, data is served through the main domain\n`.global.platformExternalDomain`. Evaluated as a template",
@@ -4132,8 +3544,8 @@
           "type": "string"
         },
         "platformServiceAddress": {
-          "default": "{{ printf \"%s-platform-backend\" .Release.Name | lower }}",
-          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template",
+          "default": "{{ printf \"%s-backend\" (include \"common.names.fullname\" .) | lower }}",
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned\nwith the backend Deployment/Secret naming and collapses correctly when the release name\nalready contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than\n`seqera-platform-platform-backend`)",
           "title": "platformServiceAddress",
           "type": "string"
         },
@@ -4185,8 +3597,7 @@
         "portalWebDomain",
         "ingress",
         "imageCredentials",
-        "imageCredentialsSecrets",
-        "azure"
+        "imageCredentialsSecrets"
       ],
       "title": "global",
       "type": "object"
@@ -4200,8 +3611,8 @@
           "type": "object"
         },
         "contentPath": {
-          "default": "/",
-          "description": "Path for the content domain ingress rule",
+          "default": "",
+          "description": "Path for the content domain ingress rule. When empty, falls back to `ingress.path`",
           "title": "contentPath",
           "type": "string"
         },
@@ -4309,12 +3720,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -4326,11 +3738,13 @@
                 },
                 "repository": {
                   "default": "curlimages/curl",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "latest",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }
@@ -4482,12 +3896,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -4499,11 +3914,13 @@
                 },
                 "repository": {
                   "default": "mysql",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "9",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }
@@ -4655,12 +4072,13 @@
               "properties": {
                 "digest": {
                   "default": "",
-                  "description": "Digest must be in the format `sha256:1234abcdef`",
+                  "description": "Init container image digest in the format `sha256:1234abcdef`",
                   "title": "digest",
                   "type": "string"
                 },
                 "pullPolicy": {
                   "default": "IfNotPresent",
+                  "description": "imagePullPolicy for the init container",
                   "title": "pullPolicy",
                   "type": "string"
                 },
@@ -4672,11 +4090,13 @@
                 },
                 "repository": {
                   "default": "redis",
+                  "description": "Init container image repository",
                   "title": "repository",
                   "type": "string"
                 },
                 "tag": {
                   "default": "7-alpine",
+                  "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
                 }
@@ -5449,18 +4869,6 @@
         },
         "oauth": {
           "properties": {
-            "audience": {
-              "default": "platform",
-              "description": "OAuth audience for MCP to authenticate with. This is the expected audience claim in the\ntokens issued by the OAuth provider. When using Seqera Platform as the OAuth provider, this\nshould be set to \"platform\" to match the audience of the internal client that Platform creates\nfor MCP. When using a custom OAuth provider, this should match the audience configured for the\nclient that MCP uses to authenticate with that provider",
-              "title": "audience",
-              "type": "string"
-            },
-            "issuerUrl": {
-              "default": "",
-              "description": "OAuth provider URL used by MCP to authenticate and obtain tokens. Defaults to the Platform\nAPI endpoint when 'oauth-platform' is configured in `.micronautEnvironments` (default\nbehavior). Must be set explicitly when 'oauth' is configured in `.micronautEnvironments`.",
-              "title": "issuerUrl",
-              "type": "string"
-            },
             "jwtSeedSecretKey": {
               "default": "",
               "description": "Key in the existing Secret containing the JWT seed",
@@ -6238,12 +5646,13 @@
                   "properties": {
                     "digest": {
                       "default": "",
-                      "description": "Digest must be in the format `sha256:1234abcdef`",
+                      "description": "Init container image digest in the format `sha256:1234abcdef`",
                       "title": "digest",
                       "type": "string"
                     },
                     "pullPolicy": {
                       "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the init container",
                       "title": "pullPolicy",
                       "type": "string"
                     },
@@ -6255,11 +5664,13 @@
                     },
                     "repository": {
                       "default": "mysql",
+                      "description": "Init container image repository",
                       "title": "repository",
                       "type": "string"
                     },
                     "tag": {
                       "default": "9",
+                      "description": "Init container image tag",
                       "title": "tag",
                       "type": "string"
                     }
@@ -9859,12 +9270,13 @@
                   "properties": {
                     "digest": {
                       "default": "",
-                      "description": "Digest must be in the format `sha256:1234abcdef`",
+                      "description": "Init container image digest in the format `sha256:1234abcdef`",
                       "title": "digest",
                       "type": "string"
                     },
                     "pullPolicy": {
                       "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the init container",
                       "title": "pullPolicy",
                       "type": "string"
                     },
@@ -9876,11 +9288,13 @@
                     },
                     "repository": {
                       "default": "postgres",
+                      "description": "Init container image repository",
                       "title": "repository",
                       "type": "string"
                     },
                     "tag": {
                       "default": "16-alpine",
+                      "description": "Init container image tag",
                       "title": "tag",
                       "type": "string"
                     }
@@ -10004,12 +9418,13 @@
                   "properties": {
                     "digest": {
                       "default": "",
-                      "description": "Digest must be in the format `sha256:1234abcdef`",
+                      "description": "Init container image digest in the format `sha256:1234abcdef`",
                       "title": "digest",
                       "type": "string"
                     },
                     "pullPolicy": {
                       "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the init container",
                       "title": "pullPolicy",
                       "type": "string"
                     },
@@ -10021,11 +9436,13 @@
                     },
                     "repository": {
                       "default": "redis",
+                      "description": "Init container image repository",
                       "title": "repository",
                       "type": "string"
                     },
                     "tag": {
                       "default": "7-alpine",
+                      "description": "Init container image tag",
                       "title": "tag",
                       "type": "string"
                     }
@@ -10313,15 +9730,9 @@
         },
         "redis": {
           "properties": {
-            "database": {
-              "default": 0,
-              "description": "Redis database index",
-              "title": "database",
-              "type": "integer"
-            },
             "enableTls": {
               "default": false,
-              "description": "Enable TLS when connecting to Redis",
+              "description": "Redis database index\nEnable TLS when connecting to Redis",
               "title": "enableTls",
               "type": "boolean"
             },

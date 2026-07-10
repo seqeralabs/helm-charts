@@ -5,6 +5,23 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-07-07
+
+### Changed
+
+- Added `examples/standalone.yaml` with a minimal values file for deploying this chart independently.
+- Bumped `appVersion` to `v1.35.0`.
+- Refresh deployment snapshot after `platformServiceAddress` requirement (#131).
+- Annotated `values.yaml` with `# @section` markers and switched `README.md.gotmpl` to a per-section Markdown loop, grouping the generated values table by area instead of one flat list.
+- Revamp README documentation.
+
+### Removed
+
+- **BREAKING**: Removed `global.azure.images` image overrides for the `wave` container, its
+  `touch-config-file` init container, and the `waitForPostgres`/`waitForRedis` init containers.
+  Deployments now resolve images through `common.images.image` only.
+- Bumped `seqera-common` dependency to `3.x.x`.
+
 ## [0.2.7] - 2026-06-24
 
 ### Added
