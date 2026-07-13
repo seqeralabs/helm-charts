@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.35.1] - 2026-07-13
 
+### Changed
+
+- Move `TOWER_SMTP_HOST`, `TOWER_SMTP_PORT` and `TOWER_SMTP_USER` from the
+  `<release>-platform-shared-backend-cron` ConfigMap into the `<release>-platform-cron` ConfigMap,
+  so SMTP configuration is only injected into the cron Deployment (which sends scheduled emails)
+  and no longer leaks into the backend Deployment's environment.
+
 ### Fixed
 
 - Fix the default `global.platformServiceAddress` template so it resolves to the parent chart's
