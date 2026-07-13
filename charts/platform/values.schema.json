@@ -6448,10 +6448,10 @@
               "type": "string"
             },
             "port": {
-              "default": "",
+              "default": 587,
               "description": "SMTP server port",
               "title": "port",
-              "type": "string"
+              "type": "integer"
             },
             "user": {
               "default": "",

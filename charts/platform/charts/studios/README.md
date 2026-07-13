@@ -88,257 +88,257 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.platformExternalDomain | string | ``"example.com"`` | Domain where Seqera Platform listens |
-| global.platformServiceAddress | string | ``""`` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
-| global.platformServicePort | int | ``nil`` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
+| global.platformServiceAddress | string | `""` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
+| global.platformServicePort | int | `nil` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
 
 ### Global: Studios
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.studiosDomain | string | ``"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"`` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
-| global.studiosConnectionUrl | string | ``"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"`` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
+| global.studiosDomain | string | `"{{ printf \"studios.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Studios service listens. Make sure the TLS certificate covers this and its wildcard subdomains. Evaluated as a template |
+| global.studiosConnectionUrl | string | `"{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}"` | Base URL for Studios connections: can be any value, since each session will use a unique subdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template |
 
 ### Global: Ingress
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.ingress.enabled | bool | ``false`` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |
-| global.ingress.path | string | ``"/"`` | Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`. |
-| global.ingress.defaultPathType | string | ``"Prefix"`` | Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers. |
-| global.ingress.ingressClassName | string | ``""`` | Default ingress class name applied when `ingress.ingressClassName` is not set |
-| global.ingress.annotations | object | ``{}`` | Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template |
-| global.ingress.extraLabels | object | ``{}`` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
-| global.ingress.tls | list | ``[]`` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
+| global.ingress.enabled | bool | `false` | Enable Ingress for this chart. OR'd with the chart's local `ingress.enabled` so setting this once at the parent enables all subchart Ingresses. |
+| global.ingress.path | string | `"/"` | Default path applied to ingress rules when `ingress.path` is not set. AWS ALB users should override to `/*`. |
+| global.ingress.defaultPathType | string | `"Prefix"` | Default path type applied to ingress rules when `ingress.defaultPathType` is not set. `Prefix` works for nginx, traefik, AWS ALB, and most modern controllers. |
+| global.ingress.ingressClassName | string | `""` | Default ingress class name applied when `ingress.ingressClassName` is not set |
+| global.ingress.annotations | object | `{}` | Annotations merged into the Ingress. Local `ingress.annotations` wins on key collision. Evaluated as a template |
+| global.ingress.extraLabels | object | `{}` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
+| global.ingress.tls | list | `[]` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
 
 ### Global: Image Credentials
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.imageCredentials | list | ``[]`` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
-| global.imageCredentialsSecrets | list | ``[]`` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
+| global.imageCredentials | list | `[]` | Optional credentials to log in and fetch images from a private registry. These credentials are shared with all the subcharts automatically |
+| global.imageCredentialsSecrets | list | `[]` | Optional list of existing Secrets containing image pull credentials to use for pulling images from private registries. These Secrets are shared with all the subcharts automatically |
 
 ### Redis
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| redis.host | string | ``""`` | Redis hostname |
-| redis.port | int | ``6379`` | Redis port |
-| redis.database | int | ``0`` | Redis database number |
-| redis.password | string | ``""`` | Redis password if the installation requires it |
-| redis.existingSecretName | string | ``""`` | Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
-| redis.existingSecretKey | string | ``"CONNECT_REDIS_PASSWORD"`` | Key in the existing Secret containing the password for Redis |
-| redis.enableTls | bool | ``false`` | Enable TLS when connecting to Redis |
-| redis.prefix | string | ``"connect:session"`` | Key prefix to use when storing Studios sessions in Redis |
+| redis.host | string | `""` | Redis hostname |
+| redis.port | int | `6379` | Redis port |
+| redis.database | int | `0` | Redis database number |
+| redis.password | string | `""` | Redis password if the installation requires it |
+| redis.existingSecretName | string | `""` | Name of an existing Secret containing credentials for Redis, as an alternative to the password field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| redis.existingSecretKey | string | `"CONNECT_REDIS_PASSWORD"` | Key in the existing Secret containing the password for Redis |
+| redis.enableTls | bool | `false` | Enable TLS when connecting to Redis |
+| redis.prefix | string | `"connect:session"` | Key prefix to use when storing Studios sessions in Redis |
 
 ### Proxy: Image
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.image.registry | string | ``""`` | Proxy container image registry |
-| proxy.image.repository | string | ``"enterprise/studios/proxy"`` | Proxy container image repository |
-| proxy.image.tag | string | ``"{{ .chart.AppVersion }}"`` | Proxy container image tag |
-| proxy.image.digest | string | ``""`` | Proxy container image digest in the format `sha256:1234abcdef` |
-| proxy.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
-| proxy.image.pullSecrets | list | ``[]`` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
+| proxy.image.registry | string | `""` | Proxy container image registry |
+| proxy.image.repository | string | `"enterprise/studios/proxy"` | Proxy container image repository |
+| proxy.image.tag | string | `"{{ .chart.AppVersion }}"` | Proxy container image tag |
+| proxy.image.digest | string | `""` | Proxy container image digest in the format `sha256:1234abcdef` |
+| proxy.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Proxy container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
+| proxy.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 
 ### Proxy: OIDC
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.oidcClientRegistrationToken | string | ``""`` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
-| proxy.oidcClientRegistrationTokenSecretName | string | ``""`` | Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment |
-| proxy.oidcClientRegistrationTokenSecretKey | string | ``"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"`` | Key in the existing Secret containing the OIDC client registration token |
+| proxy.oidcClientRegistrationToken | string | `""` | Initial access token to share with Seqera Platform to restrict registration requests to only authorized OIDC clients. The token can be provided as a string of random chars or as an external k8s Secret: in the latter case, a key can also be provided. If neither a string nor a Secret is provided, the chart will generate a random token WARNING: Always explicitly set this value or use an existing secret when using Kustomize. Auto-generated random values are incompatible with Kustomize. When upgrading releases via Kustomize, Helm cannot query the cluster to check if a secret already exists, causing it to regenerate a new random value on each upgrade |
+| proxy.oidcClientRegistrationTokenSecretName | string | `""` | Name of an existing Secret containing the OIDC client registration token as an alternative to the oidcClientRegistrationToken field. Note: the Secret must already exist in the same namespace at the time of deployment |
+| proxy.oidcClientRegistrationTokenSecretKey | string | `"CONNECT_OIDC_CLIENT_REGISTRATION_TOKEN"` | Key in the existing Secret containing the OIDC client registration token |
 
 ### Proxy
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.localCacheTTL | string | ``"2m"`` | TTL for local cache of Redis keys used for resiliency against Redis failures |
+| proxy.localCacheTTL | string | `"2m"` | TTL for local cache of Redis keys used for resiliency against Redis failures |
 
 ### Proxy: Service
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.service.type | string | ``"ClusterIP"`` | Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort |
-| proxy.service.http.name | string | ``"http"`` | Service name to use |
-| proxy.service.http.port | int | ``80`` | Service port |
-| proxy.service.http.targetPort | int | ``8081`` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
-| proxy.service.http.nodePort | string | ``nil`` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
-| proxy.service.extraServices | list | ``[]`` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
-| proxy.service.extraOptions | object | ``{}`` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
-| proxy.serviceLabels | object | ``{}`` | Additional labels for the Service objects. Evaluated as a template |
-| proxy.serviceAnnotations | object | ``{}`` | Additional annotations for the Service objects. Evaluated as a template |
+| proxy.service.type | string | `"ClusterIP"` | Proxy Service type. Note: ingresses using AWS ALB require the service to be NodePort |
+| proxy.service.http.name | string | `"http"` | Service name to use |
+| proxy.service.http.port | int | `80` | Service port |
+| proxy.service.http.targetPort | int | `8081` | Port on the pod/container that the Service forwards traffic to (can be a number or named port, distinct from the Service's external port) |
+| proxy.service.http.nodePort | string | `nil` | Service node port, only used when service.type is Nodeport or LoadBalancer Choose port between 30000-32767, unless the cluster was configured differently than default |
+| proxy.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
+| proxy.service.extraOptions | object | `{}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
+| proxy.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
+| proxy.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 
 ### Proxy: Pod
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.initContainers | list | ``[]`` | Additional init containers for the proxy pod. Evaluated as a template |
-| proxy.command | list | ``[]`` | Override default container command (useful when using custom images) |
-| proxy.args | list | ``[]`` | Override default container args (useful when using custom images) |
-| proxy.podLabels | object | ``{}`` | Additional labels for the proxy pod. Evaluated as a template |
-| proxy.podAnnotations | object | ``{}`` | Additional annotations for the proxy pod. Evaluated as a template |
-| proxy.extraVolumes | list | ``[]`` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| proxy.extraVolumeMounts | list | ``[]`` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
-| proxy.extraOptionsSpec | object | ``{"replicas":2}`` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
-| proxy.extraOptionsTemplateSpec | object | ``{}`` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
+| proxy.initContainers | list | `[]` | Additional init containers for the proxy pod. Evaluated as a template |
+| proxy.command | list | `[]` | Override default container command (useful when using custom images) |
+| proxy.args | list | `[]` | Override default container args (useful when using custom images) |
+| proxy.podLabels | object | `{}` | Additional labels for the proxy pod. Evaluated as a template |
+| proxy.podAnnotations | object | `{}` | Additional annotations for the proxy pod. Evaluated as a template |
+| proxy.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| proxy.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| proxy.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| proxy.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 
 ### Proxy: Environment
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.extraEnvVars | list | ``[]`` | Extra environment variables to set on the proxy pod |
-| proxy.extraEnvVarsCMs | list | ``[]`` | List of ConfigMaps containing extra env vars |
-| proxy.extraEnvVarsSecrets | list | ``[]`` | List of Secrets containing extra env vars |
+| proxy.extraEnvVars | list | `[]` | Extra environment variables to set on the proxy pod |
+| proxy.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| proxy.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 
 ### Proxy: Security Context
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.podSecurityContext.enabled | bool | ``true`` | Enable pod Security Context |
-| proxy.podSecurityContext.fsGroup | int | ``65532`` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
-| proxy.containerSecurityContext.enabled | bool | ``true`` | Enable container Security Context |
-| proxy.containerSecurityContext.runAsUser | int | ``65532`` | UID the container processes run as (overrides container image default) |
-| proxy.containerSecurityContext.runAsGroup | int | ``65532`` | GID the container processes run as (overrides container image default) |
-| proxy.containerSecurityContext.runAsNonRoot | bool | ``true`` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
-| proxy.containerSecurityContext.readOnlyRootFilesystem | bool | ``false`` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
-| proxy.containerSecurityContext.capabilities | object | ``{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+| proxy.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
+| proxy.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| proxy.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
+| proxy.containerSecurityContext.runAsUser | int | `65532` | UID the container processes run as (overrides container image default) |
+| proxy.containerSecurityContext.runAsGroup | int | `65532` | GID the container processes run as (overrides container image default) |
+| proxy.containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| proxy.containerSecurityContext.readOnlyRootFilesystem | bool | `false` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| proxy.containerSecurityContext.capabilities | object | `{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 
 ### Proxy: Resources
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| proxy.resources | object | ``{}`` | Container requests and limits for different resources like CPU or memory |
+| proxy.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 
 ### Server: Image
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.image.registry | string | ``""`` | Server container image registry |
-| server.image.repository | string | ``"enterprise/studios/server"`` | Server container image repository |
-| server.image.tag | string | ``"{{ .chart.AppVersion }}"`` | Server container image tag |
-| server.image.digest | string | ``""`` | Server container image digest in the format `sha256:1234abcdef` |
-| server.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
-| server.image.pullSecrets | list | ``[]`` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
+| server.image.registry | string | `""` | Server container image registry |
+| server.image.repository | string | `"enterprise/studios/server"` | Server container image repository |
+| server.image.tag | string | `"{{ .chart.AppVersion }}"` | Server container image tag |
+| server.image.digest | string | `""` | Server container image digest in the format `sha256:1234abcdef` |
+| server.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Server container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
+| server.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
 
 ### Server
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.tunnelPort | int | ``7070`` | Port that proxy contacts the server at to create a new tunnel |
-| server.listenerPort | int | ``7777`` | Port where the server listens for connections from the Studios clients |
-| server.logLevel | string | ``"info"`` | Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal` |
+| server.tunnelPort | int | `7070` | Port that proxy contacts the server at to create a new tunnel |
+| server.listenerPort | int | `7777` | Port where the server listens for connections from the Studios clients |
+| server.logLevel | string | `"info"` | Server log level, one of: `trace`, `debug`, `info`, `warn`, `error`, `fatal` |
 
 ### Server: Service
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.service.type | string | ``"ClusterIP"`` | Server Service type. There should be no need to expose the Studios Server service outside of the cluster, since traffic goes through the proxy |
-| server.service.extraServices | list | ``[]`` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
-| server.service.extraOptions | object | ``{"clusterIP":"None"}`` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
-| server.serviceLabels | object | ``{}`` | Additional labels for the Service objects. Evaluated as a template |
-| server.serviceAnnotations | object | ``{}`` | Additional annotations for the Service objects. Evaluated as a template |
+| server.service.type | string | `"ClusterIP"` | Server Service type. There should be no need to expose the Studios Server service outside of the cluster, since traffic goes through the proxy |
+| server.service.extraServices | list | `[]` | Other services that should live in the Service object https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service |
+| server.service.extraOptions | object | `{"clusterIP":"None"}` | Extra Service options to place under .spec (for example, clusterIP, loadBalancerIP, externalTrafficPolicy, externalIPs). Evaluated as a template |
+| server.serviceLabels | object | `{}` | Additional labels for the Service objects. Evaluated as a template |
+| server.serviceAnnotations | object | `{}` | Additional annotations for the Service objects. Evaluated as a template |
 
 ### Server: Pod
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.initContainers | list | ``[]`` | Additional init containers for the server pod. Evaluated as a template |
-| server.command | list | ``[]`` | Override default container command (useful when using custom images) |
-| server.args | list | ``[]`` | Override default container args (useful when using custom images) |
-| server.podLabels | object | ``{}`` | Additional labels for the server pod. Evaluated as a template |
-| server.podAnnotations | object | ``{}`` | Additional annotations for the server pod. Evaluated as a template |
-| server.extraVolumes | list | ``[]`` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
-| server.extraVolumeMounts | list | ``[]`` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
-| server.extraOptionsSpec | object | ``{"replicas":2}`` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
-| server.extraOptionsTemplateSpec | object | ``{}`` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
+| server.initContainers | list | `[]` | Additional init containers for the server pod. Evaluated as a template |
+| server.command | list | `[]` | Override default container command (useful when using custom images) |
+| server.args | list | `[]` | Override default container args (useful when using custom images) |
+| server.podLabels | object | `{}` | Additional labels for the server pod. Evaluated as a template |
+| server.podAnnotations | object | `{}` | Additional annotations for the server pod. Evaluated as a template |
+| server.extraVolumes | list | `[]` | List of volumes to add to the deployment (evaluated as template). Requires setting `extraVolumeMounts` |
+| server.extraVolumeMounts | list | `[]` | List of volume mounts to add to the container (evaluated as template). Normally used with `extraVolumes` |
+| server.extraOptionsSpec | object | `{"replicas":2}` | Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc). Evaluated as a template |
+| server.extraOptionsTemplateSpec | object | `{}` | Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy, etc). Evaluated as a template |
 
 ### Server: Environment
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.extraEnvVars | list | ``[]`` | Extra environment variables to set on the server pod |
-| server.extraEnvVarsCMs | list | ``[]`` | List of ConfigMaps containing extra env vars |
-| server.extraEnvVarsSecrets | list | ``[]`` | List of Secrets containing extra env vars |
+| server.extraEnvVars | list | `[]` | Extra environment variables to set on the server pod |
+| server.extraEnvVarsCMs | list | `[]` | List of ConfigMaps containing extra env vars |
+| server.extraEnvVarsSecrets | list | `[]` | List of Secrets containing extra env vars |
 
 ### Server: Security Context
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.podSecurityContext.enabled | bool | ``true`` | Enable pod Security Context |
-| server.podSecurityContext.fsGroup | int | ``65532`` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
-| server.containerSecurityContext.enabled | bool | ``true`` | Enable container Security Context |
-| server.containerSecurityContext.runAsUser | int | ``65532`` | UID the container processes run as (overrides container image default) |
-| server.containerSecurityContext.runAsGroup | int | ``65532`` | GID the container processes run as (overrides container image default) |
-| server.containerSecurityContext.runAsNonRoot | bool | ``true`` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
-| server.containerSecurityContext.readOnlyRootFilesystem | bool | ``false`` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
-| server.containerSecurityContext.capabilities | object | ``{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
+| server.podSecurityContext.enabled | bool | `true` | Enable pod Security Context |
+| server.podSecurityContext.fsGroup | int | `65532` | Sets the GID that Kubernetes will apply to mounted volumes and created files so processes in the pod can share group-owned access |
+| server.containerSecurityContext.enabled | bool | `true` | Enable container Security Context |
+| server.containerSecurityContext.runAsUser | int | `65532` | UID the container processes run as (overrides container image default) |
+| server.containerSecurityContext.runAsGroup | int | `65532` | GID the container processes run as (overrides container image default) |
+| server.containerSecurityContext.runAsNonRoot | bool | `true` | Boolean that requires the container to run as a non-root UID (prevents starting if UID 0) |
+| server.containerSecurityContext.readOnlyRootFilesystem | bool | `false` | Mounts the container root filesystem read-only to prevent in-place writes or tampering |
+| server.containerSecurityContext.capabilities | object | `{"add":["NET_BIND_SERVICE"],"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
 
 ### Server: Resources
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| server.resources | object | ``{}`` | Container requests and limits for different resources like CPU or memory |
+| server.resources | object | `{}` | Container requests and limits for different resources like CPU or memory |
 
 ### Init Container Dependencies
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| initContainerDependencies.enabled | bool | ``true`` | Enable init containers that coordinate startup dependencies (for example, wait for Seqera Platform readiness before starting, etc) |
+| initContainerDependencies.enabled | bool | `true` | Enable init containers that coordinate startup dependencies (for example, wait for Seqera Platform readiness before starting, etc) |
 
 ### Init Container Dependencies: Wait for Platform
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| initContainerDependencies.waitForPlatform.enabled | bool | ``true`` | Enable wait for Seqera Platform init container before starting the proxy |
-| initContainerDependencies.waitForPlatform.image.registry | string | ``""`` | Wait for Platform init container image registry |
-| initContainerDependencies.waitForPlatform.image.repository | string | ``"curlimages/curl"`` | Wait for Platform init container image repository |
-| initContainerDependencies.waitForPlatform.image.tag | string | ``"latest"`` | Wait for Platform init container image tag |
-| initContainerDependencies.waitForPlatform.image.digest | string | ``""`` | Wait for Platform init container image digest in the format `sha256:1234abcdef` |
-| initContainerDependencies.waitForPlatform.image.pullPolicy | string | ``"IfNotPresent"`` | imagePullPolicy for the wait for Platform init container |
-| initContainerDependencies.waitForPlatform.securityContext.runAsUser | int | ``101`` | UID the container processes run as (overrides container image default) |
-| initContainerDependencies.waitForPlatform.securityContext.runAsNonRoot | bool | ``true`` | Require the container to run as a non-root UID (prevents starting if UID 0) |
-| initContainerDependencies.waitForPlatform.securityContext.readOnlyRootFilesystem | bool | ``true`` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
-| initContainerDependencies.waitForPlatform.securityContext.capabilities | object | ``{"drop":["ALL"]}`` | Fine-grained Linux kernel privileges to add or drop for the container |
-| initContainerDependencies.waitForPlatform.resources | object | ``{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.1","memory":"50Mi"}}`` | Container requests and limits for different resources like CPU or memory |
-| initContainerDependencies.waitForPlatform.extraEnvVars | list | ``[]`` | Additional environment variables for the init container |
-| initContainerDependencies.waitForPlatform.extraVolumeMounts | list | ``[]`` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
+| initContainerDependencies.waitForPlatform.enabled | bool | `true` | Enable wait for Seqera Platform init container before starting the proxy |
+| initContainerDependencies.waitForPlatform.image.registry | string | `""` | Wait for Platform init container image registry |
+| initContainerDependencies.waitForPlatform.image.repository | string | `"curlimages/curl"` | Wait for Platform init container image repository |
+| initContainerDependencies.waitForPlatform.image.tag | string | `"latest"` | Wait for Platform init container image tag |
+| initContainerDependencies.waitForPlatform.image.digest | string | `""` | Wait for Platform init container image digest in the format `sha256:1234abcdef` |
+| initContainerDependencies.waitForPlatform.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the wait for Platform init container |
+| initContainerDependencies.waitForPlatform.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| initContainerDependencies.waitForPlatform.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
+| initContainerDependencies.waitForPlatform.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| initContainerDependencies.waitForPlatform.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| initContainerDependencies.waitForPlatform.resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"0.1","memory":"50Mi"}}` | Container requests and limits for different resources like CPU or memory |
+| initContainerDependencies.waitForPlatform.extraEnvVars | list | `[]` | Additional environment variables for the init container |
+| initContainerDependencies.waitForPlatform.extraVolumeMounts | list | `[]` | Additional volume mounts for the init container (e.g. to mount a CA certificate) |
 
 ### Service Account
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| serviceAccount.name | string | ``""`` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
-| serviceAccount.annotations | object | ``{}`` | Additional annotations for the ServiceAccount to generate |
-| serviceAccount.imagePullSecretNames | list | ``[]`` | Names of Secrets containing credentials to pull images from registries |
-| serviceAccount.automountServiceAccountToken | bool | ``true`` | Automount service account token when the ServiceAccount is generated |
+| serviceAccount.name | string | `""` | Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on the release name |
+| serviceAccount.annotations | object | `{}` | Additional annotations for the ServiceAccount to generate |
+| serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
+| serviceAccount.automountServiceAccountToken | bool | `true` | Automount service account token when the ServiceAccount is generated |
 
 ### Ingress
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| ingress.enabled | bool | ``false`` | Enable ingress for Studios Proxy |
-| ingress.path | string | ``""`` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
-| ingress.defaultPathType | string | ``""`` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
-| ingress.defaultBackend | object | ``{}`` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
-| ingress.extraHosts | list | ``[]`` | Additional hosts you want to include. Evaluated as a template |
-| ingress.annotations | object | ``{}`` | Ingress annotations specific to your load balancer. Evaluated as a template |
-| ingress.extraLabels | object | ``{}`` | Additional labels for the ingress object. Evaluated as a template |
-| ingress.ingressClassName | string | ``""`` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
-| ingress.tls | list | ``[]`` | TLS configuration. Evaluated as a template |
+| ingress.enabled | bool | `false` | Enable ingress for Studios Proxy |
+| ingress.path | string | `""` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
+| ingress.defaultPathType | string | `""` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
+| ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
+| ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
+| ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
+| ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
+| ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
+| ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
 
 ### Common
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| extraDeploy | list | ``[]`` | Array of extra objects to deploy with the release |
-| commonAnnotations | object | ``{}`` | Annotations to add to all deployed objects |
-| commonLabels | object | ``{}`` | Labels to add to all deployed objects |
-| secretLabels | object | ``{}`` | Additional labels for the Secret objects. Evaluated as a template |
-| secretAnnotations | object | ``{}`` | Additional annotations for the Secret objects. Evaluated as a template |
-| configMapLabels | object | ``{}`` | Additional labels for the ConfigMap objects. Evaluated as a template |
-| configMapAnnotations | object | ``{}`` | Additional annotations for the ConfigMap objects. Evaluated as a template |
+| extraDeploy | list | `[]` | Array of extra objects to deploy with the release |
+| commonAnnotations | object | `{}` | Annotations to add to all deployed objects |
+| commonLabels | object | `{}` | Labels to add to all deployed objects |
+| secretLabels | object | `{}` | Additional labels for the Secret objects. Evaluated as a template |
+| secretAnnotations | object | `{}` | Additional annotations for the Secret objects. Evaluated as a template |
+| configMapLabels | object | `{}` | Additional labels for the ConfigMap objects. Evaluated as a template |
+| configMapAnnotations | object | `{}` | Additional annotations for the ConfigMap objects. Evaluated as a template |
 
 ## Licensing
 
