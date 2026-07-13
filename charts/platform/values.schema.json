@@ -3544,8 +3544,8 @@
           "type": "string"
         },
         "platformServiceAddress": {
-          "default": "{{ printf \"%s-backend\" (include \"common.names.fullname\" .) | lower }}",
-          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template. Routed through `common.names.fullname` so it stays aligned\nwith the backend Deployment/Secret naming and collapses correctly when the release name\nalready contains `platform` (e.g. `seqera-platform` → `seqera-platform-backend` rather than\n`seqera-platform-platform-backend`)",
+          "default": "{{ printf \"%s-backend\" (include \"common.names.dependency.fullname\" (dict \"chartName\" \"platform\" \"chartValues\" .Values \"context\" .)) | lower }}",
+          "description": "Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress\nhostname. Evaluated as a template. Routed through `common.names.dependency.fullname` (with an\nexplicit `chartName: platform`) so it stays aligned with the backend Deployment/Secret naming\nand collapses correctly when the release name already contains `platform` (e.g.\n`seqera-platform` → `seqera-platform-backend` rather than `seqera-platform-platform-backend`).\n`common.names.dependency.fullname` is used (rather than `common.names.fullname`) because this\nvalue is `tpl`-evaluated inside subchart contexts (e.g. mcp, studios) where `.Chart.Name` is\nthe subchart's name, not `platform`; passing `chartName: platform` explicitly reproduces the\nparent's fullname regardless of the rendering context",
           "title": "platformServiceAddress",
           "type": "string"
         },

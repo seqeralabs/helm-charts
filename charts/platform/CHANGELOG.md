@@ -5,6 +5,28 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.1] - 2026-07-13
+
+### Changed
+
+- Move `TOWER_SMTP_HOST`, `TOWER_SMTP_PORT` and `TOWER_SMTP_USER` from the
+  `<release>-platform-shared-backend-cron` ConfigMap into the `<release>-platform-cron` ConfigMap,
+  so SMTP configuration is only injected into the cron Deployment (which sends scheduled emails)
+  and no longer leaks into the backend Deployment's environment.
+
+### Fixed
+
+- Fix the default `global.platformServiceAddress` template so it resolves to the parent chart's
+  fullname when `tpl`-evaluated inside a subchart context. Previously it used
+  `common.names.fullname .`, which reads `.Chart.Name` from the current rendering context — when
+  the value was consumed from subchart templates (e.g. the MCP `wait-for-platform` init container
+  or the MCP ConfigMap's `TOWER_API_ENDPOINT`), it resolved to `<release>-<subchart>-backend`
+  (e.g. `enterprise-mcp-backend`) rather than the actual backend Service name
+  (`enterprise-platform-backend`), causing MCP pods to hang forever in init waiting on a host that
+  never exists. Switched to `common.names.dependency.fullname` with an explicit
+  `chartName: platform`, matching the pattern already used for
+  `mcp.oidcToken.existingSecretName` and `studios.proxy.oidcClientRegistrationTokenSecretName`.
+
 ## [0.35.0] - 2026-07-07
 
 ### Added
