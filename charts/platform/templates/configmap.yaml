@@ -56,6 +56,11 @@ metadata:
 data:
   MICRONAUT_ENVIRONMENTS: {{ include "platform.cron.micronautEnvs" . }}
   TOWER_CRON_SERVER_PORT: {{ .Values.cron.service.http.targetPort | int | quote }}
+{{- if .Values.platform.smtp.host }}
+  TOWER_SMTP_HOST: {{ .Values.platform.smtp.host | quote }}
+  TOWER_SMTP_PORT: {{ .Values.platform.smtp.port | quote }}
+  TOWER_SMTP_USER: {{ .Values.platform.smtp.user | quote }}
+{{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -84,12 +89,6 @@ data:
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.platformDatabase.minPoolSize | toString | quote }}
 
   TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
-
-{{- if .Values.platform.smtp.host }}
-  TOWER_SMTP_HOST: {{ .Values.platform.smtp.host | quote }}
-  TOWER_SMTP_PORT: {{ .Values.platform.smtp.port | quote }}
-  TOWER_SMTP_USER: {{ .Values.platform.smtp.user | quote }}
-{{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
