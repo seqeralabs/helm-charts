@@ -708,6 +708,84 @@ entries:
   platform:
   - annotations:
       artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Move `TOWER_SMTP_HOST`, `TOWER_SMTP_PORT` and `TOWER_SMTP_USER` from the `<release>-platform-shared-backend-cron` ConfigMap into the `<release>-platform-cron` ConfigMap, so SMTP configuration is only injected into the cron Deployment (which sends scheduled emails) and no longer leaks into the backend Deployment''s environment.'
+        - kind: fixed
+          description: 'Fix the default `global.platformServiceAddress` template so it resolves to the parent chart''s fullname when `tpl`-evaluated inside a subchart context. Previously it used `common.names.fullname .`, which reads `.Chart.Name` from the current rendering context — when the value was consumed from subchart templates (e.g. the MCP `wait-for-platform` init container or the MCP ConfigMap''s `TOWER_API_ENDPOINT`), it resolved to `<release>-<subchart>-backend` (e.g. `enterprise-mcp-backend`) rather than the actual backend Service name (`enterprise-platform-backend`), causing MCP pods to hang forever in init waiting on a host that never exists. Switched to `common.names.dependency.fullname` with an explicit `chartName: platform`, matching the pattern already used for `mcp.oidcToken.existingSecretName` and `studios.proxy.oidcClientRegistrationTokenSecretName`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v26.1.3
+    created: "2026-07-13T09:32:44.52485637Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.3.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.5.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.4.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 08c9d75e5eecbc756f634a333ba85b342e49dab4fa2ecf55217e3402cb8ecb9b
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.35.1/platform-0.35.1.tgz
+    version: 0.35.1
+  - annotations:
+      artifacthub.io/changes: |-
         - kind: added
           description: 'Added `examples/standalone.yaml` to each subchart with minimal values for deploying it independently of the parent `platform` chart.'
         - kind: added
@@ -2593,4 +2671,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-10T15:30:55.387108721Z"
+generated: "2026-07-13T09:32:44.525082082Z"
