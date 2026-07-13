@@ -329,7 +329,7 @@ platform:
     host: ""
     # -- SMTP server port
     # @section -- Platform: SMTP
-    port: ""
+    port: 587
     # -- SMTP server username
     # @section -- Platform: SMTP
     user: ""

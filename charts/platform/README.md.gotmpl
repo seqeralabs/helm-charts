@@ -95,7 +95,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 {{- range .SectionItems }}
-| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
 {{- end }}
 {{- end }}
 
@@ -106,7 +106,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 {{- range . }}
-| {{ .Key }} | {{ .Type }} | {{ if .Default }}`{{ .Default }}`{{ else }}`{{ .AutoDefault }}`{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
+| {{ .Key }} | {{ .Type }} | {{ if .Default }}{{ .Default }}{{ else }}{{ .AutoDefault }}{{ end }} | {{ if .Description }}{{ .Description }}{{ else }}{{ .AutoDescription }}{{ end }} |
 {{- end }}
 {{- end }}
 
