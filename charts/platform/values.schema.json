@@ -1372,6 +1372,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -1382,7 +1388,7 @@
             },
             "name": {
               "default": "",
-              "description": "Service account name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }
@@ -5122,6 +5128,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -5132,7 +5144,7 @@
             },
             "name": {
               "default": "",
-              "description": "Service account name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }
@@ -6123,6 +6135,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -6133,7 +6151,7 @@
             },
             "name": {
               "default": "",
-              "description": "Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on\nthe release name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }
@@ -7469,6 +7487,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -7479,7 +7503,7 @@
             },
             "name": {
               "default": "",
-              "description": "Service account name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }
@@ -7631,6 +7655,12 @@
             "string"
           ]
         },
+        "create": {
+          "default": true,
+          "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+          "title": "create",
+          "type": "boolean"
+        },
         "imagePullSecretNames": {
           "description": "Names of Secrets containing credentials to pull images from registries",
           "items": {
@@ -7641,12 +7671,13 @@
         },
         "name": {
           "default": "",
-          "description": "Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on\nthe release name",
+          "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
           "title": "name",
           "type": "string"
         }
       },
       "required": [
+        "create",
         "name",
         "annotations",
         "imagePullSecretNames"
@@ -8786,6 +8817,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -8796,7 +8833,7 @@
             },
             "name": {
               "default": "",
-              "description": "Name of an existing ServiceAccount. If not set, a new ServiceAccount is generated based on\nthe release name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }
@@ -9875,6 +9912,12 @@
                 "string"
               ]
             },
+            "create": {
+              "default": true,
+              "description": "Whether to create a ServiceAccount. When `true`, the ServiceAccount named by\n`serviceAccount.name` is created (a `\u003crelease\u003e-\u003cchart\u003e-sa` name is generated when it is unset).\nSet to `false` to use an existing, externally-managed ServiceAccount referenced by\n`serviceAccount.name`.",
+              "title": "create",
+              "type": "boolean"
+            },
             "imagePullSecretNames": {
               "description": "Names of Secrets containing credentials to pull images from registries",
               "items": {
@@ -9885,7 +9928,7 @@
             },
             "name": {
               "default": "",
-              "description": "Service account name",
+              "description": "Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated\nfrom the release name. Applies whether the ServiceAccount is created by this chart\n(`create: true`) or managed externally (`create: false`).",
               "title": "name",
               "type": "string"
             }

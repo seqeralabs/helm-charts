@@ -5,6 +5,23 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added `serviceAccount.create` (default `true`) to control whether the chart creates its
+  ServiceAccount. When `true`, the ServiceAccount named by `serviceAccount.name` is created (or a
+  generated `<release>-<chart>-sa` name when unset), so a custom ServiceAccount name can now be
+  created rather than only referenced.
+
+### Changed
+
+- **BREAKING**: `serviceAccount.name` no longer suppresses ServiceAccount creation. Previously,
+  setting `serviceAccount.name` caused the chart to skip creating a ServiceAccount and reference an
+  existing one instead. Creation is now gated solely on `serviceAccount.create` (default `true`).
+  Migration: if you set `serviceAccount.name` to reference an externally-managed ServiceAccount,
+  also set `serviceAccount.create: false` to preserve the previous behaviour.
+
 ## [1.1.0] - 2026-07-07
 
 ### Changed

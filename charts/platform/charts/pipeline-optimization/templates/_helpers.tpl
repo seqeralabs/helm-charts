@@ -71,5 +71,9 @@ Return the name of the secret containing the Platform database password.
 Custom service account name.
 */}}
 {{- define "pipeline-optimization.serviceAccountName" -}}
+  {{- if .Values.serviceAccount.create -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
+  {{- else -}}
+{{- default "default" .Values.serviceAccount.name -}}
+  {{- end -}}
 {{- end -}}

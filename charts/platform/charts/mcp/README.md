@@ -279,8 +279,9 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":true,"imagePullSecretNames":[],"name":""}` | Service account configuration |
-| serviceAccount.name | string | `""` | Service account name |
+| serviceAccount | object | `{"annotations":{},"automountServiceAccountToken":true,"create":true,"imagePullSecretNames":[],"name":""}` | Service account configuration |
+| serviceAccount.create | bool | `true` | Whether to create a ServiceAccount. When `true`, the ServiceAccount named by `serviceAccount.name` is created (a `<release>-<chart>-sa` name is generated when it is unset). Set to `false` to use an existing, externally-managed ServiceAccount referenced by `serviceAccount.name`. |
+| serviceAccount.name | string | `""` | Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated from the release name. Applies whether the ServiceAccount is created by this chart (`create: true`) or managed externally (`create: false`). |
 | serviceAccount.annotations | object | `{}` | Service account annotations |
 | serviceAccount.imagePullSecretNames | list | `[]` | Names of Secrets containing credentials to pull images from registries |
 | serviceAccount.automountServiceAccountToken | bool | `true` | Automatically mount service account token |

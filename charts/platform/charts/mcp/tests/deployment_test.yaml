@@ -484,3 +484,26 @@ tests:
           content:
             name: PLATFORM_PORT
             value: "8080"
+
+  - it: should use the default ServiceAccount when serviceAccount.create is false and no name is set
+    template: deployment.yaml
+    set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
+      serviceAccount.create: false
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: default
+
+  - it: should use the provided ServiceAccount name when serviceAccount.create is false
+    template: deployment.yaml
+    set:
+      global.platformServiceAddress: '{{ printf "%s-platform-backend" .Release.Name | lower }}'
+      global.platformServicePort: 8080
+      serviceAccount.create: false
+      serviceAccount.name: my-custom-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: my-custom-sa
