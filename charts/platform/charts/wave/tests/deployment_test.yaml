@@ -930,3 +930,32 @@ tests:
             - name: ca-certs
               mountPath: /certs
               readOnly: true
+
+  - it: should use the default ServiceAccount when serviceAccount.create is false and no name is set
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      serviceAccount.create: false
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: default
+
+  - it: should use the provided ServiceAccount name when serviceAccount.create is false
+    template: deployment.yaml
+    set:
+      database.host: db.example.com
+      database.name: wavedb
+      database.username: wave
+      database.password: test-db-password
+      redis.host: redis.example.com
+      serviceAccount.create: false
+      serviceAccount.name: my-custom-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: my-custom-sa

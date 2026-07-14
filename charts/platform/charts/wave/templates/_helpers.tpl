@@ -21,7 +21,11 @@
 Create the name of the service account to use
 */}}
 {{- define "wave.serviceAccountName" -}}
+  {{- if .Values.serviceAccount.create -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
+  {{- else -}}
+{{- default "default" .Values.serviceAccount.name -}}
+  {{- end -}}
 {{- end }}
 
 {{/*

@@ -21,7 +21,11 @@
 by the Seqera Platform Terraform module.
 */}}
 {{- define "studios.serviceAccountName" -}}
+  {{- if .Values.serviceAccount.create -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
+  {{- else -}}
+{{- default "default" .Values.serviceAccount.name -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* Return the hostname of the redis server.

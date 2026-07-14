@@ -665,3 +665,22 @@ tests:
       - equal:
           path: spec.template.metadata.labels.another-label
           value: another-value
+
+  - it: should use the default ServiceAccount when serviceAccount.create is false and no name is set
+    template: deployment.yaml
+    set:
+      serviceAccount.create: false
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: default
+
+  - it: should use the provided ServiceAccount name when serviceAccount.create is false
+    template: deployment.yaml
+    set:
+      serviceAccount.create: false
+      serviceAccount.name: my-custom-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: my-custom-sa

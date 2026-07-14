@@ -5,6 +5,27 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added `serviceAccount.create` (default `true`) to the `platform` chart and every subchart
+  (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave) to control whether each
+  chart creates its ServiceAccount. When `true`, the ServiceAccount named by `serviceAccount.name`
+  is created (or a generated `<release>-<chart>-sa` name when unset), so a custom ServiceAccount
+  name can now be created rather than only referenced.
+- Added `docs/service-accounts.md` documenting every ServiceAccount created by the chart, how the
+  names are generated per release, and the `serviceAccount.create` / `serviceAccount.name` controls.
+
+### Changed
+
+- **BREAKING**: `serviceAccount.name` no longer suppresses ServiceAccount creation in the `platform`
+  chart or any subchart. Previously, setting `serviceAccount.name` caused the chart to skip creating
+  a ServiceAccount and reference an existing one instead. Creation is now gated solely on
+  `serviceAccount.create` (default `true`). Migration: if you set `serviceAccount.name` to reference
+  an externally-managed ServiceAccount, also set `serviceAccount.create: false` to preserve the
+  previous behaviour.
+
 ## [0.35.1] - 2026-07-13
 
 ### Changed

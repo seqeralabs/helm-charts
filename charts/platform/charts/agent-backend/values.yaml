@@ -682,7 +682,15 @@ livenessProbe:
 # -- Service account configuration
 # @section -- Service Account
 serviceAccount:
-  # -- Service account name
+  # -- Whether to create a ServiceAccount. When `true`, the ServiceAccount named by
+  # `serviceAccount.name` is created (a `<release>-<chart>-sa` name is generated when it is unset).
+  # Set to `false` to use an existing, externally-managed ServiceAccount referenced by
+  # `serviceAccount.name`.
+  # @section -- Service Account
+  create: true
+  # -- Name of the ServiceAccount used by this chart's workloads. When empty, a name is generated
+  # from the release name. Applies whether the ServiceAccount is created by this chart
+  # (`create: true`) or managed externally (`create: false`).
   # @section -- Service Account
   name: ""
   # -- Service account annotations

@@ -22,7 +22,11 @@ Let the user specify a ServiceAccount name, or default to the same Service Accou
 by the Platform Terraform provider.
 */}}
 {{- define "platform.serviceAccountName" -}}
+  {{- if .Values.serviceAccount.create -}}
 {{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
+  {{- else -}}
+{{- default "default" .Values.serviceAccount.name -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*

@@ -1106,3 +1106,24 @@ tests:
       content:
         name: REDISCLI_TLS
         value: "1"
+
+- it: should use the default ServiceAccount when serviceAccount.create is false and no name is set
+  template: deployment-backend.yaml
+  set:
+    serviceAccount:
+      create: false
+  asserts:
+  - equal:
+      path: spec.template.spec.serviceAccountName
+      value: default
+
+- it: should use the provided ServiceAccount name when serviceAccount.create is false
+  template: deployment-backend.yaml
+  set:
+    serviceAccount:
+      create: false
+      name: my-custom-sa
+  asserts:
+  - equal:
+      path: spec.template.spec.serviceAccountName
+      value: my-custom-sa
