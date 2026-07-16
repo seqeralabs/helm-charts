@@ -25,6 +25,7 @@ The required values to set in order to have a working installation are:
   * Image pull secrets defined in the specific `.image` section will be added to the global ones, they won't replace them.
 - The Pipeline Optimization service database connection details under the `.database` section.
 - The database connection details for the Platform MySQL database under the `.platformDatabase` section.
+- Define appropriate resources for each component, look for `resources` sections in the `values.yaml` file, sane defaults are recommended in a comment; more details [here](https://github.com/seqeralabs/helm-charts/blob/master/charts/platform/docs/resources.md).
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 

@@ -28,6 +28,7 @@ The required values to set in order to have a working installation are:
   * Multiple credentials can be specified to cover different registries or repositories within the same registry, e.g. you can set credentials for `cr.seqera.io/enterprise` (where Platform images are located) and `cr.seqera.io/ai` (where Seqera AI products are located).
   * Additional pull secrets can be defined in each `.image` section to extend the global credentials, if that image is located in a different registry.
   * Image pull secrets defined in the specific `.image` section will be added to the global ones, they won't replace them.
+- Define appropriate resources for each component, look for `resources` sections in the `values.yaml` file, sane defaults are recommended in a comment; more details [here](https://github.com/seqeralabs/helm-charts/blob/master/charts/platform/docs/resources.md).
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 

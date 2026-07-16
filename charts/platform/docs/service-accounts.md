@@ -30,46 +30,17 @@ subchart is enabled (via its `*.enabled` condition in the parent `Chart.yaml`).
 
 ¹ Default name when `serviceAccount.name` is unset. See [How names are generated](#how-names-are-generated).
 
-For a release named `tower` with every subchart enabled, the full set of created ServiceAccounts is:
+For a release named `platform` with every subchart enabled, the full set of created ServiceAccounts is:
 
 ```
-tower-platform-sa
-tower-studios-sa
-tower-wave-sa
-tower-mcp-sa
-tower-agent-backend-sa
-tower-portal-web-sa
-tower-pipeline-optimization-sa
+platform-platform-sa
+platform-studios-sa
+platform-wave-sa
+platform-mcp-sa
+platform-agent-backend-sa
+platform-portal-web-sa
+platform-pipeline-optimization-sa
 ```
-
-## How names are generated
-
-Every chart uses the same helper (`<chart>.serviceAccountName`):
-
-```gotemplate
-{{- define "platform.serviceAccountName" -}}
-{{- default (printf "%s-sa" (include "common.names.fullname" .)) .Values.serviceAccount.name -}}
-{{- end -}}
-```
-
-The precedence is:
-
-1. **`serviceAccount.name`** — if set, it is used verbatim as the ServiceAccount name.
-2. Otherwise **`<common.names.fullname>-sa`**.
-
-`common.names.fullname` (from the Bitnami common library) resolves to:
-
-- `fullnameOverride` if set, else
-- `<Release.Name>-<nameOverride | Chart.Name>`, collapsing to just `<Release.Name>` when the
-  release name already contains the chart name.
-
-Because the default incorporates `Release.Name`, **the generated names differ per release**, so
-multiple releases can coexist in the same namespace without colliding. In a subchart, `Chart.Name`
-is the subchart's own name (e.g. `studios`) while `Release.Name` is the shared parent release, which
-is why each subchart gets its own distinct `<release>-<subchart>-sa`.
-
-The same helper is used both to name the created ServiceAccount **and** to set `serviceAccountName`
-on the chart's workloads, so the two always stay in sync.
 
 ## Controlling creation and naming
 
