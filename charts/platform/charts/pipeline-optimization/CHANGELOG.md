@@ -5,7 +5,7 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.2.0] - 2026-07-16
 
 ### Added
 
@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   created rather than only referenced.
 
 ### Changed
+
+- Downgrade the default `waitForMySQL` init container image tag from `9` to `8.4` to match the
+  MySQL version used elsewhere in the chart.
 
 - **BREAKING**: `serviceAccount.name` no longer suppresses ServiceAccount creation. Previously,
   setting `serviceAccount.name` caused the chart to skip creating a ServiceAccount and reference an

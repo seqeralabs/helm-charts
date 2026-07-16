@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.15](https://img.shields.io/badge/AppVersion-0.4.15-informational?style=flat-square)
+![Version: 2.2.0](https://img.shields.io/badge/Version-2.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.15](https://img.shields.io/badge/AppVersion-0.4.15-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -40,13 +40,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/pipeline-optimization --version 2.1.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/pipeline-optimization --version 2.2.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-     --version 2.1.0 \
+     --version 2.2.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -62,7 +62,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/pipeline-optimization \
-  --version 2.1.0 \
+  --version 2.2.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -279,7 +279,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | initContainerDependencies.waitForMySQL.enabled | bool | `true` | Enable wait for MySQL init container before starting pipeline optimization and cron |
 | initContainerDependencies.waitForMySQL.image.registry | string | `""` | Override default wait for MySQL init container image |
 | initContainerDependencies.waitForMySQL.image.repository | string | `"mysql"` | Init container image repository |
-| initContainerDependencies.waitForMySQL.image.tag | string | `"9"` | Init container image tag |
+| initContainerDependencies.waitForMySQL.image.tag | string | `"8.4"` | Init container image tag |
 | initContainerDependencies.waitForMySQL.image.digest | string | `""` | Init container image digest in the format `sha256:1234abcdef` |
 | initContainerDependencies.waitForMySQL.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the init container |
 | initContainerDependencies.waitForMySQL.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |

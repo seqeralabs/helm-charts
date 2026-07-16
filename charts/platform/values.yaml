@@ -1386,7 +1386,7 @@ initContainerDependencies:
       repository: mysql
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait For MySQL
-      tag: "9"
+      tag: "8.4"
       # -- Init container image digest in the format `sha256:1234abcdef`
       # @section -- Init Container Dependencies: Wait For MySQL
       digest: ""

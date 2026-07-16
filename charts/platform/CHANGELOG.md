@@ -5,7 +5,7 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.36.0] - 2026-07-16
 
 ### Added
 
@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `serviceAccount.create` (default `true`). Migration: if you set `serviceAccount.name` to reference
   an externally-managed ServiceAccount, also set `serviceAccount.create: false` to preserve the
   previous behaviour.
+- Downgrade the default `waitForMySQL` init container image tag from `9` to `8.4` in the `platform`
+  chart and the `agent-backend` and `pipeline-optimization` subcharts, so all `waitForMySQL` init
+  containers default to MySQL `8.4`.
 
 ## [0.35.1] - 2026-07-13
 

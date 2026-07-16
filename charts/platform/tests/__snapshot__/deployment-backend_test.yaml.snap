@@ -103,7 +103,7 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: TOWER_DB_PASSWORD
                 name: release-name-platform-backend
-        image: mysql:9
+        image: mysql:8.4
         imagePullPolicy: IfNotPresent
         name: wait-for-platform-db
         resources:
@@ -344,7 +344,7 @@ should render the backend deployment with the correct checksums, labels and anno
                     secretKeyRef:
                       key: db-password-key
                       name: unittest
-              image: mysql:9
+              image: mysql:8.4
               imagePullPolicy: IfNotPresent
               name: wait-for-platform-db
               resources:

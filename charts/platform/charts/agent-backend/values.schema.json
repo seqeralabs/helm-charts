@@ -875,7 +875,7 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "9",
+                  "default": "8.4",
                   "description": "Init container image tag",
                   "title": "tag",
                   "type": "string"
