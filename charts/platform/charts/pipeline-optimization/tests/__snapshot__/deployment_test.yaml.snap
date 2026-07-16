@@ -75,7 +75,7 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: SWELL_DB_PASSWORD
                 name: release-name-pipeline-optimization
-        image: mysql:9
+        image: mysql:8.4
         imagePullPolicy: IfNotPresent
         name: wait-for-pipeline-optimization-db
         resources:
@@ -117,7 +117,7 @@ should produce a Deployment resource with minimal values:
               secretKeyRef:
                 key: TOWER_DB_PASSWORD
                 name: release-name-pipeline-optimization
-        image: mysql:9
+        image: mysql:8.4
         imagePullPolicy: IfNotPresent
         name: wait-for-platform-db
         resources:
@@ -279,7 +279,7 @@ should render the deployment with the correct checksums, labels and annotations:
                     secretKeyRef:
                       key: SWELL_DB_PASSWORD
                       name: release-name-pipeline-optimization
-              image: mysql:9
+              image: mysql:8.4
               imagePullPolicy: IfNotPresent
               name: wait-for-pipeline-optimization-db
               resources:
@@ -321,7 +321,7 @@ should render the deployment with the correct checksums, labels and annotations:
                     secretKeyRef:
                       key: TOWER_DB_PASSWORD
                       name: release-name-pipeline-optimization
-              image: mysql:9
+              image: mysql:8.4
               imagePullPolicy: IfNotPresent
               name: wait-for-platform-db
               resources:
