@@ -535,7 +535,9 @@ ingress:
   #     port:
   #       number: '{{ .Values.frontend.service.http.port }}'
 
-  # -- Additional hosts you want to include. Evaluated as a template
+  # -- Additional hosts you want to include. Evaluated as a template.
+  # Each path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`
+  # to reference an ALB action defined via `ingress.annotations`).
   # @section -- Ingress
   extraHosts: []
   # extraHosts:
@@ -551,6 +553,15 @@ ingress:
   #         pathType: Prefix  # Optional, defaults to defaultPathType
   #         serviceName: '{{ printf "%s-frontend" (include "common.names.fullname" .) }}'
   #         portNumber: '{{ .Values.frontend.service.http.port }}'
+  #   # Redirect an alternate host to the canonical domain via an ALB redirect action.
+  #   # Requires a matching action under ingress.annotations, for example:
+  #   #   alb.ingress.kubernetes.io/actions.redirect-to-service: >
+  #   #     {"Type":"redirect","RedirectConfig":{"Protocol":"HTTPS","Host":"{{ tpl .Values.global.mcpDomain . }}","Port":"443","Path":"/#{path}","Query":"#{query}","StatusCode":"HTTP_301"}}
+  #   - host: alternatedomain.example.com
+  #     paths:
+  #       - path: /*
+  #         serviceName: redirect-to-service   # must match the actions.<name> annotation
+  #         portName: use-annotation
 
   # -- Ingress annotations specific to your load balancer. Evaluated as a template
   # @section -- Ingress

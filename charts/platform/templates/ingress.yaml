@@ -87,7 +87,11 @@ spec:
               service:
                 name: {{ tpl .serviceName $ | quote }}
                 port:
+      {{- if .portName }}
+                  name: {{ tpl .portName $ | quote }}
+      {{- else }}
                   number: {{ tpl (toString .portNumber) $ | int }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{- end }}
