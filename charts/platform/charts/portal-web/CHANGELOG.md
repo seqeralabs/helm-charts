@@ -4,7 +4,7 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [0.5.0] - 2026-07-17
 
 ### Added
 
@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Allow image `tag` fields to be specified as either a string or a number in `values.schema.json`,
+  so an unquoted numeric tag (for example `tag: 8.4`) no longer fails schema validation.
 - **BREAKING**: `serviceAccount.name` no longer suppresses ServiceAccount creation. Previously,
   setting `serviceAccount.name` caused the chart to skip creating a ServiceAccount and reference an
   existing one instead. Creation is now gated solely on `serviceAccount.create` (default `true`).

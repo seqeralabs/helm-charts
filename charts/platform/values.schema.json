@@ -637,9 +637,13 @@
             },
             "tag": {
               "default": "",
-              "description": "Container image tag",
+              "description": "Container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [],
@@ -784,10 +788,14 @@
                       "type": "string"
                     },
                     "tag": {
-                      "default": "8.4",
+                      "default": 8.4,
                       "description": "Init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -934,8 +942,12 @@
                     "tag": {
                       "default": "7-alpine",
                       "description": "Init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -1659,15 +1671,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Backend container image tag",
+              "description": "Backend container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy",
             "pullSecrets"
@@ -2321,15 +2336,18 @@
                 },
                 "tag": {
                   "default": "",
-                  "description": "Specify a tag to override the version defined in .Chart.appVersion",
+                  "description": "Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion`\nfield in Chart.yaml)",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy",
                 "pullSecrets"
@@ -2447,15 +2465,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Cron container image tag",
+              "description": "Cron container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy",
             "pullSecrets"
@@ -3050,15 +3071,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Specify a tag to override the version defined in .Chart.appVersion",
+              "description": "Frontend container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml) with a `-unprivileged` suffix",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy",
             "pullSecrets"
@@ -3751,14 +3775,17 @@
                 "tag": {
                   "default": "latest",
                   "description": "Init container image tag",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy"
               ],
@@ -3925,16 +3952,19 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "8.4",
+                  "default": 8.4,
                   "description": "Init container image tag",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy"
               ],
@@ -4103,14 +4133,17 @@
                 "tag": {
                   "default": "7-alpine",
                   "description": "Init container image tag",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy"
               ],
@@ -4554,9 +4587,13 @@
             },
             "tag": {
               "default": "",
-              "description": "Container image tag",
+              "description": "Container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [],
@@ -4689,8 +4726,12 @@
                     "tag": {
                       "default": "latest",
                       "description": "Wait for Platform init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -5468,9 +5509,13 @@
                 },
                 "tag": {
                   "default": "",
-                  "description": "Migrate DB init container image tag",
+                  "description": "Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion`\nfield in Chart.yaml)",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [],
@@ -5613,9 +5658,13 @@
             },
             "tag": {
               "default": "",
-              "description": "Pipeline Optimization container image tag",
+              "description": "Pipeline Optimization container image tag. Defaults to the chart's appVersion (the\n`appVersion` field in Chart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [],
@@ -5681,10 +5730,14 @@
                       "type": "string"
                     },
                     "tag": {
-                      "default": "8.4",
+                      "default": 8.4,
                       "description": "Init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -7107,9 +7160,13 @@
             },
             "tag": {
               "default": "",
-              "description": "Container image tag",
+              "description": "Container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [],
@@ -7973,8 +8030,12 @@
                     "tag": {
                       "default": "latest",
                       "description": "Wait for Platform init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -8257,9 +8318,13 @@
                 },
                 "tag": {
                   "default": "",
-                  "description": "Proxy container image tag",
+                  "description": "Proxy container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [],
@@ -8674,9 +8739,13 @@
                 },
                 "tag": {
                   "default": "",
-                  "description": "Server container image tag",
+                  "description": "Server container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [],
@@ -9197,9 +9266,13 @@
             },
             "tag": {
               "default": "",
-              "description": "Container image tag",
+              "description": "Container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [],
@@ -9332,8 +9405,12 @@
                     "tag": {
                       "default": "16-alpine",
                       "description": "Init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],
@@ -9480,8 +9557,12 @@
                     "tag": {
                       "default": "7-alpine",
                       "description": "Init container image tag",
+                      "required": [],
                       "title": "tag",
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "number"
+                      ]
                     }
                   },
                   "required": [],

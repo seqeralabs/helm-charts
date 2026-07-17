@@ -340,15 +340,18 @@
         },
         "tag": {
           "default": "",
-          "description": "Container image tag",
+          "description": "Container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+          "required": [],
           "title": "tag",
-          "type": "string"
+          "type": [
+            "string",
+            "number"
+          ]
         }
       },
       "required": [
         "registry",
         "repository",
-        "tag",
         "digest",
         "pullPolicy",
         "pullSecrets"

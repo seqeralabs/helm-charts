@@ -153,7 +153,11 @@ image:
   # -- Pipeline Optimization container image repository
   # @section -- Image
   repository: enterprise/platform/pipeline-optimization
-  # -- Pipeline Optimization container image tag
+  # @schema
+  # type: [string, number]
+  # @schema
+  # -- Pipeline Optimization container image tag. Defaults to the chart's appVersion (the
+  # `appVersion` field in Chart.yaml)
   # @default -- `"{{ .chart.AppVersion }}"`
   # @section -- Image
   tag: ""
@@ -182,7 +186,11 @@ dbMigrationInitContainer:
     # -- Migrate DB init container image repository
     # @section -- DB Migration Init Container
     repository: enterprise/platform/pipeline-optimization
-    # -- Migrate DB init container image tag
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion`
+    # field in Chart.yaml)
     # @default -- `"{{ .chart.AppVersion }}"`
     # @section -- DB Migration Init Container
     tag: ""
@@ -481,6 +489,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait For MySQL
       tag: "8.4"

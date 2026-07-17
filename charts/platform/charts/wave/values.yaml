@@ -146,7 +146,11 @@ image:
   # -- Container image repository
   # @section -- Image
   repository: enterprise/wave/server
-  # -- Container image tag
+  # @schema
+  # type: [string, number]
+  # @schema
+  # -- Container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+  # Chart.yaml)
   # @default -- `"{{ .chart.AppVersion }}"`
   # @section -- Image
   tag: ""
@@ -339,6 +343,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait for Redis
       repository: redis
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait for Redis
       tag: 7-alpine
@@ -392,6 +399,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait for PostgreSQL
       repository: postgres
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait for PostgreSQL
       tag: "16-alpine"

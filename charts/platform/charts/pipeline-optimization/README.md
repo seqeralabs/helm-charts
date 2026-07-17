@@ -2,7 +2,7 @@
 
 A Helm chart to deploy the Seqera Pipeline Optimization service (referred to as Groundswell in Platform configuration files).
 
-![Version: 2.2.0](https://img.shields.io/badge/Version-2.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.15](https://img.shields.io/badge/AppVersion-0.4.15-informational?style=flat-square)
+![Version: 2.2.1](https://img.shields.io/badge/Version-2.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.4.15](https://img.shields.io/badge/AppVersion-0.4.15-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -41,13 +41,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/pipeline-optimization --version 2.2.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/pipeline-optimization --version 2.2.1 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/pipeline-optimization \
-     --version 2.2.0 \
+     --version 2.2.1 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -63,7 +63,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/pipeline-optimization \
-  --version 2.2.0 \
+  --version 2.2.1 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -140,7 +140,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | image.registry | string | `""` | Pipeline Optimization container image registry |
 | image.repository | string | `"enterprise/platform/pipeline-optimization"` | Pipeline Optimization container image repository |
-| image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag |
+| image.tag | string | `"{{ .chart.AppVersion }}"` | Pipeline Optimization container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | image.digest | string | `""` | Pipeline Optimization container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Pipeline Optimization container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
@@ -151,7 +151,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | dbMigrationInitContainer.image.registry | string | `""` | Migrate DB init container image registry |
 | dbMigrationInitContainer.image.repository | string | `"enterprise/platform/pipeline-optimization"` | Migrate DB init container image repository |
-| dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Migrate DB init container image tag |
+| dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | dbMigrationInitContainer.image.digest | string | `""` | Migrate DB init container image digest in the format `sha256:1234abcdef` |
 | dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the Migrate DB init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | dbMigrationInitContainer.command | list | `["/opt/groundswell/bin/migrate-db.sh"]` | Command to run to migrate the database schema |
