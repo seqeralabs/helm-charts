@@ -5,5 +5,17 @@
   ],
   "ignorePaths": [
     "charts/platform/examples/kustomize/kustomization.yaml"
+  ],
+  "packageRules": [
+    {
+      "description": "Do not bump the MySQL wait-for init container image. Platform requires MySQL 8.4 (see PR #188); newer major versions are unsupported.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "mysql"
+      ],
+      "enabled": false
+    }
   ]
 }
