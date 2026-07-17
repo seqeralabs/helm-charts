@@ -260,15 +260,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Migrate DB init container image tag",
+              "description": "Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion`\nfield in Chart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy"
           ],
@@ -418,15 +421,18 @@
         },
         "tag": {
           "default": "",
-          "description": "Pipeline Optimization container image tag",
+          "description": "Pipeline Optimization container image tag. Defaults to the chart's appVersion (the\n`appVersion` field in Chart.yaml)",
+          "required": [],
           "title": "tag",
-          "type": "string"
+          "type": [
+            "string",
+            "number"
+          ]
         }
       },
       "required": [
         "registry",
         "repository",
-        "tag",
         "digest",
         "pullPolicy",
         "pullSecrets"
@@ -493,16 +499,19 @@
                   "type": "string"
                 },
                 "tag": {
-                  "default": "8.4",
+                  "default": 8.4,
                   "description": "Init container image tag",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy"
               ],

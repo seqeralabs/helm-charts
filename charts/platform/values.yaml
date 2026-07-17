@@ -447,7 +447,11 @@ backend:
     # -- Backend container image repository
     # @section -- Backend: Image
     repository: enterprise/platform/backend
-    # -- Backend container image tag
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Backend container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+    # Chart.yaml)
     # @default -- `"{{ .chart.AppVersion }}"`
     # @section -- Backend: Image
     tag: ""
@@ -729,7 +733,11 @@ frontend:
     # -- Frontend container image repository
     # @section -- Frontend: Image
     repository: enterprise/platform/frontend
-    # -- Specify a tag to override the version defined in .Chart.appVersion
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Frontend container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+    # Chart.yaml) with a `-unprivileged` suffix
     # @default -- `"{{ .chart.AppVersion }}-unprivileged"`
     # @section -- Frontend: Image
     tag: ""
@@ -1005,7 +1013,11 @@ cron:
     # -- Cron container image repository
     # @section -- Cron: Image
     repository: enterprise/platform/backend
-    # -- Cron container image tag
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Cron container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+    # Chart.yaml)
     # @default -- `"{{ .chart.AppVersion }}"`
     # @section -- Cron: Image
     tag: ""
@@ -1278,7 +1290,11 @@ cron:
       # -- Database migration container image repository
       # @section -- Cron: DB Migration Init Container
       repository: enterprise/platform/migrate-db
-      # -- Specify a tag to override the version defined in .Chart.appVersion
+      # @schema
+      # type: [string, number]
+      # @schema
+      # -- Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion`
+      # field in Chart.yaml)
       # @default -- `"{{ .chart.AppVersion }}"`
       # @section -- Cron: DB Migration Init Container
       tag: ""
@@ -1384,6 +1400,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait For MySQL
       repository: mysql
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait For MySQL
       tag: "8.4"
@@ -1448,6 +1467,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait For Redis
       repository: redis
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait For Redis
       tag: 7-alpine
@@ -1502,6 +1524,9 @@ initContainerDependencies:
       # -- Init container image repository
       # @section -- Init Container Dependencies: Wait For Cron
       repository: curlimages/curl
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait For Cron
       tag: latest

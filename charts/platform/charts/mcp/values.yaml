@@ -158,7 +158,11 @@ image:
   # -- Container image repository
   # @section -- Image
   repository: ai/mcp/server
-  # -- Container image tag
+  # @schema
+  # type: [string, number]
+  # @schema
+  # -- Container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+  # Chart.yaml)
   # @default -- `"{{ .chart.AppVersion }}"`
   # @section -- Image
   tag: ""
@@ -238,6 +242,9 @@ initContainerDependencies:
       # -- Wait for Platform init container image repository
       # @section -- Init containers: Wait for Platform
       repository: curlimages/curl
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Wait for Platform init container image tag
       # @section -- Init containers: Wait for Platform
       tag: latest

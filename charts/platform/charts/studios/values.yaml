@@ -138,7 +138,11 @@ proxy:
     # -- Proxy container image repository
     # @section -- Proxy: Image
     repository: enterprise/studios/proxy
-    # -- Proxy container image tag
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Proxy container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+    # Chart.yaml)
     # @default -- `"{{ .chart.AppVersion }}"`
     # @section -- Proxy: Image
     tag: ""
@@ -358,7 +362,11 @@ server:
     # -- Server container image repository
     # @section -- Server: Image
     repository: enterprise/studios/server
-    # -- Server container image tag
+    # @schema
+    # type: [string, number]
+    # @schema
+    # -- Server container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+    # Chart.yaml)
     # @default -- `"{{ .chart.AppVersion }}"`
     # @section -- Server: Image
     tag: ""
@@ -551,6 +559,9 @@ initContainerDependencies:
       # -- Wait for Platform init container image repository
       # @section -- Init Container Dependencies: Wait for Platform
       repository: curlimages/curl
+      # @schema
+      # type: [string, number]
+      # @schema
       # -- Wait for Platform init container image tag
       # @section -- Init Container Dependencies: Wait for Platform
       tag: latest

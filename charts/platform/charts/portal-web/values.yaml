@@ -104,7 +104,11 @@ image:
   # -- Container image repository
   # @section -- Image
   repository: ai/portal/web
-  # -- Container image tag
+  # @schema
+  # type: [string, number]
+  # @schema
+  # -- Container image tag. Defaults to the chart's appVersion (the `appVersion` field in
+  # Chart.yaml)
   # @default -- `"{{ .chart.AppVersion }}"`
   # @section -- Image
   tag: ""

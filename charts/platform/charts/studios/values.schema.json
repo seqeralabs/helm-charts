@@ -312,14 +312,17 @@
                 "tag": {
                   "default": "latest",
                   "description": "Wait for Platform init container image tag",
+                  "required": [],
                   "title": "tag",
-                  "type": "string"
+                  "type": [
+                    "string",
+                    "number"
+                  ]
                 }
               },
               "required": [
                 "registry",
                 "repository",
-                "tag",
                 "digest",
                 "pullPolicy"
               ],
@@ -639,15 +642,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Proxy container image tag",
+              "description": "Proxy container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy",
             "pullSecrets"
@@ -1118,15 +1124,18 @@
             },
             "tag": {
               "default": "",
-              "description": "Server container image tag",
+              "description": "Server container image tag. Defaults to the chart's appVersion (the `appVersion` field in\nChart.yaml)",
+              "required": [],
               "title": "tag",
-              "type": "string"
+              "type": [
+                "string",
+                "number"
+              ]
             }
           },
           "required": [
             "registry",
             "repository",
-            "tag",
             "digest",
             "pullPolicy",
             "pullSecrets"

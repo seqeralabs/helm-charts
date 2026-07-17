@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.36.0](https://img.shields.io/badge/Version-0.36.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.3](https://img.shields.io/badge/AppVersion-v26.1.3-informational?style=flat-square)
+![Version: 0.36.1](https://img.shields.io/badge/Version-0.36.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.3](https://img.shields.io/badge/AppVersion-v26.1.3-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -48,13 +48,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/platform --version 0.36.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/platform --version 0.36.1 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/platform \
-     --version 0.36.0 \
+     --version 0.36.1 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -70,7 +70,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/platform \
-  --version 0.36.0 \
+  --version 0.36.1 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -92,11 +92,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 3.x.x |
 | file://charts/agent-backend | agent-backend | 1.x.x |
-| file://charts/mcp | mcp | 0.5.x |
+| file://charts/mcp | mcp | 0.6.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
-| file://charts/portal-web | portal-web | 0.4.x |
+| file://charts/portal-web | portal-web | 0.5.x |
 | file://charts/studios | studios | 1.x.x |
-| file://charts/wave | wave | 0.3.x |
+| file://charts/wave | wave | 0.4.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
@@ -256,7 +256,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | backend.image.registry | string | `""` | Backend container image registry |
 | backend.image.repository | string | `"enterprise/platform/backend"` | Backend container image repository |
-| backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag |
+| backend.image.tag | string | `"{{ .chart.AppVersion }}"` | Backend container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | backend.image.digest | string | `""` | Backend container image digest in the format `sha256:1234abcdef` |
 | backend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the backend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | backend.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
@@ -353,7 +353,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | frontend.image.registry | string | `""` | Frontend container image registry |
 | frontend.image.repository | string | `"enterprise/platform/frontend"` | Frontend container image repository |
-| frontend.image.tag | string | `"{{ .chart.AppVersion }}-unprivileged"` | Specify a tag to override the version defined in .Chart.appVersion |
+| frontend.image.tag | string | `"{{ .chart.AppVersion }}-unprivileged"` | Frontend container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) with a `-unprivileged` suffix |
 | frontend.image.digest | string | `""` | Frontend container image digest in the format `sha256:1234abcdef` |
 | frontend.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the frontend container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | frontend.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
@@ -450,7 +450,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | cron.image.registry | string | `""` | Cron container image registry |
 | cron.image.repository | string | `"enterprise/platform/backend"` | Cron container image repository |
-| cron.image.tag | string | `"{{ .chart.AppVersion }}"` | Cron container image tag |
+| cron.image.tag | string | `"{{ .chart.AppVersion }}"` | Cron container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | cron.image.digest | string | `""` | Cron container image digest in the format `sha256:1234abcdef` |
 | cron.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the cron container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | cron.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
@@ -548,7 +548,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |-----|------|---------|-------------|
 | cron.dbMigrationInitContainer.image.registry | string | `""` | Database migration container image registry |
 | cron.dbMigrationInitContainer.image.repository | string | `"enterprise/platform/migrate-db"` | Database migration container image repository |
-| cron.dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Specify a tag to override the version defined in .Chart.appVersion |
+| cron.dbMigrationInitContainer.image.tag | string | `"{{ .chart.AppVersion }}"` | Migrate DB init container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | cron.dbMigrationInitContainer.image.digest | string | `""` | Database migration container image digest in the format `sha256:1234abcdef` |
 | cron.dbMigrationInitContainer.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the database migration init container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
 | cron.dbMigrationInitContainer.image.pullSecrets | list | `[]` | List of imagePullSecrets Secrets must be created in the same namespace, for example using the .extraDeploy array Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/ |
