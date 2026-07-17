@@ -31,6 +31,10 @@ should produce a Deployment resource with minimal values:
             value: /var/cache/tower/
           - name: NXF_PLUGINS_DIR
             value: /var/cache/tower/plugins/
+          - name: TOWER_AI_BASE_URL
+            value: https://ai.example.com
+          - name: TOWER_AGENT_BACKEND_URL
+            value: https://ai-api.example.com
         envFrom:
           - configMapRef:
               name: release-name-platform-backend
@@ -272,6 +276,10 @@ should render the backend deployment with the correct checksums, labels and anno
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR
                   value: /var/cache/tower/plugins/
+                - name: TOWER_AI_BASE_URL
+                  value: https://ai.example.com
+                - name: TOWER_AGENT_BACKEND_URL
+                  value: https://ai-api.example.com
               envFrom:
                 - configMapRef:
                     name: release-name-platform-backend
