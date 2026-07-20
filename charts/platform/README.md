@@ -96,7 +96,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
 | file://charts/portal-web | portal-web | 0.6.x |
 | file://charts/studios | studios | 1.x.x |
-| file://charts/wave | wave | 0.5.x |
+| file://charts/wave | wave | 0.6.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
