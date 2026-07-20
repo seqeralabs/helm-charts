@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Gateway API support via a new `httpRoute.*` (and `global.httpRoute.*`) values block on the
+  `platform` chart and every subchart (agent-backend, mcp, portal-web, studios, wave). When
+  `httpRoute.enabled` is `true`, each chart renders `HTTPRoute` objects
+  (`gateway.networking.k8s.io/v1`) that attach to an existing Gateway via `httpRoute.parentRefs`.
+  Ingress and HTTPRoute are independent toggles, so either or both may be enabled. TLS is terminated
+  on the Gateway listener, and the chart does not create the Gateway or GatewayClass.
+- Added `examples/gateway-configurations/` showing how to route Platform through the Gateway API.
 - Added `serviceAccount.create` (default `true`) to the `platform` chart and every subchart
   (agent-backend, mcp, pipeline-optimization, portal-web, studios, wave) to control whether each
   chart creates its ServiceAccount. When `true`, the ServiceAccount named by `serviceAccount.name`

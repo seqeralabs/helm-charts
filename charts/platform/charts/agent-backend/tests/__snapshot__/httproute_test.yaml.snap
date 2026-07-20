@@ -1,0 +1,61 @@
+should render complete httproute with all options:
+  1: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: ai.example.com
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: agent-backend-1.2.3
+      name: release-name-agent-backend
+      namespace: NAMESPACE
+    spec:
+      hostnames:
+        - ai.example.com
+      parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      rules:
+        - backendRefs:
+            - name: release-name-agent-backend
+              port: 80
+          matches:
+            - path:
+                type: PathPrefix
+                value: /
+  2: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: ai.example.com
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: agent-backend
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: agent-backend-1.2.3
+      name: release-name-agent-backend-extra-0
+      namespace: NAMESPACE
+    spec:
+      hostnames:
+        - api.example.com
+      parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      rules:
+        - backendRefs:
+            - name: api-service
+              port: 8080
+          matches:
+            - path:
+                type: PathPrefix
+                value: /

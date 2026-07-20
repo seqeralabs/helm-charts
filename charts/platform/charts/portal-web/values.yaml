@@ -75,6 +75,37 @@ global:
     # @section -- Global: Ingress defaults
     tls: []
 
+  # Gateway API (HTTPRoute) defaults shared across the parent chart and all subcharts. Each
+  # subchart's local `httpRoute.*` value takes precedence when set; otherwise the global is used.
+  # HTTPRoutes attach to a Gateway you already manage (via `parentRefs`); this chart does not
+  # create the Gateway or GatewayClass. TLS is configured on the Gateway listener, not here.
+  httpRoute:
+    # -- Enable HTTPRoute for this chart. OR'd with the chart's local `httpRoute.enabled` so
+    # setting this once at the parent enables all subchart HTTPRoutes. Independent from
+    # `ingress.enabled`
+    # @section -- Global: Gateway API
+    enabled: false
+    # -- Parent Gateway(s) this chart's HTTPRoute attaches to. Applied when the local
+    # `httpRoute.parentRefs` is not set. Each entry accepts `name` (required), `namespace`,
+    # `sectionName`, `port`, `kind`, and `group`. Evaluated as a template
+    # @section -- Global: Gateway API
+    parentRefs: []
+    # -- Default path applied to HTTPRoute rules when `httpRoute.path` is not set
+    # @section -- Global: Gateway API
+    path: "/"
+    # -- Default path match type applied when `httpRoute.matchType` is not set. One of
+    # `PathPrefix`, `Exact`, or `RegularExpression`
+    # @section -- Global: Gateway API
+    matchType: "PathPrefix"
+    # -- Annotations merged into the HTTPRoute. Local `httpRoute.annotations` wins on key
+    # collision. Evaluated as a template
+    # @section -- Global: Gateway API
+    annotations: {}
+    # -- Extra labels merged into the HTTPRoute. Local `httpRoute.extraLabels` wins on key
+    # collision. Evaluated as a template
+    # @section -- Global: Gateway API
+    extraLabels: {}
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   # @section -- Global: Image credentials
@@ -437,6 +468,45 @@ ingress:
   #   - hosts:
   #       - '{{ tpl .Values.global.portalWebDomain . }}'
   #     secretName: my-tls
+
+# Gateway API routing. Renders HTTPRoute objects that attach to an existing Gateway (managed
+# outside this chart) via `parentRefs`. Independent from `ingress` — you may enable either.
+# TLS is terminated on the Gateway listener, so there is no TLS block here.
+httpRoute:
+  # -- Enable HTTPRoute for Portal Web
+  # @section -- Gateway API
+  enabled: false
+
+  # -- Gateway(s) this HTTPRoute attaches to. When empty, falls back to
+  # `global.httpRoute.parentRefs`. Each entry accepts `name` (required), `namespace`,
+  # `sectionName`, `port`, `kind`, and `group`. Evaluated as a template
+  # @section -- Gateway API
+  parentRefs: []
+  # parentRefs:
+  #   - name: seqera-gateway
+  #     namespace: gateway-system
+  #     sectionName: https
+
+  # -- Path for the main HTTPRoute rule. When empty, falls back to `global.httpRoute.path`
+  # @section -- Gateway API
+  path: ""
+
+  # -- Path match type for the HTTPRoute. One of `PathPrefix`, `Exact`, or `RegularExpression`.
+  # When empty, falls back to `global.httpRoute.matchType`
+  # @section -- Gateway API
+  matchType: ""
+
+  # -- Additional hosts you want to route. Each host becomes its own HTTPRoute. Evaluated as a
+  # template
+  # @section -- Gateway API
+  extraHosts: []
+
+  # -- HTTPRoute annotations. Evaluated as a template
+  # @section -- Gateway API
+  annotations: {}
+  # -- Additional labels for the HTTPRoute object. Evaluated as a template
+  # @section -- Gateway API
+  extraLabels: {}
 
 # -- Array of extra objects to deploy with the release
 # @section -- Extra Deploy

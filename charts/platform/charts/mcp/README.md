@@ -106,6 +106,17 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.ingress.extraLabels | object | `{}` | Extra labels merged into the Ingress. Local `ingress.extraLabels` wins on key collision. Evaluated as a template |
 | global.ingress.tls | list | `[]` | TLS entries concatenated with the local `ingress.tls`. Evaluated as a template |
 
+### Global: Gateway API
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.httpRoute.enabled | bool | `false` | Enable HTTPRoute for this chart. OR'd with the chart's local `httpRoute.enabled` so setting this once at the parent enables all subchart HTTPRoutes. Independent from `ingress.enabled` |
+| global.httpRoute.parentRefs | list | `[]` | Parent Gateway(s) this chart's HTTPRoute attaches to. Applied when the local `httpRoute.parentRefs` is not set. Each entry accepts `name` (required), `namespace`, `sectionName`, `port`, `kind`, and `group`. Evaluated as a template |
+| global.httpRoute.path | string | `"/"` | Default path applied to HTTPRoute rules when `httpRoute.path` is not set |
+| global.httpRoute.matchType | string | `"PathPrefix"` | Default path match type applied when `httpRoute.matchType` is not set. One of `PathPrefix`, `Exact`, or `RegularExpression` |
+| global.httpRoute.annotations | object | `{}` | Annotations merged into the HTTPRoute. Local `httpRoute.annotations` wins on key collision. Evaluated as a template |
+| global.httpRoute.extraLabels | object | `{}` | Extra labels merged into the HTTPRoute. Local `httpRoute.extraLabels` wins on key collision. Evaluated as a template |
+
 ### Global: Image credentials
 
 | Key | Type | Default | Description |
@@ -299,6 +310,18 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |
 | ingress.tls | list | `[]` | TLS configuration. Evaluated as a template |
+
+### Gateway API
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| httpRoute.enabled | bool | `false` | Enable HTTPRoute for MCP |
+| httpRoute.parentRefs | list | `[]` | Gateway(s) this HTTPRoute attaches to. When empty, falls back to `global.httpRoute.parentRefs`. Each entry accepts `name` (required), `namespace`, `sectionName`, `port`, `kind`, and `group`. Evaluated as a template |
+| httpRoute.path | string | `""` | Path for the main HTTPRoute rule. When empty, falls back to `global.httpRoute.path` |
+| httpRoute.matchType | string | `""` | Path match type for the HTTPRoute. One of `PathPrefix`, `Exact`, or `RegularExpression`. When empty, falls back to `global.httpRoute.matchType` |
+| httpRoute.extraHosts | list | `[]` | Additional hosts you want to route. Each host becomes its own HTTPRoute. Evaluated as a template |
+| httpRoute.annotations | object | `{}` | HTTPRoute annotations. Evaluated as a template |
+| httpRoute.extraLabels | object | `{}` | Additional labels for the HTTPRoute object. Evaluated as a template |
 
 ### Extra deployment
 
