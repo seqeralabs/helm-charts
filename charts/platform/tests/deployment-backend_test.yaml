@@ -301,6 +301,10 @@ tests:
         value: /var/cache/tower/
       - name: NXF_PLUGINS_DIR
         value: /var/cache/tower/plugins/
+      - name: TOWER_AI_BASE_URL
+        value: https://ai.example.com
+      - name: TOWER_AGENT_BACKEND_URL
+        value: https://ai-api.example.com
       - name: CUSTOM_ENV_VAR
         value: "custom-value"
       - name: STRING_VAR
@@ -331,6 +335,89 @@ tests:
           name: extra-env-vars-secret1
       - secretRef:
           name: extra-env-vars-secret2
+
+- it: should set AI/agent-backend URLs from domains when subcharts are enabled
+  template: deployment-backend.yaml
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    portal-web:
+      enabled: true
+    agent-backend:
+      enabled: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AI_BASE_URL
+        value: https://ai.platform.example.com
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AGENT_BACKEND_URL
+        value: https://ai-api.platform.example.com
+
+- it: should honour custom agentBackendDomain and portalWebDomain
+  template: deployment-backend.yaml
+  set:
+    global:
+      portalWebDomain: portal.example.com
+      agentBackendDomain: agent.example.com
+    portal-web:
+      enabled: true
+    agent-backend:
+      enabled: true
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AI_BASE_URL
+        value: https://portal.example.com
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AGENT_BACKEND_URL
+        value: https://agent.example.com
+
+- it: should not set AI/agent-backend URLs when subcharts are disabled
+  template: deployment-backend.yaml
+  set:
+    portal-web:
+      enabled: false
+    agent-backend:
+      enabled: false
+  asserts:
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AI_BASE_URL
+        value: https://ai.example.com
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AGENT_BACKEND_URL
+        value: https://ai-api.example.com
+
+- it: should set only TOWER_AI_BASE_URL when only portal-web is enabled
+  template: deployment-backend.yaml
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    portal-web:
+      enabled: true
+    agent-backend:
+      enabled: false
+  asserts:
+  - contains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AI_BASE_URL
+        value: https://ai.platform.example.com
+  - notContains:
+      path: spec.template.spec.containers[0].env
+      content:
+        name: TOWER_AGENT_BACKEND_URL
+        value: https://ai-api.platform.example.com
 
 - it: should render initContainers that wait for required services to be ready
   template: deployment-backend.yaml
