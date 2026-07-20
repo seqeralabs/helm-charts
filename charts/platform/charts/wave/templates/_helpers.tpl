@@ -91,9 +91,9 @@ Build the Wave micronaut envs list: always ensure required environments are pres
 
 {{- define "wave.redis.existingSecret.secretKey" -}}
   {{- if (include "wave.redis.existingSecret" .) -}}
-    {{- printf "%s" (tpl .Values.redis.existingSecretKey .) | default "WAVE_REDIS_PASSWORD" -}}
+    {{- printf "%s" (tpl .Values.redis.existingSecretKey .) | default "REDIS_PASSWORD" -}}
   {{- else -}}
-    {{- printf "WAVE_REDIS_PASSWORD" -}}
+    {{- printf "REDIS_PASSWORD" -}}
   {{- end -}}
 {{- end -}}
 

@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `WAVE_SERVER_URL` in the ConfigMap is now derived from `global.waveDomain` instead of
   `global.platformExternalDomain`, so it points at the Wave subdomain (for example
   `https://wave.<platformExternalDomain>`) used for container pulls.
+- The Redis password Secret key now defaults to `REDIS_PASSWORD` (matching the key the chart's
+  Secret writes and the documented default for `redis.existingSecretKey`) instead of
+  `WAVE_REDIS_PASSWORD`. Previously the deployment's `secretKeyRef` pointed at `WAVE_REDIS_PASSWORD`
+  while the chart-managed Secret stored the value under `REDIS_PASSWORD`, so setting
+  `redis.password` inline caused the pod to fail to start with `CreateContainerConfigError`.
 
 ## [0.5.0] - 2026-07-17
 
