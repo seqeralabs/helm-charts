@@ -691,7 +691,7 @@
               "type": "boolean"
             },
             "extraHosts": {
-              "description": "Additional hosts you want to include. Evaluated as a template",
+              "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
               "items": {
                 "required": []
               },
@@ -3665,7 +3665,7 @@
           "type": "boolean"
         },
         "extraHosts": {
-          "description": "Additional hosts you want to include. Evaluated as a template",
+          "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
           "items": {
             "required": []
           },
@@ -4627,7 +4627,7 @@
               "type": "boolean"
             },
             "extraHosts": {
-              "description": "Additional hosts you want to include. Evaluated as a template",
+              "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
               "items": {
                 "required": []
               },
@@ -7200,7 +7200,7 @@
               "type": "boolean"
             },
             "extraHosts": {
-              "description": "Additional hosts you want to include. Evaluated as a template",
+              "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
               "items": {
                 "required": []
               },
@@ -7931,7 +7931,7 @@
               "type": "boolean"
             },
             "extraHosts": {
-              "description": "Additional hosts you want to include. Evaluated as a template",
+              "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
               "items": {
                 "required": []
               },
@@ -8917,7 +8917,7 @@
       "type": "object"
     },
     "wave": {
-      "description": "Wave",
+      "description": "On-demand containers provisioning service",
       "properties": {
         "_empty": {
           "default": "value",
@@ -9306,7 +9306,7 @@
               "type": "boolean"
             },
             "extraHosts": {
-              "description": "Additional hosts you want to include. Evaluated as a template",
+              "description": "Additional hosts you want to include. Evaluated as a template.\nEach path's backend takes either `portNumber` or `portName` (e.g. `use-annotation`\nto reference an ALB action defined via `ingress.annotations`).",
               "items": {
                 "required": []
               },

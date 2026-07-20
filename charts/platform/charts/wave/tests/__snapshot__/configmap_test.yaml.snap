@@ -8,7 +8,7 @@ should render a ConfigMap with default values:
       TOWER_ENDPOINT_URL: '"https://example.com/api"'
       WAVE_DB_URI: jdbc:postgresql://db.example.com:5432/wavedb
       WAVE_DB_USER: waveuser
-      WAVE_SERVER_URL: https://example.com
+      WAVE_SERVER_URL: https://wave.example.com
     kind: ConfigMap
     metadata:
       annotations: {}

@@ -5,6 +5,33 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.37.0] - 2026-07-20
+
+### Added
+
+- `ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB
+  annotation-based actions (for example `portName: use-annotation`). Takes precedence over
+  `portNumber` when both are set.
+- Backend deployment now sets `TOWER_AI_BASE_URL` (to `https://<global.portalWebDomain>`) when the
+  `portal-web` subchart is enabled, and `TOWER_AGENT_BACKEND_URL` (to
+  `https://<global.agentBackendDomain>`) when the `agent-backend` subchart is enabled.
+
+### Fixed
+
+- Bumped the `wave` subchart dependency to `0.6.x`, which fixes `WAVE_SERVER_URL` to be derived from
+  `global.waveDomain` instead of `global.platformExternalDomain`, so it points at the Wave subdomain
+  used for container pulls.
+- Picked up the `wave` subchart fix for the Redis password Secret key, which now defaults to
+  `REDIS_PASSWORD` (matching the chart-managed Secret) instead of `WAVE_REDIS_PASSWORD`; previously
+  setting `redis.password` inline caused the Wave pod to fail to start with
+  `CreateContainerConfigError`.
+
+### Changed
+
+- Bumped subchart dependency versions to pick up the same `ingress.extraHosts` `portName` support:
+  `agent-backend` to `1.3.x`, `mcp` to `0.7.x`, `portal-web` to `0.6.x`, `studios` to `1.7.x`, and
+  `wave` to `0.5.x`.
+
 ## [0.36.1] - 2026-07-17
 
 ### Changed

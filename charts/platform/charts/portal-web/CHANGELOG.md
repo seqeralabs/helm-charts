@@ -4,6 +4,14 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.6.0] - 2026-07-17
+
+### Added
+
+- `ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB
+  annotation-based actions (for example `portName: use-annotation`). Takes precedence over
+  `portNumber` when both are set.
+
 ## [0.5.0] - 2026-07-17
 
 ### Added

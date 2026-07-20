@@ -2,7 +2,7 @@
 
 Studios is a unified platform for interactive analysis
 
-![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
+![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![AppVersion: 0.11.1](https://img.shields.io/badge/AppVersion-0.11.1-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -44,13 +44,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/studios --version 1.6.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/studios --version 1.7.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/studios \
-     --version 1.6.0 \
+     --version 1.7.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -66,7 +66,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/studios \
-  --version 1.6.0 \
+  --version 1.7.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -324,7 +324,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | ingress.path | string | `""` | Path for the main ingress rule. When empty, falls back to `global.ingress.path` |
 | ingress.defaultPathType | string | `""` | Default path type for the Ingress. When empty, falls back to `global.ingress.defaultPathType` |
 | ingress.defaultBackend | object | `{}` | Configure the default service for the ingress (evaluated as template) Important: make sure only one defaultBackend is defined across the k8s cluster: if the ingress doesn't reconcile successfully, 'describe ingress <name>' will report problems |
-| ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template |
+| ingress.extraHosts | list | `[]` | Additional hosts you want to include. Evaluated as a template. Each path's backend takes either `portNumber` or `portName` (e.g. `use-annotation` to reference an ALB action defined via `ingress.annotations`). |
 | ingress.annotations | object | `{}` | Ingress annotations specific to your load balancer. Evaluated as a template |
 | ingress.extraLabels | object | `{}` | Additional labels for the ingress object. Evaluated as a template |
 | ingress.ingressClassName | string | `""` | Name of the ingress class (replaces the deprecated annotation `kubernetes.io/ingress.class`). When empty, falls back to `global.ingress.ingressClassName` |

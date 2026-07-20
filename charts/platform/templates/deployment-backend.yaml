@@ -143,6 +143,14 @@ spec:
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
+{{- if (index .Values "portal-web" "enabled") }}
+            - name: TOWER_AI_BASE_URL
+              value: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
+{{- end }}
+{{- if (index .Values "agent-backend" "enabled") }}
+            - name: TOWER_AGENT_BACKEND_URL
+              value: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
+{{- end }}
 {{- with .Values.backend.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}

@@ -152,3 +152,34 @@ tests:
       - equal:
           path: spec.rules[1].http.paths[0].backend.service.port.number
           value: 7777
+
+  - it: should use portName instead of portNumber when provided in extraHosts
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: ai.old.example.com
+          paths:
+            - path: /*
+              serviceName: redirect-to-service
+              portName: use-annotation
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service
+          value:
+            name: redirect-to-service
+            port:
+              name: use-annotation
+
+  - it: should template portName in extraHosts
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: ai.old.example.com
+          paths:
+            - path: /*
+              serviceName: redirect-to-service
+              portName: "{{ .Release.Name }}-port"
+    asserts:
+      - equal:
+          path: spec.rules[1].http.paths[0].backend.service.port.name
+          value: RELEASE-NAME-port
