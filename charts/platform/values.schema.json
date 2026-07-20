@@ -8917,7 +8917,7 @@
       "type": "object"
     },
     "wave": {
-      "description": "Wave",
+      "description": "On-demand containers provisioning service",
       "properties": {
         "_empty": {
           "default": "value",

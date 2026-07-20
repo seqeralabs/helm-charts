@@ -5,10 +5,13 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.38.0] - 2026-07-17
+## [0.37.0] - 2026-07-20
 
 ### Added
 
+- `ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB
+  annotation-based actions (for example `portName: use-annotation`). Takes precedence over
+  `portNumber` when both are set.
 - Backend deployment now sets `TOWER_AI_BASE_URL` (to `https://<global.portalWebDomain>`) when the
   `portal-web` subchart is enabled, and `TOWER_AGENT_BACKEND_URL` (to
   `https://<global.agentBackendDomain>`) when the `agent-backend` subchart is enabled.
@@ -22,14 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `REDIS_PASSWORD` (matching the chart-managed Secret) instead of `WAVE_REDIS_PASSWORD`; previously
   setting `redis.password` inline caused the Wave pod to fail to start with
   `CreateContainerConfigError`.
-
-## [0.37.0] - 2026-07-17
-
-### Added
-
-- `ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB
-  annotation-based actions (for example `portName: use-annotation`). Takes precedence over
-  `portNumber` when both are set.
 
 ### Changed
 

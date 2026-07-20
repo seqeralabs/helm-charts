@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.38.0](https://img.shields.io/badge/Version-0.38.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.3](https://img.shields.io/badge/AppVersion-v26.1.3-informational?style=flat-square)
+![Version: 0.37.0](https://img.shields.io/badge/Version-0.37.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.3](https://img.shields.io/badge/AppVersion-v26.1.3-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -48,13 +48,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/platform --version 0.38.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/platform --version 0.37.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/platform \
-     --version 0.38.0 \
+     --version 0.37.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -70,7 +70,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/platform \
-  --version 0.38.0 \
+  --version 0.37.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -96,7 +96,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
 | file://charts/portal-web | portal-web | 0.6.x |
 | file://charts/studios | studios | 1.x.x |
-| file://charts/wave | wave | 0.6.x |
+| file://charts/wave | wave | 0.5.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
