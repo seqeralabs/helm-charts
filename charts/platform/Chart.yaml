@@ -81,7 +81,7 @@ dependencies:
       - studios
     condition: studios.enabled
   - name: wave
-    version: "0.5.x"
+    version: "0.6.x"
     repository: "file://charts/wave"
     tags:
       - wave

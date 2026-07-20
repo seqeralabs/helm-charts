@@ -69,16 +69,16 @@ tests:
           path: data['TOWER_ENDPOINT_URL']
           value: '"https://prod.example.com/api"'
 
-  - it: should contain Wave server URL
+  - it: should contain Wave server URL derived from global.waveDomain
     set:
-      global.platformExternalDomain: prod.example.com
+      global.waveDomain: wave.prod.example.com
       database.host: db.example.com
       database.name: wavedb
       database.username: waveuser
     asserts:
       - equal:
           path: data.WAVE_SERVER_URL
-          value: "https://prod.example.com"
+          value: "https://wave.prod.example.com"
 
   - it: should contain Redis URI with default values
     set:

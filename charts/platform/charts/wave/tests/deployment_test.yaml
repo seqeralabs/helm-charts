@@ -360,7 +360,7 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: release-name-wave
-                key: WAVE_REDIS_PASSWORD
+                key: REDIS_PASSWORD
 
   - it: should NOT include REDIS_PASSWORD in env when redis.password is not set
     template: deployment.yaml
@@ -413,7 +413,7 @@ tests:
             valueFrom:
               secretKeyRef:
                 name: my-redis-secret
-                key: WAVE_REDIS_PASSWORD
+                key: REDIS_PASSWORD
 
   - it: should render extraOptionsSpec under spec
     template: deployment.yaml

@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `portal-web` subchart is enabled, and `TOWER_AGENT_BACKEND_URL` (to
   `https://<global.agentBackendDomain>`) when the `agent-backend` subchart is enabled.
 
+### Fixed
+
+- Bumped the `wave` subchart dependency to `0.6.x`, which fixes `WAVE_SERVER_URL` to be derived from
+  `global.waveDomain` instead of `global.platformExternalDomain`, so it points at the Wave subdomain
+  used for container pulls.
+- Picked up the `wave` subchart fix for the Redis password Secret key, which now defaults to
+  `REDIS_PASSWORD` (matching the chart-managed Secret) instead of `WAVE_REDIS_PASSWORD`; previously
+  setting `redis.password` inline caused the Wave pod to fail to start with
+  `CreateContainerConfigError`.
+
 ## [0.37.0] - 2026-07-17
 
 ### Added
