@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Gateway API support via a new `httpRoute.*` (and `global.httpRoute.*`) values block. When
+  `httpRoute.enabled` is `true`, the chart renders `HTTPRoute` objects
+  (`gateway.networking.k8s.io/v1`) that attach to an existing Gateway via `httpRoute.parentRefs`,
+  as an alternative to `ingress` (the two are independent toggles). TLS is terminated on the
+  Gateway listener; the chart does not create the Gateway or GatewayClass.
 - Added `serviceAccount.create` (default `true`) to control whether the chart creates its
   ServiceAccount. When `true`, the ServiceAccount named by `serviceAccount.name` is created (or a
   generated `<release>-<chart>-sa` name when unset), so a custom ServiceAccount name can now be

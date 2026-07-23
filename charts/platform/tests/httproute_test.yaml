@@ -1,0 +1,518 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2025 - 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Platform httproute
+templates:
+  - httproute.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+- it: should not render httproute when disabled
+  set:
+    httpRoute:
+      enabled: false
+  asserts:
+  - hasDocuments:
+      count: 0
+- it: should render httproute when global.httpRoute.enabled is true even if local is false
+  set:
+    httpRoute:
+      enabled: false
+    global:
+      httpRoute:
+        enabled: true
+  asserts:
+  - isKind:
+      of: HTTPRoute
+  - matchRegex:
+      path: apiVersion
+      pattern: ^gateway\.networking\.k8s\.io/v1$
+- it: should set correct hostname
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.hostnames
+      value:
+      - platform.example.com
+- it: should route the main host to the frontend service
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules
+      value:
+      - matches:
+        - path:
+            type: PathPrefix
+            value: /
+        backendRefs:
+        - name: release-name-platform-frontend
+          port: 80
+- it: should attach to parentRefs from local httpRoute
+  set:
+    httpRoute:
+      enabled: true
+      parentRefs:
+      - name: seqera-gateway
+        namespace: gateway-system
+        sectionName: https
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.parentRefs
+      value:
+      - name: seqera-gateway
+        namespace: gateway-system
+        sectionName: https
+- it: should fall back to global.httpRoute.parentRefs when local is empty
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+      httpRoute:
+        parentRefs:
+        - name: shared-gateway
+          namespace: infra
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.parentRefs
+      value:
+      - name: shared-gateway
+        namespace: infra
+- it: should prefer local httpRoute.parentRefs over global
+  set:
+    httpRoute:
+      enabled: true
+      parentRefs:
+      - name: local-gateway
+    global:
+      platformExternalDomain: platform.example.com
+      httpRoute:
+        parentRefs:
+        - name: shared-gateway
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.parentRefs
+      value:
+      - name: local-gateway
+- it: should render templated parentRefs values
+  set:
+    httpRoute:
+      enabled: true
+      parentRefs:
+      - name: '{{ printf "%s-gw" (include "common.names.fullname" .) }}'
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.parentRefs[0].name
+      value: release-name-platform-gw
+- it: should omit parentRefs when none are set
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - notExists:
+      path: spec.parentRefs
+- it: should apply httproute annotations with templated values
+  set:
+    httpRoute:
+      enabled: true
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: '{{ include "seqera.ingress.host" . }}'
+        whatever: '{{ .Values.global.platformServicePort | default 8443 }}'
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        external-dns.alpha.kubernetes.io/hostname: platform.example.com
+        whatever: '8080'
+- it: should apply httproute labels with templated values
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    httpRoute:
+      enabled: true
+      extraLabels:
+        domain: '{{ .Values.global.platformExternalDomain }}'
+        whatever: '{{ .Values.global.platformServicePort | default 8443 }}'
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+        domain: platform.example.com
+        whatever: '8080'
+- it: should merge global.httpRoute.annotations with local annotations, local wins on collision
+  set:
+    httpRoute:
+      enabled: true
+      annotations:
+        chart-only: "yes"
+        shared: "local"
+    global:
+      httpRoute:
+        annotations:
+          global-only: "yes"
+          shared: "global"
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: metadata.annotations
+      value:
+        chart-only: "yes"
+        global-only: "yes"
+        shared: "local"
+- it: should merge global.httpRoute.extraLabels with local extraLabels, local wins on collision
+  set:
+    httpRoute:
+      enabled: true
+      extraLabels:
+        env: dev
+        chart: platform
+    global:
+      httpRoute:
+        extraLabels:
+          env: prod
+          team: devops
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: metadata.labels
+      value:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        helm.sh/chart: platform-1.2.3
+        env: dev
+        team: devops
+        chart: platform
+- it: should expose user-data (content) domain as a second HTTPRoute when enabled
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    httpRoute:
+      enabled: true
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: metadata.name
+      value: release-name-platform-content
+  - equal:
+      path: spec.hostnames
+      value:
+      - user-data.platform.example.com
+- it: should not render content HTTPRoute when contentDomain is empty
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ''
+    httpRoute:
+      enabled: true
+  asserts:
+  - hasDocuments:
+      count: 1
+- it: should use custom matchType and path on the main route
+  set:
+    httpRoute:
+      enabled: true
+      matchType: RegularExpression
+      path: /.*
+      contentPath: /content/.*
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path
+      value:
+        type: RegularExpression
+        value: /.*
+- it: should use custom matchType and contentPath on the content route
+  set:
+    httpRoute:
+      enabled: true
+      matchType: RegularExpression
+      path: /.*
+      contentPath: /content/.*
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path
+      value:
+        type: RegularExpression
+        value: /content/.*
+- it: should fall back to httpRoute.path for content domain when contentPath is empty
+  set:
+    httpRoute:
+      enabled: true
+      path: /app
+      contentPath: ""
+    global:
+      platformExternalDomain: platform.example.com
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path.value
+      value: /app
+- it: should fall back to global.httpRoute.path on the main route when both local paths are empty
+  set:
+    httpRoute:
+      enabled: true
+      path: ""
+      contentPath: ""
+    global:
+      platformExternalDomain: platform.example.com
+      httpRoute:
+        path: /global
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path.value
+      value: /global
+- it: should fall back to global.httpRoute.path on the content route when both local paths are empty
+  set:
+    httpRoute:
+      enabled: true
+      path: ""
+      contentPath: ""
+    global:
+      platformExternalDomain: platform.example.com
+      httpRoute:
+        path: /global
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path.value
+      value: /global
+- it: should fall back to global.httpRoute.matchType when local is empty
+  set:
+    httpRoute:
+      enabled: true
+      matchType: ""
+    global:
+      platformExternalDomain: platform.example.com
+      httpRoute:
+        matchType: Exact
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules[0].matches[0].path.type
+      value: Exact
+- it: should configure extra hosts as their own HTTPRoutes with multiple paths
+  set:
+    httpRoute:
+      enabled: true
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /v1
+          matchType: PathPrefix
+          serviceName: api-v1
+          portNumber: '8080'
+        - path: /v2
+          matchType: PathPrefix
+          serviceName: api-v2
+          portNumber: '8081'
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: metadata.name
+      value: release-name-platform-extra-0
+  - equal:
+      path: spec.hostnames
+      value:
+      - api.example.com
+  - equal:
+      path: spec.rules
+      value:
+      - matches:
+        - path:
+            type: PathPrefix
+            value: /v1
+        backendRefs:
+        - name: api-v1
+          port: 8080
+      - matches:
+        - path:
+            type: PathPrefix
+            value: /v2
+        backendRefs:
+        - name: api-v2
+          port: 8081
+- it: should handle empty extraHosts array
+  set:
+    httpRoute:
+      enabled: true
+      extraHosts: []
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+  asserts:
+  - hasDocuments:
+      count: 1
+- it: should handle frontend.service.http.port as integer
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+    frontend:
+      service:
+        http:
+          port: 7777
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules[0].backendRefs[0].port
+      value: 7777
+- it: should handle frontend.service.http.port as template string
+  set:
+    httpRoute:
+      enabled: true
+    global:
+      platformExternalDomain: platform.example.com
+    frontend:
+      service:
+        http:
+          port: "{{ .Release.Namespace | len | add 9000 }}"
+  documentIndex: 0
+  asserts:
+  - equal:
+      path: spec.rules[0].backendRefs[0].port
+      value: 9009
+- it: should handle extraHosts portNumber as integer and string on the same route
+  set:
+    httpRoute:
+      enabled: true
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /v1
+          serviceName: api-v1
+          portNumber: 8001
+        - path: /v2
+          serviceName: api-v2
+          portNumber: "8002"
+      - host: admin.example.com
+        paths:
+        - path: /
+          serviceName: admin-service
+          portNumber: "{{ .Values.frontend.service.http.port }}"
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+    frontend:
+      service:
+        http:
+          port: 5555
+  documentIndex: 1
+  asserts:
+  - equal:
+      path: spec.rules[0].backendRefs[0].port
+      value: 8001
+  - equal:
+      path: spec.rules[1].backendRefs[0].port
+      value: 8002
+- it: should handle extraHosts portNumber as a template string
+  set:
+    httpRoute:
+      enabled: true
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /v1
+          serviceName: api-v1
+          portNumber: 8001
+      - host: admin.example.com
+        paths:
+        - path: /
+          serviceName: admin-service
+          portNumber: "{{ .Values.frontend.service.http.port }}"
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+    frontend:
+      service:
+        http:
+          port: 5555
+  documentIndex: 2
+  asserts:
+  - equal:
+      path: spec.rules[0].backendRefs[0].port
+      value: 5555
+- it: should render complete httproute with all options
+  set:
+    global:
+      platformExternalDomain: platform.example.com
+    httpRoute:
+      enabled: true
+      matchType: PathPrefix
+      path: /
+      contentPath: /content
+      parentRefs:
+      - name: seqera-gateway
+        namespace: gateway-system
+        sectionName: https
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: platform.example.com
+      extraLabels:
+        environment: production
+      extraHosts:
+      - host: api.example.com
+        paths:
+        - path: /
+          serviceName: api-service
+          portNumber: '8080'
+  asserts:
+  - matchSnapshot: {}

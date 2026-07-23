@@ -1,0 +1,49 @@
+# Route Seqera Platform through the Gateway API using NGINX Gateway Fabric.
+#
+# Prerequisites:
+# - Gateway API CRDs installed
+# - NGINX Gateway Fabric installed with a GatewayClass (e.g. "nginx")
+# - A Gateway named "seqera-gateway" in the "gateway-system" namespace with an "https" listener
+#   that terminates TLS (see this directory's README for a sample Gateway manifest)
+# - DNS records pointing to the Gateway's external address
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f nginx-gateway-fabric.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  # Separate domain for user-generated content (XSS protection). Rendered as a second HTTPRoute.
+  contentDomain: user-data.example.com
+
+platformDatabase:
+  host: mysql.example.com
+  database: platform
+  username: platform
+  existingSecretName: platform-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+# Route through the Gateway API instead of Ingress. TLS is terminated on the Gateway listener,
+# so there is no TLS block here.
+httpRoute:
+  enabled: true
+
+  # Attach to the existing Gateway. `sectionName` selects the listener (e.g. the "https" listener
+  # from the sample Gateway in the README).
+  parentRefs:
+    - name: seqera-gateway
+      namespace: gateway-system
+      sectionName: https
+
+  # Path match for the main and content routes.
+  path: /
+  matchType: PathPrefix

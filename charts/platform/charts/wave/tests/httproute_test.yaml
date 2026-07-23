@@ -1,0 +1,272 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test Wave httproute
+templates:
+  - httproute.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should NOT render by default
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render when httpRoute.enabled is true
+    set:
+      httpRoute.enabled: true
+    asserts:
+      - isKind:
+          of: HTTPRoute
+      - matchRegex:
+          path: apiVersion
+          pattern: ^gateway\.networking\.k8s\.io/v1$
+
+  - it: should render when global.httpRoute.enabled is true even if local is false
+    set:
+      httpRoute.enabled: false
+      global.httpRoute.enabled: true
+    asserts:
+      - isKind:
+          of: HTTPRoute
+
+  - it: should include default hostname using global.waveDomain
+    set:
+      httpRoute.enabled: true
+      global.waveDomain: wave.example.com
+    asserts:
+      - equal:
+          path: spec.hostnames
+          value:
+            - wave.example.com
+
+  - it: should route the main host to the service
+    set:
+      httpRoute.enabled: true
+      global.waveDomain: wave.example.com
+      httpRoute.path: /
+      httpRoute.matchType: PathPrefix
+    asserts:
+      - equal:
+          path: spec.rules
+          value:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /
+              backendRefs:
+                - name: release-name-wave
+                  port: 9090
+
+  - it: should template global.waveDomain
+    set:
+      httpRoute.enabled: true
+      global.waveDomain: "{{ .Release.Name }}.example.com"
+    asserts:
+      - equal:
+          path: spec.hostnames[0]
+          value: RELEASE-NAME.example.com
+
+  - it: should attach to parentRefs from local httpRoute
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+    asserts:
+      - equal:
+          path: spec.parentRefs
+          value:
+            - name: seqera-gateway
+              namespace: gateway-system
+              sectionName: https
+
+  - it: should fall back to global.httpRoute.parentRefs when local is empty
+    set:
+      httpRoute.enabled: true
+      global.httpRoute.parentRefs:
+        - name: shared-gateway
+          namespace: infra
+    asserts:
+      - equal:
+          path: spec.parentRefs
+          value:
+            - name: shared-gateway
+              namespace: infra
+
+  - it: should prefer local httpRoute.parentRefs over global
+    set:
+      httpRoute.enabled: true
+      httpRoute.parentRefs:
+        - name: local-gateway
+      global.httpRoute.parentRefs:
+        - name: shared-gateway
+    asserts:
+      - equal:
+          path: spec.parentRefs
+          value:
+            - name: local-gateway
+
+  - it: should omit parentRefs when none are set
+    set:
+      httpRoute.enabled: true
+    asserts:
+      - notExists:
+          path: spec.parentRefs
+
+  - it: should fall back to global.httpRoute.matchType when local is empty
+    set:
+      httpRoute.enabled: true
+      httpRoute.matchType: ""
+      global.httpRoute.matchType: Exact
+    asserts:
+      - equal:
+          path: spec.rules[0].matches[0].path.type
+          value: Exact
+
+  - it: should handle service.http.port as integer
+    set:
+      httpRoute.enabled: true
+      service.http.port: 8888
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 8888
+
+  - it: should handle service.http.port as template string
+    set:
+      httpRoute.enabled: true
+      service.http.port: "{{ .Release.Namespace | len | add 9000 }}"
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 9009
+
+  - it: should render each extraHost as its own HTTPRoute with multiple paths
+    set:
+      httpRoute.enabled: true
+      global.waveDomain: wave.example.com
+      httpRoute.extraHosts:
+        - host: custom.example.com
+          paths:
+            - path: /v1
+              matchType: PathPrefix
+              serviceName: api-v1
+              portNumber: 8080
+            - path: /v2
+              serviceName: api-v2
+              portNumber: "8081"
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: metadata.name
+          value: release-name-wave-extra-0
+      - equal:
+          path: spec.hostnames
+          value:
+            - custom.example.com
+      - equal:
+          path: spec.rules
+          value:
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /v1
+              backendRefs:
+                - name: api-v1
+                  port: 8080
+            - matches:
+                - path:
+                    type: PathPrefix
+                    value: /v2
+              backendRefs:
+                - name: api-v2
+                  port: 8081
+
+  - it: should handle extraHosts portNumber as template string
+    set:
+      httpRoute.enabled: true
+      service.http.port: 5555
+      httpRoute.extraHosts:
+        - host: admin.example.com
+          paths:
+            - path: /
+              serviceName: admin-service
+              portNumber: "{{ .Values.service.http.port }}"
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: spec.rules[0].backendRefs[0].port
+          value: 5555
+
+  - it: should merge annotations and labels, local wins on collision
+    set:
+      httpRoute.enabled: true
+      commonLabels:
+        common-label: common-value
+      commonAnnotations:
+        common-annotation: common-value
+      httpRoute.annotations:
+        shared: local
+      global.httpRoute.annotations:
+        shared: global
+        global-only: "yes"
+      httpRoute.extraLabels:
+        shared-label: local
+      global.httpRoute.extraLabels:
+        shared-label: global
+        global-label: "yes"
+    asserts:
+      - isSubset:
+          path: metadata.annotations
+          content:
+            shared: local
+            global-only: "yes"
+            common-annotation: common-value
+      - isSubset:
+          path: metadata.labels
+          content:
+            shared-label: local
+            global-label: "yes"
+            common-label: common-value
+
+  - it: should render complete httproute with all options
+    set:
+      httpRoute.enabled: true
+      global.waveDomain: wave.example.com
+      httpRoute.matchType: PathPrefix
+      httpRoute.path: /
+      httpRoute.parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      httpRoute.annotations:
+        external-dns.alpha.kubernetes.io/hostname: wave.example.com
+      httpRoute.extraLabels:
+        environment: production
+      httpRoute.extraHosts:
+        - host: api.example.com
+          paths:
+            - path: /
+              serviceName: api-service
+              portNumber: "8080"
+    asserts:
+      - matchSnapshot: {}

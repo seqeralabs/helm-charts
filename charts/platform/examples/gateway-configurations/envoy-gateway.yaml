@@ -1,0 +1,52 @@
+# Route Seqera Platform and its subcharts through the Gateway API using Envoy Gateway,
+# configuring the shared Gateway once via cluster-wide `global.httpRoute` defaults.
+#
+# Prerequisites:
+# - Gateway API CRDs installed
+# - Envoy Gateway installed with a GatewayClass (e.g. "eg")
+# - A Gateway named "seqera-gateway" in the "gateway-system" namespace with an "https" listener
+#   whose hostname/cert covers every domain you expose (platform.example.com, studios.example.com,
+#   wave.example.com, …). See this directory's README for a sample Gateway manifest.
+# - DNS records pointing to the Gateway's external address
+#
+# Deploy with:
+#   helm upgrade --install platform oci://public.cr.seqera.io/charts/platform \
+#     -f envoy-gateway.yaml \
+#     -n seqera-platform
+
+global:
+  platformExternalDomain: platform.example.com
+  contentDomain: user-data.example.com
+
+  # Cluster-wide Gateway API defaults. Set once here and every chart's HTTPRoute (platform plus any
+  # enabled subcharts like studios, wave, mcp) attaches to the same Gateway. Per-chart overrides
+  # under `<chart>.httpRoute.*` still win when set.
+  httpRoute:
+    enabled: true
+    parentRefs:
+      - name: seqera-gateway
+        namespace: gateway-system
+        sectionName: https
+    path: /
+    matchType: PathPrefix
+
+platformDatabase:
+  host: mysql.example.com
+  database: platform
+  username: platform
+  existingSecretName: platform-db-credentials
+  existingSecretKey: password
+
+redis:
+  host: redis.example.com
+  existingSecretName: platform-redis-credentials
+  existingSecretKey: password
+
+platform:
+  licenseSecretName: platform-license
+
+# Enable the subcharts you want exposed; each inherits the global.httpRoute defaults above.
+studios:
+  enabled: true
+wave:
+  enabled: true

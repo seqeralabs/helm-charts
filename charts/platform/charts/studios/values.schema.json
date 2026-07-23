@@ -52,6 +52,59 @@
     "global": {
       "description": "Values in the .global section can be accessed by both parent and child subcharts as\n.Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/",
       "properties": {
+        "httpRoute": {
+          "description": "Gateway API (HTTPRoute) defaults shared across the parent chart and all subcharts. Each\nsubchart's local `httpRoute.*` value takes precedence when set; otherwise the global is used.\nHTTPRoutes attach to a Gateway you already manage (via `parentRefs`); this chart does not\ncreate the Gateway or GatewayClass. TLS is configured on the Gateway listener, not here.",
+          "properties": {
+            "annotations": {
+              "description": "Annotations merged into the HTTPRoute. Local `httpRoute.annotations` wins on key\ncollision. Evaluated as a template",
+              "required": [],
+              "title": "annotations",
+              "type": "object"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable HTTPRoute for this chart. OR'd with the chart's local `httpRoute.enabled` so\nsetting this once at the parent enables all subchart HTTPRoutes. Independent from\n`ingress.enabled`",
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "extraLabels": {
+              "description": "Extra labels merged into the HTTPRoute. Local `httpRoute.extraLabels` wins on key\ncollision. Evaluated as a template",
+              "required": [],
+              "title": "extraLabels",
+              "type": "object"
+            },
+            "matchType": {
+              "default": "PathPrefix",
+              "description": "Default path match type applied when `httpRoute.matchType` is not set. One of\n`PathPrefix`, `Exact`, or `RegularExpression`",
+              "title": "matchType",
+              "type": "string"
+            },
+            "parentRefs": {
+              "description": "Parent Gateway(s) this chart's HTTPRoute attaches to. Applied when the local\n`httpRoute.parentRefs` is not set. Each entry accepts `name` (required), `namespace`,\n`sectionName`, `port`, `kind`, and `group`. Evaluated as a template",
+              "items": {
+                "required": []
+              },
+              "title": "parentRefs",
+              "type": "array"
+            },
+            "path": {
+              "default": "/",
+              "description": "Default path applied to HTTPRoute rules when `httpRoute.path` is not set",
+              "title": "path",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "parentRefs",
+            "path",
+            "matchType",
+            "annotations",
+            "extraLabels"
+          ],
+          "title": "httpRoute",
+          "type": "object"
+        },
         "imageCredentials": {
           "description": "Optional credentials to log in and fetch images from a private registry. These credentials\nare shared with all the subcharts automatically",
           "items": {
@@ -170,10 +223,73 @@
         "studiosDomain",
         "studiosConnectionUrl",
         "ingress",
+        "httpRoute",
         "imageCredentials",
         "imageCredentialsSecrets"
       ],
       "title": "global",
+      "type": "object"
+    },
+    "httpRoute": {
+      "description": "Gateway API routing. Renders HTTPRoute objects that attach to an existing Gateway (managed\noutside this chart) via `parentRefs`. Independent from `ingress` — you may enable either.\nTLS is terminated on the Gateway listener, so there is no TLS block here.",
+      "properties": {
+        "annotations": {
+          "description": "HTTPRoute annotations. Evaluated as a template",
+          "required": [],
+          "title": "annotations",
+          "type": "object"
+        },
+        "enabled": {
+          "default": false,
+          "description": "Enable HTTPRoute for Studios",
+          "title": "enabled",
+          "type": "boolean"
+        },
+        "extraHosts": {
+          "description": "Additional hosts you want to route. Each host becomes its own HTTPRoute. Evaluated as a\ntemplate",
+          "items": {
+            "required": []
+          },
+          "title": "extraHosts",
+          "type": "array"
+        },
+        "extraLabels": {
+          "description": "Additional labels for the HTTPRoute object. Evaluated as a template",
+          "required": [],
+          "title": "extraLabels",
+          "type": "object"
+        },
+        "matchType": {
+          "default": "",
+          "description": "Path match type for the HTTPRoute. One of `PathPrefix`, `Exact`, or `RegularExpression`.\nWhen empty, falls back to `global.httpRoute.matchType`",
+          "title": "matchType",
+          "type": "string"
+        },
+        "parentRefs": {
+          "description": "Gateway(s) this HTTPRoute attaches to. When empty, falls back to\n`global.httpRoute.parentRefs`. Each entry accepts `name` (required), `namespace`,\n`sectionName`, `port`, `kind`, and `group`. Evaluated as a template",
+          "items": {
+            "required": []
+          },
+          "title": "parentRefs",
+          "type": "array"
+        },
+        "path": {
+          "default": "",
+          "description": "Path for the main HTTPRoute rule. When empty, falls back to `global.httpRoute.path`",
+          "title": "path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "parentRefs",
+        "path",
+        "matchType",
+        "extraHosts",
+        "annotations",
+        "extraLabels"
+      ],
+      "title": "httpRoute",
       "type": "object"
     },
     "ingress": {
@@ -1348,6 +1464,7 @@
     "initContainerDependencies",
     "serviceAccount",
     "ingress",
+    "httpRoute",
     "extraDeploy",
     "commonAnnotations",
     "commonLabels",

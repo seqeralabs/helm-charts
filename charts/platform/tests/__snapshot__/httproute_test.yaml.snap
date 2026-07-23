@@ -1,0 +1,91 @@
+should render complete httproute with all options:
+  1: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: platform.example.com
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform
+      namespace: NAMESPACE
+    spec:
+      hostnames:
+        - platform.example.com
+      parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      rules:
+        - backendRefs:
+            - name: release-name-platform-frontend
+              port: 80
+          matches:
+            - path:
+                type: PathPrefix
+                value: /
+  2: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: platform.example.com
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-content
+      namespace: NAMESPACE
+    spec:
+      hostnames:
+        - user-data.platform.example.com
+      parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      rules:
+        - backendRefs:
+            - name: release-name-platform-frontend
+              port: 80
+          matches:
+            - path:
+                type: PathPrefix
+                value: /content
+  3: |
+    apiVersion: gateway.networking.k8s.io/v1
+    kind: HTTPRoute
+    metadata:
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: platform.example.com
+      labels:
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: v9.9.9
+        environment: production
+        helm.sh/chart: platform-1.2.3
+      name: release-name-platform-extra-0
+      namespace: NAMESPACE
+    spec:
+      hostnames:
+        - api.example.com
+      parentRefs:
+        - name: seqera-gateway
+          namespace: gateway-system
+          sectionName: https
+      rules:
+        - backendRefs:
+            - name: api-service
+              port: 8080
+          matches:
+            - path:
+                type: PathPrefix
+                value: /
