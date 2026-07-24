@@ -30,6 +30,7 @@ metadata:
   labels: {{- $labels | nindent 4 }}
   annotations: {{- $annotations | nindent 4 }}
 data:
+  AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain .) | quote }}
   AGENT_BACKEND_PORT: {{ .Values.service.http.targetPort | quote }}
 
   SEQERA_PLATFORM_URL: {{ printf "https://%s" (tpl .Values.global.platformExternalDomain .) | quote }}

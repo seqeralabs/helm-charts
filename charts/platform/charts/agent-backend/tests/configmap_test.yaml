@@ -96,6 +96,20 @@ tests:
           path: data.SEQERA_MCP_URL
           value: "https://mcp.prod.example.com/mcp"
 
+  - it: should set AGENT_BACKEND_URL from agentBackendDomain default
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_URL
+          value: "https://ai-api.test.example.com"
+
+  - it: should template agentBackendDomain in AGENT_BACKEND_URL
+    set:
+      global.agentBackendDomain: "{{ .Release.Name }}-ai-api.example.com"
+    asserts:
+      - equal:
+          path: data.AGENT_BACKEND_URL
+          value: "https://RELEASE-NAME-ai-api.example.com"
+
   - it: should use custom service port in configmap
     set:
       service.http.targetPort: 9000
