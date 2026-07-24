@@ -4,6 +4,45 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
+          description: '`AGENT_BACKEND_URL` in the ConfigMap, derived from `global.agentBackendDomain` (for example `https://ai-api.example.com`).'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 1.13.1
+    created: "2026-07-24T11:44:54.947582684Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: Backend service for Seqera CLI AI capabilities
+    digest: d87df922b4eba324536e0bd6ceb5343b3f1e2c048acaf9500e79e97a8cdbb3b8
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: agent-backend
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/agent-backend-1.4.0/agent-backend-1.4.0.tgz
+    version: 1.4.0
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: added
           description: '`ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB annotation-based actions (for example `portName: use-annotation`). Takes precedence over `portNumber` when both are set.'
       artifacthub.io/license: Apache-2.0
       artifacthub.io/links: |
@@ -995,6 +1034,86 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/pipeline-optimization-2.0.3/pipeline-optimization-2.0.3.tgz
     version: 2.0.3
   platform:
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Updated default platform images to v26.1.4.'
+        - kind: changed
+          description: 'Bumped the `agent-backend` subchart dependency to `1.4.0`'
+        - kind: changed
+          description: 'Bumped the `wave` subchart dependency to `0.5.1` (bump wave image to `v1.37.0`).'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v26.1.4
+    created: "2026-07-24T11:44:55.220982462Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.5.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.7.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    - condition: portal-web.enabled
+      name: portal-web
+      repository: file://charts/portal-web
+      tags:
+      - portal-web
+      version: 0.6.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 32b1092ac32d51ead44002270200ddbac3591e1ba7d36a612ce22b54bcdbc5e8
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-0.38.0/platform-0.38.0.tgz
+    version: 0.38.0
   - annotations:
       artifacthub.io/changes: |-
         - kind: added
@@ -3115,6 +3234,45 @@ entries:
   wave:
   - annotations:
       artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Bump wave image to `v1.37.0`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v1.37.0
+    created: "2026-07-24T11:44:55.451139787Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: On-demand containers provisioning service
+    digest: 3b2c7d9ad7536fb024f027d8bbfa0bd093baa8fa811e403c99032a819729453f
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: wave
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.5.1/wave-0.5.1.tgz
+    version: 0.5.1
+  - annotations:
+      artifacthub.io/changes: |-
         - kind: added
           description: '`ingress.extraHosts[].paths[].portName` as an alternative to `portNumber`, for referencing ALB annotation-based actions (for example `portName: use-annotation`). Takes precedence over `portNumber` when both are set.'
         - kind: fixed
@@ -3454,4 +3612,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-20T15:05:56.289594418Z"
+generated: "2026-07-24T11:44:55.452522876Z"
