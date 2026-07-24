@@ -6,6 +6,21 @@
   "ignorePaths": [
     "charts/platform/examples/kustomize/kustomization.yaml"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track seqeralabs/wave GitHub releases via the wave subchart's appVersion",
+      "managerFilePatterns": [
+        "^charts/platform/charts/wave/Chart\\.yaml$"
+      ],
+      "matchStrings": [
+        "appVersion:\\s*\"(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "seqeralabs/wave",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ],
   "packageRules": [
     {
       "description": "Do not bump the MySQL wait-for init container image. Platform requires MySQL 8.4 (see PR #188); newer major versions are unsupported.",
@@ -16,6 +31,48 @@
         "mysql"
       ],
       "enabled": false
+    },
+    {
+      "description": "New wave releases (https://github.com/seqeralabs/wave/releases) always bump the wave subchart's appVersion as a patch-level change for this repo, regardless of wave's own semver bump type.",
+      "matchDepNames": [
+        "seqeralabs/wave"
+      ],
+      "matchDatasources": [
+        "github-releases"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "semanticCommitType": "fix",
+      "semanticCommitScope": "",
+      "draftPR": true,
+      "prBodyNotes": [
+        "**Reviewer action required** before merging this PR:\n- [ ] Add a `CHANGELOG.md` entry under `charts/platform/charts/wave/` describing the wave image bump.\n- [ ] Add a `CHANGELOG.md` entry under `charts/platform/` noting the patch bump and the wave dependency update.\n- [ ] Run `make -C charts/platform/ rebuild-deps-force` locally, commit and push the result to this branch (regenerates `Chart.lock` and the `README.md` files)."
+      ],
+      "bumpVersions": [
+        {
+          "name": "wave chart version",
+          "filePatterns": [
+            "charts/platform/charts/wave/Chart.yaml"
+          ],
+          "matchStrings": [
+            "^version:\\s*(?<version>.+)$"
+          ],
+          "bumpType": "patch"
+        },
+        {
+          "name": "platform umbrella chart version",
+          "filePatterns": [
+            "charts/platform/Chart.yaml"
+          ],
+          "matchStrings": [
+            "^version:\\s*(?<version>.+)$"
+          ],
+          "bumpType": "patch"
+        }
+      ]
     }
   ]
 }
