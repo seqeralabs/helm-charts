@@ -5,6 +5,39 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.39.0] - 2026-07-27
+
+### Added
+
+- `global.trustStore` for distributing a private/internal CA to Platform and its subcharts.
+  Enable it when components must reach endpoints whose certificates are signed by a CA that is
+  in no public trust store — an intranet-only deployment behind an enterprise PKI, or a
+  corporate firewall performing HTTPS interception. Off by default.
+  - Supply the CA inline with `global.trustStore.certificate` (the chart creates the
+    ConfigMap), or reference one you manage with `existingConfigMap` or `existingSecret`.
+  - JVM components (`backend`, `cron`, `wave`, and cron's `migrate-db` init container) get a
+    Java trust store built by a `build-trust-store` init container and are pointed at it with
+    `JAVA_TOOL_OPTIONS`. The store is seeded from the JRE's existing bundle, so public trust is
+    preserved. Note that the JVM logs `Picked up JAVA_TOOL_OPTIONS: ...` to stderr at startup.
+  - Python/Go/OpenSSL subcharts (`agent-backend`, `mcp`, `pipeline-optimization`) get a generated
+    system-plus-private PEM bundle selected with `SSL_CERT_FILE`, `REQUESTS_CA_BUNDLE`, and
+    `CURL_CA_BUNDLE`. `portal-web` uses Node.js's additive `NODE_EXTRA_CA_CERTS`.
+  - The init container runs each component's own image by default, so every component's trust
+    store is seeded from its own JDK. Override with `global.trustStore.java.image` only when a
+    component image does not ship `keytool`, and match the vendor and major JDK version.
+  - This is separate from database TLS, which is still configured through the driver's own
+    option (`platformDatabase.connectionOptions.mariadb` `serverSslCert`, or a subchart's
+    `database.sslCa`). Those cover the database connection only and do nothing for any other
+    outbound call. Point them at `global.trustStore.mountPath` when the database certificate is
+    signed by the same CA.
+  - Does not cover the BuildKit pods Wave launches for builds. Those run outside this chart and
+    need a BuildKit image with the CA in its system bundle, selected with
+    `wave.build.buildkit-image`.
+
+### Changed
+
+- Bumped the `seqera-common` library dependency to `3.1.0`.
+
 ## [0.38.0] - 2026-07-24
 
 ### Changed

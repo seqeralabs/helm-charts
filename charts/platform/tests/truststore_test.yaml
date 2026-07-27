@@ -1,0 +1,304 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test private CA trust store wiring
+templates:
+  - deployment-backend.yaml
+  - deployment-cron.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+set:
+  platform:
+    oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
+tests:
+  # The trust store must stay entirely absent unless it is asked for. An always-on
+  # init container would add a pull and a startup step to every deployment.
+  - it: should add nothing to the backend when disabled
+    template: deployment-backend.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-store
+
+  - it: should add nothing to the cron deployment when disabled
+    template: deployment-cron.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+
+  # Enabling the flag without a CA source is a no-op rather than a broken pod
+  # referencing a volume that does not exist.
+  - it: should add nothing when enabled without a CA source
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+
+  - it: should mount the CA and the generated store on the backend
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+            configMap:
+              name: release-name-platform-trust-store-ca
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-store
+            emptyDir: {}
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: seqera-trust-ca
+            mountPath: /opt/seqera/trust
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: seqera-trust-store
+            mountPath: /opt/seqera/truststore
+            readOnly: true
+
+  - it: should point the backend JVM at the generated store
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/opt/seqera/truststore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+
+  # The store must be built before anything that needs it, so the init container
+  # has to be first in the list.
+  - it: should run the trust store init container before every other init container
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: build-trust-store
+      # The store must be seeded from the component's own JDK, not a stock JRE:
+      # a different JDK carries a different set of public roots.
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: enterprise/platform/backend:v9.9.9
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext
+          value:
+            runAsUser: 101
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+  - it: should tell the init container where to read and write
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: CA_PATH
+              value: "/opt/seqera/trust/ca.crt"
+            - name: STORE_PATH
+              value: "/opt/seqera/truststore/cacerts"
+            - name: STORE_PASSWORD
+              value: "changeit"
+
+  # Seeding from the JRE bundle rather than replacing it is what keeps public
+  # trust intact. A regression here breaks every public endpoint.
+  - it: should seed the store from the JRE bundle rather than replacing it
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].command[2]
+          pattern: 'cp "\$\{JAVA_HOME\}/lib/security/cacerts" "\$STORE_PATH"'
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].command[2]
+          pattern: "keytool -importcert -noprompt -trustcacerts"
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].command[2]
+          pattern: '/-----BEGIN CERTIFICATE-----/ \{ cert \+= 1 \}'
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].command[2]
+          pattern: '-alias "seqera-trust-store-ca-\$\{number\}"'
+
+  - it: should wire the cron deployment and its migration init container
+    template: deployment-cron.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: build-trust-store
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/opt/seqera/truststore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+      # migrate-db is a JVM process too, and it runs after build-trust-store.
+      - contains:
+          path: spec.template.spec.initContainers[3].env
+          content:
+            name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/opt/seqera/truststore/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+      - contains:
+          path: spec.template.spec.initContainers[3].volumeMounts
+          content:
+            name: seqera-trust-store
+            mountPath: /opt/seqera/truststore
+            readOnly: true
+
+  - it: should read the bundle from an existing Secret when supplied
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+            secret:
+              secretName: corp-ca
+
+  - it: should read the bundle from an existing ConfigMap when supplied
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingConfigMap: corp-ca
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+            configMap:
+              name: corp-ca
+
+  - it: should prefer the Secret over the ConfigMap when both are supplied
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca-secret
+      global.trustStore.existingConfigMap: corp-ca-configmap
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+            secret:
+              secretName: corp-ca-secret
+
+  - it: should honour custom paths, key, and store password
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca
+      global.trustStore.key: corp-root.pem
+      global.trustStore.mountPath: /etc/seqera-ca
+      global.trustStore.javaMountPath: /etc/seqera-store
+      global.trustStore.java.password: notchangeit
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: JAVA_TOOL_OPTIONS
+            value: "-Djavax.net.ssl.trustStore=/etc/seqera-store/cacerts -Djavax.net.ssl.trustStorePassword=notchangeit"
+      - equal:
+          path: spec.template.spec.initContainers[0].env
+          value:
+            - name: CA_PATH
+              value: "/etc/seqera-ca/corp-root.pem"
+            - name: STORE_PATH
+              value: "/etc/seqera-store/cacerts"
+            - name: STORE_PASSWORD
+              value: "notchangeit"
+
+  # The escape hatch for a component image that does not ship keytool.
+  - it: should allow overriding the init container image
+    template: deployment-backend.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca
+      global.trustStore.java.image.registry: internal.example.com
+      global.trustStore.java.image.repository: mirror/temurin
+      global.trustStore.java.image.tag: "17-jre"
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: internal.example.com/mirror/temurin:17-jre
+
+  - it: should seed the cron store from the cron image
+    template: deployment-cron.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].image
+          value: enterprise/platform/backend:v9.9.9

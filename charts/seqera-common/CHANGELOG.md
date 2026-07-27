@@ -5,6 +5,32 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-07-27
+
+### Added
+
+- `seqera.trustStore.*` helpers for distributing a private/internal CA to Seqera workloads,
+  driven by a single `global.trustStore` block. Intended for deployments behind an enterprise
+  PKI, or behind a firewall performing HTTPS interception, where endpoint certificates are
+  signed by a CA that is in no public trust store.
+  - `seqera.trustStore.initContainer` builds a Java trust store with `keytool` for JVM
+    services, importing every certificate in the supplied PEM, or builds a combined
+    system-plus-private PEM for other runtimes. It seeds from the runtime's own bundle, so public trust
+    anchors are preserved, and it writes to an `emptyDir` because Seqera containers run with
+    `readOnlyRootFilesystem: true`. By default it runs the *component's own image*, supplied
+    by the caller as `imageRoot` — a store seeded from a different JDK carries that vendor's
+    set of public roots, and Seqera components do not all ship the same base image.
+  - `seqera.trustStore.envVars` sets `JAVA_TOOL_OPTIONS` for JVM services,
+    `NODE_EXTRA_CA_CERTS` for Node.js, or points other runtimes at the generated combined PEM.
+  - `seqera.trustStore.volumes` and `seqera.trustStore.volumeMounts` mount the CA bundle from
+    an inline certificate, an existing ConfigMap, or an existing Secret.
+  - `seqera.trustStore.enabled`, `.configMapName`, `.key`, `.caPath`, and `.javaPath` expose
+    the resolved configuration to callers.
+  - All helpers render nothing unless the trust store is enabled *and* a CA source is
+    configured, so enabling the flag alone cannot produce a pod referencing a missing volume.
+  - Defaults are applied inside the helpers, so a subchart installed standalone (with no
+    parent `global` block) still renders.
+
 ## [3.0.0] - 2026-07-07
 
 ### Removed

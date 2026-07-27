@@ -63,6 +63,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- include "seqera.trustStore.initContainer" (dict "context" $ "imageRoot" .Values.image "java" true) | nindent 8 }}
         - name: touch-config-file
           image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global "chart" .Chart) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -106,6 +107,7 @@ spec:
                   name: {{ include "wave.redis.existingSecret.secretName" . }}
                   key: {{ include "wave.redis.existingSecret.secretKey" . }}
 {{- end }}
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -123,6 +125,7 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /work
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -145,6 +148,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" true) | nindent 8 }}
 {{- with .Values.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

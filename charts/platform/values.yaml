@@ -85,6 +85,114 @@ global:
   # @section -- Global
   portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
 
+  # Trust anchors for an internal/private CA, shared across the parent chart and all subcharts.
+  #
+  # Enable this when Seqera components must reach endpoints whose certificates are signed by a
+  # CA that is not in any public trust store — an intranet-only deployment behind an enterprise
+  # PKI, or a corporate firewall performing HTTPS interception.
+  #
+  # JVM components (backend, cron, wave) receive a Java trust store built by an init container
+  # from the JRE's own bundle plus this CA. Python/Go/OpenSSL components receive a combined
+  # system-plus-private PEM bundle, and Node.js receives the CA through `NODE_EXTRA_CA_CERTS`.
+  # All three mechanisms preserve public trust.
+  #
+  # This is separate from database TLS. A database CA is supplied through the driver's own
+  # option (`platformDatabase.connectionOptions.mariadb` `serverSslCert`, or a subchart's
+  # `database.sslCa`) and does not affect any other connection. Point those at
+  # `.global.trustStore.mountPath` when the database certificate is signed by the same CA.
+  trustStore:
+    # -- Enable private CA trust distribution. Requires one of `certificate`,
+    # `existingConfigMap`, or `existingSecret`
+    # @section -- Global: Trust Store
+    enabled: false
+    # -- Inline PEM CA bundle. When set, the chart creates a ConfigMap holding it. Use
+    # `existingConfigMap` or `existingSecret` instead to manage the bundle outside the release
+    # @section -- Global: Trust Store
+    certificate: ""
+    # -- Name of an existing ConfigMap holding the CA bundle. Evaluated as a template
+    # @section -- Global: Trust Store
+    existingConfigMap: ""
+    # -- Name of an existing Secret holding the CA bundle. Takes precedence over
+    # `existingConfigMap`. Evaluated as a template
+    # @section -- Global: Trust Store
+    existingSecret: ""
+    # -- Key within the ConfigMap or Secret that holds the PEM bundle
+    # @section -- Global: Trust Store
+    key: ca.crt
+    # -- Directory the PEM bundle is mounted into
+    # @section -- Global: Trust Store
+    mountPath: /opt/seqera/trust
+    # -- Directory generated trust assets are written to (a Java trust store or combined PEM
+    # bundle). Must be writable, so it is backed by an `emptyDir` — the containers run with a
+    # read-only root filesystem
+    # @section -- Global: Trust Store
+    javaMountPath: /opt/seqera/truststore
+
+    # Settings for the init container that builds the Java trust store for JVM components.
+    #
+    # By default the init container runs each component's own image, so the store is seeded from
+    # that component's JDK. This is deliberate: a trust store seeded from a different JDK carries
+    # that vendor's set of public roots, so using one stock JRE for every component would silently
+    # swap their public trust for another distribution's. Seqera components do not all ship the
+    # same base image.
+    #
+    # Note that the JVM prints `Picked up JAVA_TOOL_OPTIONS: ...` to stderr at startup for every
+    # component this applies to. That is expected, not an error.
+    java:
+      image:
+        # -- Override the trust store init container image registry. Only used when `repository`
+        # is set
+        # @section -- Global: Trust Store
+        registry: ""
+        # -- Override the trust store init container image repository. Leave empty to run each
+        # component's own image, which is the recommended default. Set this only when a component
+        # image does not ship `keytool` — then match the vendor and major JDK version of the
+        # component to avoid substituting a different set of public roots
+        # @section -- Global: Trust Store
+        repository: ""
+        # @schema
+        # type: [string, number]
+        # @schema
+        # -- Trust store init container image tag. Only used when `repository` is set
+        # @section -- Global: Trust Store
+        tag: ""
+        # -- Trust store init container image digest in the format `sha256:1234abcdef`. Only used
+        # when `repository` is set
+        # @section -- Global: Trust Store
+        digest: ""
+        # -- imagePullPolicy for the trust store init container
+        # @section -- Global: Trust Store
+        pullPolicy: IfNotPresent
+      # -- Password protecting the generated trust store. This guards the store's integrity,
+      # not its confidentiality, and `changeit` is the JRE default carried over from the seeded
+      # bundle. Changing it requires no other configuration
+      # @section -- Global: Trust Store
+      password: changeit
+      securityContext:
+        # -- UID the container processes run as (overrides container image default)
+        # @section -- Global: Trust Store
+        runAsUser: 101
+        # -- Require the container to run as a non-root UID (prevents starting if UID 0)
+        # @section -- Global: Trust Store
+        runAsNonRoot: true
+        # -- Mount the container root filesystem read-only to prevent in-place writes or
+        # tampering
+        # @section -- Global: Trust Store
+        readOnlyRootFilesystem: true
+        # -- Fine-grained Linux kernel privileges to add or drop for the container
+        # @section -- Global: Trust Store
+        capabilities:
+          drop:
+            - ALL
+      # -- Container requests and limits for different resources like CPU or memory
+      # @section -- Global: Trust Store
+      resources:
+        requests:
+          cpu: "0.25"
+          memory: "128Mi"
+        limits:
+          memory: "256Mi"
+
   # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
   # `ingress.*` value takes precedence when set; otherwise the global is used.
   ingress:

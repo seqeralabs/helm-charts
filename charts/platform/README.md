@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.38.0](https://img.shields.io/badge/Version-0.38.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.4](https://img.shields.io/badge/AppVersion-v26.1.4-informational?style=flat-square)
+![Version: 0.39.0](https://img.shields.io/badge/Version-0.39.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.4](https://img.shields.io/badge/AppVersion-v26.1.4-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -48,13 +48,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/platform --version 0.38.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/platform --version 0.39.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/platform \
-     --version 0.38.0 \
+     --version 0.39.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -70,7 +70,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/platform \
-  --version 0.38.0 \
+  --version 0.39.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -92,11 +92,11 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 3.x.x |
 | file://charts/agent-backend | agent-backend | 1.x.x |
-| file://charts/mcp | mcp | 0.7.x |
+| file://charts/mcp | mcp | 0.8.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
-| file://charts/portal-web | portal-web | 0.6.x |
+| file://charts/portal-web | portal-web | 0.7.x |
 | file://charts/studios | studios | 1.x.x |
-| file://charts/wave | wave | 0.5.x |
+| file://charts/wave | wave | 0.6.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
 
 ## Values
@@ -115,6 +115,29 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
 | global.portalWebDomain | string | `"{{ printf \"ai.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
+
+### Global: Trust Store
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| global.trustStore.enabled | bool | `false` | Enable private CA trust distribution. Requires one of `certificate`, `existingConfigMap`, or `existingSecret` |
+| global.trustStore.certificate | string | `""` | Inline PEM CA bundle. When set, the chart creates a ConfigMap holding it. Use `existingConfigMap` or `existingSecret` instead to manage the bundle outside the release |
+| global.trustStore.existingConfigMap | string | `""` | Name of an existing ConfigMap holding the CA bundle. Evaluated as a template |
+| global.trustStore.existingSecret | string | `""` | Name of an existing Secret holding the CA bundle. Takes precedence over `existingConfigMap`. Evaluated as a template |
+| global.trustStore.key | string | `"ca.crt"` | Key within the ConfigMap or Secret that holds the PEM bundle |
+| global.trustStore.mountPath | string | `"/opt/seqera/trust"` | Directory the PEM bundle is mounted into |
+| global.trustStore.javaMountPath | string | `"/opt/seqera/truststore"` | Directory generated trust assets are written to (a Java trust store or combined PEM bundle). Must be writable, so it is backed by an `emptyDir` — the containers run with a read-only root filesystem |
+| global.trustStore.java.image.registry | string | `""` | Override the trust store init container image registry. Only used when `repository` is set |
+| global.trustStore.java.image.repository | string | `""` | Override the trust store init container image repository. Leave empty to run each component's own image, which is the recommended default. Set this only when a component image does not ship `keytool` — then match the vendor and major JDK version of the component to avoid substituting a different set of public roots |
+| global.trustStore.java.image.tag | string | `""` | Trust store init container image tag. Only used when `repository` is set |
+| global.trustStore.java.image.digest | string | `""` | Trust store init container image digest in the format `sha256:1234abcdef`. Only used when `repository` is set |
+| global.trustStore.java.image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the trust store init container |
+| global.trustStore.java.password | string | `"changeit"` | Password protecting the generated trust store. This guards the store's integrity, not its confidentiality, and `changeit` is the JRE default carried over from the seeded bundle. Changing it requires no other configuration |
+| global.trustStore.java.securityContext.runAsUser | int | `101` | UID the container processes run as (overrides container image default) |
+| global.trustStore.java.securityContext.runAsNonRoot | bool | `true` | Require the container to run as a non-root UID (prevents starting if UID 0) |
+| global.trustStore.java.securityContext.readOnlyRootFilesystem | bool | `true` | Mount the container root filesystem read-only to prevent in-place writes or tampering |
+| global.trustStore.java.securityContext.capabilities | object | `{"drop":["ALL"]}` | Fine-grained Linux kernel privileges to add or drop for the container |
+| global.trustStore.java.resources | object | `{"limits":{"memory":"256Mi"},"requests":{"cpu":"0.25","memory":"128Mi"}}` | Container requests and limits for different resources like CPU or memory |
 
 ### Global: Ingress
 

@@ -1,0 +1,112 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test pipeline-optimization private CA trust store wiring
+templates:
+  - deployment.yaml
+  - secret.yaml
+  - configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+set:
+  database:
+    host: po-db
+    name: po
+    username: po
+    password: po
+  platformDatabase:
+    host: pf-db
+    name: pf
+    username: pf
+    password: pf
+tests:
+  - it: should add nothing when disabled
+    template: deployment.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+
+  # This is not a JVM service, so it gets a combined system-plus-private PEM
+  # rather than a Java trust store. Pointing these variables at the private CA
+  # alone would replace public trust.
+  - it: should build and mount an augmented PEM bundle when enabled
+    template: deployment.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingConfigMap: corp-ca
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-ca
+            configMap:
+              name: corp-ca
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: seqera-trust-store
+            emptyDir: {}
+      - equal:
+          path: spec.template.spec.initContainers[0].name
+          value: build-ca-bundle
+      - matchRegex:
+          path: spec.template.spec.initContainers[0].command[2]
+          pattern: 'cat "\$SYSTEM_CA_FILE" "\$CA_PATH" > "\$BUNDLE_PATH"'
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: seqera-trust-ca
+            mountPath: /opt/seqera/trust
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: seqera-trust-store
+            mountPath: /opt/seqera/truststore
+            readOnly: true
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SSL_CERT_FILE
+            value: "/opt/seqera/truststore/ca-bundle.crt"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: REQUESTS_CA_BUNDLE
+            value: "/opt/seqera/truststore/ca-bundle.crt"
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CURL_CA_BUNDLE
+            value: "/opt/seqera/truststore/ca-bundle.crt"
+
+  - it: should not build a Java trust store for a non-JVM service
+    template: deployment.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingConfigMap: corp-ca
+    asserts:
+      - notContains:
+          path: spec.template.spec.initContainers
+          content:
+            name: build-trust-store
+          any: true

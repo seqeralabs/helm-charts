@@ -1,0 +1,36 @@
+# Private CA trust distribution, reading the bundle from an object you manage.
+#
+# Preferred when the CA is rotated by a process outside the Helm release — cert-manager, an
+# external secrets operator, or your own tooling. The chart mounts the object but never
+# creates or modifies it.
+#
+# Create the ConfigMap first:
+#
+#   kubectl create configmap corporate-ca \
+#     --namespace platform --from-file=ca.crt=corporate-ca.pem
+#
+# Rotating the CA requires restarting the pods: the trust store is built once at pod startup,
+# so an updated ConfigMap is not picked up by running pods.
+
+global:
+  platformExternalDomain: platform.internal.example.com
+
+  trustStore:
+    enabled: true
+
+    # A Secret takes precedence when both are set.
+    existingConfigMap: corporate-ca
+    # existingSecret: corporate-ca
+
+    # Must match the key inside the ConfigMap or Secret.
+    key: ca.crt
+
+    java:
+      # The init container runs each component's own image by default, so every trust store is
+      # seeded from that component's JDK. Override only when a component image does not ship
+      # `keytool` — and match the vendor and major JDK version of the component, otherwise the
+      # generated store carries a different distribution's public roots.
+      image:
+        registry: internal-registry.example.com
+        repository: mirror/eclipse-temurin
+        tag: "21-jre"

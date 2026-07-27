@@ -65,6 +65,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- include "seqera.trustStore.initContainer" (dict "context" $ "imageRoot" .Values.backend.image "java" true) | nindent 8 }}
 {{- with .Values.backend.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
@@ -151,6 +152,7 @@ spec:
             - name: TOWER_AGENT_BACKEND_URL
               value: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
 {{- end }}
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.backend.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -172,6 +174,7 @@ spec:
               mountPath: /?/.nextflow/
             - name: connect-cert-volume
               mountPath: /data/certs
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.backend.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -200,6 +203,7 @@ spec:
         - name: connect-cert-volume
           secret:
             secretName: {{ include "studios.oidcPrivateKeySecretName" . }}
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" true) | nindent 8 }}
 {{- with .Values.backend.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

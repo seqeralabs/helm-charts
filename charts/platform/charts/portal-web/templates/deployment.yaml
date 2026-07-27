@@ -76,9 +76,12 @@ spec:
 {{- with .Values.args }}
           args: {{- toYaml . | nindent 12 }}
 {{- end }}
-{{- with .Values.extraEnvVars }}
+{{- if or (include "seqera.trustStore.enabled" .) .Values.extraEnvVars }}
           env:
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" false "node" true) | nindent 12 }}
+  {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
+  {{- end }}
 {{- end }}
           envFrom:
             - configMapRef:
@@ -96,6 +99,7 @@ spec:
               mountPath: /tmp
             - name: nextjs-cache
               mountPath: /app/.next/cache
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" false) | nindent 12 }}
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -122,6 +126,7 @@ spec:
         - name: nextjs-cache
           emptyDir:
             sizeLimit: {{ .Values.nextjsCacheSizeLimit }}
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" false) | nindent 8 }}
 {{- with .Values.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

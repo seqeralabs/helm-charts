@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test trust store ConfigMap
+templates:
+  - truststore-configmap.yaml
+chart:
+  version: 1.2.3
+  appVersion: "v9.9.9"
+tests:
+  - it: should not render when the trust store is disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render when enabled without any CA source
+    set:
+      global.trustStore.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render when the certificate is supplied but the trust store is disabled
+    set:
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should render the CA bundle when supplied inline
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - hasDocuments:
+          count: 1
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: release-name-platform-trust-store-ca
+      - equal:
+          path: data
+          value:
+            ca.crt: |
+              -----BEGIN CERTIFICATE-----
+              TEST
+              -----END CERTIFICATE-----
+
+  - it: should honour a custom key
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.key: corp-root.pem
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - equal:
+          path: data
+          value:
+            corp-root.pem: |
+              -----BEGIN CERTIFICATE-----
+              TEST
+              -----END CERTIFICATE-----
+
+  # The bundle is managed outside the release in these two cases, so creating a
+  # ConfigMap would silently shadow the user's own object.
+  - it: should not render when an existing ConfigMap is supplied
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingConfigMap: corp-ca
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not render when an existing Secret is supplied
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingSecret: corp-ca
+      global.trustStore.certificate: |
+        -----BEGIN CERTIFICATE-----
+        TEST
+        -----END CERTIFICATE-----
+    asserts:
+      - hasDocuments:
+          count: 0

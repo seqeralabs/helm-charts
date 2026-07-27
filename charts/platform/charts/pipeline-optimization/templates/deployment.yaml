@@ -59,6 +59,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- include "seqera.trustStore.initContainer" (dict "context" $ "imageRoot" .Values.image "java" false "pem" true) | nindent 8 }}
 {{- with .Values.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
@@ -121,6 +122,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "pipeline-optimization.platformDatabase.secretName" . }}
                   key: {{ include "pipeline-optimization.platformDatabase.secretKey" . }}
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" false) | nindent 12 }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -132,6 +134,7 @@ spec:
           volumeMounts:
             - name: tmp-volume
               mountPath: /tmp/
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" false "pem" true) | nindent 12 }}
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -154,6 +157,7 @@ spec:
         - name: tmp-volume
           emptyDir:
             sizeLimit: "1Gi"
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" false "pem" true) | nindent 8 }}
 {{- with .Values.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

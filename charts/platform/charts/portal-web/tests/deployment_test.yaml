@@ -139,6 +139,29 @@ tests:
             secretRef:
               name: SecretContainingExtraEnvVars
 
+  - it: should render private CA trust without extraEnvVars
+    template: deployment.yaml
+    set:
+      global.trustStore.enabled: true
+      global.trustStore.existingConfigMap: corp-ca
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NODE_EXTRA_CA_CERTS
+            value: "/opt/seqera/trust/ca.crt"
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: SSL_CERT_FILE
+          any: true
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            name: seqera-trust-ca
+            mountPath: /opt/seqera/trust
+            readOnly: true
+
   - it: should mount extra volumes
     template: deployment.yaml
     set:

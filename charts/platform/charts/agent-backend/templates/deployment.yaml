@@ -63,6 +63,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- include "seqera.trustStore.initContainer" (dict "context" $ "imageRoot" .Values.image "java" false "pem" true) | nindent 8 }}
 {{- with .Values.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
@@ -134,6 +135,7 @@ spec:
                   name: {{ include "agent-backend.redis.existingSecret.secretName" . }}
                   key: {{ include "agent-backend.redis.existingSecret.secretKey" . }}
 {{- end }}
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" false) | nindent 12 }}
 {{- with .Values.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -151,6 +153,7 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" false "pem" true) | nindent 12 }}
 {{- with .Values.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -173,6 +176,7 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" false "pem" true) | nindent 8 }}
 {{- with .Values.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

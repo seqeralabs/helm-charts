@@ -3608,6 +3608,227 @@
           "title": "studiosDomain",
           "type": "string"
         },
+        "trustStore": {
+          "description": "Trust anchors for an internal/private CA, shared across the parent chart and all subcharts.\n\nEnable this when Seqera components must reach endpoints whose certificates are signed by a\nCA that is not in any public trust store — an intranet-only deployment behind an enterprise\nPKI, or a corporate firewall performing HTTPS interception.\n\nJVM components (backend, cron, wave) receive a Java trust store built by an init container\nfrom the JRE's own bundle plus this CA. Python/Go/OpenSSL components receive a combined\nsystem-plus-private PEM bundle, and Node.js receives the CA through `NODE_EXTRA_CA_CERTS`.\nAll three mechanisms preserve public trust.\n\nThis is separate from database TLS. A database CA is supplied through the driver's own\noption (`platformDatabase.connectionOptions.mariadb` `serverSslCert`, or a subchart's\n`database.sslCa`) and does not affect any other connection. Point those at\n`.global.trustStore.mountPath` when the database certificate is signed by the same CA.",
+          "properties": {
+            "certificate": {
+              "default": "",
+              "description": "Inline PEM CA bundle. When set, the chart creates a ConfigMap holding it. Use\n`existingConfigMap` or `existingSecret` instead to manage the bundle outside the release",
+              "title": "certificate",
+              "type": "string"
+            },
+            "enabled": {
+              "default": false,
+              "description": "Enable private CA trust distribution. Requires one of `certificate`,\n`existingConfigMap`, or `existingSecret`",
+              "title": "enabled",
+              "type": "boolean"
+            },
+            "existingConfigMap": {
+              "default": "",
+              "description": "Name of an existing ConfigMap holding the CA bundle. Evaluated as a template",
+              "title": "existingConfigMap",
+              "type": "string"
+            },
+            "existingSecret": {
+              "default": "",
+              "description": "Name of an existing Secret holding the CA bundle. Takes precedence over\n`existingConfigMap`. Evaluated as a template",
+              "title": "existingSecret",
+              "type": "string"
+            },
+            "java": {
+              "description": "Settings for the init container that builds the Java trust store for JVM components.\n\nBy default the init container runs each component's own image, so the store is seeded from\nthat component's JDK. This is deliberate: a trust store seeded from a different JDK carries\nthat vendor's set of public roots, so using one stock JRE for every component would silently\nswap their public trust for another distribution's. Seqera components do not all ship the\nsame base image.\n\nNote that the JVM prints `Picked up JAVA_TOOL_OPTIONS: ...` to stderr at startup for every\ncomponent this applies to. That is expected, not an error.",
+              "properties": {
+                "image": {
+                  "properties": {
+                    "digest": {
+                      "default": "",
+                      "description": "Trust store init container image digest in the format `sha256:1234abcdef`. Only used\nwhen `repository` is set",
+                      "title": "digest",
+                      "type": "string"
+                    },
+                    "pullPolicy": {
+                      "default": "IfNotPresent",
+                      "description": "imagePullPolicy for the trust store init container",
+                      "title": "pullPolicy",
+                      "type": "string"
+                    },
+                    "registry": {
+                      "default": "",
+                      "description": "Override the trust store init container image registry. Only used when `repository`\nis set",
+                      "title": "registry",
+                      "type": "string"
+                    },
+                    "repository": {
+                      "default": "",
+                      "description": "Override the trust store init container image repository. Leave empty to run each\ncomponent's own image, which is the recommended default. Set this only when a component\nimage does not ship `keytool` — then match the vendor and major JDK version of the\ncomponent to avoid substituting a different set of public roots",
+                      "title": "repository",
+                      "type": "string"
+                    },
+                    "tag": {
+                      "default": "",
+                      "description": "Trust store init container image tag. Only used when `repository` is set",
+                      "required": [],
+                      "title": "tag",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "registry",
+                    "repository",
+                    "digest",
+                    "pullPolicy"
+                  ],
+                  "title": "image",
+                  "type": "object"
+                },
+                "password": {
+                  "default": "changeit",
+                  "description": "Password protecting the generated trust store. This guards the store's integrity,\nnot its confidentiality, and `changeit` is the JRE default carried over from the seeded\nbundle. Changing it requires no other configuration",
+                  "title": "password",
+                  "type": "string"
+                },
+                "resources": {
+                  "description": "Container requests and limits for different resources like CPU or memory",
+                  "properties": {
+                    "limits": {
+                      "properties": {
+                        "memory": {
+                          "default": "256Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "memory"
+                      ],
+                      "title": "limits",
+                      "type": "object"
+                    },
+                    "requests": {
+                      "properties": {
+                        "cpu": {
+                          "default": "0.25",
+                          "title": "cpu",
+                          "type": "string"
+                        },
+                        "memory": {
+                          "default": "128Mi",
+                          "title": "memory",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "cpu",
+                        "memory"
+                      ],
+                      "title": "requests",
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "requests",
+                    "limits"
+                  ],
+                  "title": "resources",
+                  "type": "object"
+                },
+                "securityContext": {
+                  "properties": {
+                    "capabilities": {
+                      "description": "Fine-grained Linux kernel privileges to add or drop for the container",
+                      "properties": {
+                        "drop": {
+                          "items": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              }
+                            ],
+                            "required": []
+                          },
+                          "title": "drop",
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "drop"
+                      ],
+                      "title": "capabilities",
+                      "type": "object"
+                    },
+                    "readOnlyRootFilesystem": {
+                      "default": true,
+                      "description": "Mount the container root filesystem read-only to prevent in-place writes or\ntampering",
+                      "title": "readOnlyRootFilesystem",
+                      "type": "boolean"
+                    },
+                    "runAsNonRoot": {
+                      "default": true,
+                      "description": "Require the container to run as a non-root UID (prevents starting if UID 0)",
+                      "title": "runAsNonRoot",
+                      "type": "boolean"
+                    },
+                    "runAsUser": {
+                      "default": 101,
+                      "description": "UID the container processes run as (overrides container image default)",
+                      "title": "runAsUser",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "runAsUser",
+                    "runAsNonRoot",
+                    "readOnlyRootFilesystem",
+                    "capabilities"
+                  ],
+                  "title": "securityContext",
+                  "type": "object"
+                }
+              },
+              "required": [
+                "image",
+                "password",
+                "securityContext",
+                "resources"
+              ],
+              "title": "java",
+              "type": "object"
+            },
+            "javaMountPath": {
+              "default": "/opt/seqera/truststore",
+              "description": "Directory generated trust assets are written to (a Java trust store or combined PEM\nbundle). Must be writable, so it is backed by an `emptyDir` — the containers run with a\nread-only root filesystem",
+              "title": "javaMountPath",
+              "type": "string"
+            },
+            "key": {
+              "default": "ca.crt",
+              "description": "Key within the ConfigMap or Secret that holds the PEM bundle",
+              "title": "key",
+              "type": "string"
+            },
+            "mountPath": {
+              "default": "/opt/seqera/trust",
+              "description": "Directory the PEM bundle is mounted into",
+              "title": "mountPath",
+              "type": "string"
+            }
+          },
+          "required": [
+            "enabled",
+            "certificate",
+            "existingConfigMap",
+            "existingSecret",
+            "key",
+            "mountPath",
+            "javaMountPath",
+            "java"
+          ],
+          "title": "trustStore",
+          "type": "object"
+        },
         "waveDomain": {
           "default": "{{ printf \"wave.%s\" .Values.global.platformExternalDomain }}",
           "description": "Domain where Wave listens. Evaluated as a template",
@@ -3625,6 +3846,7 @@
         "mcpDomain",
         "agentBackendDomain",
         "portalWebDomain",
+        "trustStore",
         "ingress",
         "imageCredentials",
         "imageCredentialsSecrets"

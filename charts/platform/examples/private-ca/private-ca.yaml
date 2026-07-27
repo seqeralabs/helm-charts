@@ -1,0 +1,42 @@
+# Private / internal CA trust distribution.
+#
+# Use this when Seqera components must reach endpoints whose certificates are signed by a CA
+# that is not in any public trust store — an intranet-only deployment behind an enterprise PKI,
+# or a corporate firewall performing HTTPS interception.
+#
+# Everything below hangs off a single `global.trustStore` block. The chart works out what each
+# component needs: JVM services get a Java trust store, Python/Go/OpenSSL services get an
+# augmented system PEM bundle, and Node.js gets the CA through its additive trust setting.
+#
+# Replace the placeholder values before deploying.
+
+global:
+  platformExternalDomain: platform.internal.example.com
+
+  trustStore:
+    enabled: true
+
+    # Supply the CA inline and let the chart create the ConfigMap. Use `existingConfigMap` or
+    # `existingSecret` instead to manage the bundle outside the release — see
+    # existing-configmap.yaml.
+    certificate: |
+      -----BEGIN CERTIFICATE-----
+      REPLACE WITH YOUR INTERNAL CA CERTIFICATE
+      -----END CERTIFICATE-----
+
+# Only needed when the database certificate is signed by the same internal CA. For AWS RDS or
+# Azure Database for MySQL, keep pointing `serverSslCert` at that provider's own CA bundle —
+# the internal CA does not sign those certificates. See ../customize-init-containers.
+platformDatabase:
+  host: mysql.internal.example.com
+  name: platformdb
+  username: platformuser
+  connectionOptions:
+    mariadb:
+      - permitMysqlScheme=true
+      - sslMode=verify-full
+      - serverSslCert=/opt/seqera/trust/ca.crt
+
+redis:
+  host: redis.internal.example.com
+  enableTls: true

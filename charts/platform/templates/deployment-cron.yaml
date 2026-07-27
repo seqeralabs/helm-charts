@@ -69,6 +69,7 @@ spec:
 {{- end }}
 
       initContainers:
+{{- include "seqera.trustStore.initContainer" (dict "context" $ "imageRoot" .Values.cron.image "java" true) | nindent 8 }}
 {{- with .Values.cron.initContainers }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}
@@ -87,6 +88,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "platform.database.secretName" . }}
                   key: {{ include "platform.database.secretKey" . }}
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.cron.dbMigrationInitContainer.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -114,6 +116,7 @@ spec:
           resources: {{- toYaml . | nindent 12 }}
 {{- end }}
           volumeMounts:
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.cron.dbMigrationInitContainer.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -185,6 +188,7 @@ spec:
               value: "/var/cache/tower/"
             - name: NXF_PLUGINS_DIR
               value: "/var/cache/tower/plugins/"
+{{- include "seqera.trustStore.envVars" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.cron.extraEnvVars }}
             {{- include "seqera.envVars.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -194,6 +198,7 @@ spec:
 {{- end }}
 
           volumeMounts:
+{{- include "seqera.trustStore.volumeMounts" (dict "context" $ "java" true) | nindent 12 }}
 {{- with .Values.cron.extraVolumeMounts }}
             {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
 {{- end }}
@@ -225,6 +230,7 @@ spec:
 {{- end }}
 
       volumes:
+{{- include "seqera.trustStore.volumes" (dict "context" $ "java" true) | nindent 8 }}
 {{- with .Values.cron.extraVolumes }}
         {{- include "seqera.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
 {{- end }}

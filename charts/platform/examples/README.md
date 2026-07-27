@@ -18,6 +18,7 @@ This directory contains practical examples demonstrating different deployment co
 | [ingress-configurations/](ingress-configurations/) | Various ingress controller setups (NGINX, AWS ALB, GKE, Traefik) with TLS certificate management |
 | [kustomize/](kustomize/) | Using Kustomize for environment-specific configurations and overlays |
 | [passwords-from-secrets/](passwords-from-secrets/) | Managing sensitive credentials using Kubernetes secrets |
+| [private-ca/](private-ca/) | Distribute a private/internal CA to every component, for deployments behind an enterprise PKI or a TLS-inspecting proxy |
 | [pod-allocation-strategies/](pod-allocation-strategies/) | Node selectors, affinity rules, anti-affinity, and topology spread constraints |
 
 ## Subchart examples
