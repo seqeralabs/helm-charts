@@ -1,0 +1,126 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+suite: test global container image registry override
+templates:
+- deployment-backend.yaml
+- deployment-frontend.yaml
+- deployment-cron.yaml
+- secret.yaml
+- configmap.yaml
+- charts/studios/templates/deployment-proxy.yaml
+- charts/studios/templates/statefulset-server.yaml
+- charts/studios/templates/secret.yaml
+- charts/pipeline-optimization/templates/deployment.yaml
+- charts/pipeline-optimization/templates/secret.yaml
+- charts/pipeline-optimization/templates/configmap.yaml
+- charts/wave/templates/deployment.yaml
+- charts/wave/templates/secret.yaml
+- charts/wave/templates/configmap.yaml
+- charts/mcp/templates/deployment.yaml
+- charts/mcp/templates/secret.yaml
+- charts/mcp/templates/configmap.yaml
+- charts/agent-backend/templates/deployment.yaml
+- charts/agent-backend/templates/secret.yaml
+- charts/agent-backend/templates/configmap.yaml
+- charts/portal-web/templates/deployment.yaml
+- charts/portal-web/templates/secret.yaml
+- charts/portal-web/templates/configmap.yaml
+set:
+  global:
+    imageRegistry: registry.example.com
+  # Avoid expensive RSA key generation while rendering the parent templates.
+  platform:
+    oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
+  agent-backend:
+    inference:
+      provider: bedrock
+tests:
+- it: applies the global registry to the Platform backend
+  template: deployment-backend.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/platform/backend:v26.1.4
+
+- it: applies the global registry to the Platform frontend
+  template: deployment-frontend.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/platform/frontend:v26.1.4-unprivileged
+
+- it: applies the global registry to the Platform cron and database migration images
+  template: deployment-cron.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/platform/backend:v26.1.4
+  - equal:
+      path: spec.template.spec.initContainers[2].image
+      value: registry.example.com/enterprise/platform/migrate-db:v26.1.4
+
+- it: propagates the global registry to the Studios proxy
+  template: charts/studios/templates/deployment-proxy.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/studios/proxy:0.11.1
+
+- it: propagates the global registry to the Studios server
+  template: charts/studios/templates/statefulset-server.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/studios/server:0.11.1
+
+- it: propagates the global registry to Pipeline Optimization
+  template: charts/pipeline-optimization/templates/deployment.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/platform/pipeline-optimization:0.4.15
+
+- it: propagates the global registry to Wave
+  template: charts/wave/templates/deployment.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/enterprise/wave/server:v1.37.0
+
+- it: propagates the global registry to MCP
+  template: charts/mcp/templates/deployment.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/ai/mcp/server:1.4.2
+
+- it: propagates the global registry to Agent Backend
+  template: charts/agent-backend/templates/deployment.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/ai/agent-backend/backend:1.13.1
+
+- it: propagates the global registry to Portal Web
+  template: charts/portal-web/templates/deployment.yaml
+  asserts:
+  - equal:
+      path: spec.template.spec.containers[0].image
+      value: registry.example.com/ai/portal/web:1.7.2
