@@ -26,6 +26,11 @@
 # Values in the .global section can be accessed by both parent and child subcharts as
 # .Values.global.*: https://helm.sh/docs/chart_template_guide/subcharts_and_globals/
 global:
+  # -- Container image registry applied to Platform and all subcharts. When set, this overrides
+  # component-level `image.registry` values
+  # @section -- Global: Images
+  imageRegistry: ""
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   # @section -- Global

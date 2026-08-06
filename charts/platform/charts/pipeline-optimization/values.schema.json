@@ -376,9 +376,16 @@
           },
           "title": "imageCredentialsSecrets",
           "type": "array"
+        },
+        "imageRegistry": {
+          "default": "",
+          "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+          "title": "imageRegistry",
+          "type": "string"
         }
       },
       "required": [
+        "imageRegistry",
         "imageCredentials",
         "imageCredentialsSecrets"
       ],
