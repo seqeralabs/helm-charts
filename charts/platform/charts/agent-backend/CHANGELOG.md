@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Document `global.imageRegistry` as the supported registry override for all container images.
 
+### Changed
+
+- Updated `appVersion` to `1.14.0`.
+
 ### Fixed
 
 - `ingress.extraHosts` path entries that define neither `portName` nor `portNumber` now fail
