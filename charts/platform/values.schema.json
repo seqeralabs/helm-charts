@@ -515,6 +515,12 @@
               "title": "imageCredentialsSecrets",
               "type": "array"
             },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
+            },
             "ingress": {
               "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
               "properties": {
@@ -3501,6 +3507,12 @@
           "title": "imageCredentialsSecrets",
           "type": "array"
         },
+        "imageRegistry": {
+          "default": "",
+          "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+          "title": "imageRegistry",
+          "type": "string"
+        },
         "ingress": {
           "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
           "properties": {
@@ -3616,6 +3628,7 @@
         }
       },
       "required": [
+        "imageRegistry",
         "platformExternalDomain",
         "contentDomain",
         "platformServiceAddress",
@@ -4458,6 +4471,12 @@
               },
               "title": "imageCredentialsSecrets",
               "type": "array"
+            },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
             },
             "ingress": {
               "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
@@ -5616,6 +5635,12 @@
               },
               "title": "imageCredentialsSecrets",
               "type": "array"
+            },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
             }
           },
           "required": [],
@@ -7038,6 +7063,12 @@
               "title": "imageCredentialsSecrets",
               "type": "array"
             },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
+            },
             "ingress": {
               "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
               "properties": {
@@ -7811,6 +7842,12 @@
               },
               "title": "imageCredentialsSecrets",
               "type": "array"
+            },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
             },
             "ingress": {
               "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",
@@ -9160,6 +9197,12 @@
               },
               "title": "imageCredentialsSecrets",
               "type": "array"
+            },
+            "imageRegistry": {
+              "default": "",
+              "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
+              "title": "imageRegistry",
+              "type": "string"
             },
             "ingress": {
               "description": "Ingress defaults shared across the parent chart and all subcharts. Each subchart's local\n`ingress.*` value takes precedence when set; otherwise the global is used.",

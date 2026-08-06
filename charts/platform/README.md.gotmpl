@@ -16,7 +16,7 @@ Note that the Seqera charts do not automatically set `cr.seqera.io` as the regis
 
 The required values to set in order to have a working installation are:
 - The domain where Seqera Platform is accessible, set under `.global.platformExternalDomain`.
-- The `.image` section under the `.backend`, `.frontend`, `.cron` and `.cron.dbMigrationInitContainer` components to point to your container registry.
+- The `.global.imageRegistry` value to use one container registry for Platform and all subcharts. Alternatively, configure the `.image` section under individual components when they need different registries or repositories.
 - Container registry credentials under the `.global.imageCredentials` section (can be the credentials for `cr.seqera.io` or your private registry where you vendored the images to).
   Alternatively, to avoid storing sensitive credentials in the values file, you can create a Kubernetes Secret containing the credentials and reference it in the `.global.imageCredentialsSecrets` value. Refer to [the Kubernetes docs](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line) to create a Kubernetes Secret to store image pull credentials.
   * These credentials will be used by all the subcharts unless overridden in the specific subchart.
