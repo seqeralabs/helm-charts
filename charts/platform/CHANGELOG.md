@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subchart container images, with parent-chart integration tests covering the core components
   and enabled subcharts.
 
+### Changed
+
+- Moved the `TOWER_AI_BASE_URL` (set when the `portal-web` subchart is enabled) and
+  `TOWER_AGENT_BACKEND_URL` (set when the `agent-backend` subchart is enabled) environment variables
+  from inline `env` entries in the backend Deployment into the `<release>-platform-backend`
+  ConfigMap, alongside the other AI-related configuration. Rendered values are unchanged.
+
 ## [0.38.0] - 2026-07-24
 
 ### Changed
