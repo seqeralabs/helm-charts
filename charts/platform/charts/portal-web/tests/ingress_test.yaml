@@ -183,3 +183,15 @@ tests:
       - equal:
           path: spec.rules[1].http.paths[0].backend.service.port.name
           value: RELEASE-NAME-port
+
+  - it: should fail when extraHosts path defines neither portName nor portNumber
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+    asserts:
+      - failedTemplate:
+          errorMessage: ingress.extraHosts path entry must define either portName or portNumber

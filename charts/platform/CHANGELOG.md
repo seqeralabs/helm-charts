@@ -13,8 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subchart container images, with parent-chart integration tests covering the core components
   and enabled subcharts.
 
+### Fixed
+
+- `ingress.extraHosts` path entries that define neither `portName` nor `portNumber` now fail
+  rendering with a clear error instead of silently producing an invalid `port.number: 0` backend.
+  The port block is now rendered via the shared `seqera.ingress.backend` helper from `seqera-common`.
+
 ### Changed
 
+- Bumped the `seqera-common` dependency to `3.1.0` (adds the `seqera.ingress.backend` helper).
+- Bumped subchart dependencies `wave` to `0.5.3`, `mcp` to `0.7.2`, `agent-backend` to `1.4.2`,
+  `studios` to `1.7.2`, and `portal-web` to `0.6.2` for the same `ingress.extraHosts` fix.
 - Moved the `TOWER_AI_BASE_URL` (set when the `portal-web` subchart is enabled) and
   `TOWER_AGENT_BACKEND_URL` (set when the `agent-backend` subchart is enabled) environment variables
   from inline `env` entries in the backend Deployment into the `<release>-platform-backend`

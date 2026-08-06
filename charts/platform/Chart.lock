@@ -4,7 +4,7 @@ dependencies:
   version: 2.41.0
 - name: seqera-common
   repository: file://../seqera-common
-  version: 3.0.0
+  version: 3.1.0
 - name: pipeline-optimization
   repository: file://charts/pipeline-optimization
   version: 2.2.2
@@ -23,5 +23,5 @@ dependencies:
 - name: portal-web
   repository: file://charts/portal-web
   version: 0.6.1
-digest: sha256:c8c8102d056842580f8c8efe5110b5df18b94707f08869ec84736b30d0da7fe4
-generated: "2026-08-06T08:03:29.46284368+02:00"
+digest: sha256:463b2e0d856a4e86af064f05e700c877b9e022f6e1c5b95cc805c3bc642c47cd
+generated: "2026-08-06T15:44:46.121652807+02:00"

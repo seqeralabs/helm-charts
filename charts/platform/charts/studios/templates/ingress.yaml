@@ -69,14 +69,7 @@ spec:
           - path: {{ .path }}
             pathType: {{ .pathType | default $defaultPathType }}
             backend:
-              service:
-                name: {{ tpl .serviceName $ | quote }}
-                port:
-      {{- if .portName }}
-                  name: {{ tpl .portName $ | quote }}
-      {{- else }}
-                  number: {{ tpl (toString .portNumber) $ | int }}
-      {{- end }}
+              {{- include "seqera.ingress.backend" (dict "serviceName" .serviceName "portName" .portName "portNumber" .portNumber "context" $) | nindent 14 }}
     {{- end }}
   {{- end }}
 {{- end }}

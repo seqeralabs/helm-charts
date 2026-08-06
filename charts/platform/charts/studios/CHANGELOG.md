@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Document `global.imageRegistry` as the supported registry override for all container images.
 
+### Fixed
+
+- `ingress.extraHosts` path entries that define neither `portName` nor `portNumber` now fail
+  rendering with a clear error instead of silently producing an invalid `port.number: 0` backend.
+  The port block is now rendered via the shared `seqera.ingress.backend` helper from `seqera-common`.
+
 ## [1.7.0] - 2026-07-17
 
 ### Added

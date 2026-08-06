@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-08-06
+
+### Added
+
+- Add `seqera.ingress.backend` helper that renders an Ingress path backend `service` block from
+  an `extraHosts` path entry. Exactly one of `portName` or `portNumber` must be set; if neither is
+  provided the template fails instead of silently rendering an invalid `port.number: 0` backend.
+
 ## [3.0.0] - 2026-07-07
 
 ### Removed
