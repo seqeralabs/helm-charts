@@ -48,79 +48,114 @@ set:
   # Avoid expensive RSA key generation while rendering the parent templates.
   platform:
     oidcPrivateKeyBase64: "LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlCb3dJQkFBS0JBUUVBMQ=="
+  # Pin image tags to static values so these tests assert on the registry override
+  # only, independent of each chart's released appVersion.
+  backend:
+    image:
+      tag: backend-test-tag
+  frontend:
+    image:
+      tag: frontend-test-tag
+  cron:
+    image:
+      tag: cron-test-tag
+    dbMigrationInitContainer:
+      image:
+        tag: migrate-db-test-tag
+  studios:
+    proxy:
+      image:
+        tag: studios-proxy-test-tag
+    server:
+      image:
+        tag: studios-server-test-tag
+  pipeline-optimization:
+    image:
+      tag: pipeline-optimization-test-tag
+  wave:
+    image:
+      tag: wave-test-tag
+  mcp:
+    image:
+      tag: mcp-test-tag
   agent-backend:
     inference:
       provider: bedrock
+    image:
+      tag: agent-backend-test-tag
+  portal-web:
+    image:
+      tag: portal-web-test-tag
 tests:
 - it: applies the global registry to the Platform backend
   template: deployment-backend.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/platform/backend:v26.1.4
+      value: registry.example.com/enterprise/platform/backend:backend-test-tag
 
 - it: applies the global registry to the Platform frontend
   template: deployment-frontend.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/platform/frontend:v26.1.4-unprivileged
+      value: registry.example.com/enterprise/platform/frontend:frontend-test-tag
 
 - it: applies the global registry to the Platform cron and database migration images
   template: deployment-cron.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/platform/backend:v26.1.4
+      value: registry.example.com/enterprise/platform/backend:cron-test-tag
   - equal:
       path: spec.template.spec.initContainers[2].image
-      value: registry.example.com/enterprise/platform/migrate-db:v26.1.4
+      value: registry.example.com/enterprise/platform/migrate-db:migrate-db-test-tag
 
 - it: propagates the global registry to the Studios proxy
   template: charts/studios/templates/deployment-proxy.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/studios/proxy:0.11.1
+      value: registry.example.com/enterprise/studios/proxy:studios-proxy-test-tag
 
 - it: propagates the global registry to the Studios server
   template: charts/studios/templates/statefulset-server.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/studios/server:0.11.1
+      value: registry.example.com/enterprise/studios/server:studios-server-test-tag
 
 - it: propagates the global registry to Pipeline Optimization
   template: charts/pipeline-optimization/templates/deployment.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/platform/pipeline-optimization:0.4.15
+      value: registry.example.com/enterprise/platform/pipeline-optimization:pipeline-optimization-test-tag
 
 - it: propagates the global registry to Wave
   template: charts/wave/templates/deployment.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/enterprise/wave/server:v1.37.0
+      value: registry.example.com/enterprise/wave/server:wave-test-tag
 
 - it: propagates the global registry to MCP
   template: charts/mcp/templates/deployment.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/ai/mcp/server:1.4.2
+      value: registry.example.com/ai/mcp/server:mcp-test-tag
 
 - it: propagates the global registry to Agent Backend
   template: charts/agent-backend/templates/deployment.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/ai/agent-backend/backend:1.13.1
+      value: registry.example.com/ai/agent-backend/backend:agent-backend-test-tag
 
 - it: propagates the global registry to Portal Web
   template: charts/portal-web/templates/deployment.yaml
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/ai/portal/web:1.7.2
+      value: registry.example.com/ai/portal/web:portal-web-test-tag
