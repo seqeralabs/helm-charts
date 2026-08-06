@@ -31,10 +31,6 @@ should produce a Deployment resource with minimal values:
             value: /var/cache/tower/
           - name: NXF_PLUGINS_DIR
             value: /var/cache/tower/plugins/
-          - name: TOWER_AI_BASE_URL
-            value: https://ai.example.com
-          - name: TOWER_AGENT_BACKEND_URL
-            value: https://ai-api.example.com
         envFrom:
           - configMapRef:
               name: release-name-platform-backend
@@ -229,7 +225,7 @@ should render the backend deployment with the correct checksums, labels and anno
       template:
         metadata:
           annotations:
-            checksum/configmap: 5cab19723d8beb4a19bd319af6b33294a3067e5d07888ae7cadcb23aaae1e7dc
+            checksum/configmap: 41d17065a52b8ece84bc2f1297cbecbd2c91115d8ec5af98754e9d767f8dbe76
             checksum/secret: d3b5ca20c437b2faa4af1b549c817ee78cc2a992f86741120f01bd93a30d4873
             common-annotation-key: common-annotation-value
             pod-annotation-key: pod-annotation-value
@@ -276,10 +272,6 @@ should render the backend deployment with the correct checksums, labels and anno
                   value: /var/cache/tower/
                 - name: NXF_PLUGINS_DIR
                   value: /var/cache/tower/plugins/
-                - name: TOWER_AI_BASE_URL
-                  value: https://ai.example.com
-                - name: TOWER_AGENT_BACKEND_URL
-                  value: https://ai-api.example.com
               envFrom:
                 - configMapRef:
                     name: release-name-platform-backend

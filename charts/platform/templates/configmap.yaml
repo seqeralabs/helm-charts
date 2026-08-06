@@ -44,6 +44,10 @@ data:
 {{- end }}
 {{- if (index .Values "portal-web" "enabled") }}
   TOWER_SEQERA_AI_PORTAL_URL: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
+  TOWER_AI_BASE_URL: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
+{{- end }}
+{{- if (index .Values "agent-backend" "enabled") }}
+  TOWER_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
 {{- end }}
 ---
 kind: ConfigMap
