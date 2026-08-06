@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a Studios SSH configuration guide covering backend and proxy settings, dedicated Layer-4
+  Services, externally managed NLB target groups, and chart-managed AWS NLBs.
 - Document `global.imageRegistry` as the supported registry override for Platform and all
   subchart container images, with parent-chart integration tests covering the core components
   and enabled subcharts.

@@ -19,6 +19,9 @@ Studios uses OIDC tokens to securely register clients with Seqera Platform. Ensu
 deployment has OIDC enabled (automatic if deployed via Helm): if no OIDC token is provided, the
 chart will automatically create a random string token and configure it with Platform accordingly.
 
+To enable direct SSH connections to Studios, see [Configure SSH access to Seqera
+Studios](ssh.md).
+
 ## DNS Configuration
 
 Studios requires wildcard DNS records pointing to your ingress controller/load balancer:
