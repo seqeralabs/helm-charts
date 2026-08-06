@@ -215,6 +215,18 @@ tests:
             port:
               name: use-annotation
 
+  - it: should fail when extraHosts path defines neither portName nor portNumber
+    set:
+      ingress.enabled: true
+      ingress.extraHosts:
+        - host: test.example.com
+          paths:
+            - path: /api
+              serviceName: api-service
+    asserts:
+      - failedTemplate:
+          errorMessage: ingress.extraHosts path entry must define either portName or portNumber
+
   - it: should handle multiple extraHosts with different portNumber types
     set:
       ingress.enabled: true

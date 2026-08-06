@@ -522,6 +522,21 @@ tests:
         name: redirect-to-service
         port:
           name: use-annotation
+- it: should fail when extraHosts path defines neither portName nor portNumber
+  set:
+    ingress:
+      enabled: true
+      extraHosts:
+      - host: test.example.com
+        paths:
+        - path: /api
+          serviceName: api-service
+    global:
+      platformExternalDomain: platform.example.com
+      contentDomain: ""
+  asserts:
+  - failedTemplate:
+      errorMessage: ingress.extraHosts path entry must define either portName or portNumber
 - it: should handle multiple extraHosts with different portNumber types
   set:
     ingress:
