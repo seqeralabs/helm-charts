@@ -1,0 +1,5 @@
+# RunsOn repository config.
+#
+# Inherit the org's central runner catalogue from seqeralabs/.github-private,
+# so the seqera-small / seqera-medium / etc runners resolve here too.
+_extends: .github-private
