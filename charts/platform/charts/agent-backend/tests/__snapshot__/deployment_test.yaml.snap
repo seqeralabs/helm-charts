@@ -13,11 +13,14 @@ should render a Deployment with default values:
       name: release-name-agent-backend
       namespace: NAMESPACE
     spec:
+      replicas: 1
       selector:
         matchLabels:
           app.kubernetes.io/component: agent-backend
           app.kubernetes.io/instance: RELEASE-NAME
           app.kubernetes.io/name: agent-backend
+      strategy:
+        type: Recreate
       template:
         metadata:
           annotations:

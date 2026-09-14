@@ -34,9 +34,15 @@ spec:
   selector:
     matchLabels: {{- include "common.labels.matchLabels" (dict "customLabels" $podLabels "context" $) | nindent 6 }}
       app.kubernetes.io/component: agent-backend
+
+  # The agent-backend deployment MUST NOT be replicated, not even during a rolling deployment.
+  replicas: 1
+  strategy:
+    type: Recreate
 # This prevents an empty dict {} to be rendered when extraOptionsSpec only contains keys that are
-# already rendered explicitly in the template (selector is always rendered by the template)
-{{- $extraOptionsSpec := omit .Values.extraOptionsSpec "selector" }}
+# already rendered explicitly in the template (replicas, strategy, and selector are always rendered
+# by the template)
+{{- $extraOptionsSpec := omit .Values.extraOptionsSpec "replicas" "strategy" "selector" }}
 {{- if $extraOptionsSpec }}
   {{- include "seqera.tplvalues.render" (dict "value" $extraOptionsSpec "context" $) | nindent 2 }}
 {{- end }}

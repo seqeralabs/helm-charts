@@ -463,7 +463,7 @@
           "type": "array"
         },
         "extraOptionsSpec": {
-          "description": "Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).\nEvaluated as a template",
+          "description": "Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.\nNote: `replicas`, `strategy`, and `selector` are always managed by the chart and cannot be\noverridden here. The agent-backend deployment MUST NOT be replicated, not even during a rolling\ndeployment, so it is pinned to `replicas: 1` with a `Recreate` strategy.",
           "required": [],
           "title": "extraOptionsSpec",
           "type": "object"
