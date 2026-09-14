@@ -26,6 +26,8 @@ BEHAVIOR:
   - Compares subchart version against parent's dependency version constraint
   - Supports x-range constraints (e.g., "0.1.x", "1.x.x")
   - BLOCKING: fails the build if versions don't match constraints
+  - EXEMPTION: subcharts marked `deprecated: true` in their own Chart.yaml are skipped, since a
+    deprecated chart is expected to be removed from the parent's dependencies
 
 SUPPORTED VERSION CONSTRAINTS:
   - x-range: "0.1.x" matches 0.1.0, 0.1.5 but not 0.2.0
@@ -127,6 +129,15 @@ def main():
         with open(subchart_yaml_path) as f:
             subchart_yaml = yaml.safe_load(f)
             subchart_version = str(subchart_yaml.get('version', ''))
+            subchart_deprecated = bool(subchart_yaml.get('deprecated', False))
+
+        # Deprecated subcharts are expected to be dropped from the parent's dependencies, so skip
+        # the coverage check for them entirely.
+        if subchart_deprecated:
+            successes.append(
+                f"⏭️  Subchart '{subchart_name}' version {subchart_version} is deprecated; skipping parent dependency coverage check"
+            )
+            continue
 
         # Read parent chart dependencies
         parent_yaml_path = os.path.join(parent_dir, 'Chart.yaml')
