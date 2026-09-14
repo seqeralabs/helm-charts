@@ -6563,18 +6563,6 @@
         "studios": {
           "description": "Seqera Studios configuration",
           "properties": {
-            "customImageRegistry": {
-              "default": "",
-              "description": "Image registry where Wave (defined at `.platform.waveServerUrl`) will push custom Studios\nimages built for user sessions. Credentials to the registry/repository must be defined in each\nPlatform Workspace. Example: `myregistry.example.com`",
-              "title": "customImageRegistry",
-              "type": "string"
-            },
-            "customImageRepository": {
-              "default": "",
-              "description": "Image repository where Wave (defined at `.platform.waveServerUrl`) will push custom Studios\nimages built for user sessions. Example: `myteam/studios-container-repo`",
-              "title": "customImageRepository",
-              "type": "string"
-            },
             "tools": {
               "description": "Map of tools to make available in Studios. Recommended and deprecated versions can be\nspecified for each tool to allow upgrading from an older version. Refer to the documentation\nfor more details:\nhttps://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template",
               "properties": {
@@ -6694,8 +6682,6 @@
             }
           },
           "required": [
-            "customImageRegistry",
-            "customImageRepository",
             "tools"
           ],
           "title": "studios",

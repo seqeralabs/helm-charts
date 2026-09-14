@@ -21,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed the `portal-web` subchart dependency and its `portal-web` values block. Platform v26.2
   ships with the Seqera Co-scientist interface integrated directly, so the standalone `portal-web`
   frontend is no longer deployed.
+- **BREAKING**: Removed the `platform.studios.customImageRegistry` and
+  `platform.studios.customImageRepository` values, which set the
+  `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY` and `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY`
+  environment variables. Set these (and any other Studios/Wave image variables, such as
+  `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_NAME_STRATEGY`) directly via `backend.extraEnvVars` instead.
+  See `examples/studios/values.yaml` for the updated pattern.
 
 ### Deprecated
 
