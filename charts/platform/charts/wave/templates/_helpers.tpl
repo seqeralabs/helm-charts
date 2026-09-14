@@ -61,11 +61,17 @@ Return the PostgreSQL URI.
 Return the Redis URI for the wait-for-redis init container.
 */}}
 {{- define "wave.redis.uri" -}}
-  {{- printf "%s://%s:%d"
+  {{- $uri := printf "%s://%s:%d"
   (ternary "rediss" "redis" (.Values.redis.enableTls | toString | eq "true"))
   (tpl .Values.redis.host .)
   (.Values.redis.port | int)
   -}}
+  {{- $database := .Values.redis.database | default 0 | int -}}
+  {{- if gt $database 0 -}}
+    {{- printf "%s/%d" $uri $database -}}
+  {{- else -}}
+    {{- $uri -}}
+  {{- end -}}
 {{- end -}}
 
 {{/*

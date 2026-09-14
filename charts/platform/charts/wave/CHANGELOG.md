@@ -5,6 +5,24 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.3] - 2026-09-14
+
+### Added
+
+- `redis.database` value to select a Redis logical database index. When set to a non-zero value it
+  is appended as the path segment of the rendered `REDIS_URI` (e.g. `redis://host:6379/4`), which is
+  the mechanism Wave (via Micronaut/Lettuce) uses to select a logical database. This lets Wave share
+  a Redis instance with other Platform components without colliding on keys. Setting index `0` (the
+  default) renders the URI exactly as before, so upgrades are a no-op for existing installs.
+
+  The value had previously been present but inert (never referenced by any template) and was then
+  accidentally dropped from `values.yaml` in wave 0.3.0, leaving an orphaned doc comment behind.
+
+### Fixed
+
+- The `redis.enableTls` description in `values.schema.json` no longer carries the stray
+  `Redis database index` text that had been absorbed from the orphaned comment.
+
 ## [0.5.2] - 2026-08-06
 
 ### Added

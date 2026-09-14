@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   single replica with a `Recreate` update strategy so it is never replicated, not even during a
   rolling deployment. `replicas` and `strategy` can no longer be overridden via
   `agent-backend.extraOptionsSpec`.
+- Bumped the `wave` subchart to `0.5.3`, which restores the `wave.redis.database` value and wires it
+  into the rendered `REDIS_URI` as the path segment (e.g. `redis://host:6379/4`), allowing Wave to
+  share a Redis instance with other components on a distinct logical database. Index `0` (the
+  default) renders the URI unchanged, so this is a no-op for existing installs.
 
 ### Removed
 
