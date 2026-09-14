@@ -14,7 +14,6 @@ Currently, it includes charts for:
   interact with Seqera products.
 - [Agent Backend](./charts/platform/charts/agent-backend/README.md): Backend service for Seqera Co-Scientist CLI
   capabilities.
-- [Portal](./charts/platform/charts/portal-web/README.md): Web service for Seqera Co-Scientist
 - [Seqera Common](./charts/common/README.md): Library chart with shared resources and configurations
 
 The Platform chart is the main chart, and other charts can be deployed as sub-charts of Platform.

@@ -1,7 +1,7 @@
 # Ingress Conventions
 
 How Ingress resources are structured across the `platform` chart and its
-subcharts (`studios`, `portal-web`, `mcp`, `wave`, `agent-backend`).
+subcharts (`studios`, `mcp`, `wave`, `agent-backend`).
 
 The goal is consistency: every chart that exposes HTTP traffic ships the same
 Ingress shape so users only have to learn one set of values.
@@ -106,7 +106,6 @@ and its subcharts can be wired up without duplicating values. Examples in use:
 | --------------- | ------------------------------------------------------------------------------ |
 | `platform`      | `global.platformExternalDomain`, `global.contentDomain` (optional second host) |
 | `studios`       | `global.studiosDomain` (wildcard `*.<domain>`)                                 |
-| `portal-web`    | `global.portalWebDomain`                                                       |
 | `wave`          | `global.waveDomain`                                                            |
 | `mcp`           | `global.mcpDomain`                                                             |
 | `agent-backend` | `global.agentBackendDomain`                                                    |
@@ -122,7 +121,7 @@ introducing a chart-local `ingress.host`.
 The default rule's backend points at the chart's own Service, named via
 `common.names.fullname`. Two patterns appear:
 
-- **Single-service charts** (`portal-web`, `wave`, `mcp`, `agent-backend`):
+- **Single-service charts** (`wave`, `mcp`, `agent-backend`):
   backend is `{{ include "common.names.fullname" . }}`.
 - **Multi-service charts** (`platform`, `studios`): backend is suffixed —
   `{{ printf "%s-frontend" (include "common.names.fullname" .) }}` for

@@ -7,7 +7,7 @@ This directory contains practical examples demonstrating different deployment co
 | Example | Description |
 |---------|-------------|
 | [platform-only.yaml](platform-only.yaml) | Core Platform deployment (backend, cron, frontend) with all optional subcharts disabled |
-| [complete.yaml](complete.yaml) | Full stack deployment with all subcharts enabled: Studios, MCP, Wave, Agent Backend, Portal Web, and Pipeline Optimization |
+| [complete.yaml](complete.yaml) | Full stack deployment with all subcharts enabled: Studios, MCP, Wave, Agent Backend, and Pipeline Optimization |
 
 ## Configuration examples
 
@@ -28,8 +28,8 @@ The following examples demonstrate possible configurations for enabling and cust
 |---------|-------------|
 | [pipeline-optimization/](pipeline-optimization/) | Enabling and configuring the Pipeline Optimization service subchart with database setup and registry access |
 | [studios/](studios/) | Studios subchart configuration for interactive data analysis environments with ingress setup |
-| [seqera-co-scientist/](seqera-co-scientist/) | Enabling the Seqera Co-Scientist agent backend, Model Context Protocol server, and Portal web interface |
-| [seqera-ai/](seqera-ai/) | Alternative Co-Scientist example: enabling the agent backend, MCP server, and Portal web interface |
+| [seqera-co-scientist/](seqera-co-scientist/) | Enabling the Seqera Co-Scientist agent backend and Model Context Protocol server |
+| [seqera-ai/](seqera-ai/) | Alternative Co-Scientist example: enabling the agent backend and MCP server |
 
 ## Additional Resources
 

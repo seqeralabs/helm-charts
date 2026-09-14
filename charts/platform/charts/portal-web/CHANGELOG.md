@@ -4,6 +4,18 @@ All notable changes to this chart will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.6.2] - 2026-09-14
+
+### Deprecated
+
+- **This chart is deprecated as of Platform v26.2.** The Seqera Co-scientist interface is now
+  provided by Platform directly, so the standalone `portal-web` frontend is no longer required and
+  has been removed from the `platform` chart's dependencies.
+
+### Changed
+
+- Updated `appVersion` to `1.8.0`.
+
 ## [0.6.1] - 2026-08-06
 
 ### Added

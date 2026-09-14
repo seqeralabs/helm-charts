@@ -1,7 +1,7 @@
 # Seqera Platform - Complete Deployment Example
 #
 # Deploys the full Platform stack with all optional subcharts enabled:
-# Studios, MCP, Wave, Agent Backend, Portal Web, and Pipeline Optimization.
+# Studios, MCP, Wave, Agent Backend, and Pipeline Optimization.
 #
 # Prerequisites:
 # - MySQL database provisioned (shared by Platform, Pipeline Optimization and Agent Backend)
@@ -37,7 +37,6 @@ global:
   # waveDomain: wave.platform.example.com           # default: wave.<platformExternalDomain>
   # mcpDomain: mcp.platform.example.com             # default: mcp.<platformExternalDomain>
   # agentBackendDomain: ai-api.platform.example.com # default: ai-api.<platformExternalDomain>
-  # portalWebDomain: ai.platform.example.com        # default: ai.<platformExternalDomain>
 
   # Common ingress configurations can be defined here and will be inherited by all subcharts. More
   # specific ingress configurations can be defined in each subchart. See examples/ingress-configurations/
@@ -193,16 +192,6 @@ agent-backend:
   tokenEncryptionKeyExistingSecretName: agent-backend-secrets
   tokenEncryptionKeyExistingSecretKey: token-encryption-key
 
-  # AWS ALB requires NodePort service type:
-  # service:
-  #   type: NodePort
-  # ingress:
-  #   enabled: true
-  #   ingressClassName: <your-ingress-class>
-
-# -- Portal Web subchart
-portal-web:
-  enabled: true
   # AWS ALB requires NodePort service type:
   # service:
   #   type: NodePort

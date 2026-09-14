@@ -49,7 +49,6 @@ spec:
   {{- end }}
 
   rules:
-    {{/* Wildcard subdomain where to expose Studios */}}
     - host: {{ tpl .Values.global.mcpDomain . | quote }}
       http:
         paths:

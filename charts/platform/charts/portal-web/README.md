@@ -2,7 +2,16 @@
 
 Portal web frontend for Seqera Platform
 
-![Version: 0.6.1](https://img.shields.io/badge/Version-0.6.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.7.2](https://img.shields.io/badge/AppVersion-1.7.2-informational?style=flat-square)
+![Version: 0.6.2](https://img.shields.io/badge/Version-0.6.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.8.0](https://img.shields.io/badge/AppVersion-1.8.0-informational?style=flat-square)
+
+> [!WARNING]
+> **This chart is deprecated as of Seqera Platform v26.2 and is no longer used.**
+> The Seqera Co-Scientist interface is now served by Platform directly, so the standalone
+> `portal-web` frontend is no longer deployed. The `portal-web` subchart has been removed from the
+> `platform` parent chart's dependencies.
+>
+> For instructions on installing Seqera Co-Scientist, refer to the
+> [Seqera Co-Scientist installation example](../../examples/seqera-co-scientist/).
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -30,7 +39,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.7.2`.
+By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.8.0`.
 
 ## Installing the chart
 
@@ -38,13 +47,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/portal-web --version 0.6.1 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/portal-web --version 0.6.2 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/portal-web \
-     --version 0.6.1 \
+     --version 0.6.2 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -60,7 +69,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/portal-web \
-  --version 0.6.1 \
+  --version 0.6.2 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml

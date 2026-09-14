@@ -19,8 +19,10 @@ apiVersion: v2
 name: portal-web
 description: Portal web frontend for Seqera Platform
 type: application
-version: 0.6.1
-appVersion: "1.7.2"
+version: 0.6.2
+appVersion: "1.8.0"
+# This chart is deprecated starting Platform v26.2 (interface to Seqera Co-scientist is provided by Platform directly).
+deprecated: true
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
