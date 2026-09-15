@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated default platform images to `v26.2.0`.
-- Bumped subchart `appVersion`s: `agent-backend` to `2.2.0` and `mcp` to `1.5.1`.
+- Bumped subchart `appVersion`s: `agent-backend` to `2.2.0`, `mcp` to `1.5.1`, `wave` to `v1.38.0`.
 - Bumped the `agent-backend` subchart to `1.5.0`, which pins the agent-backend Deployment to a
   single replica with a `Recreate` update strategy so it is never replicated, not even during a
   rolling deployment. `replicas` and `strategy` can no longer be overridden via
