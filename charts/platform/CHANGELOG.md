@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-09-15
 
+### Added
+
+- Added `TOWER_AUTH_COOKIE_DOMAIN` environment variable to the backend `ConfigMap` when
+  `agent-backend` is enabled, set to the `global.platformExternalDomain`.
+
 ### Changed
 
 - Updated default platform images to `v26.2.0`.
@@ -33,7 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the `portal-web` subchart dependency and its `portal-web` values block. Platform v26.2
   ships with the Seqera Co-scientist interface integrated directly, so the standalone `portal-web`
-  frontend is no longer deployed.
+  frontend is no longer deployed, and is only needed for Platform v25.3 and v26.1, and will be
+  removed soon.
 - **BREAKING**: Removed the `platform.studios.customImageRegistry` and
   `platform.studios.customImageRepository` values, which set the
   `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY` and `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY`
