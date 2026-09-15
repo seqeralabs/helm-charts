@@ -51,7 +51,7 @@ should render a Deployment with default values:
               livenessProbe:
                 failureThreshold: 10
                 httpGet:
-                  path: /health
+                  path: /health/liveness
                   port: 6010
                 initialDelaySeconds: 5
                 periodSeconds: 10
@@ -61,7 +61,7 @@ should render a Deployment with default values:
               readinessProbe:
                 failureThreshold: 5
                 httpGet:
-                  path: /health
+                  path: /health/readiness
                   port: 6010
                 initialDelaySeconds: 5
                 periodSeconds: 5

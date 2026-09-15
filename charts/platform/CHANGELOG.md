@@ -37,6 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   backend calls) is independent from the `wave` subchart's own `WAVE_SERVER_URL` (the public URL the
   self-hosted Wave service advertises about itself), and how to point the former at the latter when
   self-hosting Wave.
+- `mcp` subchart's `startupProbe`/`livenessProbe` now default to `/health/liveness` and
+  `readinessProbe` to `/health/readiness` (previously all three used `/health`), so each probe
+  reflects the more specific Micronaut health indicator it actually needs.
 
 ### Fixed
 

@@ -248,7 +248,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | startupProbe.enabled | bool | `false` | Enable startup probe |
-| startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe |
+| startupProbe.httpGet.path | string | `"/health/liveness"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |
 | startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps |
 | startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting |
@@ -261,7 +261,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | readinessProbe.enabled | bool | `true` | Enable readiness probe |
-| readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe |
+| readinessProbe.httpGet.path | string | `"/health/readiness"` | HTTP GET path for readiness probe |
 | readinessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for readiness probe. Evaluated as a template |
 | readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
 | readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation |
@@ -274,7 +274,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | livenessProbe.enabled | bool | `true` | Enable liveness probe |
-| livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe |
+| livenessProbe.httpGet.path | string | `"/health/liveness"` | HTTP GET path for liveness probe |
 | livenessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for liveness probe. Evaluated as a template |
 | livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
 | livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation |

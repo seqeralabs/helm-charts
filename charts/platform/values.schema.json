@@ -4868,7 +4868,7 @@
             "httpGet": {
               "properties": {
                 "path": {
-                  "default": "/health",
+                  "default": "/health/liveness",
                   "description": "HTTP GET path for liveness probe",
                   "title": "path",
                   "type": "string"
@@ -5026,7 +5026,7 @@
             "httpGet": {
               "properties": {
                 "path": {
-                  "default": "/health",
+                  "default": "/health/readiness",
                   "description": "HTTP GET path for readiness probe",
                   "title": "path",
                   "type": "string"
@@ -5224,7 +5224,7 @@
             "httpGet": {
               "properties": {
                 "path": {
-                  "default": "/health",
+                  "default": "/health/liveness",
                   "description": "HTTP GET path for startup probe",
                   "title": "path",
                   "type": "string"
