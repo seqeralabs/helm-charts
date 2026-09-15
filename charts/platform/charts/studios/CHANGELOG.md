@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.2] - 2026-09-15
+
+### Fixed
+
+- Fixed a bug where the managed Redis password secret was written and looked up under different
+  keys (`redis-password` vs `CONNECT_REDIS_PASSWORD`), causing `common.secrets.passwords.manage`
+  to fail on subsequent `helm upgrade` runs.
+
 ## [1.7.1] - 2026-08-06
 
 ### Added
