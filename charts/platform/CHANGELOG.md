@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified in `values.yaml`/README that `platform.studios.tools` is consumed by the Platform app
   (backend), not the Studios app, and must be set under the top-level `platform.studios.tools` key
   rather than under the `studios.*` subchart values.
+- Clarified in `values.yaml`/README that `platform.waveServerUrl` (the Wave endpoint the Platform
+  backend calls) is independent from the `wave` subchart's own `WAVE_SERVER_URL` (the public URL the
+  self-hosted Wave service advertises about itself), and how to point the former at the latter when
+  self-hosting Wave.
 
 ### Fixed
 

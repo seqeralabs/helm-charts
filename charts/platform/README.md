@@ -221,7 +221,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is `https://wave.seqera.io` |
+| platform.waveServerUrl | string | `"https://wave.seqera.io"` | URL of the Wave service Platform uses. Evaluated as a template. The Wave service provided by Seqera is `https://wave.seqera.io`  NOTE: this is the Wave endpoint the Platform backend calls, and is independent from the `wave` subchart's own `WAVE_SERVER_URL` (derived from `global.waveDomain`), which is the public URL the self-hosted Wave service advertises about itself. |
 | platform.dataExplorer.enabled | bool | `false` | Enable the Data Explorer feature: https://docs.seqera.io/platform-enterprise/data/data-explorer |
 
 ### Platform: Studios

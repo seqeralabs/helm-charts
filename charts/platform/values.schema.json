@@ -6689,7 +6689,7 @@
         },
         "waveServerUrl": {
           "default": "https://wave.seqera.io",
-          "description": "URL of the Wave service Platform uses. Evaluated as a template.\nThe Wave service provided by Seqera is `https://wave.seqera.io`",
+          "description": "URL of the Wave service Platform uses. Evaluated as a template.\nThe Wave service provided by Seqera is `https://wave.seqera.io`\n\nNOTE: this is the Wave endpoint the Platform backend calls, and is independent from the `wave`\nsubchart's own `WAVE_SERVER_URL` (derived from `global.waveDomain`), which is the public URL the\nself-hosted Wave service advertises about itself.",
           "title": "waveServerUrl",
           "type": "string"
         }
