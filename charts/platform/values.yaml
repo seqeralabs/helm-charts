@@ -362,6 +362,10 @@ platform:
     # specified for each tool to allow upgrading from an older version. Refer to the documentation
     # for more details:
     # https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template
+    #
+    # NOTE: despite the name, this is consumed by the Platform app (backend), not the Studios app.
+    # It must be set under the top-level `platform.studios.tools` key shown here, NOT under the
+    # `studios.*` subchart values (charts/platform/charts/studios/values.yaml has no `tools` key).
     # @section -- Platform: Studios
     tools:
       jupyter:

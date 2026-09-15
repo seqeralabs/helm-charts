@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into the rendered `REDIS_URI` as the path segment (e.g. `redis://host:6379/4`), allowing Wave to
   share a Redis instance with other components on a distinct logical database. Index `0` (the
   default) renders the URI unchanged, so this is a no-op for existing installs.
+- Clarified in `values.yaml`/README that `platform.studios.tools` is consumed by the Platform app
+  (backend), not the Studios app, and must be set under the top-level `platform.studios.tools` key
+  rather than under the `studios.*` subchart values.
 
 ### Fixed
 
