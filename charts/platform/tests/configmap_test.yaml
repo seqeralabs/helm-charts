@@ -363,25 +363,6 @@ tests:
       path: data.TOWER_DATA_EXPLORER_ENABLED
       value: 'true'
 
-- it: should render Studios Wave custom image registry and repository when configured
-  documentSelector:
-    path: metadata.name
-    value: release-name-platform-backend
-  set:
-    studios:
-      enabled: true
-    platform:
-      studios:
-        customImageRegistry: myregistry.example.com
-        customImageRepository: myteam/studios-repo
-  asserts:
-  - equal:
-      path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY
-      value: myregistry.example.com
-  - equal:
-      path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
-      value: myteam/studios-repo
-
 - it: should set agent-backend URL and auth cookie domain when agent-backend is enabled
   documentSelector:
     path: metadata.name

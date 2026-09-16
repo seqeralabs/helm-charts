@@ -78,9 +78,6 @@ platform:
 
   # Required for Studios: Wave registry where custom session images are pushed
   waveServerUrl: https://wave.platform.example.com
-  studios:
-    customImageRegistry: registry.example.com
-    customImageRepository: my-team/studios-sessions
 
   dataExplorer:
     enabled: true
