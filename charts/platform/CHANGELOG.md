@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-09-15
 
+### Added
+
+- Added `TOWER_AUTH_COOKIE_DOMAIN` environment variable to the backend `ConfigMap` when
+  `agent-backend` is enabled, set to the `global.platformExternalDomain`.
+
 ### Changed
 
 - Updated default platform images to `v26.2.0`.
@@ -19,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into the rendered `REDIS_URI` as the path segment (e.g. `redis://host:6379/4`), allowing Wave to
   share a Redis instance with other components on a distinct logical database. Index `0` (the
   default) renders the URI unchanged, so this is a no-op for existing installs.
+- Clarified in `values.yaml`/README that `platform.studios.tools` is consumed by the Platform app
+  (backend), not the Studios app, and must be set under the top-level `platform.studios.tools` key
+  rather than under the `studios.*` subchart values.
+- Clarified in `values.yaml`/README that `platform.waveServerUrl` (the Wave endpoint the Platform
+  backend calls) is independent from the `wave` subchart's own `WAVE_SERVER_URL` (the public URL the
+  self-hosted Wave service advertises about itself), and how to point the former at the latter when
+  self-hosting Wave.
 
 ### Fixed
 
@@ -30,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed the `portal-web` subchart dependency and its `portal-web` values block. Platform v26.2
   ships with the Seqera Co-scientist interface integrated directly, so the standalone `portal-web`
-  frontend is no longer deployed.
+  frontend is no longer deployed, and is only needed for Platform v25.3 and v26.1, and will be
+  removed soon.
 - **BREAKING**: Removed the `platform.studios.customImageRegistry` and
   `platform.studios.customImageRepository` values, which set the
   `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REGISTRY` and `TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY`
