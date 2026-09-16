@@ -42,11 +42,8 @@ data:
   TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY: {{ .Values.platform.studios.customImageRepository | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
-{{- if (index .Values "portal-web" "enabled") }}
-  TOWER_SEQERA_AI_PORTAL_URL: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
-  TOWER_AI_BASE_URL: {{ printf "https://%s" (tpl .Values.global.portalWebDomain $) | quote }}
-{{- end }}
 {{- if (index .Values "agent-backend" "enabled") }}
+  TOWER_AUTH_COOKIE_DOMAIN: {{ printf ".%s" .Values.global.platformExternalDomain | quote }}
   TOWER_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
 {{- end }}
 ---

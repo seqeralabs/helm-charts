@@ -1,7 +1,7 @@
 # Seqera Platform - Core Deployment Example
 #
 # Deploys the core Platform components only (backend, cron, frontend).
-# All optional subcharts (Studios, MCP, Wave, Agent Backend, Portal Web,
+# All optional subcharts (Studios, MCP, Wave, Agent Backend,
 # Pipeline Optimization) are explicitly disabled.
 #
 # Prerequisites:
@@ -77,9 +77,6 @@ mcp:
   enabled: false
 
 agent-backend:
-  enabled: false
-
-portal-web:
   enabled: false
 
 wave:

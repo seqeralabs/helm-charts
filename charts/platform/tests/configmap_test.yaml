@@ -382,114 +382,49 @@ tests:
       path: data.TOWER_DATA_STUDIO_WAVE_CUSTOM_IMAGE_REPOSITORY
       value: myteam/studios-repo
 
-- it: should render TOWER_SEQERA_AI_PORTAL_URL with default portalWebDomain when portal-web is enabled
-  documentSelector:
-    path: metadata.name
-    value: release-name-platform-backend
-  set:
-    portal-web:
-      enabled: true
-  asserts:
-  - equal:
-      path: data.TOWER_SEQERA_AI_PORTAL_URL
-      value: https://ai.example.com
-
-- it: should render TOWER_SEQERA_AI_PORTAL_URL using a custom portalWebDomain when portal-web is enabled
-  documentSelector:
-    path: metadata.name
-    value: release-name-platform-backend
-  set:
-    portal-web:
-      enabled: true
-    global:
-      portalWebDomain: portal.custom.example.org
-  asserts:
-  - equal:
-      path: data.TOWER_SEQERA_AI_PORTAL_URL
-      value: https://portal.custom.example.org
-
-- it: should not render TOWER_SEQERA_AI_PORTAL_URL when portal-web is disabled
-  documentSelector:
-    path: metadata.name
-    value: release-name-platform-backend
-  set:
-    portal-web:
-      enabled: false
-  asserts:
-  - notExists:
-      path: data.TOWER_SEQERA_AI_PORTAL_URL
-
-- it: should set AI/agent-backend URLs from domains when subcharts are enabled
+- it: should set agent-backend URL and auth cookie domain when agent-backend is enabled
   documentSelector:
     path: metadata.name
     value: release-name-platform-backend
   set:
     global:
       platformExternalDomain: platform.example.com
-    portal-web:
-      enabled: true
     agent-backend:
       enabled: true
   asserts:
   - equal:
-      path: data.TOWER_AI_BASE_URL
-      value: https://ai.platform.example.com
-  - equal:
       path: data.TOWER_AGENT_BACKEND_URL
       value: https://ai-api.platform.example.com
+  - equal:
+      path: data.TOWER_AUTH_COOKIE_DOMAIN
+      value: .platform.example.com
 
-- it: should honour custom agentBackendDomain and portalWebDomain
+- it: should honour a custom agentBackendDomain
   documentSelector:
     path: metadata.name
     value: release-name-platform-backend
   set:
     global:
-      portalWebDomain: portal.example.com
       agentBackendDomain: agent.example.com
-    portal-web:
-      enabled: true
     agent-backend:
       enabled: true
   asserts:
-  - equal:
-      path: data.TOWER_AI_BASE_URL
-      value: https://portal.example.com
   - equal:
       path: data.TOWER_AGENT_BACKEND_URL
       value: https://agent.example.com
 
-- it: should not set AI/agent-backend URLs when subcharts are disabled
+- it: should not set agent-backend URL or auth cookie domain when agent-backend is disabled
   documentSelector:
     path: metadata.name
     value: release-name-platform-backend
   set:
-    portal-web:
-      enabled: false
     agent-backend:
       enabled: false
   asserts:
   - notExists:
-      path: data.TOWER_AI_BASE_URL
-  - notExists:
       path: data.TOWER_AGENT_BACKEND_URL
-
-- it: should set only TOWER_AI_BASE_URL when only portal-web is enabled
-  documentSelector:
-    path: metadata.name
-    value: release-name-platform-backend
-  set:
-    global:
-      platformExternalDomain: platform.example.com
-    portal-web:
-      enabled: true
-    agent-backend:
-      enabled: false
-  asserts:
-  - equal:
-      path: data.TOWER_AI_BASE_URL
-      value: https://ai.platform.example.com
   - notExists:
-      path: data.TOWER_AGENT_BACKEND_URL
+      path: data.TOWER_AUTH_COOKIE_DOMAIN
 
 - it: should fail when database driver is unsupported
   set:
@@ -513,9 +448,8 @@ tests:
         GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
         MICRONAUT_ENVIRONMENTS: prod,redis,ha,oauth-client,wave,groundswell
         TOWER_DATA_EXPLORER_ENABLED: 'false'
-        TOWER_SEQERA_AI_PORTAL_URL: https://ai.example.com
-        TOWER_AI_BASE_URL: https://ai.example.com
         TOWER_AGENT_BACKEND_URL: https://ai-api.example.com
+        TOWER_AUTH_COOKIE_DOMAIN: .example.com
 
 - it: should render TOWER_OIDC_PEM_PATH in the shared-backend-cron configmap regardless of studios.enabled
   documentSelector:

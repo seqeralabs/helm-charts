@@ -223,6 +223,10 @@ helm dependency update charts/platform/
 
 ## Important Notes
 
+- **Regenerating READMEs**: Do NOT run `helm-docs` manually. Let the pre-commit hook rebuild
+  READMEs (`pre-commit run --all-files`, or `pre-commit run helm-docs`). Running `helm-docs`
+  by hand often regenerates unrelated subchart READMEs that carry pre-existing drift, producing
+  large, noisy diffs in files you never touched. The pre-commit hook rebuilds only what changed.
 - **helm-docs**: Auto-generates README from values.yaml comments (use `# --` prefix)
 - **Bitnami Common Library**: Chart dependency for common patterns
 - **Template timing**: Evaluated at render time, not runtime (careful with `lookup`)

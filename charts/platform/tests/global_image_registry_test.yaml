@@ -39,9 +39,6 @@ templates:
 - charts/agent-backend/templates/deployment.yaml
 - charts/agent-backend/templates/secret.yaml
 - charts/agent-backend/templates/configmap.yaml
-- charts/portal-web/templates/deployment.yaml
-- charts/portal-web/templates/secret.yaml
-- charts/portal-web/templates/configmap.yaml
 set:
   global:
     imageRegistry: registry.example.com
@@ -83,9 +80,6 @@ set:
       provider: bedrock
     image:
       tag: agent-backend-test-tag
-  portal-web:
-    image:
-      tag: portal-web-test-tag
 tests:
 - it: applies the global registry to the Platform backend
   template: deployment-backend.yaml
@@ -152,10 +146,3 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].image
       value: registry.example.com/ai/agent-backend/backend:agent-backend-test-tag
-
-- it: propagates the global registry to Portal Web
-  template: charts/portal-web/templates/deployment.yaml
-  asserts:
-  - equal:
-      path: spec.template.spec.containers[0].image
-      value: registry.example.com/ai/portal/web:portal-web-test-tag

@@ -5,6 +5,23 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-09-14
+
+### Changed
+
+- Updated default platform images to `v26.2.0`.
+- Bumped subchart `appVersion`s: `agent-backend` to `1.14.1` and `mcp` to `1.5.1`.
+
+### Removed
+
+- Removed the `portal-web` subchart dependency and its `portal-web` values block. Platform v26.2
+  ships with the Seqera Co-scientist interface integrated directly, so the standalone `portal-web`
+  frontend is no longer deployed.
+
+### Deprecated
+
+- The `portal-web` subchart is deprecated as of Platform v26.2.
+
 ## [0.38.1] - 2026-08-05
 
 ### Added

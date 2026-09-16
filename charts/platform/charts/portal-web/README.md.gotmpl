@@ -3,6 +3,15 @@
 
 {{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
 
+> [!WARNING]
+> **This chart is deprecated as of Seqera Platform v26.2 and is no longer used.**
+> The Seqera Co-Scientist interface is now served by Platform directly, so the standalone
+> `portal-web` frontend is no longer deployed. The `portal-web` subchart has been removed from the
+> `platform` parent chart's dependencies.
+>
+> For instructions on installing Seqera Co-Scientist, refer to the
+> [Seqera Co-Scientist installation example](../../examples/seqera-co-scientist/).
+
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
 - `# @section` — groups related values under a heading in the generated README

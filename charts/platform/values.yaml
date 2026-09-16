@@ -86,10 +86,6 @@ global:
   # @section -- Global
   agentBackendDomain: '{{ printf "ai-api.%s" .Values.global.platformExternalDomain }}'
 
-  # -- Domain where the Portal Web frontend listens. Evaluated as a template
-  # @section -- Global
-  portalWebDomain: '{{ printf "ai.%s" .Values.global.platformExternalDomain }}'
-
   # Ingress defaults shared across the parent chart and all subcharts. Each subchart's local
   # `ingress.*` value takes precedence when set; otherwise the global is used.
   ingress:
@@ -1743,10 +1739,4 @@ agent-backend:
   # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
   # more details and the full list of configuration options
   # @section -- Subcharts: Agent Backend
-  enabled: true
-
-portal-web:
-  # -- Enable portal web frontend. Refer to the subchart README for more details and the full list
-  # of configuration options
-  # @section -- Subcharts: Portal Web
   enabled: true

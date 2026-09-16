@@ -1,11 +1,16 @@
 # Seqera Co-Scientist installation example
 
-This example demonstrates how to enable the Seqera Co-Scientist [Agent backend](../../charts/agent-backend/),
-[Model Context Protocol server](../../charts/mcp/), and [Portal web
-interface](../../charts/portal-web/) using the Platform parent Helm chart and enabling
-the respective subcharts. The charts can also be installed without installing the Platform chart,
-but some settings need to be configured manually, such as the OIDC initial registration secret,
-which is shared between the Platform, MCP and Studios apps.
+This example demonstrates how to enable the Seqera Co-Scientist [Agent backend](../../charts/agent-backend/)
+and [Model Context Protocol server](../../charts/mcp/) using the Platform parent Helm chart and
+enabling the respective subcharts. The charts can also be installed without installing the Platform
+chart, but some settings need to be configured manually, such as the OIDC initial registration
+secret, which is shared between the Platform, MCP and Studios apps.
+
+> [!NOTE]
+> Starting with Seqera Platform v26.2, the Co-Scientist web interface is served by Platform
+> directly. The standalone `portal-web` subchart is deprecated and has been removed from the
+> `platform` parent chart's dependencies, and it will be removed in a future release. It no longer
+> needs to be enabled or configured.
 
 The agent backend chart requires an encryption key to be set, which can be automatically generated
 by the chart if not provided, but it should be set explicitly when using the chart with Kustomize,

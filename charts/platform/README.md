@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 0.38.1](https://img.shields.io/badge/Version-0.38.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.1.4](https://img.shields.io/badge/AppVersion-v26.1.4-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.2.0](https://img.shields.io/badge/AppVersion-v26.2.0-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -33,7 +33,7 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v26.1.4`.
+By default the chart selects the Platform application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `v26.2.0`.
 
 > [!NOTE]
 > The Platform chart requires the [unprivileged version](https://docs.seqera.io/platform-enterprise/enterprise/kubernetes#seqera-frontend-unprivileged) of the Seqera Platform frontend image (shipped with `-unprivileged` suffix until Platform v25.3, without any suffix starting from v26.1).
@@ -48,13 +48,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/platform --version 0.38.1 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/platform --version 1.0.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/platform \
-     --version 0.38.1 \
+     --version 1.0.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -70,7 +70,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/platform \
-  --version 0.38.1 \
+  --version 1.0.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -94,7 +94,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | file://charts/agent-backend | agent-backend | 1.x.x |
 | file://charts/mcp | mcp | 0.7.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
-| file://charts/portal-web | portal-web | 0.6.x |
 | file://charts/studios | studios | 1.x.x |
 | file://charts/wave | wave | 0.5.x |
 | oci://registry-1.docker.io/bitnamicharts | common | 2.x.x |
@@ -120,7 +119,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | global.waveDomain | string | `"{{ printf \"wave.%s\" .Values.global.platformExternalDomain }}"` | Domain where Wave listens. Evaluated as a template |
 | global.mcpDomain | string | `"{{ printf \"mcp.%s\" .Values.global.platformExternalDomain }}"` | Domain where Seqera MCP listens. Evaluated as a template |
 | global.agentBackendDomain | string | `"{{ printf \"ai-api.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Agent Backend service listens. Evaluated as a template |
-| global.portalWebDomain | string | `"{{ printf \"ai.%s\" .Values.global.platformExternalDomain }}"` | Domain where the Portal Web frontend listens. Evaluated as a template |
 
 ### Global: Ingress
 
@@ -692,12 +690,6 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | agent-backend.enabled | bool | `true` | Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for more details and the full list of configuration options |
-
-### Subcharts: Portal Web
-
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| portal-web.enabled | bool | `true` | Enable portal web frontend. Refer to the subchart README for more details and the full list of configuration options |
 
 ## Licensing
 

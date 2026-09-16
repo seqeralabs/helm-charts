@@ -25,7 +25,6 @@ subchart is enabled (via its `*.enabled` condition in the parent `Chart.yaml`).
 | `wave`                  | `wave.enabled`                   | `<release>-wave-sa`               | wave Deployment                                |
 | `mcp`                   | `mcp.enabled`                    | `<release>-mcp-sa`                | mcp Deployment                                 |
 | `agent-backend`         | `agent-backend.enabled`          | `<release>-agent-backend-sa`      | agent-backend Deployment                       |
-| `portal-web`            | `portal-web.enabled`             | `<release>-portal-web-sa`         | portal-web Deployment                          |
 | `pipeline-optimization` | `pipeline-optimization.enabled`  | `<release>-pipeline-optimization-sa` | pipeline-optimization Deployment            |
 
 ¹ Default name when `serviceAccount.name` is unset. See [How names are generated](#how-names-are-generated).
@@ -38,7 +37,6 @@ platform-studios-sa
 platform-wave-sa
 platform-mcp-sa
 platform-agent-backend-sa
-platform-portal-web-sa
 platform-pipeline-optimization-sa
 ```
 
@@ -117,7 +115,7 @@ serviceAccount:
   Commonly used for cloud IAM binding, e.g. IRSA (`eks.amazonaws.com/role-arn`) or GKE Workload
   Identity (`iam.gke.io/gcp-service-account`). Only applied when the chart creates the ServiceAccount.
 - **`serviceAccount.automountServiceAccountToken`** — controls token automounting on the created
-  ServiceAccount. Defaults vary by chart: `false` for `platform`, `portal-web`, and
+  ServiceAccount. Defaults vary by chart: `false` for `platform` and
   `pipeline-optimization`; `true` for `studios`, `mcp`, `wave`, and `agent-backend`.
 - **`serviceAccount.imagePullSecretNames`** — extra image pull secrets attached to the ServiceAccount,
   in addition to any generated from `global.imageCredentials` and `global.imageCredentialsSecrets`.
