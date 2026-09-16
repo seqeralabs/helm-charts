@@ -411,7 +411,7 @@ startupProbe:
   httpGet:
     # -- HTTP GET path for startup probe
     # @section -- Probes: Startup
-    path: "/health"
+    path: "/health/liveness"
     # -- HTTP GET port for startup probe. Evaluated as a template
     # @section -- Probes: Startup
     port: "{{ .Values.service.http.targetPort }}"
@@ -441,7 +441,7 @@ readinessProbe:
   httpGet:
     # -- HTTP GET path for readiness probe
     # @section -- Probes: Readiness
-    path: "/health"
+    path: "/health/readiness"
     # -- HTTP GET port for readiness probe. Evaluated as a template
     # @section -- Probes: Readiness
     port: "{{ .Values.service.http.targetPort }}"
@@ -469,7 +469,7 @@ livenessProbe:
   httpGet:
     # -- HTTP GET path for liveness probe
     # @section -- Probes: Liveness
-    path: "/health"
+    path: "/health/liveness"
     # -- HTTP GET port for liveness probe. Evaluated as a template
     # @section -- Probes: Liveness
     port: "{{ .Values.service.http.targetPort }}"

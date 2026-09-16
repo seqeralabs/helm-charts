@@ -16,9 +16,9 @@ dependencies:
   version: 0.5.4
 - name: mcp
   repository: file://charts/mcp
-  version: 0.7.2
+  version: 0.7.3
 - name: agent-backend
   repository: file://charts/agent-backend
   version: 1.5.0
-digest: sha256:ceb372e8f83024745c43548340dbe5c096a05493d3c6be3066f0a828b7040ffd
-generated: "2026-09-15T11:08:39.935452402+02:00"
+digest: sha256:4b1f19a7d191561446f4b0fc1e592b5508a6cbf58c4984aa121810d0898a9994
+generated: "2026-09-16T17:12:47.466240888+02:00"
