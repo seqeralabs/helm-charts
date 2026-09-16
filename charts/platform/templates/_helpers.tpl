@@ -34,7 +34,7 @@ Return the proper frontend image name.
 If image tag and digest are not defined, termination fallbacks to chart appVersion.
 
 Clone of common.images.image, specific for Platform frontend image since we want to select the
-{chart.AppVersion}-unprivileged image when no tag is provided, which is the image running without
+{chart.AppVersion} image when no tag is provided, which is the unprivileged image running without
 root and providing some options to change listening backend endpoint.
 TODO: check whether we can deprecate the root-ful image.
 
@@ -47,7 +47,7 @@ TODO: check whether we can deprecate the root-ful image.
   {{- $termination := .imageRoot.tag | toString -}}
   {{- if not .imageRoot.tag }}
     {{- if .chart }}
-    {{- $termination = printf "%s-unprivileged" .chart.AppVersion | toString -}}
+    {{- $termination = .chart.AppVersion | toString -}}
     {{- end -}}
   {{- end -}}
   {{- if .imageRoot.digest }}
