@@ -388,18 +388,14 @@ podLabels: {}
 # @section -- Deployment
 podAnnotations: {}
 
-# -- Extra options to place under .spec (e.g. replicas, strategy, revisionHistoryLimit, etc).
-# Evaluated as a template
+# -- Extra options to place under .spec (e.g. revisionHistoryLimit, etc). Evaluated as a template.
+# Note: `replicas`, `strategy`, and `selector` are always managed by the chart and cannot be
+# overridden here. The agent-backend deployment MUST NOT be replicated, not even during a rolling
+# deployment, so it is pinned to `replicas: 1` with a `Recreate` strategy.
 # @section -- Deployment
 extraOptionsSpec: {}
 # extraOptionsSpec:
-#   strategy:
-#     rollingUpdate:
-#       maxUnavailable: 1
-#   strategy:
-#     rollingUpdate:
-#       maxUnavailable: x
-#       maxSurge: y
+#   revisionHistoryLimit: 3
 
 # -- Extra options to place under .spec.template.spec (e.g. nodeSelector, affinity, restartPolicy,
 # etc). Evaluated as a template

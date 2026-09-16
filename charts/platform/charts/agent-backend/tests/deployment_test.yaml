@@ -452,15 +452,49 @@ tests:
     template: deployment.yaml
     set:
       extraOptionsSpec:
-        replicas: 3
         revisionHistoryLimit: 5
     asserts:
       - equal:
-          path: spec.replicas
-          value: 3
-      - equal:
           path: spec.revisionHistoryLimit
           value: 5
+
+  - it: should pin replicas to 1
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: should use the Recreate strategy
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
+
+  - it: shouldn't obey custom replicas requests in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        replicas: 3
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+
+  - it: shouldn't obey custom strategy requests in extraOptionsSpec
+    template: deployment.yaml
+    set:
+      extraOptionsSpec:
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 1
+            maxSurge: 1
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: Recreate
 
   - it: shouldn't obey custom selector requests in extraOptionsSpec
     template: deployment.yaml
