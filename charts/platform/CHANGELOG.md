@@ -5,7 +5,7 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-09-14
+## [1.0.0] - 2026-09-15
 
 ### Changed
 
@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into the rendered `REDIS_URI` as the path segment (e.g. `redis://host:6379/4`), allowing Wave to
   share a Redis instance with other components on a distinct logical database. Index `0` (the
   default) renders the URI unchanged, so this is a no-op for existing installs.
+
+### Fixed
+
+- Bumped the `studios` subchart to `1.7.2`, which fixes the managed Redis password secret being
+  written and looked up under different keys (`redis-password` vs `CONNECT_REDIS_PASSWORD`),
+  causing `helm upgrade` to fail to find the existing password.
 
 ### Removed
 
