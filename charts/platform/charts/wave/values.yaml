@@ -129,6 +129,7 @@ redis:
   port: 6379
   # -- Redis database index
   # @section -- Redis
+  database: 0
   # -- Enable TLS when connecting to Redis
   # @section -- Redis
   enableTls: false
