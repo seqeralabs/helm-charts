@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Updated `appVersion` to `2.2.0`.
 - **BREAKING**: The agent-backend Deployment is now pinned to a single replica with a `Recreate`
   update strategy, matching the cron Deployment. This ensures it is never replicated, not even
   during a rolling deployment. `replicas` and `strategy` can no longer be overridden via

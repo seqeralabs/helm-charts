@@ -19,6 +19,6 @@ dependencies:
   version: 0.7.2
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.4.2
-digest: sha256:dbd00dff99d57ec4b7dfa8ca9abab61395702d3ea448eed1ae79a028e0fe2cb2
-generated: "2026-09-14T09:58:04.292959982+02:00"
+  version: 1.5.0
+digest: sha256:d49f57fd735d258b2c7ac008aeff2ea883e2a4cd7fec0bc48aadb04a827260e8
+generated: "2026-09-15T09:20:33.980081832+02:00"
