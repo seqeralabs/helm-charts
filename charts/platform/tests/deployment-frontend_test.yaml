@@ -36,14 +36,14 @@ tests:
   - equal:
       path: spec.template.spec.containers[0].image
       value: enterprise/platform/frontend:9.0.0
-- it: should render the frontend deployment with a tag version ending with -unprivileged depending on the chart appVersion
+- it: should render the frontend deployment with a tag version depending on the chart appVersion
   chart:
     version: 1.2.3
     appVersion: 9.8.7
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: enterprise/platform/frontend:9.8.7-unprivileged
+      value: enterprise/platform/frontend:9.8.7
 - it: should render the frontend deployment with the specified digest, overriding the tag
   set:
     frontend:
