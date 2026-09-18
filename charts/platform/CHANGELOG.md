@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Frontend image now defaults to the plain `{appVersion}` tag instead of `{appVersion}-unprivileged`.
   Both tags point at the same unprivileged image as of v26.1, so this is a no-op for anyone already
-  on v26.2+. DEVOPS-1553
+  on v26.2+.
 - Frontend image resolution now uses the shared `common.images.image` helper instead of a chart-local
   clone, since the clone's only difference (`-unprivileged` suffix) no longer exists.
 
