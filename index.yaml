@@ -4,6 +4,45 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: 'Updated `appVersion` to `2.2.1`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 2.2.1
+    created: "2026-09-18T14:52:47.800483951Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: Backend service for Seqera CLI AI capabilities
+    digest: c41b43222be60f31da88b3aba2e13eff3efcf123685cc0c85880b03ea06af7f8
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: agent-backend
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/agent-backend-1.5.1/agent-backend-1.5.1.tgz
+    version: 1.5.1
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: 'Updated `appVersion` to `2.2.0`.'
         - kind: changed
           description: '**BREAKING**: The agent-backend Deployment is now pinned to a single replica with a `Recreate` update strategy, matching the cron Deployment. This ensures it is never replicated, not even during a rolling deployment. `replicas` and `strategy` can no longer be overridden via `extraOptionsSpec` (they are silently ignored). Any values that previously set `extraOptionsSpec.replicas` or `extraOptionsSpec.strategy` should be removed.'
@@ -4423,4 +4462,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-18T14:17:52.947349736Z"
+generated: "2026-09-18T14:52:47.800624573Z"
