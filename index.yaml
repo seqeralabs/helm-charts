@@ -1246,6 +1246,78 @@ entries:
   platform:
   - annotations:
       artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Frontend image now defaults to the plain `{appVersion}` tag instead of `{appVersion}-unprivileged`. Both tags point at the same unprivileged image as of v26.1, so this is a no-op for anyone already on v26.2+.'
+        - kind: changed
+          description: 'Frontend image resolution now uses the shared `common.images.image` helper instead of a chart-local clone, since the clone''s only difference (`-unprivileged` suffix) no longer exists.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v26.2.0
+    created: "2026-09-18T14:17:52.947231042Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.5.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 0.7.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 63396edcf40938d2bae22f84290d5d0cba102bcf8f5c5d9a6dd9203cc095378a
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-1.0.2/platform-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      artifacthub.io/changes: |-
         - kind: removed
           description: 'Removed the `portal-web` chart from the repo, which was getting packaged as part of platform.'
       artifacthub.io/license: Apache-2.0
@@ -4351,4 +4423,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-16T13:15:24.264690171Z"
+generated: "2026-09-18T14:17:52.947349736Z"
