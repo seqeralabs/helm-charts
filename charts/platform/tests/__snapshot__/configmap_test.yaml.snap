@@ -14,8 +14,6 @@ should render Studios tools environment variables when studios is enabled with d
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,oauth-client,wave,groundswell
-      TOWER_AGENT_BACKEND_URL: https://ai-api.example.com
-      TOWER_AUTH_COOKIE_DOMAIN: .example.com
       TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_JUPYTER-OLD_ICON: jupyter
@@ -67,8 +65,6 @@ should render custom Studios tool when provided:
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,oauth-client,wave,groundswell
-      TOWER_AGENT_BACKEND_URL: https://ai-api.example.com
-      TOWER_AUTH_COOKIE_DOMAIN: .example.com
       TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL_ICON: customtool
@@ -124,8 +120,6 @@ should render custom Studios tool with deprecated and experimental versions when
     data:
       GROUNDSWELL_SERVER_URL: http://RELEASE-NAME-pipeline-optimization:8090
       MICRONAUT_ENVIRONMENTS: prod,redis,ha,oauth-client,wave,groundswell
-      TOWER_AGENT_BACKEND_URL: https://ai-api.example.com
-      TOWER_AUTH_COOKIE_DOMAIN: .example.com
       TOWER_DATA_EXPLORER_ENABLED: "true"
       TOWER_DATA_STUDIO_CONNECT_URL: https://connect.studios.example.com
       TOWER_DATA_STUDIO_TEMPLATES_CUSTOMTOOL-EXPERIMENTAL_ICON: customtool
