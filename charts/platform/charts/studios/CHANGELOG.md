@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.2] - 2026-09-15
 
+### Changed
+
+- Updated `appVersion` to `0.12.2`.
+
 ### Fixed
 
 - Fixed a bug where the managed Redis password secret was written and looked up under different
