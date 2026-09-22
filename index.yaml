@@ -3672,6 +3672,46 @@ entries:
   studios:
   - annotations:
       artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Updated `appVersion` to `0.12.2`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 0.12.2
+    created: "2026-09-22T12:34:26.69810402Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: Studios is a unified platform for interactive analysis
+    digest: 4f5ca1142100fb978057d0e84bbbeab4610660a6d2a590925655125f8005fd9a
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: studios
+    sources:
+    - https://github.com/seqeralabs/helm-charts/tree/main/seqera/charts/studios
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/studios-1.7.3/studios-1.7.3.tgz
+    version: 1.7.3
+  - annotations:
+      artifacthub.io/changes: |-
         - kind: fixed
           description: 'Fixed a bug where the managed Redis password secret was written and looked up under different keys (`redis-password` vs `CONNECT_REDIS_PASSWORD`), causing `common.secrets.passwords.manage` to fail on subsequent `helm upgrade` runs.'
       artifacthub.io/license: Apache-2.0
@@ -4532,4 +4572,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-21T10:32:46.552704686Z"
+generated: "2026-09-22T12:34:26.698247915Z"
