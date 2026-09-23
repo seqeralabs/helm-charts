@@ -4592,7 +4592,7 @@
               "type": "string"
             },
             "repository": {
-              "default": "ai/mcp/server",
+              "default": "enterprise/mcp/server",
               "description": "Container image repository",
               "title": "repository",
               "type": "string"

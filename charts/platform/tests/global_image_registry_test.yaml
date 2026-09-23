@@ -138,7 +138,7 @@ tests:
   asserts:
   - equal:
       path: spec.template.spec.containers[0].image
-      value: registry.example.com/ai/mcp/server:mcp-test-tag
+      value: registry.example.com/enterprise/mcp/server:mcp-test-tag
 
 - it: propagates the global registry to Agent Backend
   template: charts/agent-backend/templates/deployment.yaml

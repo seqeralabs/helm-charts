@@ -10,15 +10,15 @@ dependencies:
   version: 2.2.2
 - name: studios
   repository: file://charts/studios
-  version: 1.7.2
+  version: 1.7.3
 - name: wave
   repository: file://charts/wave
   version: 0.5.4
 - name: mcp
   repository: file://charts/mcp
-  version: 0.7.2
+  version: 0.7.3
 - name: agent-backend
   repository: file://charts/agent-backend
   version: 1.5.1
-digest: sha256:af0cccd7e18c506531cfc33119dba641605e70ef6434ba4814f978fd25186ecf
-generated: "2026-09-21T11:45:35.843964+02:00"
+digest: sha256:b7a46b1b9900e3d31b83f02eaf914650e9f4eac6bf11d2ddfe0cd8c1fd432858
+generated: "2026-09-23T17:14:10.778146195+02:00"
