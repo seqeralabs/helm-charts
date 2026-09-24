@@ -10,7 +10,7 @@ dependencies:
   version: 2.2.2
 - name: studios
   repository: file://charts/studios
-  version: 1.7.2
+  version: 1.7.3
 - name: wave
   repository: file://charts/wave
   version: 0.5.4
@@ -19,6 +19,6 @@ dependencies:
   version: 0.7.3
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.5.0
-digest: sha256:4b1f19a7d191561446f4b0fc1e592b5508a6cbf58c4984aa121810d0898a9994
-generated: "2026-09-16T17:12:47.466240888+02:00"
+  version: 1.5.1
+digest: sha256:b7a46b1b9900e3d31b83f02eaf914650e9f4eac6bf11d2ddfe0cd8c1fd432858
+generated: "2026-09-24T10:16:34.773034275+02:00"

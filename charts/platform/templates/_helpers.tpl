@@ -30,38 +30,6 @@ by the Platform Terraform provider.
 {{- end -}}
 
 {{/*
-Return the proper frontend image name.
-If image tag and digest are not defined, termination fallbacks to chart appVersion.
-
-Clone of common.images.image, specific for Platform frontend image since we want to select the
-{chart.AppVersion}-unprivileged image when no tag is provided, which is the image running without
-root and providing some options to change listening backend endpoint.
-TODO: check whether we can deprecate the root-ful image.
-
-{{ include "platform.frontend.image" ( dict "imageRoot" .Values.path.to.the.image "global" .Values.global "chart" .Chart ) }}
-*/}}
-{{- define "platform.frontend.image" -}}
-  {{- $registryName := default .imageRoot.registry ((.global).imageRegistry) -}}
-  {{- $repositoryName := .imageRoot.repository -}}
-  {{- $separator := ":" -}}
-  {{- $termination := .imageRoot.tag | toString -}}
-  {{- if not .imageRoot.tag }}
-    {{- if .chart }}
-    {{- $termination = printf "%s-unprivileged" .chart.AppVersion | toString -}}
-    {{- end -}}
-  {{- end -}}
-  {{- if .imageRoot.digest }}
-    {{- $separator = "@" -}}
-    {{- $termination = .imageRoot.digest | toString -}}
-  {{- end -}}
-  {{- if $registryName }}
-    {{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
-  {{- else -}}
-    {{- printf "%s%s%s"  $repositoryName $separator $termination -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
 Return the backend service target port.
 Only available in Platform v25.3+, in previous versions it was hardcoded to 8080.
 */}}

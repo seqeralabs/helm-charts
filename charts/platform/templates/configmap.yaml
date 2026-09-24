@@ -40,10 +40,6 @@ data:
   TOWER_DATA_STUDIO_CONNECT_URL: {{ tpl .Values.global.studiosConnectionUrl . | quote }}
 {{- include "platform.studios.toolsEnvVars" . | nindent 2 }}
 {{- end }}
-{{- if (index .Values "agent-backend" "enabled") }}
-  TOWER_AUTH_COOKIE_DOMAIN: {{ printf ".%s" .Values.global.platformExternalDomain | quote }}
-  TOWER_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
-{{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -88,6 +84,10 @@ data:
   TOWER_DB_MIN_POOL_SIZE: {{ .Values.platformDatabase.minPoolSize | toString | quote }}
 
   TOWER_OIDC_PEM_PATH: /data/certs/oidc.pem
+{{- if (index .Values "agent-backend" "enabled") }}
+  TOWER_AUTH_COOKIE_DOMAIN: {{ printf ".%s" .Values.global.platformExternalDomain | quote }}
+  TOWER_AGENT_BACKEND_URL: {{ printf "https://%s" (tpl .Values.global.agentBackendDomain $) | quote }}
+{{- end }}
 ---
 kind: ConfigMap
 apiVersion: v1
