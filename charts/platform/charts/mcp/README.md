@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides comprehensive access to the 
 Wave container provisioning, bioinformatics data, and nf-core modules through intelligent
 RAG-based natural language interactions.
 
-![Version: 0.7.2](https://img.shields.io/badge/Version-0.7.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.5.1](https://img.shields.io/badge/AppVersion-1.5.1-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.7.0](https://img.shields.io/badge/AppVersion-1.7.0-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -33,7 +33,8 @@ The required values to set in order to have a working installation are:
 
 The Helm chart comes with several requirement checks that will validate the provided configuration before proceeding with the installation.
 
-By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.5.1`.
+By default the chart selects the application images defined in the `appVersion` field of the `Chart.yaml` file, currently set as `1.7.0`.
+MCP version 1.6.0 introduced new default health probe paths for the liveness, readiness, and startup probes, which have been defined as default in the MCP chart's `values.yaml` file. If using an older version of the MCP server, you may need to adjust the probe paths accordingly.
 
 When a sensitive value is required (e.g. the database password, the Seqera license key), you can either provide it directly in the values file or reference an existing Kubernetes Secret containing the value. The key names to use in the provided Secret are specified in the values file comments.
 Sensitive values provided as plain text by the user are always stored in a Kubernetes Secret created by the chart. When an external Secret is used instead, the chart instructs the components to read the sensitive value from the external Secret directly, without further storing copies of the sensitive value in the chart-created Secret.
@@ -45,13 +46,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/mcp --version 0.7.2 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/mcp --version 1.0.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/mcp \
-     --version 0.7.2 \
+     --version 1.0.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -67,7 +68,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/mcp \
-  --version 0.7.2 \
+  --version 1.0.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -150,7 +151,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | image.registry | string | `""` | Container image registry |
-| image.repository | string | `"ai/mcp/server"` | Container image repository |
+| image.repository | string | `"enterprise/mcp/server"` | Container image repository |
 | image.tag | string | `"{{ .chart.AppVersion }}"` | Container image tag. Defaults to the chart's appVersion (the `appVersion` field in Chart.yaml) |
 | image.digest | string | `""` | Container image digest in the format `sha256:1234abcdef` |
 | image.pullPolicy | string | `"IfNotPresent"` | imagePullPolicy for the container Ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images |
@@ -248,7 +249,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | startupProbe.enabled | bool | `false` | Enable startup probe |
-| startupProbe.httpGet.path | string | `"/health"` | HTTP GET path for startup probe |
+| startupProbe.httpGet.path | string | `"/health/liveness"` | HTTP GET path for startup probe |
 | startupProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for startup probe. Evaluated as a template |
 | startupProbe.initialDelaySeconds | int | `5` | Longer initial wait to accommodate slow-starting apps |
 | startupProbe.periodSeconds | int | `10` | Often set longer to avoid frequent checks while starting |
@@ -261,7 +262,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | readinessProbe.enabled | bool | `true` | Enable readiness probe |
-| readinessProbe.httpGet.path | string | `"/health"` | HTTP GET path for readiness probe |
+| readinessProbe.httpGet.path | string | `"/health/readiness"` | HTTP GET path for readiness probe |
 | readinessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for readiness probe. Evaluated as a template |
 | readinessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
 | readinessProbe.periodSeconds | int | `5` | Regular check interval during normal operation |
@@ -274,7 +275,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | livenessProbe.enabled | bool | `true` | Enable liveness probe |
-| livenessProbe.httpGet.path | string | `"/health"` | HTTP GET path for liveness probe |
+| livenessProbe.httpGet.path | string | `"/health/liveness"` | HTTP GET path for liveness probe |
 | livenessProbe.httpGet.port | string | `"{{ .Values.service.http.targetPort }}"` | HTTP GET port for liveness probe. Evaluated as a template |
 | livenessProbe.initialDelaySeconds | int | `5` | Delay before first check (normal start timing) |
 | livenessProbe.periodSeconds | int | `10` | Regular check interval during normal operation |

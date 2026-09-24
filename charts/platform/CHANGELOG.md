@@ -5,6 +5,14 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-09-24
+
+### Changed
+
+- Bump mcp subchart to stable version `1.0.0` (which updates its `appVersion` to `1.7.0`) which
+  includes the new default health probe paths and fixed CR repository path.
+- Bump studios subchart to `1.7.4` to rebuild its README.
+
 ## [1.0.3] - 2026-09-21
 
 ### Changed
@@ -55,6 +63,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   backend calls) is independent from the `wave` subchart's own `WAVE_SERVER_URL` (the public URL the
   self-hosted Wave service advertises about itself), and how to point the former at the latter when
   self-hosting Wave.
+- `mcp` subchart's `startupProbe`/`livenessProbe` now default to `/health/liveness` and
+  `readinessProbe` to `/health/readiness` (previously all three used `/health`), so each probe
+  reflects the more specific Micronaut health indicator it actually needs.
 
 ### Fixed
 
