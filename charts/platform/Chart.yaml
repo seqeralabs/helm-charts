@@ -87,7 +87,7 @@ dependencies:
       - wave
     condition: wave.enabled
   - name: mcp
-    version: "0.7.x"
+    version: "1.x.x"
     repository: "file://charts/mcp"
     tags:
       - mcp

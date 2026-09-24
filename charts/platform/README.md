@@ -92,7 +92,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 |------------|------|---------|
 | file://../seqera-common | seqera-common | 3.x.x |
 | file://charts/agent-backend | agent-backend | 1.x.x |
-| file://charts/mcp | mcp | 0.7.x |
+| file://charts/mcp | mcp | 1.x.x |
 | file://charts/pipeline-optimization | pipeline-optimization | 2.x.x |
 | file://charts/studios | studios | 1.x.x |
 | file://charts/wave | wave | 0.5.x |

@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump mcp subchart to `0.7.3` (which updates its `appVersion` to `1.7.0`) which includes the new
-  default health probe paths.
+- Bump mcp subchart to stable version `1.0.0` (which updates its `appVersion` to `1.7.0`) which
+  includes the new default health probe paths and fixed CR repository path.
 - Bump studios subchart to `1.7.4` to rebuild its README.
 
 ## [1.0.3] - 2026-09-21

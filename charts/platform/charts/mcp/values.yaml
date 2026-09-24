@@ -162,7 +162,7 @@ image:
   registry: ""
   # -- Container image repository
   # @section -- Image
-  repository: ai/mcp/server
+  repository: enterprise/mcp/server
   # @schema
   # type: [string, number]
   # @schema
