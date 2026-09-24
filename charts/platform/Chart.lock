@@ -10,7 +10,7 @@ dependencies:
   version: 2.2.2
 - name: studios
   repository: file://charts/studios
-  version: 1.7.3
+  version: 1.7.4
 - name: wave
   repository: file://charts/wave
   version: 0.5.4
