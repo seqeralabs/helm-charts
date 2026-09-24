@@ -568,6 +568,50 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: 'Updated `appVersion` to `1.7.0`.'
+        - kind: changed
+          description: '`startupProbe`/`livenessProbe` now default to `/health/liveness` and `readinessProbe` to `/health/readiness` (previously all three used `/health`), matching the app''s more specific Micronaut health indicators: readiness reflects RAG index build status and excludes disk-space checks, while liveness stays minimal so a broken index drains the pod instead of restart-looping it.'
+        - kind: changed
+          description: 'Default image repository changed from `ai/mcp/server` to `enterprise/mcp/server`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 1.7.0
+    created: "2026-09-24T10:36:05.98198371Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - condition: seqera-common.enabled
+      name: seqera-common
+      repository: file://../../../seqera-common
+      version: 3.x.x
+    description: 'A Model Context Protocol (MCP) server that provides comprehensive
+      access to the Seqera Platform, Wave container provisioning, bioinformatics data,
+      and nf-core modules through intelligent RAG-based natural language interactions. '
+    digest: 71f6c4b0499bfdf1436c1c57ef41dd2d4df2a88b52eecc7c8700b2673824c7f5
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: mcp
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/mcp-1.0.0/mcp-1.0.0.tgz
+    version: 1.0.0
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: 'Updated `appVersion` to `1.5.1`.'
         - kind: changed
           description: 'Removed a stale comment from the Ingress template. No rendered output changes.'
@@ -1283,6 +1327,78 @@ entries:
     - https://github.com/seqeralabs/helm-charts/releases/download/pipeline-optimization-2.0.3/pipeline-optimization-2.0.3.tgz
     version: 2.0.3
   platform:
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
+          description: 'Bump mcp subchart to stable version `1.0.0` (which updates its `appVersion` to `1.7.0`) which includes the new default health probe paths and fixed CR repository path.'
+        - kind: changed
+          description: 'Bump studios subchart to `1.7.4` to rebuild its README.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v26.2.0
+    created: "2026-09-24T10:36:06.42715497Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.5.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 1.x.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: f8780488a1ff7851c32dfab98b04c5aa18a89fbfb63fac28afefdf2ffe425d78
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-1.0.4/platform-1.0.4.tgz
+    version: 1.0.4
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
@@ -3673,6 +3789,46 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: 'Rebuild readme with updated version numbers.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 0.12.2
+    created: "2026-09-24T10:36:06.743190592Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: Studios is a unified platform for interactive analysis
+    digest: e507404f0e03bf42a87aacbd1a2760f5623c7761e0e2e62c58046ab98fbf56dc
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: studios
+    sources:
+    - https://github.com/seqeralabs/helm-charts/tree/main/seqera/charts/studios
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/studios-1.7.4/studios-1.7.4.tgz
+    version: 1.7.4
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: 'Updated `appVersion` to `0.12.2`.'
       artifacthub.io/license: Apache-2.0
       artifacthub.io/links: |
@@ -4572,4 +4728,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-09-22T12:34:26.698247915Z"
+generated: "2026-09-24T10:36:06.743443106Z"
