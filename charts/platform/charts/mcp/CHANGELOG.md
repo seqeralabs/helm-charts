@@ -5,11 +5,11 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.3] - 2026-09-16
+## [0.7.3] - 2026-09-24
 
 ### Changed
 
-- Updated `appVersion` to `1.6.0`.
+- Updated `appVersion` to `1.7.0`.
 - `startupProbe`/`livenessProbe` now default to `/health/liveness` and `readinessProbe` to
   `/health/readiness` (previously all three used `/health`), matching the app's more specific
   Micronaut health indicators: readiness reflects RAG index build status and excludes disk-space
