@@ -306,6 +306,30 @@ tests:
           path: data.BEDROCK_ANTHROPIC_MODEL
           value: anthropic.claude-sonnet-4-6
 
+  # ---- Anthropic inference overrides ----
+
+  - it: should not set ANTHROPIC_MODEL when not configured
+    asserts:
+      - notExists:
+          path: data.ANTHROPIC_MODEL
+
+  - it: should set ANTHROPIC_MODEL when configured
+    set:
+      anthropic.inference.model: claude-sonnet-4-6
+    asserts:
+      - equal:
+          path: data.ANTHROPIC_MODEL
+          value: claude-sonnet-4-6
+
+  - it: should render ANTHROPIC_MODEL through tpl
+    set:
+      global.anthropicModel: claude-opus-4-7
+      anthropic.inference.model: "{{ .Values.global.anthropicModel }}"
+    asserts:
+      - equal:
+          path: data.ANTHROPIC_MODEL
+          value: claude-opus-4-7
+
   # ---- Redis ----
 
   - it: should contain default Redis configuration

@@ -5,6 +5,18 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-09-28
+
+### Added
+
+- `anthropic.inference.model` to set the Anthropic model used for inference, rendered as
+  `ANTHROPIC_MODEL` in the ConfigMap when set.
+
+### Changed
+
+- Clarified in the `bedrock.inference.anthropicModel` description that only Anthropic models are
+  supported.
+
 ## [1.5.1] - 2026-09-18
 
 ### Changed

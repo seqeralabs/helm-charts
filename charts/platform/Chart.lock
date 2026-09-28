@@ -19,6 +19,6 @@ dependencies:
   version: 1.0.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.5.1
-digest: sha256:c8f1cc7dd6165bc1443a7a685d461f7cd43c04bd6c12893324f42c249ecf96c8
-generated: "2026-09-24T10:55:30.400888589+02:00"
+  version: 1.6.0
+digest: sha256:3902d80e2a3c12f96738782b9f43f51fcc0513343391b663ebc32ca2c08d2160
+generated: "2026-09-28T10:36:25.752891+02:00"
