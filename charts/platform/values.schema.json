@@ -33,6 +33,20 @@
               "description": "Name of an existing Secret containing the Anthropic API key.\nNote: the Secret must already exist in the same namespace at the time of deployment",
               "title": "existingSecretName",
               "type": "string"
+            },
+            "inference": {
+              "description": "Inference-specific Anthropic overrides",
+              "properties": {
+                "model": {
+                  "default": "",
+                  "description": "Name of the language model to use",
+                  "title": "model",
+                  "type": "string"
+                }
+              },
+              "required": [],
+              "title": "inference",
+              "type": "object"
             }
           },
           "required": [],
@@ -101,7 +115,7 @@
               "properties": {
                 "anthropicModel": {
                   "default": "",
-                  "description": "Anthropic inference profile ARN to use on Bedrock (e.g. a custom or\ncross-region/cross-account profile).",
+                  "description": "Anthropic inference profile ARN to use on Bedrock (e.g. a custom or\ncross-region/cross-account profile). Only Anthropic models are supported.",
                   "title": "anthropicModel",
                   "type": "string"
                 },

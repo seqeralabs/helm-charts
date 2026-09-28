@@ -140,7 +140,7 @@ bedrock:
     # @section -- Bedrock: Inference
     region: ""
     # -- Anthropic inference profile ARN to use on Bedrock (e.g. a custom or
-    # cross-region/cross-account profile).
+    # cross-region/cross-account profile). Only Anthropic models are supported.
     # @section -- Bedrock: Inference
     anthropicModel: ""
 
@@ -182,6 +182,11 @@ anthropic:
   # @default -- `"ANTHROPIC_API_KEY"`
   # @section -- Anthropic
   existingSecretKey: ""
+  # Inference-specific Anthropic overrides
+  inference:
+    # -- Name of the language model to use
+    # @section -- Anthropic
+    model: ""
 
 database:
   # -- MySQL database hostname

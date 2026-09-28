@@ -76,6 +76,9 @@ data:
 {{- if .Values.bedrock.inference.anthropicModel }}
   BEDROCK_ANTHROPIC_MODEL: {{ tpl .Values.bedrock.inference.anthropicModel . | quote }}
 {{- end }}
+{{- if .Values.anthropic.inference.model }}
+  ANTHROPIC_MODEL: {{ tpl .Values.anthropic.inference.model . | quote }}
+{{- end }}
 
 {{- if .Values.embeddings.provider }}
   {{- if .Values.bedrock.embeddings.assumeRoleArn }}
