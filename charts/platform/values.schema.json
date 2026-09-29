@@ -6583,7 +6583,7 @@
                 "jupyter": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.13",
+                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.12",
                       "title": "deprecated",
                       "type": "string"
                     },
@@ -6609,7 +6609,7 @@
                 "ride": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.13",
+                      "default": "public.cr.seqera.io/platform/data-studio-ride:2026.01.2-0.12",
                       "title": "deprecated",
                       "type": "string"
                     },
@@ -6635,7 +6635,7 @@
                 "vscode": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.13",
+                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.12",
                       "title": "deprecated",
                       "type": "string"
                     },
@@ -6661,7 +6661,7 @@
                 "xpra": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.13",
+                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.12",
                       "title": "deprecated",
                       "type": "string"
                     },

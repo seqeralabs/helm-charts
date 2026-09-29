@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump studios subchart to `1.7.5`, which updates its `appVersion` to `0.14.0` (Connect server and
   proxy).
 - Update default Studios tool templates: recommended images to the `0.14` client release and
-  deprecated images to `0.13`.
+  deprecated images to the previous recommended `0.12` ones.
 
 ## [1.0.5] - 2026-09-28
 
