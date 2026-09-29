@@ -2,7 +2,7 @@
 
 A Helm chart to deploy Seqera Platform (also referred to as Tower) on Kubernetes.
 
-![Version: 1.0.5](https://img.shields.io/badge/Version-1.0.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.2.0](https://img.shields.io/badge/AppVersion-v26.2.0-informational?style=flat-square)
+![Version: 1.0.6](https://img.shields.io/badge/Version-1.0.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v26.2.0](https://img.shields.io/badge/AppVersion-v26.2.0-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -48,13 +48,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/platform --version 1.0.5 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/platform --version 1.0.6 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/platform \
-     --version 1.0.5 \
+     --version 1.0.6 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -70,7 +70,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/platform \
-  --version 1.0.5 \
+  --version 1.0.6 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -228,7 +228,7 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| platform.studios.tools | object | `{"jupyter":{"deprecated":"public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.11","recommended":"public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.12","tool":"jupyter"},"ride":{"deprecated":"public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.11","recommended":"public.cr.seqera.io/platform/data-studio-ride:2026.01.2-0.12","tool":"ride"},"vscode":{"deprecated":"public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.11","recommended":"public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.12","tool":"vscode"},"xpra":{"deprecated":"public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.11","recommended":"public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.12","tool":"xpra"}}` | Map of tools to make available in Studios. Recommended and deprecated versions can be specified for each tool to allow upgrading from an older version. Refer to the documentation for more details: https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template  NOTE: despite the name, this is consumed by the Platform app (backend), not the Studios app. It must be set under the top-level `platform.studios.tools` key shown here, NOT under the `studios.*` subchart values (charts/platform/charts/studios/values.yaml has no `tools` key). |
+| platform.studios.tools | object | `{"jupyter":{"deprecated":"public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.13","recommended":"public.cr.seqera.io/platform/data-studio-jupyter:4.6.0-0.14","tool":"jupyter"},"ride":{"deprecated":"public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.13","recommended":"public.cr.seqera.io/platform/data-studio-ride:2026.01.2-0.14","tool":"ride"},"vscode":{"deprecated":"public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.13","recommended":"public.cr.seqera.io/platform/data-studio-vscode:1.105.1-0.14","tool":"vscode"},"xpra":{"deprecated":"public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.13","recommended":"public.cr.seqera.io/platform/data-studio-xpra:6.3.6-r0-1-0.14","tool":"xpra"}}` | Map of tools to make available in Studios. Recommended and deprecated versions can be specified for each tool to allow upgrading from an older version. Refer to the documentation for more details: https://docs.seqera.io/platform-enterprise/studios/managing#migrate-a-studio-from-an-earlier-container-image-template  NOTE: despite the name, this is consumed by the Platform app (backend), not the Studios app. It must be set under the top-level `platform.studios.tools` key shown here, NOT under the `studios.*` subchart values (charts/platform/charts/studios/values.yaml has no `tools` key). |
 
 ### Platform: Labels & Annotations
 

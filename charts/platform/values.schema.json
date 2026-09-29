@@ -6583,12 +6583,12 @@
                 "jupyter": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.11",
+                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.13",
                       "title": "deprecated",
                       "type": "string"
                     },
                     "recommended": {
-                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.2.5-0.12",
+                      "default": "public.cr.seqera.io/platform/data-studio-jupyter:4.6.0-0.14",
                       "title": "recommended",
                       "type": "string"
                     },
@@ -6609,12 +6609,12 @@
                 "ride": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.11",
+                      "default": "public.cr.seqera.io/platform/data-studio-ride:2025.04.1-0.13",
                       "title": "deprecated",
                       "type": "string"
                     },
                     "recommended": {
-                      "default": "public.cr.seqera.io/platform/data-studio-ride:2026.01.2-0.12",
+                      "default": "public.cr.seqera.io/platform/data-studio-ride:2026.01.2-0.14",
                       "title": "recommended",
                       "type": "string"
                     },
@@ -6635,12 +6635,12 @@
                 "vscode": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.11",
+                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.13",
                       "title": "deprecated",
                       "type": "string"
                     },
                     "recommended": {
-                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.101.2-0.12",
+                      "default": "public.cr.seqera.io/platform/data-studio-vscode:1.105.1-0.14",
                       "title": "recommended",
                       "type": "string"
                     },
@@ -6661,12 +6661,12 @@
                 "xpra": {
                   "properties": {
                     "deprecated": {
-                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.11",
+                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.13",
                       "title": "deprecated",
                       "type": "string"
                     },
                     "recommended": {
-                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.2.0-r2-1-0.12",
+                      "default": "public.cr.seqera.io/platform/data-studio-xpra:6.3.6-r0-1-0.14",
                       "title": "recommended",
                       "type": "string"
                     },
