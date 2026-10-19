@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump wave subchart to `0.6.1`, which updates its `appVersion` to `v1.40.4`.
+- Bump wave subchart to `0.6.1`, which updates its `appVersion` to `v1.41.0`.
 
 ## [1.0.8] - 2026-10-13
 

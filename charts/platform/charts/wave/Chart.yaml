@@ -20,7 +20,7 @@ name: wave
 description: On-demand containers provisioning service
 type: application
 version: 0.6.1
-appVersion: "v1.40.4"
+appVersion: "v1.41.0"
 icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
 maintainers:
   - name: Seqera Labs
