@@ -1411,6 +1411,76 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: 'Bump wave subchart to `0.6.1`, which updates its `appVersion` to `v1.41.0`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v26.2.1
+    created: "2026-10-19T10:33:20.033913284Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    - condition: pipeline-optimization.enabled
+      name: pipeline-optimization
+      repository: file://charts/pipeline-optimization
+      tags:
+      - pipeline-optimization
+      version: 2.x.x
+    - condition: studios.enabled
+      name: studios
+      repository: file://charts/studios
+      tags:
+      - studios
+      version: 1.x.x
+    - condition: wave.enabled
+      name: wave
+      repository: file://charts/wave
+      tags:
+      - wave
+      version: 0.6.x
+    - condition: mcp.enabled
+      name: mcp
+      repository: file://charts/mcp
+      tags:
+      - mcp
+      version: 1.x.x
+    - condition: agent-backend.enabled
+      name: agent-backend
+      repository: file://charts/agent-backend
+      tags:
+      - agent-backend
+      version: 1.x.x
+    description: A Helm chart to deploy Seqera Platform (also referred to as Tower)
+      on Kubernetes.
+    digest: 631d5399d6d2714a71a8dac9075793bb25677fffb92a2387119b6a566be3f0a9
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: platform
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/platform-1.0.9/platform-1.0.9.tgz
+    version: 1.0.9
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: 'Bump wave subchart to `0.6.0`, which updates its `appVersion` to `v1.40.2`.'
         - kind: changed
           description: 'Bump mcp subchart to `1.1.0`, which updates its `appVersion` to `2.0.1`.'
@@ -4676,6 +4746,45 @@ entries:
   - annotations:
       artifacthub.io/changes: |-
         - kind: changed
+          description: 'Updated `appVersion` to `v1.41.0`.'
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Seqera Docs
+          url: https://docs.seqera.io
+        - name: Helm charts repository
+          url: https://github.com/seqeralabs/helm-charts/
+      artifacthub.io/signKey: |
+        fingerprint: F69F12932C6F3E0EED47964BCE031B0C243F50E0
+        url: https://keybase.io/seqeradevops/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v1.41.0
+    created: "2026-10-19T10:33:20.346963012Z"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    - name: seqera-common
+      repository: file://../../../seqera-common
+      tags:
+      - seqera-common
+      version: 3.x.x
+    description: On-demand containers provisioning service
+    digest: d5d95028e27bf4976b95a0d967b37647847c8c782ab53540ce69229d807a0b86
+    icon: https://raw.githubusercontent.com/seqeralabs/helm-charts/master/media/seqera-icon-light.svg
+    maintainers:
+    - email: devops@seqera.io
+      name: Seqera Labs
+      url: https://seqera.io
+    name: wave
+    type: application
+    urls:
+    - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.6.1/wave-0.6.1.tgz
+    version: 0.6.1
+  - annotations:
+      artifacthub.io/changes: |-
+        - kind: changed
           description: 'Updated `appVersion` to `v1.40.2`.'
       artifacthub.io/license: Apache-2.0
       artifacthub.io/links: |
@@ -5172,4 +5281,4 @@ entries:
     urls:
     - https://github.com/seqeralabs/helm-charts/releases/download/wave-0.1.0/wave-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-13T13:55:37.397387175Z"
+generated: "2026-10-19T10:33:20.347366956Z"
