@@ -13,12 +13,12 @@ dependencies:
   version: 1.7.5
 - name: wave
   repository: file://charts/wave
-  version: 0.6.1
+  version: 0.6.2
 - name: mcp
   repository: file://charts/mcp
-  version: 1.1.0
+  version: 1.2.0
 - name: agent-backend
   repository: file://charts/agent-backend
-  version: 1.6.0
-digest: sha256:5261f499d1c65b8a2ae817c5202a6f179dadc273f29df51826587a0d34aaa835
-generated: "2026-10-16T12:05:11.521632294+02:00"
+  version: 1.7.0
+digest: sha256:54908755655bda2fdac8f0a3b1e48cce3220a34977ed83283e15d3ebcd5725c1
+generated: "2026-10-30T16:01:25.453706765+01:00"

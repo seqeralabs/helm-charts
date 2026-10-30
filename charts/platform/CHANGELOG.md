@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Updated default platform images to `v26.2.3`.
+- Bump wave subchart to `0.6.2`, which updates its `appVersion` to `v1.42.2`.
+- Bump mcp subchart to `1.2.0`, which updates its `appVersion` to `2.1.0`.
+- Bump agent-backend subchart to `1.7.0`, which updates its `appVersion` to `2.5.0`.
 
 ## [1.0.9] - 2026-10-16
 
