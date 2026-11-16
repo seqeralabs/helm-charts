@@ -1,0 +1,92 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/helm-unittest/helm-unittest/main/schema/helm-testsuite.json
+#
+# Copyright (c) 2026 Seqera Labs
+# All rights reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The parent chart turns on the MCP Co-Scientist tools and points them at the
+# agent-backend Service it deploys. The MCP default is evaluated in the mcp
+# subchart context, so these tests check that it resolves to the same name as
+# the agent-backend Service, including when the release name already contains
+# 'agent-backend' and common.names.fullname collapses it.
+suite: test MCP Co-Scientist endpoint (parent defaults)
+templates:
+- charts/mcp/templates/configmap.yaml
+- charts/agent-backend/templates/service.yaml
+chart:
+  version: 9.8.7
+  appVersion: 1.2.3-asdf
+set:
+  global:
+    platformExternalDomain: example.com
+tests:
+- it: MCP calls '<release>-agent-backend' on port 80
+  release:
+    name: myrelease
+  template: charts/mcp/templates/configmap.yaml
+  asserts:
+  - equal:
+      path: data.PORTAL_API_ENDPOINT
+      value: http://myrelease-agent-backend:80
+- it: MCP turns the Co-Scientist tools on by default
+  release:
+    name: myrelease
+  template: charts/mcp/templates/configmap.yaml
+  asserts:
+  - equal:
+      path: data.MCP_TOOLS_COSCIENTIST_ENABLED
+      value: "true"
+- it: the agent-backend Service is '<release>-agent-backend' on port 80
+  release:
+    name: myrelease
+  template: charts/agent-backend/templates/service.yaml
+  asserts:
+  - equal:
+      path: metadata.name
+      value: myrelease-agent-backend
+- it: the agent-backend Service listens on port 80
+  release:
+    name: myrelease
+  template: charts/agent-backend/templates/service.yaml
+  asserts:
+  - equal:
+      path: spec.ports[0].port
+      value: 80
+- it: MCP follows the collapsed Service name when the release contains 'agent-backend'
+  release:
+    name: my-agent-backend
+  template: charts/mcp/templates/configmap.yaml
+  asserts:
+  - equal:
+      path: data.PORTAL_API_ENDPOINT
+      value: http://my-agent-backend:80
+- it: the agent-backend Service name collapses the same way
+  release:
+    name: my-agent-backend
+  template: charts/agent-backend/templates/service.yaml
+  asserts:
+  - equal:
+      path: metadata.name
+      value: my-agent-backend
+- it: MCP leaves the Co-Scientist tools off when disabled
+  release:
+    name: myrelease
+  set:
+    mcp.coScientist.enabled: false
+  template: charts/mcp/templates/configmap.yaml
+  asserts:
+  - notExists:
+      path: data.PORTAL_API_ENDPOINT

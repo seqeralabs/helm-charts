@@ -41,3 +41,12 @@ data:
 
   MCP_OAUTH_ISSUER_URL: {{ include "mcp.oauth.issuerUrl" . | quote }}
   MCP_OAUTH_AUDIENCE: "platform"
+{{- if .Values.coScientist.enabled }}
+  {{- $portalApiEndpoint := tpl .Values.coScientist.portalApiEndpoint $ }}
+  {{- if not $portalApiEndpoint }}
+    {{- fail "mcp: coScientist.portalApiEndpoint is required when coScientist.enabled is true" }}
+  {{- end }}
+
+  MCP_TOOLS_COSCIENTIST_ENABLED: "true"
+  PORTAL_API_ENDPOINT: {{ $portalApiEndpoint | quote }}
+{{- end }}

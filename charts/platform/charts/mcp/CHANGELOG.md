@@ -5,6 +5,26 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-11-16
+
+### Added
+
+- `coScientist.enabled` and `coScientist.portalApiEndpoint` values. When enabled, the chart sets
+  `MCP_TOOLS_COSCIENTIST_ENABLED` and `PORTAL_API_ENDPOINT`, so MCP exposes the
+  `co_scientist_ask`, `co_scientist_get_status` and `co_scientist_cancel` tools that hand tasks to
+  Seqera Co-Scientist (agent-backend). Disabled by default; rendering fails if it is enabled
+  without an endpoint.
+
+### Changed
+
+- Updated `appVersion` to `2.2.0`.
+- **BREAKING** (application): MCP 2.2.0 lists every operation as its own tool instead of the
+  `search_seqera_api`/`call_seqera_api` and `search_data_tool`/`call_data_tool` meta-tools, and
+  renames the nf-core tools to `nextflow_search_modules`, `nextflow_describe_module` and
+  `nextflow_suggest_pipeline`. No chart values change. MCP clients with allow-lists or prompts
+  that name the old tools need updating; to keep the meta-tools, add `tools-search` to
+  `micronautEnvironments` (or set `MCP_TOOLS_SEARCH_ENABLED=true` through `extraEnvVars`).
+
 ## [1.2.0] - 2026-10-30
 
 ### Changed

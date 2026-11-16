@@ -1732,6 +1732,18 @@ mcp:
     # -- Key in the existing Secret containing the OIDC client registration token
     # @section -- Subcharts: MCP
     existingSecretKey: "OIDC_CLIENT_REGISTRATION_TOKEN"
+  coScientist:
+    # -- Expose the Co-Scientist tools in MCP, which hand tasks to the agent-backend (Co-Scientist)
+    # deployed by this chart. Set to `false` if `agent-backend.enabled` is `false`
+    # @section -- Subcharts: MCP
+    enabled: true
+    # -- In-cluster URL of the agent-backend API used by the MCP Co-Scientist tools. Defaults to the
+    # agent-backend Service deployed by this chart (port 80); override it if you change the
+    # agent-backend Service name or port, or use an external agent-backend. Evaluated as a template
+    # in the mcp subchart context, hence `common.names.dependency.fullname` with an explicit
+    # `chartName`
+    # @section -- Subcharts: MCP
+    portalApiEndpoint: '{{ printf "http://%s:80" (include "common.names.dependency.fullname" (dict "chartName" "agent-backend" "chartValues" (dict) "context" .)) | lower }}'
 
 agent-backend:
   # -- Enable agent backend feature used by seqera cli ai command. Refer to the subchart README for
