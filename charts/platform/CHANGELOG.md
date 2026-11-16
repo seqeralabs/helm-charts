@@ -5,6 +5,21 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-16
+
+### Added
+
+- MCP now exposes the Co-Scientist tools by default, pointed at the agent-backend Service this
+  chart deploys (`mcp.coScientist.enabled`, `mcp.coScientist.portalApiEndpoint`). Set
+  `mcp.coScientist.enabled: false` if `agent-backend.enabled` is `false`, or point
+  `mcp.coScientist.portalApiEndpoint` at an external agent-backend.
+
+### Changed
+
+- Bump mcp subchart to `1.3.0`, which updates its `appVersion` to `2.2.0`. **BREAKING**
+  (application): MCP tool names change; see the mcp subchart changelog for migration notes.
+- Bump agent-backend subchart to `1.8.0`, which updates its `appVersion` to `2.10.1`.
+
 ## [1.0.11] - 2026-11-06
 
 ### Changed

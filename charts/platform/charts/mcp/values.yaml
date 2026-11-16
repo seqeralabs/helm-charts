@@ -114,6 +114,18 @@ waveApiEndpoint: https://wave.seqera.io
 # @section -- MCP application
 registryApiEndpoint: https://registry.nextflow.io
 
+coScientist:
+  # -- Expose the Co-Scientist tools (`co_scientist_ask`, `co_scientist_get_status`,
+  # `co_scientist_cancel`), which let MCP clients hand tasks to Seqera Co-Scientist and get its
+  # answer back. Requires MCP 2.2.0 or later and an agent-backend that serves the
+  # `/v1/mcp/threads` API (2.8.0 or later)
+  # @section -- MCP application
+  enabled: false
+  # -- Base URL of the agent-backend (Co-Scientist) API that the Co-Scientist tools call. Required
+  # when `coScientist.enabled` is true; MCP fails to start without it. Evaluated as a template
+  # @section -- MCP application
+  portalApiEndpoint: ""
+
 oidcToken:
   # -- OIDC client registration token as a string. Used to dynamically register an OAuth client
   # with Seqera Platform's OIDC provider. If neither this nor existingSecretName is set, a random
