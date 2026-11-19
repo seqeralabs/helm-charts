@@ -101,6 +101,21 @@ tests:
       licenseSecretName: unittest
       licenseSecretKey: license-token-key
       oidcClientRegistrationToken: set this to a static value as well
+      # Pin the Studios images so the configmap checksum doesn't change when values.yaml defaults do
+      studios:
+        tools:
+          jupyter:
+            recommended: registry.example.com/jupyter:recommended
+            deprecated: registry.example.com/jupyter:deprecated
+          vscode:
+            recommended: registry.example.com/vscode:recommended
+            deprecated: registry.example.com/vscode:deprecated
+          ride:
+            recommended: registry.example.com/ride:recommended
+            deprecated: registry.example.com/ride:deprecated
+          xpra:
+            recommended: registry.example.com/xpra:recommended
+            deprecated: registry.example.com/xpra:deprecated
   asserts:
   - matchSnapshot: {}
 - it: shouldn't obey custom selector requests

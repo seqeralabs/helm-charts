@@ -23,6 +23,23 @@ templates:
 chart:
   version: 1.2.3
   appVersion: "v9.9.9"
+# Pin the Studios images so snapshots don't change when the defaults in values.yaml do.
+set:
+  platform:
+    studios:
+      tools:
+        jupyter:
+          recommended: registry.example.com/jupyter:recommended
+          deprecated: registry.example.com/jupyter:deprecated
+        vscode:
+          recommended: registry.example.com/vscode:recommended
+          deprecated: registry.example.com/vscode:deprecated
+        ride:
+          recommended: registry.example.com/ride:recommended
+          deprecated: registry.example.com/ride:deprecated
+        xpra:
+          recommended: registry.example.com/xpra:recommended
+          deprecated: registry.example.com/xpra:deprecated
 tests:
 - it: shuld render 4 different CM documents by default
   asserts:
