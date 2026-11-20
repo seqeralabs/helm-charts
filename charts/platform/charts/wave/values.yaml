@@ -410,7 +410,7 @@ initContainerDependencies:
       # @schema
       # -- Init container image tag
       # @section -- Init Container Dependencies: Wait for PostgreSQL
-      tag: "16-alpine"
+      tag: "19-alpine"
       # -- Init container image digest in the format `sha256:1234abcdef`
       # @section -- Init Container Dependencies: Wait for PostgreSQL
       digest: ""
