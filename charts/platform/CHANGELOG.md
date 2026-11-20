@@ -5,6 +5,15 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] - 2026-11-19
+
+### Changed
+
+- Update default Studios tool templates: recommended images to the `0.16` client release and
+  deprecated images to the previous recommended `0.15` ones. The deprecated xpra image moves to
+  `6.5.4-r0-1`.
+- Simplify platform chart unittests by pinning studios tool images to placeholder values.
+
 ## [1.0.11] - 2026-11-06
 
 ### Changed
