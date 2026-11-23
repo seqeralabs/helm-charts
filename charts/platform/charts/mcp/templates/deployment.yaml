@@ -42,13 +42,15 @@ spec:
 {{- end }}
   template:
     metadata:
-      labels: {{- include "common.labels.standard" (dict "customLabels" $podLabels "context" $) | nindent 8 }}
+{{- /* global.podLabels is merged only into the pod template labels, never the immutable selector above. */}}
+{{- $podTemplateLabels := include "common.tplvalues.merge" (dict "values" (list .Values.podLabels .Values.commonLabels .Values.global.podLabels) "context" .) }}
+      labels: {{- include "common.labels.standard" (dict "customLabels" $podTemplateLabels "context" $) | nindent 8 }}
         app.kubernetes.io/component: mcp
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-{{- if or .Values.podAnnotations .Values.commonAnnotations }}
-  {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.podAnnotations .Values.commonAnnotations) "context" $) }}
+{{- if or .Values.podAnnotations .Values.commonAnnotations .Values.global.podAnnotations }}
+  {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.podAnnotations .Values.commonAnnotations .Values.global.podAnnotations) "context" $) }}
         {{- include "common.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
 {{- end }}
 

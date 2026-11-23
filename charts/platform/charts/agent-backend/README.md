@@ -2,7 +2,7 @@
 
 Backend service for Seqera CLI AI capabilities
 
-![Version: 1.7.0](https://img.shields.io/badge/Version-1.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.5.0](https://img.shields.io/badge/AppVersion-2.5.0-informational?style=flat-square)
+![Version: 1.8.0](https://img.shields.io/badge/Version-1.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.5.0](https://img.shields.io/badge/AppVersion-2.5.0-informational?style=flat-square)
 
 Some basic familiarity with Helm is assumed. If you are new to Helm, please refer to the [Helm documentation](https://helm.sh/docs/).
 We recommend reading through the `values.yaml` file to understand the configuration options available for the chart. Each entry is documented with `# --` comments describing its purpose and usage. Other annotations are used to automatically generate the README files and can be ignored:
@@ -51,13 +51,13 @@ To install the chart:
 
 1. Download the default values file:
    ```console
-   helm show values oci://public.cr.seqera.io/charts/agent-backend --version 1.7.0 > values.yaml
+   helm show values oci://public.cr.seqera.io/charts/agent-backend --version 1.8.0 > values.yaml
    ```
 2. Edit `values.yaml` to match your environment. We recommend removing entries whose defaults you don't need to override — this keeps your configuration file focused and easier to maintain across upgrades.
 3. Install the chart with the release name `my-release`:
    ```console
    helm install my-release oci://public.cr.seqera.io/charts/agent-backend \
-     --version 1.7.0 \
+     --version 1.8.0 \
      --namespace my-namespace \
      --create-namespace \
      -f values.yaml
@@ -73,7 +73,7 @@ Charts are also published to a traditional Helm repository. This can be useful i
 helm repo add seqeralabs https://seqeralabs.github.io/helm-charts
 helm repo update
 helm install my-release seqeralabs/agent-backend \
-  --version 1.7.0 \
+  --version 1.8.0 \
   --namespace my-namespace \
   --create-namespace \
   -f values.yaml
@@ -102,6 +102,8 @@ When upgrading between versions, please refer to the [CHANGELOG.md](CHANGELOG.md
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| global.podLabels | object | `{}` | Labels merged into the pod template of every component in this chart (e.g. team, cost-center, or policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key collision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector, so they can be changed without breaking upgrades. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a template |
+| global.podAnnotations | object | `{}` | Annotations merged into the pod template of every component in this chart (e.g. observability or compliance annotations). A component's local `podAnnotations` and the chart's `commonAnnotations` win on key collision. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a template |
 | global.platformExternalDomain | string | `"example.com"` | Domain where Seqera Platform listens |
 | global.platformServiceAddress | string | `""` | Seqera Platform Service name: can be the internal Kubernetes hostname or an external ingress hostname. Evaluated as a template. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |
 | global.platformServicePort | int | `nil` | Seqera Platform Service port. Required when deploying this subchart standalone. When deploying as part of the parent `platform` umbrella chart, this value is inherited from the parent chart's `global` section |

@@ -5,6 +5,16 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-11-23
+
+### Added
+
+- Added support for `global.podLabels` and `global.podAnnotations`: when set (typically inherited
+  from the parent `platform` chart's `global` section), they are merged into this chart's pod
+  template. The chart's local `podLabels`/`commonLabels` and `podAnnotations`/`commonAnnotations`
+  win on key collision. `global.podLabels` is applied to the pod template only, never to the
+  immutable Deployment selector, so it can be changed without breaking `helm upgrade`.
+
 ## [1.2.0] - 2026-10-30
 
 ### Changed

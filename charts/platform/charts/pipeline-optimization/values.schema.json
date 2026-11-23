@@ -382,10 +382,24 @@
           "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
           "title": "imageRegistry",
           "type": "string"
+        },
+        "podAnnotations": {
+          "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+          "required": [],
+          "title": "podAnnotations",
+          "type": "object"
+        },
+        "podLabels": {
+          "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+          "required": [],
+          "title": "podLabels",
+          "type": "object"
         }
       },
       "required": [
         "imageRegistry",
+        "podLabels",
+        "podAnnotations",
         "imageCredentials",
         "imageCredentialsSecrets"
       ],

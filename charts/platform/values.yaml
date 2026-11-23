@@ -122,6 +122,20 @@ global:
     # @section -- Global: Ingress
     tls: []
 
+  # -- Labels merged into the pod template of every component in the parent chart and all subcharts
+  # (e.g. team, cost-center, or policy labels). A component's local `podLabels` and the chart's
+  # `commonLabels` win on key collision. Applied to pod templates only, not to the immutable
+  # Deployment/StatefulSet selector, so they can be changed without breaking upgrades. Evaluated as
+  # a template
+  # @section -- Global
+  podLabels: {}
+
+  # -- Annotations merged into the pod template of every component in the parent chart and all
+  # subcharts (e.g. observability or compliance annotations). A component's local `podAnnotations`
+  # and the chart's `commonAnnotations` win on key collision. Evaluated as a template
+  # @section -- Global
+  podAnnotations: {}
+
   # -- Optional credentials to log in and fetch images from a private registry. These credentials
   # are shared with all the subcharts automatically
   # @section -- Global: Image Credentials

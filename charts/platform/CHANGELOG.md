@@ -5,6 +5,28 @@ All notable changes to this chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-23
+
+### Added
+
+- Added `global.podLabels` and `global.podAnnotations`, which are merged into the pod template of
+  every component in the parent chart and all subcharts (backend, cron, frontend, mcp, wave,
+  portal-web, agent-backend, pipeline-optimization, studios server/proxy). A component's local
+  `podLabels`/`podAnnotations` and the chart's `commonLabels`/`commonAnnotations` win on key
+  collision. `global.podLabels` is applied to pod templates only, never to the immutable
+  Deployment/StatefulSet selector, so it can be changed without breaking `helm upgrade`. Both values
+  are evaluated as templates.
+- Bumped subcharts to propagate the new globals: `mcp` to `1.3.0`, `wave` to `0.7.0`,
+  `agent-backend` to `1.8.0`, `pipeline-optimization` to `2.3.0`, `studios` to `1.8.0`.
+
+### Changed
+
+- The Studios server `StatefulSet` now evaluates `server.podAnnotations` as templates (via
+  `common.tplvalues.render`), consistent with every other component and with the documented
+  behavior. Previously they were rendered verbatim, so `{{ ... }}` expressions were emitted as
+  literal strings. Escape any literal `{{`/`}}` in `studios.server.podAnnotations` if you relied on
+  the old raw behavior.
+
 ## [1.0.12] - 2026-11-19
 
 ### Changed

@@ -105,6 +105,73 @@ tests:
   asserts:
   - matchSnapshot: {}
 
+- it: should merge global.podLabels and global.podAnnotations into the pod template but keep them out of the selector
+  template: deployment-backend.yaml
+  set:
+    commonLabels:
+      commonLabelKey: from-common
+      overriddenKey: from-common
+    commonAnnotations:
+      commonAnnotationKey: from-common
+    global:
+      podLabels:
+        globalLabelKey: from-global
+        overriddenKey: from-global
+      podAnnotations:
+        globalAnnotationKey: from-global
+    backend:
+      podLabels:
+        overriddenKey: from-backend
+      podAnnotations:
+        backendAnnotationKey: from-backend
+  chart:
+    version: 9.9.9+test
+    appVersion: 9.9.9
+  asserts:
+  # global.podLabels lands in the pod template labels, with backend.podLabels > commonLabels >
+  # global.podLabels precedence on the shared key.
+  - equal:
+      path: spec.template.metadata.labels
+      value:
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: platform-9.9.9_test
+        commonLabelKey: from-common
+        globalLabelKey: from-global
+        overriddenKey: from-backend
+  # The selector only ever carries the standard match labels (common.labels.matchLabels picks just
+  # name/instance), so global.podLabels can never reach the immutable selector.
+  - equal:
+      path: spec.selector.matchLabels
+      value:
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+  # global.podAnnotations is merged alongside backend.podAnnotations and commonAnnotations.
+  - equal:
+      path: spec.template.metadata.annotations.globalAnnotationKey
+      value: from-global
+  - equal:
+      path: spec.template.metadata.annotations.commonAnnotationKey
+      value: from-common
+  - equal:
+      path: spec.template.metadata.annotations.backendAnnotationKey
+      value: from-backend
+
+- it: should render global.podAnnotations even when no other pod annotations are set
+  template: deployment-backend.yaml
+  set:
+    global:
+      podAnnotations:
+        globalAnnotationKey: from-global
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations.globalAnnotationKey
+      value: from-global
+
 - it: shouldn't obey custom selector requests
   template: deployment-backend.yaml
   set:
