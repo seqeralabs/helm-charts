@@ -118,6 +118,68 @@ tests:
             deprecated: registry.example.com/xpra:deprecated
   asserts:
   - matchSnapshot: {}
+- it: should merge global.podLabels and global.podAnnotations into the pod template but keep them out of the selector
+  template: deployment-cron.yaml
+  chart:
+    version: 9.9.9+test
+    appVersion: 9.9.9
+  set:
+    commonLabels:
+      commonLabelKey: from-common
+      overriddenKey: from-common
+    commonAnnotations:
+      commonAnnotationKey: from-common
+    global:
+      podLabels:
+        globalLabelKey: from-global
+        overriddenKey: from-global
+      podAnnotations:
+        globalAnnotationKey: from-global
+    cron:
+      podLabels:
+        overriddenKey: from-cron
+      podAnnotations:
+        cronAnnotationKey: from-cron
+  asserts:
+  - equal:
+      path: spec.template.metadata.labels
+      value:
+        app.kubernetes.io/component: cron
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: platform
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: platform-9.9.9_test
+        commonLabelKey: from-common
+        globalLabelKey: from-global
+        overriddenKey: from-cron
+  - equal:
+      path: spec.selector.matchLabels
+      value:
+        app.kubernetes.io/component: cron
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: platform
+  - equal:
+      path: spec.template.metadata.annotations.globalAnnotationKey
+      value: from-global
+  - equal:
+      path: spec.template.metadata.annotations.commonAnnotationKey
+      value: from-common
+  - equal:
+      path: spec.template.metadata.annotations.cronAnnotationKey
+      value: from-cron
+
+- it: should render global.podAnnotations even when no other pod annotations are set
+  template: deployment-cron.yaml
+  set:
+    global:
+      podAnnotations:
+        globalAnnotationKey: from-global
+  asserts:
+  - equal:
+      path: spec.template.metadata.annotations.globalAnnotationKey
+      value: from-global
+
 - it: shouldn't obey custom selector requests
   template: deployment-cron.yaml
   set:

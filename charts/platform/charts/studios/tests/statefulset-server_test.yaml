@@ -94,6 +94,56 @@ tests:
         helm.sh/chart: studios-8.7.6_test
         key123: this-overrides-the-commonLabels
         key456: this-should-not-be-overridden
+- it: should merge global.podLabels and global.podAnnotations into the pod template but keep them out of the selector
+  template: statefulset-server.yaml
+  chart:
+    version: 8.7.6+test
+    appVersion: 9.9.9
+  set:
+    proxy:
+      oidcClientRegistrationToken: asdf
+      oidcClientRegistrationTokenSecretName: ""
+    redis:
+      password: fdsa
+    commonLabels:
+      commonLabelKey: from-common
+      overriddenKey: from-common
+    global:
+      podLabels:
+        globalLabelKey: from-global
+        overriddenKey: from-global
+      podAnnotations:
+        globalAnnotationKey: from-global
+    server:
+      podLabels:
+        overriddenKey: from-server
+      podAnnotations:
+        serverAnnotationKey: from-server
+  asserts:
+  - equal:
+      path: spec.template.metadata.labels
+      value:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: studios
+        app.kubernetes.io/version: 9.9.9
+        helm.sh/chart: studios-8.7.6_test
+        commonLabelKey: from-common
+        globalLabelKey: from-global
+        overriddenKey: from-server
+  - equal:
+      path: spec.selector.matchLabels
+      value:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: RELEASE-NAME
+        app.kubernetes.io/name: studios
+  - equal:
+      path: spec.template.metadata.annotations.globalAnnotationKey
+      value: from-global
+  - equal:
+      path: spec.template.metadata.annotations.serverAnnotationKey
+      value: from-server
 - it: should run using config requested by the user
   template: statefulset-server.yaml
   chart:
@@ -419,7 +469,7 @@ tests:
   - equal:
       path: metadata.labels["app.kubernetes.io/component"]
       value: server
-- it: should render podAnnotations as-is without template evaluation
+- it: should evaluate templated podAnnotations, consistent with the other components
   template: statefulset-server.yaml
   release:
     name: my-release
@@ -434,7 +484,7 @@ tests:
       value: my-value
   - equal:
       path: spec.template.metadata.annotations["example-template"]
-      value: '{{ .Release.Name }}-annotation'
+      value: my-release-annotation
 - it: should render all envFrom sources in correct order without redis auth
   template: statefulset-server.yaml
   set:

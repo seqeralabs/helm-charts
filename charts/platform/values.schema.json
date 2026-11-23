@@ -615,6 +615,18 @@
                 "string",
                 "null"
               ]
+            },
+            "podAnnotations": {
+              "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
             }
           },
           "required": [],
@@ -3616,6 +3628,18 @@
             "null"
           ]
         },
+        "podAnnotations": {
+          "description": "Annotations merged into the pod template of every component in the parent chart and all\nsubcharts (e.g. observability or compliance annotations). A component's local `podAnnotations`\nand the chart's `commonAnnotations` win on key collision. Evaluated as a template",
+          "required": [],
+          "title": "podAnnotations",
+          "type": "object"
+        },
+        "podLabels": {
+          "description": "Labels merged into the pod template of every component in the parent chart and all subcharts\n(e.g. team, cost-center, or policy labels). A component's local `podLabels` and the chart's\n`commonLabels` win on key collision. Applied to pod templates only, not to the immutable\nDeployment/StatefulSet selector, so they can be changed without breaking upgrades. Evaluated as\na template",
+          "required": [],
+          "title": "podLabels",
+          "type": "object"
+        },
         "studiosConnectionUrl": {
           "default": "{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}",
           "description": "Base URL for Studios connections: can be any value, since each session will use a unique\nsubdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template",
@@ -3646,6 +3670,8 @@
         "mcpDomain",
         "agentBackendDomain",
         "ingress",
+        "podLabels",
+        "podAnnotations",
         "imageCredentials",
         "imageCredentialsSecrets"
       ],
@@ -4565,6 +4591,18 @@
                 "string",
                 "null"
               ]
+            },
+            "podAnnotations": {
+              "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
             }
           },
           "required": [],
@@ -5648,6 +5686,18 @@
               "description": "Container image registry applied to Platform and all subcharts. When set, this overrides\ncomponent-level `image.registry` values",
               "title": "imageRegistry",
               "type": "string"
+            },
+            "podAnnotations": {
+              "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
             }
           },
           "required": [],
@@ -7110,6 +7160,18 @@
                 "null"
               ]
             },
+            "podAnnotations": {
+              "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
+            },
             "studiosConnectionUrl": {
               "default": "{{ printf \"https://connect.%s\" (tpl .Values.global.studiosDomain $) }}",
               "description": "Base URL for Studios connections: can be any value, since each session will use a unique\nsubdomain under `.global.studiosDomain` anyway to connect. Evaluated as a template",
@@ -8447,6 +8509,18 @@
               "description": "Domain where Seqera Platform listens",
               "title": "platformExternalDomain",
               "type": "string"
+            },
+            "podAnnotations": {
+              "description": "Annotations merged into the pod template of every component in this chart (e.g. observability\nor compliance annotations). A component's local `podAnnotations` and the chart's\n`commonAnnotations` win on key collision. When deploying as part of the parent `platform`\numbrella chart, this value is inherited from the parent chart's `global` section. Evaluated as a\ntemplate",
+              "required": [],
+              "title": "podAnnotations",
+              "type": "object"
+            },
+            "podLabels": {
+              "description": "Labels merged into the pod template of every component in this chart (e.g. team, cost-center,\nor policy labels). A component's local `podLabels` and the chart's `commonLabels` win on key\ncollision. Applied to pod templates only, not to the immutable Deployment/StatefulSet selector,\nso they can be changed without breaking upgrades. When deploying as part of the parent\n`platform` umbrella chart, this value is inherited from the parent chart's `global` section.\nEvaluated as a template",
+              "required": [],
+              "title": "podLabels",
+              "type": "object"
             },
             "waveDomain": {
               "default": "{{ printf \"wave.%s\" .Values.global.platformExternalDomain }}",

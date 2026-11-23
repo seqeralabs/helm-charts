@@ -666,6 +666,64 @@ tests:
           path: spec.template.metadata.labels.another-label
           value: another-value
 
+  - it: should merge global.podLabels and global.podAnnotations into the pod template but keep them out of the selector
+    template: deployment.yaml
+    set:
+      commonLabels:
+        commonLabelKey: from-common
+        overriddenKey: from-common
+      commonAnnotations:
+        commonAnnotationKey: from-common
+      global:
+        podLabels:
+          globalLabelKey: from-global
+          overriddenKey: from-global
+        podAnnotations:
+          globalAnnotationKey: from-global
+      podLabels:
+        overriddenKey: from-component
+      podAnnotations:
+        componentAnnotationKey: from-component
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: pipeline-optimization
+            app.kubernetes.io/version: v9.9.9
+            helm.sh/chart: pipeline-optimization-1.2.3
+            commonLabelKey: from-common
+            globalLabelKey: from-global
+            overriddenKey: from-component
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/component: pipeline-optimization
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/name: pipeline-optimization
+      - equal:
+          path: spec.template.metadata.annotations.globalAnnotationKey
+          value: from-global
+      - equal:
+          path: spec.template.metadata.annotations.commonAnnotationKey
+          value: from-common
+      - equal:
+          path: spec.template.metadata.annotations.componentAnnotationKey
+          value: from-component
+
+  - it: should render global.podAnnotations even when no other pod annotations are set
+    template: deployment.yaml
+    set:
+      global:
+        podAnnotations:
+          globalAnnotationKey: from-global
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations.globalAnnotationKey
+          value: from-global
+
   - it: should use the default ServiceAccount when serviceAccount.create is false and no name is set
     template: deployment.yaml
     set:

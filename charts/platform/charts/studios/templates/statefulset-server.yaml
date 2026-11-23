@@ -42,11 +42,14 @@ spec:
   serviceName: {{ printf "%s-server" (include "common.names.fullname" .) }}
   template:
     metadata:
-      labels: {{- include "common.labels.standard" (dict "customLabels" $serverLabels "context" $) | nindent 8 }}
+{{- /* global.podLabels is merged only into the pod template labels, never the immutable selector above. */}}
+{{- $serverTemplateLabels := include "common.tplvalues.merge" (dict "values" (list .Values.server.podLabels .Values.commonLabels .Values.global.podLabels) "context" .) }}
+      labels: {{- include "common.labels.standard" (dict "customLabels" $serverTemplateLabels "context" $) | nindent 8 }}
         app.kubernetes.io/component: server
       annotations:
-{{- with .Values.server.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
+{{- if or .Values.server.podAnnotations .Values.global.podAnnotations }}
+  {{- $podAnnotations := include "common.tplvalues.merge" (dict "values" (list .Values.server.podAnnotations .Values.global.podAnnotations) "context" $) }}
+        {{- include "common.tplvalues.render" (dict "value" $podAnnotations "context" $) | nindent 8 }}
 {{- end }}
         # Automatically roll deployment on changes to the k8s CM and Secret objects:
         # https://helm.sh/docs/howto/charts_tips_and_tricks/#automatically-roll-deployments
